@@ -1,0 +1,254 @@
+import 'package:flowstorage_fsc/data_classes/MysqlAccType.dart';
+import 'package:flowstorage_fsc/encryption/EncryptionClass.dart';
+import 'package:flowstorage_fsc/global/Globals.dart';
+import 'package:flowstorage_fsc/navigator/NavigatePage.dart';
+import 'package:flowstorage_fsc/connection/ClusterFsc.dart';
+import 'package:flowstorage_fsc/data_classes/DateGetter.dart';
+import 'package:flowstorage_fsc/data_classes/EmailGetter.dart';
+import 'package:flowstorage_fsc/data_classes/FolderRetrieve.dart';
+import 'package:flowstorage_fsc/data_classes/LoginGetter.dart';
+import 'package:flowstorage_fsc/data_classes/NameGetter.dart';
+import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreen();
+}
+
+class _SplashScreen extends State<SplashScreen> {
+
+  final emailGetterStartup = EmailGetter();
+  final nameGetterStartup = NameGetter();
+  final loginGetterStartup = LoginGetter();
+  final dateGetterStartup = DateGetter();
+
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() async {
+
+    if ((await _retrieveLocallyStoredInformation())[0] != '') {
+      _timer = Timer(const Duration(milliseconds: 0), () {
+        _navigateToNextScreen();
+      });
+    } else {
+      _timer = Timer(const Duration(milliseconds: 2480), () {
+        _navigateToNextScreen();
+      });
+    }
+    
+  }
+
+  Future<void> _navigateToNextScreen() async {
+
+    try {
+
+      final getLocalUsername = (await _retrieveLocallyStoredInformation())[0];
+      final getLocalEmail = (await _retrieveLocallyStoredInformation())[1];
+
+      if(getLocalUsername == '') {
+ 
+        NavigatePage.replacePageHome(context);
+
+      } else {
+
+        const storage = FlutterSecureStorage();
+        bool isPassCodeExists = await storage.containsKey(key: "key0015");
+
+        Globals.custUsername = getLocalUsername;
+        Globals.custEmail = getLocalEmail;
+        Globals.fileOrigin = "homeFiles";
+
+        if(isPassCodeExists) {
+
+          NavigatePage.goToPagePasscode(context);
+
+        } else {
+
+          await _callData(getLocalUsername,getLocalEmail,context);
+          NavigatePage.permanentPageMainboard(context);
+          
+        }
+      }
+    } catch (err) {
+      print("Exception from _navigateToNextScreen {SplashScreen}: $err");
+      NavigatePage.replacePageHome(context);
+    }
+  }
+
+  Future<List<String>> _retrieveLocallyStoredInformation() async {
+    
+    String username = '';
+    String email = '';
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final setupPath = '${getDirApplication.path}/FlowStorageInfos';
+    final setupInfosDir = Directory(setupPath);
+
+    if (setupInfosDir.existsSync()) {
+      final setupFiles = File('${setupInfosDir.path}/CUST_DATAS.txt');
+
+      if (setupFiles.existsSync()) {
+        final lines = setupFiles.readAsLinesSync();
+
+        if (lines.length >= 2) {
+          username = lines[0];
+          email = lines[1];
+        }
+      }
+    }
+
+    List<String> accountInfo = [];
+    accountInfo.add(EncryptionClass().Decrypt(username));
+    accountInfo.add(EncryptionClass().Decrypt(email));
+
+    return accountInfo;
+  }
+
+
+  Future<int> _countRowTable(String tableName,String username) async {
+
+    final conn = await SqlConnection.insertValueParams();
+
+    final query = "SELECT CUST_USERNAME FROM $tableName WHERE CUST_USERNAME = :username";
+    final params = {'username': username};
+    final executeCount = await conn.execute(query,params);
+
+    List<String> storeUser = [];
+    for(var countQue in executeCount.rows) {
+      var getRows = countQue.assoc()['CUST_USERNAME'];
+      storeUser.add(getRows!);
+    }
+
+    return storeUser.length;
+
+  }
+
+  Future<void> _callData(String savedCustUsername,String savedCustEmail,BuildContext context) async {
+
+    try {
+
+      final accTypeGetter = await MySqlAccType().retrieveParams(savedCustEmail);
+
+      Globals.custUsername = savedCustUsername;
+      Globals.custEmail = savedCustEmail;
+      Globals.accountType = accTypeGetter;
+
+      final dirListCount = await _countRowTable("file_info_directory", savedCustUsername);
+      final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
+
+      final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
+
+      final futures = tablesToCheck.map((table) async {
+        final fileNames = await nameGetterStartup.retrieveParams(savedCustUsername, table);
+        final bytes = await loginGetterStartup.getLeadingParams(savedCustUsername, table);
+        final dates = table == "file_info_directory"
+            ? List.generate(1, (_) => "Directory")
+            : await dateGetterStartup.getDateParams(savedCustUsername, table);
+        return [fileNames, bytes, dates];
+      }).toList();
+
+      final results = await Future.wait(futures);
+
+      final fileNames = <String>{};
+      final bytes = <Uint8List>[];
+      final dates = <String>[];
+      final retrieveFolders = <String>{};
+
+      if (await _countRowTable("folder_upload_info", savedCustUsername) > 0) {
+        retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
+      }
+
+      for (final result in results) {
+        final fileNamesForTable = result[0] as List<String>;
+        final bytesForTable = result[1] as List<Uint8List>;
+        final datesForTable = result[2] as List<String>;
+
+        fileNames.addAll(fileNamesForTable);
+        bytes.addAll(bytesForTable);
+        dates.addAll(datesForTable);
+      }
+
+      final uniqueFileNames = fileNames.toList();
+      final uniqueBytes = bytes.toList();
+
+      Globals.fromLogin = true;
+
+      Globals.fileValues.addAll(uniqueFileNames);
+      Globals.foldValues.addAll(retrieveFolders);
+      Globals.dateStoresValues.addAll(dates);
+      Globals.imageByteValues.addAll(uniqueBytes);
+      Globals.setDateValues.addAll(dates);
+
+    } catch (err) {
+      NavigatePage.replacePageHome(context);
+      return;
+    }
+
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _buildSplashScreen(context),
+    );
+  }
+
+  Widget _buildSplashScreen(BuildContext context) {
+    return Container(
+     color: ThemeColor.darkPurple,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: SizedBox(
+                height: 95,
+                child: Image.asset(
+                  'assets/nice/SplashMain.png',
+                ),
+              ),
+            ),
+            const SizedBox(height: 265),
+            Text(
+              'Flowstorage',
+              style: GoogleFonts.poppins(
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 65),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
