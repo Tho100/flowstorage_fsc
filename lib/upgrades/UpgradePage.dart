@@ -1,5 +1,8 @@
+import 'package:flowstorage_fsc/global/Globals.dart';
 import 'package:flowstorage_fsc/themes/ThemeColor.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/JustLoading.dart';
+import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:flowstorage_fsc/upgrades/GetEmails.dart';
 import 'package:flowstorage_fsc/upgrades/MaxPage.dart';
 import 'package:flowstorage_fsc/widgets/HeaderText.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,9 @@ class UpradePage extends StatefulWidget {
 
 class _UpgradePage extends State<UpradePage> {
 
+  final singleLoading = SingleTextLoading();
+  String userChoosenPlan = "";
+
   Widget _buildBanner() {
     return const Column(
       children: [
@@ -23,7 +29,6 @@ class _UpgradePage extends State<UpradePage> {
         SizedBox(height: 15),
       ],
     );
-
       
   }
 
@@ -160,11 +165,12 @@ class _UpgradePage extends State<UpradePage> {
                     )
                   ),
                   onPressed: () {
+                    userChoosenPlan = "Max";
                     Navigator.push(
                       context, 
                       MaterialPageRoute(builder: (context) => const MaxPage())).
-                      then((value) => JustLoading().startLoading(context: context)
-                        // TODO: Check for account upgrade validation
+                      then((value) 
+                        async => await validatePayment()
                     );
                   }, 
                   child: const Text(
@@ -223,7 +229,6 @@ class _UpgradePage extends State<UpradePage> {
                   ),
                 ),
               ),
-
 
               const SizedBox(height: 25),
               const Center(
@@ -535,6 +540,22 @@ class _UpgradePage extends State<UpradePage> {
         ],
       ),
     );
+  }
+
+  Future<void> validatePayment() async {
+
+    singleLoading.startLoading(title: "Validating...",context: context);
+
+    final returnedEmail = await GetEmails.getEmails();
+
+    singleLoading.stopLoading();
+
+    if(returnedEmail.contains(Globals.custEmail)) {
+      AlertForm.alertDialogTitle("PASS", "${Globals.custEmail}\n$userChoosenPlan", context);
+    } else {
+      AlertForm.alertDialogTitle("BAD ${returnedEmail[0]}", Globals.custEmail, context);
+    }
+    
   }
 
   @override

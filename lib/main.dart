@@ -144,7 +144,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   Future<void>? _debounceSearch;
 
-  final nameGetterHome = NameGetter();
+  final fileNameGetterHome = NameGetter();
   final loginGetterHome = LoginGetter();
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
@@ -797,7 +797,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
     final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf","file_info_excel", "file_info_vid","file_info_audi","file_info_ptx","file_info_word", ...dirLists];
 
     final futures = tablesToCheck.map((table) async {
-      final fileNames = await nameGetterHome.retrieveParams(Globals.custUsername, table);
+      final fileNames = await fileNameGetterHome.retrieveParams(Globals.custUsername, table);
       final bytes = await loginGetterHome.getLeadingParams(Globals.custUsername, table);
       final dates = table == "file_info_directory"
           ? List.generate(1,(_) => "Directory")
