@@ -1,3 +1,3 @@
-# flowstorage_fsc
+# Flowstorage - Mobile Repo
 
-A new Flutter project.
+## Flowstorage - Cloud storage for Mobile and Desktop
