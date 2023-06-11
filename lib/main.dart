@@ -148,6 +148,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
   final loginGetterHome = LoginGetter();
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
+  final insertData = InsertData();
 
   void _clearSelectAll() {
     appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
@@ -286,7 +287,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     Globals.fileOrigin = "offlineFiles";
     appBarTitle.value = "Offline files";
-    _clearSelectAll(); // Originally itemIsChecked = false
+    _clearSelectAll(); 
 
     final files = offlineDirs.listSync().whereType<File>().toList();
 
@@ -1231,26 +1232,20 @@ class cakeHomeWidgetState extends State<Mainboard> {
   /// </summary>
 
   Future<void> _insertUserFile({
-    
     required String table,
     required String filePath,
     required dynamic fileValue,
     dynamic vidThumbnail,
-    String? directoryName
-
   }) async {
 
     List<Future<void>> isolatedFileFutures = [];
 
-    final insertDataClass = InsertData();
-
-    isolatedFileFutures.add(insertDataClass.insertValueParams(
+    isolatedFileFutures.add(insertData.insertValueParams(
       tableName: table,
       filePath: filePath,
       userName: Globals.custUsername,
       fileVal: fileValue,
       vidThumb: vidThumbnail,
-      directoryName: directoryName
     ));
 
     await Future.wait(isolatedFileFutures);
@@ -1561,7 +1556,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
   
-    await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes,directoryName: appBarTitle.value);
+    await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
 
     setState(() {
       Globals.fileOrigin = Globals.fileOrigin == "dirFiles" ? "dirFiles" : "homeFiles";
@@ -1571,20 +1566,19 @@ class cakeHomeWidgetState extends State<Mainboard> {
       Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
       newFileToDisplay != null ? fileToDisplay = newFileToDisplay : null;
     });
-
   }
 
   Future<void> _convertDocToPdf({
     required String fileName, 
     required String filePath,
-    required Uint8List docByte
+    required String base64Encoded
   }) async {
     
     final getFileName = fileName.replaceFirst(".docx","");
 
     final scannerPdf = ScannerPdf();
 
-    await scannerPdf.convertDocToPdf(docPath: filePath);
+    await scannerPdf.convertDocToPdf(docBase64: base64Encoded);
     await scannerPdf.savePdf(fileName: getFileName,context: context);
 
     final tempDir = await getTemporaryDirectory();
@@ -1759,8 +1753,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
             //newFileToDisplay = await getImageFileFromAssets("nice/doc0.png");
 
 
-            final docBytes = File(filePathVal).readAsBytesSync();
-            await _convertDocToPdf(fileName: selectedFileName,filePath: filePathVal,docByte: docBytes);
+            //final docBytes = File(filePathVal).readAsBytesSync();
+            await _convertDocToPdf(fileName: selectedFileName,filePath: filePathVal,base64Encoded: bodyBytes!);
 
             //await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_word",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
 

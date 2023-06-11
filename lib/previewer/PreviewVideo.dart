@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/RetrieveData.dart';
 import 'package:flowstorage_fsc/global/Globals.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class PreviewVideo extends StatefulWidget {
-  const PreviewVideo({super.key});
+  const PreviewVideo({Key? key}) : super(key: key);
 
   @override
   State<PreviewVideo> createState() => PreviewVideoState();
@@ -19,6 +20,10 @@ class PreviewVideoState extends State<PreviewVideo> {
   final ValueNotifier<bool> _videoIsPlaying = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _videoIsLoading = ValueNotifier<bool>(false);
 
+  late int indexThumbnail; 
+  late Uint8List videoThumbailByte; 
+  Size? videoSize;
+
   final retrieveData = RetrieveData();
 
   Future<void> _initializeVideoPlayer(String videoUrl) async {
@@ -28,18 +33,20 @@ class PreviewVideoState extends State<PreviewVideo> {
     await _videoPlayerController.initialize();
     _videoPlayerController.play();
 
-    setState(() {
-      _videoIsPlaying.value = true;
-      _videoIsLoading.value = false;
-    });
+    setState(() {});
+
+    _videoIsPlaying.value = true;
+    _videoIsLoading.value = false;
+
+    videoSize = _videoPlayerController.value.size;
 
   }
 
   Future<void> _playVideo() async {
 
-    setState(() {
-      _videoIsLoading.value = true;
-    });
+    setState(() {});
+    
+    _videoIsLoading.value = true;
 
     final videoBytes = await retrieveData.retrieveDataParams(
       Globals.custUsername,
@@ -55,6 +62,8 @@ class PreviewVideoState extends State<PreviewVideo> {
   @override
   void initState() {
     super.initState();
+    indexThumbnail = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+    videoThumbailByte = Globals.filteredSearchedBytes[indexThumbnail]!;
     _videoPlayerController = VideoPlayerController.network('');
   }
 
@@ -69,10 +78,6 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     final bool isVideoPlaying = _videoIsPlaying.value;
     final bool isVideoLoading = _videoIsLoading.value;
-    final Size videoSize = _videoPlayerController.value.size;
-
-    final int indexThumbnail = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
-    final videoThumbailByte = Globals.filteredSearchedBytes[indexThumbnail]!;
 
     return Center(
       child: Stack(
@@ -105,12 +110,12 @@ class PreviewVideoState extends State<PreviewVideo> {
           if (isVideoPlaying)
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: SizedBox(
-                    width: videoSize.width,
-                    height: videoSize.height,
+                    width: videoSize!.width,
+                    height: videoSize!.height,
                     child: VideoPlayer(_videoPlayerController),
                   ),
                 ),

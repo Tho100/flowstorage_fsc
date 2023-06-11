@@ -24,8 +24,6 @@ class InsertData {
     required String userName,
     required dynamic fileVal,
     dynamic vidThumb,
-    String? directoryName,
-
   }) async {
 
     final conn = await SqlConnection.insertValueParams();

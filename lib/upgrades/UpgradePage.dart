@@ -551,6 +551,7 @@ class _UpgradePage extends State<UpradePage> {
     singleLoading.stopLoading();
 
     if(returnedEmail.contains(Globals.custEmail)) {
+      // TODO: Update user plan based on their chose
       AlertForm.alertDialogTitle("PASS", "${Globals.custEmail}\n$userChoosenPlan", context);
     } else {
       AlertForm.alertDialogTitle("BAD ${returnedEmail[0]}", Globals.custEmail, context);

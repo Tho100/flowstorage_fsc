@@ -45,11 +45,6 @@ class Crud {
     }
 
     return totalRow;
-
-    /*final conn = await SqlConnection.insertValueParams();
-    final results = await conn.execute(query!,params!);
-
-    return results.numOfRows;*/
   }
 
   Future<dynamic> select({

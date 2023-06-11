@@ -24,6 +24,7 @@ class _CreateText extends State<CreateText> {
 
   final TextEditingController _textEditingController = TextEditingController();
   final TextEditingController _fileNameController = TextEditingController();
+  
   bool _saveVisibility = true;
   bool _textFormEnabled = true;
 

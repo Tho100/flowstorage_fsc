@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -22,18 +23,27 @@ class ScannerPdf {
     }));
 
   }
-
-  Future<void> convertDocToPdf({required String docPath}) async {
-
-    final pdf = pw.Document();
-
-    final file = File(docPath);
-    final fileContent = await file.readAsBytes();
+/*    final fileContent = base64.decode(docBase64);
 
     final pdfContent = pw.Text(fileContent.toString());
     pdf.addPage(pw.Page(build: (pw.Context context) => pdfContent));
+ */
+  Future<void> convertDocToPdf({required String docBase64}) async {
 
-
+    final fileContent = base64.decode(docBase64);
+    final imageProvider = pw.MemoryImage(fileContent);
+    
+    pdf.addPage(pw.Page(
+      build: (pw.Context context) {
+        return pw.Center(
+          child: pw.Container(
+            width: 500,
+            height: 700,
+            child: pw.Image(imageProvider),
+          ),
+        );
+      },
+    ));
   }
 
   Future<void> savePdf({
@@ -45,6 +55,7 @@ class ScannerPdf {
 
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName.pdf');
+
       await file.writeAsBytes(await pdf.save());
 
     } catch (err) {

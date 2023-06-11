@@ -588,7 +588,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                 : await SharingOptions.enableSharing(_custUsername);
       
                 setState(() {
-                  _sharingEnabledButton = _sharingEnabledButton == "Disable" ? "Disable" : "Enable";
+                  _sharingEnabledButton = _sharingEnabledButton == "Disable" ? "Enable" : "Disable";
                 });
               }
             ),
