@@ -1,0 +1,149 @@
+import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
+import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
+import 'package:flowstorage_fsc/user_settings/update_username_page.dart';
+import 'package:flutter/material.dart';
+
+import '../home_page.dart';
+import '../authentication/passcode_page.dart';
+import '../authentication/sign_in_page.dart';
+import '../authentication/sign_up_page.dart';
+import '../global/globals.dart';
+import '../main.dart';
+import '../models/create_text.dart';
+import '../models/statistics_page.dart';
+import '../sharing/sharing_options.dart';
+import '../sharing/sharing_page.dart';
+import '../upgrades/upgrade_page.dart';
+import '../user_settings/settings_page.dart';
+
+class NavigatePage {
+
+  static void replacePageHome(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
+  
+  static void permanentPageHome(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context, 
+      MaterialPageRoute(builder: (context) => const HomePage()), 
+      (route) => false);
+  }
+
+  static void replacePageMainboard(BuildContext context) {
+    Navigator.pushReplacement(
+      context, 
+      MaterialPageRoute(builder: (context) => const Mainboard())
+    );   
+  }
+
+  static void permanentPageMainboard(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const Mainboard()),
+      (route) => false,
+    );
+  }
+
+  static void goToPageLogin(BuildContext context) {
+     Navigator.push(context, 
+      MaterialPageRoute(builder: (context) => const cakeLogin()),
+    );
+  }
+
+  static void goToPageRegister(BuildContext context) {
+    Navigator.push(context, 
+      MaterialPageRoute(builder: (context) => const cakeMySignUp()),
+    );
+  }
+  
+  static void goToPageSharing(BuildContext context) {
+    Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (_) => const SharingPage(),
+      ),
+    );
+  }
+
+  static void goToPageStatistics(BuildContext context) {
+    Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (_) => const StatisticsPage(),
+      )
+    );
+  }
+
+  static void goToPageUpgrade(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UpradePage())
+    );
+  }
+
+  static void goToPageCreateText(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateText())
+    );
+  }
+
+  static void goToPageSettings(BuildContext context) async {
+
+    try {
+
+      String currentDisabledStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => 
+            CakeSettingsPage(
+            accType: Globals.accountType,
+            custEmail: Globals.custEmail,
+            custUsername: Globals.custUsername,
+            uploadLimit: Globals.filesUploadLimit[Globals.accountType]!,
+            sharingEnabledButton: currentDisabledStatus,
+          ),
+        ),
+      );
+
+    } catch (err) {
+      print("Exception on goToPageSettings (NavigatePage): $err");
+      SnakeAlert.errorSnake("No internet connection.", context);
+    }
+  }
+
+  static void goToPageBackupRecovery(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BackupRecovery())
+    );
+  }
+
+  static void goToPageChangeUser(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangeUsername())
+    );
+  }
+
+  static void goToPageChangePass(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePassword())
+    );
+  }
+
+  static void goToPagePasscode(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PasscodePage())
+    );
+  }
+
+}
