@@ -34,8 +34,6 @@ class PasscodePageState extends State<PasscodePage> {
   final loginGetterStartup = LoginGetter();
   final dateGetterStartup = DateGetter();
 
-  bool userCanAccess = false;
-
   Future<int> _countRowTable(String tableName,String username) async {
     
     final crud = Crud();
