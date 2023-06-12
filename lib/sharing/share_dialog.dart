@@ -6,9 +6,11 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
+import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flutter/material.dart';
@@ -196,14 +198,31 @@ class SharingDialog {
                               return;
                             }
 
-                            final loadingDialog = MultipleTextLoading();
+                            final getReceiverDisabled = await SharingOptions.retrieveDisabled(shareToName);
 
-                            loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to\t\t$shareToName\nFile name\t\t$fileName",context: context);
+                            if(getReceiverDisabled == '1') {
+                              AlertForm.alertDialogTitle('Sharing Failed', 'User $shareToName disabled their file sharing.', context);
+                              return;
+                            }
+
+                            final getSharingAuth = await SharingOptions.retrievePassword(shareToName);
+
+                            final loadingDialog = MultipleTextLoading();
 
                             if(Globals.videoType.contains(fileExtension)) {
                               
                               thumbnail = await Future.value(ThumbnailGetter().retrieveParamsSingle(fileName: fileName));
                             }
+
+                            if(getSharingAuth != "DEF") {
+
+                              final fileData = EncryptionClass().Encrypt(base64.encode(await _callData(fileName, tableName)));  
+                              SharingPassword().buildAskPasswordDialog(shareToName,encryptedFileName,shareToComment,fileData,'.$fileExtension',getSharingAuth,context,thumbnail: thumbnail);
+                              return;
+
+                            }
+
+                            loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to\t\t$shareToName\nFile name\t\t$fileName",context: context);
 
                             final fileData = EncryptionClass().Encrypt(base64.encode(await _callData(fileName, tableName)));  
 

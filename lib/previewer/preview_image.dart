@@ -1,4 +1,4 @@
-import 'package:flowstorage_fsc/global/Globals.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flutter/material.dart';
 
 class PreviewImage extends StatefulWidget {

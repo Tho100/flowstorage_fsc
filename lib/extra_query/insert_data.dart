@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
-import 'package:flowstorage_fsc/global/Globals.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql_client/mysql_client.dart';
-
+  
 /// <summary>
 /// 
 /// Class to insert user uploaded file 

@@ -5,7 +5,7 @@ import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/main.dart';
 
 import 'dart:io';
@@ -153,6 +153,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                               SnakeAlert.okSnake(message: "Password for file sharing has been added.",icon: Icons.check,context: context);
 
                             } catch (err) {
+                              print(err);
                               AlertForm.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
                             }
 

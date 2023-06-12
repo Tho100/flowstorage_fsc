@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -185,6 +185,10 @@ class _CreateText extends State<CreateText> {
 
     try {
       
+      if(inputValue.isEmpty) {
+        return;
+      }
+
       final toUtf8Bytes = utf8.encode(inputValue);
       final String bodyBytes = base64.encode(toUtf8Bytes);
 
@@ -206,11 +210,37 @@ class _CreateText extends State<CreateText> {
 
 
     } catch (err) {
-      print("Exception from _saveText {CreateText}: $err");
-      SnakeAlert.okSnake(message: "Cannot create an empty file.",context: context);
+      
+      // User save the file without connect, an exception will arise.
+      // Save file as offline file instead
+      
+      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
+      _saveFileAsOffline(inputValue);
+
+      _fileNameController.clear();
+      Navigator.pop(context);
 
     }
 
+  }
+
+  void _saveFileAsOffline(String inputValue) async {
+
+    final String getFileName = "${_fileNameController.text.trim().replaceAll(".", "")}.txt";
+
+    final toUtf8Bytes = utf8.encode(inputValue);
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
+
+    if(!offlineDirPath.existsSync()) {
+      offlineDirPath.createSync();
+      final setupFiles = File('${offlineDirPath.path}/$getFileName');
+      await setupFiles.writeAsBytes(toUtf8Bytes);
+    } else {
+      final setupFiles = File('${offlineDirPath.path}/$getFileName');
+      await setupFiles.writeAsBytes(toUtf8Bytes);
+    } 
   }
 
   Widget _buildTxt(BuildContext context) {

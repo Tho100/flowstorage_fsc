@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/thumbnail_retriever.dart';
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
 /// <summary>
 /// 

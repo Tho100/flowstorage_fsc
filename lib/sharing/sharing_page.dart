@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
+import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
@@ -16,7 +18,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
 
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 class SharingPage extends StatefulWidget {
@@ -112,7 +114,21 @@ class _SharingPage extends State<SharingPage> {
         return;
       }
 
+      final getReceiverDisabled = await SharingOptions.retrieveDisabled(shareToUsername);
+
+      if(getReceiverDisabled == '1') {
+        AlertForm.alertDialogTitle('Sharing Failed', 'User $shareToUsername disabled their file sharing.', context!);
+        return;
+      }
+
       final fileData = EncryptionClass().Encrypt(bodyBytes);
+
+      final getSharingAuth = await SharingOptions.retrievePassword(shareToUsername);
+
+      if(getSharingAuth != "DEF") {
+        SharingPassword().buildAskPasswordDialog(shareToUsername,encryptedFileName,shareToComment,fileData,fileExtension,getSharingAuth,context!,thumbnail: base64.encode(videoThumbnail));
+        return;
+      }
 
       final mySqlSharing = MySqlSharing();
       final loadingDialog = MultipleTextLoading();

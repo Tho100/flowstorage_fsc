@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/global/globals_style.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 
 class MainTextField extends StatelessWidget {

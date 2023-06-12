@@ -1,7 +1,7 @@
 
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
-import 'package:flowstorage_fsc/global/Globals.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:intl/intl.dart';
 
 /// <summary>

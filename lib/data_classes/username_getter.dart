@@ -1,4 +1,4 @@
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 
 class UsernameGetter {
 

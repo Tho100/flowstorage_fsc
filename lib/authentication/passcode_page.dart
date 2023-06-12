@@ -8,7 +8,7 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/JustLoading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
@@ -34,6 +34,8 @@ class PasscodePageState extends State<PasscodePage> {
   final loginGetterStartup = LoginGetter();
   final dateGetterStartup = DateGetter();
 
+  bool userCanAccess = false;
+
   Future<int> _countRowTable(String tableName,String username) async {
     
     final crud = Crud();
@@ -52,7 +54,7 @@ class PasscodePageState extends State<PasscodePage> {
   Future<void> _callData(String savedCustUsername,String savedCustEmail,BuildContext context) async {
 
     try {
-
+      
       final accTypeGetter = await MySqlAccType().retrieveParams(savedCustEmail);
 
       Globals.accountType = accTypeGetter;
@@ -104,7 +106,7 @@ class PasscodePageState extends State<PasscodePage> {
       Globals.setDateValues.addAll(dates);
 
     } catch (err) {
-      NavigatePage.replacePageHome(context);
+      NavigatePage.permanentPageMainboard(context);
       return;
     }
 
@@ -131,7 +133,7 @@ class PasscodePageState extends State<PasscodePage> {
         await _callData(Globals.custUsername,Globals.custEmail,context);
 
         justLoading.stopLoading();
-
+        
         NavigatePage.permanentPageMainboard(context);
 
       } else {
@@ -139,7 +141,7 @@ class PasscodePageState extends State<PasscodePage> {
       }
 
     } catch (err) {
-      NavigatePage.replacePageMainboard(context);
+      NavigatePage.replacePageHome(context);
       print("Exception from validatePassCode {PasscodePage}: $err");
     } 
 

@@ -6,7 +6,7 @@ class AddPasswordSharing {
   Future<void> insertValuesParams({
     required String? username, 
     required String? newAuth, 
-    }) async {
+  }) async {
 
     const updateSharingAuth = "UPDATE sharing_info SET SET_PASS = :getval WHERE CUST_USERNAME = :username";
     final params = {'getval': AuthModel().computeAuth(newAuth!), 'username': username!};

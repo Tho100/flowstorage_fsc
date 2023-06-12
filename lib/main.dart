@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
@@ -15,6 +14,7 @@ import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
 import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
 import 'package:flowstorage_fsc/directory/count_directory.dart';
@@ -44,7 +45,7 @@ import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/models/preview_file.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 
 import 'package:flowstorage_fsc/folder_query/create_folder.dart';
@@ -205,14 +206,14 @@ class cakeHomeWidgetState extends State<Mainboard> {
   }) async {
 
     final getDirApplication = await getApplicationDocumentsDirectory();
-    final picturesDir = Directory('${getDirApplication.path}/offline_files');
+    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
 
-    if(!picturesDir.existsSync()) {
-      picturesDir.createSync();
-      final setupFiles = File('${picturesDir.path}/$fileName');
+    if(!offlineDirPath.existsSync()) {
+      offlineDirPath.createSync();
+      final setupFiles = File('${offlineDirPath.path}/$fileName');
       await setupFiles.writeAsBytes(fileData);
     } else {
-      final setupFiles = File('${picturesDir.path}/$fileName');
+      final setupFiles = File('${offlineDirPath.path}/$fileName');
       await setupFiles.writeAsBytes(fileData);
     }
      
@@ -319,7 +320,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
         imageBytes = await GetAssets().loadAssetsData("txt0.png");
         actualFileSize = "Unknown";
 
-      }  else {
+      } else {
         continue;
       }
 
@@ -365,7 +366,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     final now = DateTime.now();
     final difference = now.difference(dateTime).inDays;
-    final adjustedDateTime = difference.isNegative ? dateTime.add(Duration(days: 1)) : dateTime;
+    final adjustedDateTime = difference.isNegative ? dateTime.add(const Duration(days: 1)) : dateTime;
     final adjustedDifference = adjustedDateTime.difference(now).inDays.abs();
 
     if (adjustedDifference == 0) {
@@ -3760,7 +3761,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Icon(Icons.arrow_drop_down,color: Colors.white),
+                      const Icon(Icons.arrow_drop_down,color: Colors.white),
                     ],
                   );
                 }

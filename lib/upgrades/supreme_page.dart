@@ -1,25 +1,25 @@
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class Expresspage extends StatefulWidget {
-  const Expresspage({super.key});
+class SupremePage extends StatefulWidget {
+  const SupremePage({super.key});
 
   @override
-  State<Expresspage> createState() => _Expresspage();
+  State<SupremePage> createState() => _SupremePage();
 }
 
-class _Expresspage extends State<Expresspage> {
+class _SupremePage extends State<SupremePage> {
 
   late final WebViewController controller;
+  final paymentUrl = "";
 
   @override
   void initState() {
     super.initState();
     controller = WebViewController()
-      ..loadRequest(
-        Uri.parse('https://flutter.dev'),
-      );
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(paymentUrl));
   }
 
   @override

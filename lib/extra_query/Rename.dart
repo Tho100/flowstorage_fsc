@@ -1,6 +1,6 @@
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/Globals.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 
 class Rename {
 

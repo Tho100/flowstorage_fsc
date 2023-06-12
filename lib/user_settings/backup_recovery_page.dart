@@ -9,7 +9,7 @@ import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/verify_auth.dart';
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 class BackupRecovery extends StatelessWidget {
 

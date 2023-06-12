@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../Encryption/EncryptionClass.dart';
 
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 /// <summary>
 /// 
 /// Class to retrieve user  encrypted shared files names

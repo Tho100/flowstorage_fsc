@@ -1,4 +1,4 @@
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
+import 'package:flowstorage_fsc/Connection/cluster_fsc.dart';
 
 class SharingOptions {
 

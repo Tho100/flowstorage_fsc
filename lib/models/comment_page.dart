@@ -1,10 +1,10 @@
-import 'package:flowstorage_fsc/Connection/ClusterFsc.dart';
-import 'package:flowstorage_fsc/Encryption/EncryptionClass.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flowstorage_fsc/themes/ThemeColor.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CommentPage extends StatefulWidget {
