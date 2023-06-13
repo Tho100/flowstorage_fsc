@@ -24,6 +24,8 @@ class RetrieveData {
     String? fileName = params[1];
     String? tableName = params[2];
     String? originFrom = params[3];
+    String? directoryTitle = params[4];
+    String? folderTitle = params[5];
 
     final fscDbCon = await SqlConnection.insertValueParams();
 
@@ -43,10 +45,10 @@ class RetrieveData {
       queryParams = {"username": username!, "filename": encryptedFileName};
     } else if (originFrom == "folderFiles") {
       query = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "foldtitle": encryption.Encrypt(Globals.folderTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "foldtitle": encryption.Encrypt(folderTitle), "filename": encryptedFileName};
     } else if (originFrom == "dirFiles") {
       query = "SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "dirname": encryption.Encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "dirname": encryption.Encrypt(directoryTitle), "filename": encryptedFileName};
     }
 
     final row = (await fscDbCon.execute(query, queryParams)).rows.firstOrNull;
@@ -61,9 +63,10 @@ class RetrieveData {
     String? tableName,
     String? originFrom,
   ) async {
+
     return await compute(
       retrieveDataModules,
-      [username, fileName, tableName, originFrom],
+      [username, fileName, tableName, originFrom,Globals.directoryTitleValue,Globals.folderTitleValue],
     );
   }
 

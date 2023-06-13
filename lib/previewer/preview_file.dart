@@ -13,7 +13,7 @@ import 'dart:io';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
-import 'package:flowstorage_fsc/helper/SimplifyDownload.dart';
+import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/previewer/preview_excel.dart';
 import 'package:flowstorage_fsc/previewer/preview_image.dart';

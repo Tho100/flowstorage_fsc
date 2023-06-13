@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flowstorage_fsc/api/save_api.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 
 class OfflineMode {
@@ -29,4 +33,22 @@ class OfflineMode {
     String newPath = '${offlineDirs.path}/$newFileName';
     await file.rename(newPath);
   }
+
+
+  Future<void> downloadFile(String fileName) async {
+
+    await init();
+
+    final file = File('${offlineDirs.path}/$fileName');
+    final fileDataValue = file.readAsBytesSync();
+    
+    final fileType = fileName.split('.').last;
+    if(Globals.imageType.contains(fileType)) {
+      await ImageGallerySaver.saveImage(fileDataValue);
+    } else if (Globals.textType.contains(fileType)) {
+      final textData = utf8.decode(fileDataValue);
+      SaveApi().saveFile(fileName: fileName, fileData: textData);
+    }
+  }
+
 }

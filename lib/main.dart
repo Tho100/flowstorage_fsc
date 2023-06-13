@@ -34,7 +34,7 @@ import 'package:flowstorage_fsc/directory/rename_directory.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/helper/gallery_picker.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
-import 'package:flowstorage_fsc/helper/SimplifyDownload.dart';
+import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -904,6 +904,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
     _searchController.text = '';
     _navHomeButtonVisibility(true);
     Globals.fileOrigin = "dirFiles";
+
   }
 
   Future<void> _buildDirectory(String directoryName) async {
@@ -1049,13 +1050,19 @@ class cakeHomeWidgetState extends State<Mainboard> {
       
       loadingDialog.startLoading(title: "Downloading...", subText: "File name  $fileName", context: context);
 
-      Uint8List getBytes = await _callData(fileName,tableName!);
+      if(Globals.fileOrigin != "offlineFiles") {
 
-      await SimplifyDownload(
-        fileName: fileName,
-        currentTable: tableName,
-        fileData: getBytes
-      ).downloadFile();
+        Uint8List getBytes = await _callData(fileName,tableName!);
+
+        await SimplifyDownload(
+          fileName: fileName,
+          currentTable: tableName,
+          fileData: getBytes
+        ).downloadFile();
+
+      } else {
+        await OfflineMode().downloadFile(fileName);
+      } 
 
       loadingDialog.stopLoading();
       SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been downloaded.",icon: Icons.check,context: context);
