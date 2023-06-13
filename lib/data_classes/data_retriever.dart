@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
-import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/thumbnail_retriever.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 /// <summary>
 /// 
@@ -13,7 +15,6 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 /// </summary>
 
 class LoginGetter {
-  
   static const _fileInfoTable = 'file_info';
   static const _fileInfoExpandTable = 'file_info_expand';
   static const _fileInfoVidTable = 'file_info_vid';
@@ -28,95 +29,97 @@ class LoginGetter {
 
   int countDirCurr = 0;
 
-  Future<List<Uint8List>> getLeadingParams(String? username, String? tableName) async {
+  final crud = Crud();
+  final getAssets = GetAssets();
+  final thumbnailGetter = ThumbnailGetter();
 
-    final conn = await SqlConnection.insertValueParams();
+  Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String? username, String tableName) async {
+    if (tableName == _fileInfoTable) {
+      return _getFileInfoParams(conn, username);
+    } else {
+      return _getOtherTableParams(conn, username, tableName);
+    }
+  }
+
+  Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, String? username) async {
+
+    const query = 'SELECT CUST_FILE FROM $_fileInfoTable WHERE CUST_USERNAME = :username';
+    final params = {'username': username};
+    final executeRetrieval = await conn.execute(query, params);
+    final getByteValue = <Uint8List>[];
+
+    for (final row in executeRetrieval.rows) {
+      final encryptedFile = row.assoc()['CUST_FILE']!;
+      final decodedFile = base64.decode(EncryptionClass().Decrypt(encryptedFile));
+
+      final buffer = ByteData.view(decodedFile.buffer);
+      final bufferedFileBytes =
+          Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
+
+      getByteValue.add(bufferedFileBytes);
+    }
+
+    return getByteValue;
+  }
+
+  Future<List<Uint8List>> _getOtherTableParams(MySQLConnectionPool conn, String? username, String tableName) async {
 
     final getByteValue = <Uint8List>{};
 
-    if (tableName == _fileInfoTable) {
+    Future<void> retrieveValue(String iconName) async {
+      final retrieveCountQuery = 'SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username';
+      final params = {'username': Globals.custUsername};
+      final countTotalRows = await crud.count(query: retrieveCountQuery, params: params);
 
-      const retrieveEncryptedMetadata = 'SELECT CUST_FILE FROM $_fileInfoTable WHERE CUST_USERNAME = :username';
-      final params = {'username': username};
+      final loadPdfImg = await Future.wait(List.generate(countTotalRows, (_) => GetAssets().loadAssetsData(iconName)));
+      getByteValue.addAll(loadPdfImg);
+    }
 
-      final executeRetrieval = await conn.execute(retrieveEncryptedMetadata, params);
+    if (tableName == _fileInfoVidTable) {
 
-      for (final row in executeRetrieval.rows) {
-        
-        final encryptedFile = row.assoc()['CUST_FILE']!;
-        final decodedFile = base64.decode(EncryptionClass().Decrypt(encryptedFile));
+      final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
+      getByteValue.addAll(thumbnailBytes);
 
-        final buffer = ByteData.view(decodedFile.buffer);
-        final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
-        
-        getByteValue.add(bufferedFileBytes);
-      }
+    } else if (tableName == _fileInfoPdfTable) {
 
-    } else {
+      await retrieveValue("pdf0.png");
 
-      Future<void> retrieveValue(String iconName) async {
+    } else if (tableName == _fileInfoExpandTable) {
 
-        final retrieveCountQuery = 'SELECT CUST_FILE_PATH FROM $tableName WHERE CUST_USERNAME = :username';
-        final params = {'username': username};
-        final executeRetrieval = await conn.execute(retrieveCountQuery, params);
-        final countTotalFileName = executeRetrieval.numOfRows;
+      await retrieveValue("txt0.png");
 
-        final loadPdfImg = await Future.wait(List.generate(countTotalFileName,(_) => GetAssets().loadAssetsData(iconName)));
-        getByteValue.addAll(loadPdfImg);
-      }
+    } else if (tableName == _fileInfoDirectory) {
 
-      if (tableName == _fileInfoVidTable) {
-        final thumbnailGetter = ThumbnailGetter();
-        final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
-        getByteValue.addAll(thumbnailBytes);
+      final images = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
+      getByteValue.addAll(images);
 
-      } else if (tableName == _fileInfoPdfTable) {
+    } else if (tableName == _fileInfoAudio) {
 
-        await retrieveValue("pdf0.png");
+      await retrieveValue("music0.png");
 
-      } else if (tableName == _fileInfoExpandTable) {
+    } else if (tableName == _fileInfoPtx) {
 
-        await retrieveValue("txt0.png");
+      await retrieveValue("pptx0.png");
 
-      } else if (tableName == _fileInfoDirectory) {
+    } else if (tableName == _fileInfoExe) {
 
-        /*const retrieveCountQuery = 'SELECT DIR_NAME FROM file_info_directory WHERE CUST_USERNAME = :username';
-        final params = {'username': username};
-        final executeRetrieval = await conn.execute(retrieveCountQuery, params);
-        final countTotalFileName = executeRetrieval.numOfRows;
-          */
-        //final loadDirImg = await Future.wait(List.generate(countTotalFileName,(_) => loadAssetImage('assets/nice/dir0.png')));
-        final images = await Future.wait(List.generate(1,(_) => GetAssets().loadAssetsData('dir0.png'))); 
-        getByteValue.addAll(images);
+      await retrieveValue("exe0.png");
 
-      } else if (tableName == _fileInfoAudio) {
+    } else if (tableName == _fileInfoExl) {
 
-        await retrieveValue("music0.png");
+      await retrieveValue("exl0.png");
 
-      } else if (tableName == _fileInfoPtx) {
+    } else if (tableName == _fileInfoDoc) {
 
-        await retrieveValue("pptx0.png");
+      await retrieveValue("doc0.png");
 
-      } else if (tableName == _fileInfoExe) {
+    } else if (tableName == _fileInfoApk) {
 
-        await retrieveValue("exe0.png");
-        
-      } else if (tableName == _fileInfoExl) {
+      await retrieveValue("apk0.png");
 
-        await retrieveValue("exl0.png");
-
-      } else if (tableName == _fileInfoDoc) {
-
-        await retrieveValue("doc0.png");
-
-      } else if (tableName == _fileInfoApk) {
-
-        await retrieveValue("apk0.png");
-
-      }
-      
     }
 
     return getByteValue.toList();
+
   }
 }

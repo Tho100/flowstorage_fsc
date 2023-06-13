@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/api/save_api.dart';
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
@@ -151,6 +152,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
   final insertData = InsertData();
+  final crud = Crud();
 
   void _clearSelectAll() {
     appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
@@ -349,11 +351,16 @@ class cakeHomeWidgetState extends State<Mainboard> {
   }
 
   DateTime _parseDate(String dateString) {
+
+    DateTime now = DateTime.now();
+
+    if(dateString == "Directory") {
+      return now;
+    }
     
     if (dateString.contains('days ago')) {
 
       int daysAgo = int.parse(dateString.split(' ')[0]);
-      DateTime now = DateTime.now();
       
       return now.subtract(Duration(days: daysAgo));
 
@@ -522,8 +529,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     late String? query;
     late Map<String,String> params;
-
-    final crud = Crud();
 
     for(int i=0; i<count; i++) {
 
@@ -779,7 +784,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   Future<int> _countRowTable(String tableName,String username) async {
 
-    final crud = Crud();
     final countQueryRow = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
     final params = {'username': username};
 
@@ -794,14 +798,16 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   Future<void> _refreshHomeFiles() async {
 
+    final conn = await SqlConnection.insertValueParams();
+    
     final dirListCount = await _countRowTable("file_info_directory", Globals.custUsername);
     final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
 
     final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf","file_info_excel", "file_info_vid","file_info_audi","file_info_ptx","file_info_word", ...dirLists];
 
     final futures = tablesToCheck.map((table) async {
-      final fileNames = await fileNameGetterHome.retrieveParams(Globals.custUsername, table);
-      final bytes = await loginGetterHome.getLeadingParams(Globals.custUsername, table);
+      final fileNames = await fileNameGetterHome.retrieveParams(conn,Globals.custUsername, table);
+      final bytes = await loginGetterHome.getLeadingParams(conn,Globals.custUsername, table);
       final dates = table == "file_info_directory"
           ? List.generate(1,(_) => "Directory")
           : await dateGetterHome.getDateParams(Globals.custUsername, table);

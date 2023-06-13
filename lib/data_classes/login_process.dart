@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/JustLoading.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
@@ -32,15 +33,15 @@ class MysqlLogin {
   final nameGetterLogin = NameGetter();
   final loginGetterLogin = LoginGetter();
   final dateGetterLogin = DateGetter();
+  final crud = Crud();
 
-  String _custEmailInit = '';
+  String custEmailInit = '';
 
   Future<int> _countRowTable(String tableName,String username) async {
 
     final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
     final params = {'username': username};
     
-    final crud = Crud();
     final totalRow = await crud.count(
       query: query, 
       params: params
@@ -50,17 +51,15 @@ class MysqlLogin {
 
   }
 
-  Future<void> _callData(bool isChecked) async {
+  Future<void> _callData(MySQLConnectionPool conn,bool isChecked) async {
     
-    final custUsernameList = await usernameGetterLogin.retrieveParams(_custEmailInit);
+    final custUsernameList = await usernameGetterLogin.retrieveParams(custEmailInit);
     final custUsernameGetter = custUsernameList[0]!;
     final custTypeGetter = custUsernameList[1]!;
 
-    final custEmailGetter = await emailGetterLogin.retrieveParams(custUsernameGetter);
-
     Globals.fileOrigin = "homeFiles";
     Globals.custUsername = custUsernameGetter;
-    Globals.custEmail = custEmailGetter;
+    Globals.custEmail = custEmailInit;
     Globals.accountType = custTypeGetter;
 
     final dirListCount = await _countRowTable("file_info_directory", Globals.custUsername);
@@ -70,8 +69,8 @@ class MysqlLogin {
     final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
 
     final futures = tablesToCheck.map((table) async {
-      final fileNames = await nameGetterLogin.retrieveParams(custUsernameGetter, table);
-      final bytes = await loginGetterLogin.getLeadingParams(custUsernameGetter, table);
+      final fileNames = await nameGetterLogin.retrieveParams(conn,custUsernameGetter, table);
+      final bytes = await loginGetterLogin.getLeadingParams(conn,custUsernameGetter, table);
       final dates = table == "file_info_directory"
           ? List.generate(1,(_) => "Directory")
           : await dateGetterLogin.getDateParams(custUsernameGetter, table);
@@ -110,7 +109,7 @@ class MysqlLogin {
     Globals.setDateValues.addAll(dates);
 
     if (isChecked) {
-      await _setupAutoLogin(custUsernameGetter,custEmailGetter);
+      await _setupAutoLogin(custUsernameGetter,custEmailInit);
     }
 
     custUsernameList.clear();
@@ -163,7 +162,7 @@ class MysqlLogin {
 
       if (custUsername.isNotEmpty) {
 
-        _custEmailInit = email!;
+        custEmailInit = email!;
 
         final custPasOriginal = await getCustPassword(custUsername, conn);
         final custPinOriginal = await getCustPin(custUsername, conn);
@@ -173,10 +172,12 @@ class MysqlLogin {
 
         if (case0 && case1) {
 
+          final conn = await SqlConnection.insertValueParams();
+          
           final justLoading = JustLoading();
 
           justLoading.startLoading(context: context);
-          await _callData(isChecked);
+          await _callData(conn,isChecked);
 
           justLoading.stopLoading();
 

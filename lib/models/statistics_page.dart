@@ -31,6 +31,8 @@ class StatsPage extends State<StatisticsPage> {
   String accountCreationDate = "";
 
   double usageProgress = 0.0;
+  
+  final crud = Crud();
 
   @override 
   void initState() {
@@ -114,7 +116,6 @@ class StatsPage extends State<StatisticsPage> {
     final countRowsFiles = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
     final params = {'username': Globals.custUsername};
 
-    final crud = Crud();
     final rowsCount = await crud.count(
       query: countRowsFiles, 
       params: params
@@ -129,7 +130,6 @@ class StatsPage extends State<StatisticsPage> {
     final countRowFolderNDir = "SELECT COUNT($columnName) FROM $tableName WHERE CUST_USERNAME = :username";
     final params = {'username': Globals.custUsername};
 
-    final crud = Crud();
     final rowsCount = await crud.count(
       query: countRowFolderNDir, 
       params: params
@@ -143,7 +143,6 @@ class StatsPage extends State<StatisticsPage> {
     const selectAccCreatedDate = "SELECT CREATED_DATE FROM information WHERE CUST_USERNAME = :username";
     final params = {'username': Globals.custUsername};
 
-    final crud = Crud();
     final createdDateValue = await crud.select(
       query: selectAccCreatedDate, 
       returnedColumn: "CREATED_DATE", 

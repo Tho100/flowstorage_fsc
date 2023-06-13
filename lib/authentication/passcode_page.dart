@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/account_type_getter.dart';
@@ -16,6 +17,7 @@ import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 class PasscodePage extends StatefulWidget {
 
@@ -33,10 +35,10 @@ class PasscodePageState extends State<PasscodePage> {
   final fileNameGetterStartup = NameGetter();
   final loginGetterStartup = LoginGetter();
   final dateGetterStartup = DateGetter();
+  final crud = Crud();
 
   Future<int> _countRowTable(String tableName,String username) async {
     
-    final crud = Crud();
     final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
     final params = {'username': username};
 
@@ -49,7 +51,7 @@ class PasscodePageState extends State<PasscodePage> {
 
   }
 
-  Future<void> _callData(String savedCustUsername,String savedCustEmail,BuildContext context) async {
+  Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail,BuildContext context) async {
 
     try {
       
@@ -63,8 +65,8 @@ class PasscodePageState extends State<PasscodePage> {
       final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
 
       final futures = tablesToCheck.map((table) async {
-        final fileNames = await fileNameGetterStartup.retrieveParams(savedCustUsername, table);
-        final bytes = await loginGetterStartup.getLeadingParams(savedCustUsername, table);
+        final fileNames = await fileNameGetterStartup.retrieveParams(conn,savedCustUsername, table);
+        final bytes = await loginGetterStartup.getLeadingParams(conn,savedCustUsername, table);
         final dates = table == "file_info_directory"
             ? List.generate(1, (_) => "Directory")
             : await dateGetterStartup.getDateParams(savedCustUsername, table);
@@ -124,11 +126,13 @@ class PasscodePageState extends State<PasscodePage> {
 
       if(userInput == storedValue) {
 
+        final conn = await SqlConnection.insertValueParams();
+
         final justLoading = JustLoading();
 
         justLoading.startLoading(context: context);
 
-        await _callData(Globals.custUsername,Globals.custEmail,context);
+        await _callData(conn,Globals.custUsername,Globals.custEmail,context);
 
         justLoading.stopLoading();
         

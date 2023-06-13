@@ -1,5 +1,5 @@
-import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:mysql_client/mysql_client.dart';
 
 /// <summary>
 /// 
@@ -12,9 +12,7 @@ class NameGetter {
 
   static final _encryptionClass = EncryptionClass();
 
-  Future<List<String>> retrieveParams(String custUsername, String tableName) async {
-
-    final conn = await SqlConnection.insertValueParams();
+  Future<List<String>> retrieveParams(MySQLConnectionPool conn,String custUsername, String tableName) async {
 
     final query = tableName != 'file_info_directory'
         ? 'SELECT CUST_FILE_PATH FROM $tableName WHERE CUST_USERNAME = :username'

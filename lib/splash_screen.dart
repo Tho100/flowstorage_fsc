@@ -1,8 +1,9 @@
+import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/account_type_getter.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
-import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/email_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
@@ -16,6 +17,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mysql_client/mysql_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -32,7 +34,8 @@ class _SplashScreen extends State<SplashScreen> {
   final nameGetterStartup = NameGetter();
   final loginGetterStartup = LoginGetter();
   final dateGetterStartup = DateGetter();
-
+  final crud = Crud();
+  
   Timer? _timer;
 
   @override
@@ -81,7 +84,9 @@ class _SplashScreen extends State<SplashScreen> {
 
         } else {
 
-          await _callData(getLocalUsername,getLocalEmail,context);
+          final conn = await SqlConnection.insertValueParams();
+
+          await _callData(conn,getLocalUsername,getLocalEmail,context);
           NavigatePage.permanentPageMainboard(context);
           
         }
@@ -121,26 +126,17 @@ class _SplashScreen extends State<SplashScreen> {
     return accountInfo;
   }
 
+  Future<int> _countRowTable(String tableName) async {
 
-  Future<int> _countRowTable(String tableName,String username) async {
+    final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
+    final params = {'username': Globals.custUsername};
+    final rowCount = await crud.count(query: query, params: params);
 
-    final conn = await SqlConnection.insertValueParams();
-
-    final query = "SELECT CUST_USERNAME FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': username};
-    final executeCount = await conn.execute(query,params);
-
-    List<String> storeUser = [];
-    for(var countQue in executeCount.rows) {
-      var getRows = countQue.assoc()['CUST_USERNAME'];
-      storeUser.add(getRows!);
-    }
-
-    return storeUser.length;
+    return rowCount;
 
   }
 
-  Future<void> _callData(String savedCustUsername,String savedCustEmail,BuildContext context) async {
+  Future<void> _callData(MySQLConnectionPool conn,String savedCustUsername,String savedCustEmail,BuildContext context) async {
 
     try {
 
@@ -150,14 +146,14 @@ class _SplashScreen extends State<SplashScreen> {
       Globals.custEmail = savedCustEmail;
       Globals.accountType = accTypeGetter;
 
-      final dirListCount = await _countRowTable("file_info_directory", savedCustUsername);
+      final dirListCount = await _countRowTable("file_info_directory");
       final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
 
       final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
 
       final futures = tablesToCheck.map((table) async {
-        final fileNames = await nameGetterStartup.retrieveParams(savedCustUsername, table);
-        final bytes = await loginGetterStartup.getLeadingParams(savedCustUsername, table);
+        final fileNames = await nameGetterStartup.retrieveParams(conn,savedCustUsername, table);
+        final bytes = await loginGetterStartup.getLeadingParams(conn,savedCustUsername, table);
         final dates = table == "file_info_directory"
             ? List.generate(1, (_) => "Directory")
             : await dateGetterStartup.getDateParams(savedCustUsername, table);
@@ -171,7 +167,7 @@ class _SplashScreen extends State<SplashScreen> {
       final dates = <String>[];
       final retrieveFolders = <String>{};
 
-      if (await _countRowTable("folder_upload_info", savedCustUsername) > 0) {
+      if (await _countRowTable("folder_upload_info") > 0) {
         retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
       }
 
