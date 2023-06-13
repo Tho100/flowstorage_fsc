@@ -10,6 +10,7 @@ import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
@@ -150,19 +151,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
   final insertData = InsertData();
-
-  Future<void> _renameOfflineFile(String fileName,String newFileName) async {
-
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
-    final file = File('${offlineDirs.path}/$fileName');
-
-    String updatedName = newFileName; // Specify the new file name here
-
-    String newPath = '${offlineDirs.path}/$updatedName';
-    await file.rename(newPath);
-    
-  }
 
   void _clearSelectAll() {
     appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
@@ -1198,7 +1186,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     try {
       
-      Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : _renameOfflineFile(oldFileName,newFileName);
+      Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : await OfflineMode().renameFile(oldFileName,newFileName);
       int indexOldFile = Globals.fileValues.indexOf(oldFileName);
       int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
 
@@ -1226,11 +1214,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
       } else {
         
-        final getDirApplication = await getApplicationDocumentsDirectory();
-        final offlineDirs = Directory('${getDirApplication.path}/offline_files');
-
-        final file = File('${offlineDirs.path}/$fileName');
-        file.deleteSync();
+        await OfflineMode().deleteFile(fileName);
+        SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       }
 
