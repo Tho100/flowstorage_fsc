@@ -15,6 +15,7 @@ import 'package:mysql_client/mysql_client.dart';
 /// </summary>
 
 class LoginGetter {
+
   static const _fileInfoTable = 'file_info';
   static const _fileInfoExpandTable = 'file_info_expand';
   static const _fileInfoVidTable = 'file_info_vid';
@@ -32,6 +33,17 @@ class LoginGetter {
   final crud = Crud();
   final getAssets = GetAssets();
   final thumbnailGetter = ThumbnailGetter();
+
+  final tableNameToAssetsImage = {
+    _fileInfoExpandTable: "txt0.png",
+    _fileInfoPdfTable: "pdf0.png",
+    _fileInfoAudio: "txt0.png",
+    _fileInfoExl: "exl0.png",
+    _fileInfoPtx: "ptx0.png",
+    _fileInfoDoc: "doc0.png",
+    _fileInfoExe: "exe0.png",
+    _fileInfoApk: "apk0.png"
+  };
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String? username, String tableName) async {
     if (tableName == _fileInfoTable) {
@@ -80,42 +92,14 @@ class LoginGetter {
       final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
       getByteValue.addAll(thumbnailBytes);
 
-    } else if (tableName == _fileInfoPdfTable) {
-
-      await retrieveValue("pdf0.png");
-
-    } else if (tableName == _fileInfoExpandTable) {
-
-      await retrieveValue("txt0.png");
-
     } else if (tableName == _fileInfoDirectory) {
 
       final images = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
       getByteValue.addAll(images);
 
-    } else if (tableName == _fileInfoAudio) {
+    } else {
 
-      await retrieveValue("music0.png");
-
-    } else if (tableName == _fileInfoPtx) {
-
-      await retrieveValue("pptx0.png");
-
-    } else if (tableName == _fileInfoExe) {
-
-      await retrieveValue("exe0.png");
-
-    } else if (tableName == _fileInfoExl) {
-
-      await retrieveValue("exl0.png");
-
-    } else if (tableName == _fileInfoDoc) {
-
-      await retrieveValue("doc0.png");
-
-    } else if (tableName == _fileInfoApk) {
-
-      await retrieveValue("apk0.png");
+      await retrieveValue(tableNameToAssetsImage[tableName]!);
 
     }
 
