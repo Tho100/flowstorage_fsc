@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/models/feedback_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
@@ -143,6 +144,13 @@ class NavigatePage {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PasscodePage())
+    );
+  }
+
+  static void goToPageFeedback(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FeedBackPage())
     );
   }
 

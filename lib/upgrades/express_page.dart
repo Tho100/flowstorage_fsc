@@ -29,7 +29,9 @@ class _Expresspage extends State<ExpressPage> {
         elevation: 0,
         centerTitle: true,
         backgroundColor: ThemeColor.darkBlack,
-        title: const Text("Upgrade Account - Flowstorage",),
+        title: const Text(
+          "Upgrade Plan"
+        ),
       ),
      body: WebViewWidget(
       controller: controller,

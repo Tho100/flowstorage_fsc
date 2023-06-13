@@ -30,8 +30,8 @@ class _MaxPageState extends State<MaxPage> {
         elevation: 0,
         centerTitle: true,
         backgroundColor: ThemeColor.darkBlack,
-        title: Text(
-          "Upgrade"
+        title: const Text(
+          "Upgrade Plan"
         ),
       ),
       body: WebViewWidget(

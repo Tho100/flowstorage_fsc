@@ -45,7 +45,7 @@ import 'package:flowstorage_fsc/authentication/sign_up_page.dart';
 import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/models/preview_file.dart';
+import 'package:flowstorage_fsc/previewer/preview_file.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 
@@ -1213,7 +1213,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       } else {
-        
+
         await OfflineMode().deleteFile(fileName);
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
@@ -2219,6 +2219,16 @@ class cakeHomeWidgetState extends State<Mainboard> {
                         await _callOfflineData();
                       }
                     ),
+
+                    _buildSidebarButtons(
+                      title: "Feedback",
+                      icon: Icons.feedback_rounded,
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        NavigatePage.goToPageFeedback(context);
+                      }
+                    ),
+
                   ],
                 ),
               ),
