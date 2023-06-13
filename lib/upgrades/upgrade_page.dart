@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
@@ -475,6 +476,8 @@ class _UpgradePage extends State<UpradePage> {
       Globals.accountType = userChoosenPlan;      
 
       singleLoading.stopLoading();
+
+      CallNotify().customNotification(title: "Account Upgraded", subMesssage: "Thank you for subscribing to our service! You subscribed for $userChoosenPlan plan");
 
       AlertForm.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
 

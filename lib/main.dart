@@ -151,6 +151,19 @@ class cakeHomeWidgetState extends State<Mainboard> {
   final retrieveData = RetrieveData();
   final insertData = InsertData();
 
+  Future<void> _renameOfflineFile(String fileName,String newFileName) async {
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+    final file = File('${offlineDirs.path}/$fileName');
+
+    String updatedName = newFileName; // Specify the new file name here
+
+    String newPath = '${offlineDirs.path}/$updatedName';
+    await file.rename(newPath);
+    
+  }
+
   void _clearSelectAll() {
     appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
     setState(() {
@@ -1154,6 +1167,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       }
 
       String newRenameValue = "$newItemValue.${fileName.split('.').last}";
+
       if (Globals.fileValues.contains(newRenameValue)) {
         AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
       } else {
@@ -1162,6 +1176,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
           _renameController.clear();
         }
       }
+      
     } catch (err) {
       print("Exception from _onRenamePressed {main}: $err");
     }
@@ -1182,8 +1197,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
     String tableName = Globals.fileTypesToTableNames[fileType]!;
 
     try {
-
-      await Rename().renameParams(oldFileName, newFileName, tableName);
+      
+      Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : _renameOfflineFile(oldFileName,newFileName);
       int indexOldFile = Globals.fileValues.indexOf(oldFileName);
       int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
 
