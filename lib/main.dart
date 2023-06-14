@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/directory/save_directory.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
@@ -168,7 +169,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
     String? directoryPath = await FilePicker.platform.getDirectoryPath();
 
     if (directoryPath != null) {
-      _callMultipleFilesDownload(count: count, directoryPath: directoryPath);
+      await _callMultipleFilesDownload(count: count, directoryPath: directoryPath);
     } else {
       return;
     }
@@ -190,12 +191,12 @@ class cakeHomeWidgetState extends State<Mainboard> {
         final tableName = Globals.fileTypesToTableNames[fileType];
 
         Uint8List getBytes = await _callData(checkedItemsName[i],tableName!);
-        SaveApi().saveMultipleFiles(directoryPath: directoryPath, fileName: checkedItemsName[i], fileData: getBytes);
+        await SaveApi().saveMultipleFiles(directoryPath: directoryPath, fileName: checkedItemsName[i], fileData: getBytes);
 
       }
 
       loadingDialog.stopLoading();
-      SnakeAlert.okSnake(message: "$count items has been saved.",icon: Icons.check,context: context);
+      SnakeAlert.okSnake(message: "$count item(s) has been saved.",icon: Icons.check,context: context);
 
     } catch (err) {
       SnakeAlert.errorSnake("Failed to save files.",context);
@@ -272,7 +273,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       singleLoading.stopLoading();
       _clearSelectAll();
 
-      SnakeAlert.okSnake(message: "$count Items now available offline.",icon: Icons.check,context: context);
+      SnakeAlert.okSnake(message: "$count item(s) now available offline.",icon: Icons.check,context: context);
       
     } catch (err) {
       SnakeAlert.errorSnake("An error occurred.",context);
@@ -581,7 +582,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
       await _deleteAllSelectedItems(count: count);
 
-      SnakeAlert.okSnake(message: "$count Items has been deleted.", icon: Icons.check, context: context);
+      SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
 
     } catch (err) {
       print("Exception from _processDeletingAllItems {main}: $err");
@@ -611,7 +612,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       itemIsChecked = checkedList.where((item) => item == true).length > 0 ? true : false;
       value == true ? checkedItemsName.add(Globals.filteredSearchedFiles[index]) : checkedItemsName.removeWhere((item) => item == Globals.filteredSearchedFiles[index]);
     });
-    appBarTitle.value = "${(checkedList.where((item) => item == true).length).toString()} items selected";
+    appBarTitle.value = "${(checkedList.where((item) => item == true).length).toString()} item(s) selected";
   }
 
   /// <summary>
@@ -1041,7 +1042,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       await CallNotify().uploadedNotification(title: "Upload Finished",count: 1);
 
     } catch (err) {
-      AlertForm.alertDialogTitle("Something is wrong..","$err",context);
+      SnakeAlert.errorSnake("Failed to start the camera.",context);
     }
 
   }
@@ -1052,6 +1053,12 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
       final fileType = fileName.split('.').last;
       final tableName = Globals.fileTypesToTableNames[fileType];
+
+      if(fileType == fileName) {
+        await SaveDirectory().selectDirectoryUserDirectory(directoryName: fileName, context: context);
+        return;
+      }
+
       final loadingDialog = MultipleTextLoading();
       
       loadingDialog.startLoading(title: "Downloading...", subText: "File name  $fileName", context: context);
@@ -1440,7 +1447,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                 height: 30,
                 child: Row(
                   children: [
-                    Text("Uploading $countSelectedFiles items..."),
+                    Text("Uploading $countSelectedFiles item(s)..."),
                     const Spacer(),
                     TextButton(
                       onPressed: () {
@@ -1635,7 +1642,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                 height: 30,
                 child: Row(
                   children: [
-                    Text("Uploading $countSelectedFiles items..."),
+                    Text("Uploading $countSelectedFiles item(s)..."),
                     const Spacer(),
                     TextButton(
                       onPressed: () {
@@ -2286,48 +2293,48 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   Future _upgradeDialog(String Messages) {
     return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: ThemeColor.darkGrey,
-            title: const Text('Upgrade Account',
-            style: TextStyle(
-                color: Colors.white
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ThemeColor.darkGrey,
+          title: const Text('Upgrade Account',
+          style: TextStyle(
+              color: Colors.white
+          )),
+          content: Text(Messages,
+            style: const TextStyle(
+              color: Colors.white,
             )),
-            content: Text(Messages,
-              style: const TextStyle(
-                color: Colors.white,
-              )),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK',
-                  style: TextStyle(
-                    color: Colors.white,
-                  )),
-              ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK',
+                style: TextStyle(
+                  color: Colors.white,
+                )),
+            ),
 
-              TextButton(
-                onPressed: () async {
+            TextButton(
+              onPressed: () async {
 
-                  Navigator.pop(context);
-                  NavigatePage.goToPageUpgrade(context);
+                Navigator.pop(context);
+                NavigatePage.goToPageUpgrade(context);
 
-                },
-                child: const Text('Upgrade',
-                  style: TextStyle(
-                    color: ThemeColor.darkPurple,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  )),
-              ),
+              },
+              child: const Text('Upgrade',
+                style: TextStyle(
+                  color: ThemeColor.darkPurple,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                )),
+            ),
 
-            ],
-          );
-        },
-      );
+          ],
+        );
+      },
+    );
   }
 
   Future _buildRenameDialog(String fileName) async {
@@ -2346,7 +2353,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                   Padding(
                     padding: const EdgeInsets.all(18.0),
                     child: Text(
-                       fileName.length > 50 ? "${fileName.substring(0, 50)}..." : fileName,
+                      ShortenText().cutText(fileName),
                       style: const TextStyle(
                         color: ThemeColor.justWhite,
                         fontSize: 15,
@@ -4039,23 +4046,19 @@ class cakeHomeWidgetState extends State<Mainboard> {
         currentIndex: bottomNavigationBarIndex,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_rounded),
-            backgroundColor: ThemeColor.darkPurple,
-            label: "My Folder",
+            icon: Icon(Icons.folder_outlined),
+            label: "Folders",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.share_rounded),
-            backgroundColor: ThemeColor.darkPurple,
-            label: "File Sharing",
+            icon: Icon(Icons.share_outlined),
+            label: "Share",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_rounded),
-            backgroundColor: ThemeColor.darkPurple,
+            icon: Icon(Icons.pie_chart_outline_outlined),
             label: "Statistics",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings_rounded),
-            backgroundColor: ThemeColor.darkPurple,
+            icon: Icon(Icons.settings_outlined),
             label: "Settings"
           ),
         ],
