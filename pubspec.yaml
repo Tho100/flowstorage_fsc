@@ -24,7 +24,7 @@ dependencies:
   syncfusion_flutter_charts: ^21.1.39
   flutter_launcher_icons: ^0.13.1
   camera: ^0.10.4
-  image_picker: ^0.8.7+4
+  image_picker: ^0.8.8
   syncfusion_flutter_pdfviewer: ^21.1.41
   just_audio: ^0.9.32 
   better_player: ^0.0.83
@@ -37,7 +37,7 @@ dependencies:
   cunning_document_scanner: ^1.1.2
   pdf: ^3.10.4  
   flutter_secure_storage: ^8.0.0
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

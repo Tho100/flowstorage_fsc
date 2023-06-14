@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 
 class SaveApi {
@@ -9,17 +10,22 @@ class SaveApi {
   }) async {
 
     late String filePath;
-
-    String fileType = fileName.split('.').last;
+    
     String? result = await FilePicker.platform.getDirectoryPath();
 
     if (result != null) {
 
-      final path = '$result/$fileName';
-      filePath = path;
-      final file = File(path);
-      fileType != 'txt' ? await file.writeAsBytes(fileData) : await file.writeAsString(fileData);
+      final getFilePath = '$result/$fileName';
+      final file = File(getFilePath);
+      filePath = file.path;
 
+      if (fileData is Uint8List) {
+        await file.writeAsBytes(fileData);
+      } else if (fileData is String) {
+        await file.writeAsString(fileData);
+      } else {
+        print('Exception from saveMultipleFiles {save_api}: unsupported file format');
+      }
     }
 
     return filePath;
@@ -30,12 +36,18 @@ class SaveApi {
     required String fileName,
     required dynamic fileData,
   }) async {
+
     final path = '$directoryPath/$fileName';
     final file = File(path);
-    String fileType = fileName.split('.').last;
-    fileType != 'txt'
-        ? await file.writeAsBytes(fileData)
-        : await file.writeAsString(fileData);
+   
+    if (fileData is Uint8List) {
+      await file.writeAsBytes(fileData);
+    } else if (fileData is String) {
+      await file.writeAsString(fileData);
+    } else {
+      print('Exception from saveMultipleFiles {save_api}: unsupported file format');
+    }
+
   }
 
 }

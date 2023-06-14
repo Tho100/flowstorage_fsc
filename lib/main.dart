@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/directory/save_directory.dart';
+import 'package:flowstorage_fsc/folder_query/save_folder.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
@@ -1395,7 +1396,10 @@ class cakeHomeWidgetState extends State<Mainboard> {
           tableName: "file_info_vid",
           fileBase64Encoded: bodyBytes,
           newFileToDisplay: newFileToDisplay,
-          thumbnailBytes: thumbnailBytes);
+          thumbnailBytes: thumbnailBytes
+        );
+
+        await thumbnailFile.delete();
 
       } 
 
@@ -1438,6 +1442,11 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
         final scaffoldMessenger = ScaffoldMessenger.of(context);
         int countSelectedFiles = pickedImages.length;
+
+        if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
+          _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
+          return;
+        }
 
         if(countSelectedFiles > 2) {
 
@@ -1530,7 +1539,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
           }
           
           _addItemToListView(fileName: selectedFileName);
-
+          
         }
 
       if(countSelectedFiles >= 2) {
@@ -1633,6 +1642,11 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
         final scaffoldMessenger = ScaffoldMessenger.of(context);
         int countSelectedFiles = resultPicker.files.length;
+
+        if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
+          _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
+          return;
+        }
 
         if(countSelectedFiles > 2) {
 
@@ -3471,12 +3485,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             ElevatedButton(
               onPressed: () async {
-
-                // TODO: Download folder
-
-                //final String _fileType = _folderName.split('.').last;
-                //await _downloadFile(_fileType,_folderName);
-                
+                await SaveFolder().selectDirectoryUserFolder(folderName: folderName, context: context);
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -3647,7 +3656,13 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             ElevatedButton(
               onPressed: () async {
-                await _initializeCameraScanner();
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                  await _initializeCameraScanner();
+                } else {
+                  _upgradeDialog(
+                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                  );
+                }
               },
               style: GlobalsStyle.btnNavigationBarStyle,
               child: const Row(
@@ -3672,8 +3687,19 @@ class cakeHomeWidgetState extends State<Mainboard> {
                 return Visibility(
                   visible: value,
                   child: ElevatedButton(
-                    onPressed: () {
-                      _buildCreateDirectoryDialog();
+                    onPressed: () async {
+                      final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
+                      if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                        if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                          _buildCreateDirectoryDialog();
+                        } else {
+                          _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                        }
+                      } else {
+                        _upgradeDialog(
+                          "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                        );
+                      }
                     },
                     style: GlobalsStyle.btnNavigationBarStyle,
                     child: const Row(
@@ -3855,7 +3881,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       
             ElevatedButton(
               onPressed: () async {
-                if(Globals.fileValues.length != AccountPlan.mapFilesUpload[Globals.accountType]) {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   Navigator.pop(context);
                   await _openDialogGallery();
                 } else {
@@ -3879,7 +3905,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
               
             ElevatedButton(
               onPressed: () async {
-                if(Globals.fileValues.length != AccountPlan.mapFilesUpload[Globals.accountType]) {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   Navigator.pop(context);
                   await _openDialogFile();
                 } else {
@@ -3906,7 +3932,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
               child: ElevatedButton(
               onPressed: () async {
 
-                if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]) {
+                if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]!) {
                   await _openDialogFolder();
                   Navigator.pop(context);
                 } else {
@@ -3931,7 +3957,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
           ElevatedButton(
             onPressed: () async {
-              if(Globals.fileValues.length != AccountPlan.mapFilesUpload[Globals.accountType]) {
+              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                 Navigator.pop(context);
                 await _initializeCamera();
               } else {
@@ -3956,7 +3982,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
          ElevatedButton(
             onPressed: () async {
-              if(Globals.fileValues.length != AccountPlan.mapFilesUpload[Globals.accountType]) {
+              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                 Navigator.pop(context);
                 await _initializeCameraScanner();
               } else {
@@ -3983,7 +4009,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
           ElevatedButton(
               onPressed: () async {
-                if(Globals.fileValues.length != AccountPlan.mapFilesUpload[Globals.accountType]) {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   Navigator.pop(context);
                   NavigatePage.goToPageCreateText(context);
                 } else {
@@ -4009,10 +4035,17 @@ class cakeHomeWidgetState extends State<Mainboard> {
               visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" ? false : true,
               child: ElevatedButton(
               onPressed: () async {
-                if(await CountDirectory.countTotalDirectory(Globals.custUsername) != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-                  _buildCreateDirectoryDialog();
+                final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                  if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                    _buildCreateDirectoryDialog();
+                  } else {
+                    _upgradeDialog("Upgrade your account to upload more directory.");
+                  }
                 } else {
-                  _upgradeDialog("Upgrade your account to upload more directory.");
+                  _upgradeDialog(
+                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                  );
                 }
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
