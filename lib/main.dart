@@ -290,7 +290,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
     }
 
     Globals.fileOrigin = "offlineFiles";
-    appBarTitle.value = "Offline files";
+    appBarTitle.value = "Offline";
     _clearSelectAll(); 
 
     final files = offlineDirs.listSync().whereType<File>().toList();
@@ -1613,6 +1613,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
     try {
 
         final shortenText = ShortenText();
+
         final resultPicker = await FilePicker.platform.pickFiles(
           type: FileType.any,
           allowMultiple: true,
@@ -1708,16 +1709,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info",fileBase64Encoded: compressedImageBase64Encoded);
 
-          } else if (_fileType == "txt" || _fileType == "csv" || _fileType == "html" || _fileType == "sql" || _fileType == "md") {
-
-            newFileToDisplay = _fileType == "txt" || _fileType == "html" || _fileType == "sql" || _fileType == "md" ? await GetAssets().loadAssetsFile("txt0.png") : await GetAssets().loadAssetsFile("csv0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_expand",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
-          } else if (_fileType == "pdf") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("pdf0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_pdf",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
           } else if (Globals.videoType.contains(_fileType)) {
 
             String setupThumbnailName = selectedFileName.replaceRange(selectedFileName.lastIndexOf("."), selectedFileName.length, ".jpeg");
@@ -1743,40 +1734,9 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_vid",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay,thumbnailBytes: thumbnailBytes);
 
-          } else if (_fileType == "mp3" || _fileType == "wav") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("music0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_audi",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
-          } else if (_fileType == "ptx" || _fileType == "pptx") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("pptx0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_ptx",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-          } else if (_fileType == "exe") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("exe0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_exe",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
-          } else if (_fileType == "xlsx" || _fileType == "xls") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("exl0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_excel",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
-          } else if (_fileType == "docx" || _fileType == "doc") {
-
-            //newFileToDisplay = await getImageFileFromAssets("nice/doc0.png");
-
-
-            //final docBytes = File(filePathVal).readAsBytesSync();
-            await _convertDocToPdf(fileName: selectedFileName,filePath: filePathVal,base64Encoded: bodyBytes!);
-
-            //await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_word",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-
-          } else if (_fileType == "apk") {
-
-            newFileToDisplay = await GetAssets().loadAssetsFile("apk0.png");
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_exe",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
-            
+          } else {
+            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[_fileType]!);
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: Globals.fileTypesToTableNames[_fileType]!,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 
           scaffoldMessenger.hideCurrentSnackBar();
@@ -2225,7 +2185,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                     ),
 
                     _buildSidebarButtons(
-                      title: "Offline files",
+                      title: "Offline",
                       icon: Icons.wifi_off_rounded,
                       onPressed: () async {
                         Navigator.pop(context);
@@ -2235,7 +2195,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
                     _buildSidebarButtons(
                       title: "Feedback",
-                      icon: Icons.feedback_rounded,
+                      icon: Icons.feedback_outlined,
                       onPressed: () async {
                         Navigator.pop(context);
                         NavigatePage.goToPageFeedback(context);
@@ -4349,23 +4309,26 @@ class cakeHomeWidgetState extends State<Mainboard> {
     String setupTitle = appBarTitle.value == '' ? setupGreeting : appBarTitle.value;
 
     return PreferredSize(
-      preferredSize: const Size.fromHeight(58),
-      child: AppBar(
-        titleSpacing: 0,
-        elevation: 0,
-        centerTitle: false,
-        title: Text(setupTitle,
-          style: GlobalsStyle.appBarTextStyle,
+      preferredSize: const Size.fromHeight(65),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: AppBar(
+          titleSpacing: 5,
+          elevation: 0,
+          centerTitle: false,
+          title: Text(setupTitle,
+            style: GlobalsStyle.greetingAppBarTextStyle,
+          ),
+          actions: [_buildSelectAll(),_buildMoreOptionsOnSelect()],
+          leading: IconButton(
+            icon: const Icon(Icons.menu,size: 28),
+            onPressed: () {
+              sidebarMenuScaffoldKey.currentState?.openDrawer();
+            },
+          ),
+          automaticallyImplyLeading: false,
+          backgroundColor: ThemeColor.darkBlack,
         ),
-        actions: [_buildSelectAll(),_buildMoreOptionsOnSelect()],
-        leading: IconButton(
-          icon: const Icon(Icons.menu,size: 24),
-          onPressed: () {
-            sidebarMenuScaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        automaticallyImplyLeading: false,
-        backgroundColor: ThemeColor.darkBlack,
       ),
     );
   }

@@ -70,7 +70,7 @@ class Globals {
   };
 
   static const Set<String> imageType = {"png","jpeg","jpg","webp"};
-  static const Set<String> textType = {"txt","csv","html","sql"};
+  static const Set<String> textType = {"txt","csv","html","sql","md"};
   static const Set<String> videoType = {"mp4","wmv","avi","mov","mkv"};
   static const Set<String> tableNames = {
     "file_info","file_info_expand","file_info_exe","file_info_pdf",
@@ -91,8 +91,27 @@ class Globals {
       'dirFiles': Globals.directoryTitleValue,
       'sharedToMe': 'Shared to me',
       'sharedFiles': 'Shared files',
-      'offlineFiles': 'Offline files'
+      'offlineFiles': 'Offline'
     };
   }
+
+  static const fileTypeToAssets = {
+    "txt": "txt0.png",
+    "csv": "txt0.png",
+    "html": "txt0.png",
+    "sql": "txt0.png",
+    "md": "txt0.png",
+    "pdf": "pdf0.png",
+    "doc": "doc0.png",
+    "docx": "doc0.png",
+    "xlsx": "exl0.png",
+    "xls": "exl0.png",
+    "pptx": "ptx0.png",
+    "ptx": "ptx0.png",
+    "apk": "apk0.png",
+    "mp3": "music0.png",
+    "wav": "music0.png",
+    "exe": "exe0.png",
+  };
 
 }

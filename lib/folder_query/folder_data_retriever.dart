@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -14,7 +16,8 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
 class FolderDataReceiver {
 
-  final _encryptionClass = EncryptionClass();
+  final encryption = EncryptionClass();
+  final getAssets = GetAssets();
   final now = DateTime.now();
 
   Future<Uint8List> loadAssetImage(String assetName) async {
@@ -27,7 +30,7 @@ class FolderDataReceiver {
     final connection = await SqlConnection.insertValueParams();
 
     const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE, CUST_THUMB, CUST_FILE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
-    final params = {'username': username,'foldtitle': EncryptionClass().Encrypt(folderTitle)};
+    final params = {'username': username,'foldtitle': encryption.Encrypt(folderTitle)};
 
     try {
 
@@ -39,23 +42,19 @@ class FolderDataReceiver {
       for (final row in result.rows) {
         
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = _encryptionClass.Decrypt(encryptedFileNames);
+        final fileNames = encryption.Decrypt(encryptedFileNames);
 
         final fileType = fileNames.split('.').last.toLowerCase();
 
         if (fileType == "jpg" || fileType == "png" || fileType == "jpeg") {
           final encryptedByteFile = row.assoc()['CUST_FILE']!;
-          fileBytes = base64.decode(_encryptionClass.Decrypt(encryptedByteFile));
-        } else if (fileType == "txt") {
-          fileBytes = await loadAssetImage('assets/nice/txt0.png');
-        } else if (fileType == "pdf") {
-          fileBytes = await loadAssetImage('assets/nice/pdf0.png');
-        } else if (fileType == "mp4" || fileType == "wmv" || fileType == "avi" || fileType == "mov" || fileType == "mkv") {
+          fileBytes = base64.decode(encryption.Decrypt(encryptedByteFile));
+        }  else if (fileType == "mp4" || fileType == "wmv" || fileType == "avi" || fileType == "mov" || fileType == "mkv") {
           final thumbnailbase64String = row.assoc()['CUST_THUMB']!;
           fileBytes = base64.decode(thumbnailbase64String);
-        } else if (fileType == "exl") {
-          fileBytes = await loadAssetImage('assets/nice/exl0.png');
-        } 
+        } else {
+          fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
+        }
 
         final dateValue = row.assoc()['UPLOAD_DATE']!;
         final dateValueWithDashes = dateValue.replaceAll('/', '-');

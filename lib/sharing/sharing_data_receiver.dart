@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../encryption/encryption_model.dart';
@@ -14,17 +16,11 @@ import '../encryption/encryption_model.dart';
 
 class SharingDataReceiver {
 
-  final _encryptionClass = EncryptionClass();
+  final encryption = EncryptionClass();
+  final getAssets = GetAssets();
   final now = DateTime.now();
 
-  Future<Uint8List> loadAssetImage(String assetName) async {
-    final ByteData data = await rootBundle.load(assetName);
-    return data.buffer.asUint8List();
-  }
-
-  Future<List<Map<String, dynamic>>> retrieveParams(
-    String username, 
-    String originFrom) async {
+  Future<List<Map<String, dynamic>>> retrieveParams(String username, String originFrom) async {
 
     final connection = await SqlConnection.insertValueParams();
 
@@ -39,11 +35,10 @@ class SharingDataReceiver {
 
       for (final row in result.rows) {
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = _encryptionClass.Decrypt(encryptedFileNames);
+        final fileNames = encryption.Decrypt(encryptedFileNames);
         final fileType = fileNames.split('.').last.toLowerCase();
 
         Uint8List fileBytes = Uint8List(0);
-        String assetPath = '';
 
         switch (fileType) {
 
@@ -65,37 +60,6 @@ class SharingDataReceiver {
 
             break;
 
-          case 'txt':
-          case 'sql':
-          case 'html':
-          case 'md':
-
-            assetPath = 'assets/nice/txt0.png';
-            break;
-
-          case 'pdf':
-
-            assetPath = 'assets/nice/pdf0.png';
-            break;
-
-          case 'xlsx':
-          case 'xls':
-
-            assetPath = 'assets/nice/exl0.png';
-            break;
-
-          case 'mp3':
-          case 'wav':
-
-            assetPath = 'assets/nice/music0.png';
-            break;
-
-          case 'docx':
-          case 'doc':
-
-            assetPath = 'assets/nice/doc0.png';
-            break;
-
           case 'mp4':
           case 'wmv':
           case 'avi':
@@ -115,17 +79,8 @@ class SharingDataReceiver {
 
             break;
 
-          case 'csv':
-
-            assetPath = 'assets/nice/csv0.png';
-            break;
-
           default:
-            continue;
-        }
-
-        if (assetPath.isNotEmpty) {
-          fileBytes = await loadAssetImage(assetPath);
+            fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
         }
 
         final dateValue = row.assoc()['UPLOAD_DATE']!;

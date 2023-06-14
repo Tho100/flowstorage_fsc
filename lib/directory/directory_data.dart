@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -13,14 +15,10 @@ import 'package:intl/intl.dart';
 
 class DirectoryDataReceiver {
 
-  final _encryptionClass = EncryptionClass();
-  final _dateNow = DateTime.now();
+  final encryption = EncryptionClass();
+  final getAssets = GetAssets();
+  final dateNow = DateTime.now();
   
-  Future<Uint8List> loadAssetImage(String assetName) async {
-    final ByteData data = await rootBundle.load(assetName);
-    return data.buffer.asUint8List();
-  }
-
   Future<List<Map<String, dynamic>>> retrieveParams(
     String username,
     String dirName
@@ -28,7 +26,7 @@ class DirectoryDataReceiver {
 
     final connection = await SqlConnection.insertValueParams();
 
-    final directoryName = _encryptionClass.Encrypt(dirName);
+    final directoryName = encryption.Encrypt(dirName);
 
     const query ='SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
     final params = {'username': username,'dirname': directoryName};
@@ -41,11 +39,10 @@ class DirectoryDataReceiver {
 
       for (final row in result.rows) {
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = _encryptionClass.Decrypt(encryptedFileNames);
+        final fileNames = encryption.Decrypt(encryptedFileNames);
         final fileType = fileNames.split('.').last.toLowerCase();
 
         Uint8List fileBytes = Uint8List(0);
-        String assetPath = '';
 
         switch (fileType) {
 
@@ -62,40 +59,10 @@ class DirectoryDataReceiver {
 
             for (final row in executeRetrieval.rows) {
               final encryptedFile = row.assoc()['CUST_FILE']!;
-              final decodedFile = base64.decode(_encryptionClass.Decrypt(encryptedFile));
+              final decodedFile = base64.decode(encryption.Decrypt(encryptedFile));
               fileBytes = decodedFile;
             }
 
-            break;
-
-          case 'txt':
-          case 'md':
-          case 'html':
-          case 'sql':
-
-            assetPath = 'assets/nice/txt0.png';
-            break;
-
-          case 'pdf':
-
-            assetPath = 'assets/nice/pdf0.png';
-            break;
-
-          case 'exl':
-
-            assetPath = 'assets/nice/exl0.png';
-            break;
-
-          case 'mp3':
-          case 'wav':
-
-            assetPath = 'assets/nice/music0.png';
-            break;
-
-          case 'docx':
-          case 'doc':
-
-            assetPath = 'assets/nice/doc0.png';
             break;
 
           case 'mp4':
@@ -118,25 +85,17 @@ class DirectoryDataReceiver {
 
             break;
 
-          case 'csv':
-
-            assetPath = 'assets/nice/csv0.png';
-            break;
-
           default:
-            continue;
+            fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
         }
 
-        if (assetPath.isNotEmpty) {
-          fileBytes = await loadAssetImage(assetPath);
-        }
 
         final dateValue = row.assoc()['UPLOAD_DATE']!;
         final dateValueWithDashes = dateValue.replaceAll('/', '-');
         final dateComponents = dateValueWithDashes.split('-');
         
         final date = DateTime(int.parse(dateComponents[2]), int.parse(dateComponents[1]), int.parse(dateComponents[0]));
-        final difference = _dateNow.difference(date).inDays;
+        final difference = dateNow.difference(date).inDays;
 
         final formattedDate = DateFormat('MMM d yyyy').format(date);
         final buffer = ByteData.view(fileBytes.buffer);
@@ -154,7 +113,7 @@ class DirectoryDataReceiver {
       return dataSet;
 
     } catch (failedRetrieval) {
-      print("$failedRetrieval");
+      print("Exception from retrieveParams {directory_data}: $failedRetrieval");
       return <Map<String, dynamic>>[];
     }
   }

@@ -10,6 +10,13 @@ class GlobalsStyle {
     fontSize: 19,          
   );
 
+  static const greetingAppBarTextStyle = TextStyle(
+    overflow: TextOverflow.ellipsis,
+    color: Color.fromARGB(255,232,232,232),
+    fontWeight: FontWeight.w500,
+    fontSize: 22,          
+  );
+
   static const sidebarMenuButtonsStyle = TextStyle(
     color: Color.fromARGB(255, 215, 215, 215),
     fontSize: 17,
