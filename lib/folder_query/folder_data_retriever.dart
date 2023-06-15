@@ -1,18 +1,12 @@
 import 'dart:convert';
-
-import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:mysql_client/mysql_client.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-/// <summary>
-/// 
-/// Class to retrieve user  encrypted shared files names
-/// and decrypt them later for user to see
-/// 
-/// </summary>
 
 class FolderDataReceiver {
 
@@ -20,16 +14,30 @@ class FolderDataReceiver {
   final getAssets = GetAssets();
   final now = DateTime.now();
 
-  Future<Uint8List> loadAssetImage(String assetName) async {
-    final ByteData data = await rootBundle.load(assetName);
-    return data.buffer.asUint8List();
+  Future<String> retrieveFiles({
+    required MySQLConnectionPool conn, 
+    required String folderTitle,
+    required String query,
+    required String fileName,
+    required String returnColumn
+  }) async {
+
+    final params = {"username": Globals.custUsername,"foldname": encryption.Encrypt(folderTitle),"filename": fileName};
+
+    final results = await conn.execute(query,params);
+
+    for(final row in results.rows) {
+      return row.assoc()[returnColumn]!;
+    }
+
+    return '';
   }
 
   Future<List<Map<String, dynamic>>> retrieveParams(String username, String folderTitle) async {
 
     final connection = await SqlConnection.insertValueParams();
 
-    const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE, CUST_THUMB, CUST_FILE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
+    const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
     final params = {'username': username,'foldtitle': encryption.Encrypt(folderTitle)};
 
     try {
@@ -46,14 +54,36 @@ class FolderDataReceiver {
 
         final fileType = fileNames.split('.').last.toLowerCase();
 
-        if (fileType == "jpg" || fileType == "png" || fileType == "jpeg") {
-          final encryptedByteFile = row.assoc()['CUST_FILE']!;
-          fileBytes = base64.decode(encryption.Decrypt(encryptedByteFile));
-        }  else if (fileType == "mp4" || fileType == "wmv" || fileType == "avi" || fileType == "mov" || fileType == "mkv") {
-          final thumbnailbase64String = row.assoc()['CUST_THUMB']!;
-          fileBytes = base64.decode(thumbnailbase64String);
+        if (Globals.imageType.contains(fileType)) {
+          
+          const query = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
+          final encryptedImageBase64 = await retrieveFiles(
+            conn: connection, 
+            folderTitle: folderTitle, 
+            query: query, 
+            fileName: encryptedFileNames,
+            returnColumn: "CUST_FILE"
+          );
+
+          fileBytes = base64.decode(encryption.Decrypt(encryptedImageBase64));
+
+        } else if (Globals.videoType.contains(fileType)) {
+          
+          const query = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
+          final thumbnailBase64 = await retrieveFiles(
+            conn: connection,
+            folderTitle: folderTitle,
+            query: query,
+            fileName: encryptedFileNames,
+            returnColumn: "CUST_THUMB"
+          );
+
+          fileBytes = base64.decode(thumbnailBase64);
+
         } else {
+
           fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
+
         }
 
         final dateValue = row.assoc()['UPLOAD_DATE']!;
@@ -80,6 +110,7 @@ class FolderDataReceiver {
       return dataSet.toList();
 
     } catch (failedRetrieval) {
+      print("Exception from retrieveParams {folder_data_retriever}: $failedRetrieval");
       return <Map<String, dynamic>>[];
     }
   }

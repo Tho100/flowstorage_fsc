@@ -28,15 +28,14 @@ class SaveDirectory {
     try {
 
       final result = await connection.execute(query, params);
-
       final dataSet = <Map<String, dynamic>>[];
+
+      Uint8List fileBytes = Uint8List(0);
 
       for (final row in result.rows) {
 
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
         final fileNames = encryption.Decrypt(encryptedFileNames);
-
-        Uint8List fileBytes = Uint8List(0);
 
         final encryptedFileByte = row.assoc()['CUST_FILE']!;
         fileBytes = base64.decode(encryption.Decrypt(encryptedFileByte));

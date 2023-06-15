@@ -6,18 +6,31 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-
-/// <summary>
-/// 
-/// Class to retireve user directory files
-/// 
-/// </summary>  
+import 'package:mysql_client/mysql_client.dart';
 
 class DirectoryDataReceiver {
 
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
   final dateNow = DateTime.now();
+  
+  Future<String> retrieveFiles({
+    required MySQLConnectionPool conn, 
+    required String directoryTitle,
+    required String query,
+    required String fileName,
+    required String returnColumn,
+  }) async {
+
+    final params = {"username": Globals.custUsername, "dirname": directoryTitle,"filename": fileName};
+    final results = await conn.execute(query,params);
+
+    for(final row in results.rows) {
+      return row.assoc()[returnColumn]!;
+    }
+
+    return '';
+  }
   
   Future<List<Map<String, dynamic>>> retrieveParams(
     String username,
@@ -28,67 +41,54 @@ class DirectoryDataReceiver {
 
     final directoryName = encryption.Encrypt(dirName);
 
-    const query ='SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
+    const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
     final params = {'username': username,'dirname': directoryName};
 
     try {
 
       final result = await connection.execute(query, params);
-
       final dataSet = <Map<String, dynamic>>[];
 
+      Uint8List fileBytes = Uint8List(0);
+
       for (final row in result.rows) {
+
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
         final fileNames = encryption.Decrypt(encryptedFileNames);
         final fileType = fileNames.split('.').last.toLowerCase();
 
-        Uint8List fileBytes = Uint8List(0);
+        if(Globals.imageType.contains(fileType)) {
 
-        switch (fileType) {
+          const query = 'SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname';
+          final encryptedImageBase64 = await retrieveFiles(
+            conn: connection, 
+            directoryTitle: directoryName, 
+            query: query,
+            fileName: encryptedFileNames, 
+            returnColumn: "CUST_FILE"
+          );
 
-          case 'jpg':
-          case 'png':
-          case 'jpeg':
-          case 'webp':
+          fileBytes = base64.decode(encryption.Decrypt(encryptedImageBase64));
+      
+        } else if (Globals.videoType.contains(fileType)) {
 
-            const retrieveEncryptedMetadata =
-            'SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname';
+          const query = 'SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
 
-            final params = {'username': username, 'filename': encryptedFileNames,'dirname': directoryName};
-            final executeRetrieval = await connection.execute(retrieveEncryptedMetadata, params);
+          final thumbnailBase64 = await retrieveFiles(
+            conn: connection, 
+            directoryTitle: directoryName, 
+            query: query, 
+            fileName: encryptedFileNames,
+            returnColumn: "CUST_THUMB"
+          );
 
-            for (final row in executeRetrieval.rows) {
-              final encryptedFile = row.assoc()['CUST_FILE']!;
-              final decodedFile = base64.decode(encryption.Decrypt(encryptedFile));
-              fileBytes = decodedFile;
-            }
+          fileBytes = base64.decode(thumbnailBase64);
 
-            break;
+        } else {
 
-          case 'mp4':
-          case 'wmv':
-          case 'avi':
-          case 'mov':
-          case 'mkv':
-          
-            const retrieveEncryptedMetadata =
-            'SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname';
+          fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
 
-            final params = {'username': username, 'filename': encryptedFileNames,'dirname': directoryName};
-            final executeRetrieval = await connection.execute(retrieveEncryptedMetadata, params);
-
-            for (final row in executeRetrieval.rows) {
-              final getThumbEncoded = row.assoc()['CUST_THUMB']!;
-              final decodedFile = base64.decode(getThumbEncoded);
-              fileBytes = decodedFile;
-            }
-
-            break;
-
-          default:
-            fileBytes = await getAssets.loadAssetsData(Globals.fileTypeToAssets[fileType]!);
         }
-
 
         final dateValue = row.assoc()['UPLOAD_DATE']!;
         final dateValueWithDashes = dateValue.replaceAll('/', '-');
