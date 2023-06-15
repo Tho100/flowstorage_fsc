@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -91,6 +92,8 @@ class SaveFolder {
 
       loadingDialog.stopLoading();
       SnakeAlert.okSnake(message: "${nameList.length} item(s) has been saved.",icon: Icons.check,context: context);
+      
+      await CallNotify().customNotification(title: "Folder Saved", subMesssage: "${nameList.length} File(s) has been downloaded");
 
     } catch (err) {
       SnakeAlert.errorSnake("Failed to save the directory.", context);

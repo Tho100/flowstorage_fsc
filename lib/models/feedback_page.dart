@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class FeedBackPage extends StatelessWidget {
   FeedBackPage({super.key});
@@ -14,8 +15,12 @@ class FeedBackPage extends StatelessWidget {
   final feedBackController = TextEditingController();
 
   Future<void> sendFeedback(String feedbackInput) async {
-    const query = "INSERT INTO feedback_info VALUES (:username,:feedback)";
-    final params = {"username": Globals.custUsername,"feedback": feedbackInput};
+
+    final currentdate = DateFormat('dd/MM/yyyy');
+
+    const query = "INSERT INTO feedback_info VALUES (:username,:feedback,:date)";
+    final params = {"username": Globals.custUsername,"feedback": feedbackInput,"date": currentdate};
+
     await Crud().insert(query: query, params: params);
   }
 

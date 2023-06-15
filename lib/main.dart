@@ -73,18 +73,24 @@ class MainRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: ThemeData(
+        scaffoldBackgroundColor: ThemeColor.darkBlack,
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: ThemeColor.darkPurple,
+          ), 
+        )
+      ),
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
 
-void homePage() => runApp(MaterialApp(
-  theme: ThemeData(
-    scaffoldBackgroundColor: ThemeColor.darkBlack
-  ),
-  home: const cakeMySignUp(),
+void homePage() => runApp(
+  const MaterialApp(
+  home: cakeMySignUp(),
 ));
 
 class Mainboard extends StatefulWidget {
