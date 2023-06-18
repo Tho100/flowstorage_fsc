@@ -17,6 +17,8 @@ import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
+import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 
 import 'package:intl/intl.dart';
@@ -162,6 +164,31 @@ class cakeHomeWidgetState extends State<Mainboard> {
   final insertData = InsertData();
   final crud = Crud();
 
+  void _openDeleteDialog(String fileName) {
+    DeleteDialog().buildDeleteDialog( 
+      fileName: fileName, 
+      onDeletePressed:() async => await _deleteFile(fileName, Globals.fileValues, Globals.filteredSearchedFiles, Globals.imageByteValues, Globals.imageValues, Globals.fromLogin, _onTextChanged),
+      context: context
+    );
+  }
+
+  void _openRenameDialog(String fileName) {
+     RenameDialog().buildRenameFileDialog(
+      fileName: fileName, 
+      onRenamePressed: () => _onRenamePressed(fileName), 
+      context: context
+    );
+  }
+
+  void _openSharingDialog(String fileName) {
+    SharingDialog().buildSharingDialog(
+      fileName: fileName, 
+      shareToController: shareController,
+      commentController: commentController,
+      context: context
+    );
+  }
+
   void _clearSelectAll() {
     appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
     setState(() {
@@ -211,59 +238,11 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   }
 
-  Future<void> _saveOfflineFile({
-    required String fileName, 
-    required Uint8List fileData
-  }) async {
-
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
-
-    if(!offlineDirPath.existsSync()) {
-      offlineDirPath.createSync();
-      final setupFiles = File('${offlineDirPath.path}/$fileName');
-      await setupFiles.writeAsBytes(fileData);
-    } else {
-      final setupFiles = File('${offlineDirPath.path}/$fileName');
-      await setupFiles.writeAsBytes(fileData);
-    }
-     
-  }
-
-  Future<void> _processSaveOfflineFile({required String fileName}) async {
-
-    final singleLoading = SingleTextLoading();
-
-    try {
-      
-      final fileType = fileName.split('.').last;
-
-      if(fileType == "pdf" || fileType == "docx" || fileType == "xlsx" || fileType == "xls" || fileType == "pptx" || fileType == "ptx") {
-        AlertForm.alertDialogTitle("Couldn't make this file offline.", "File type is not yet supported for offline.", context);
-        return;
-      }
-
-      final tableName = Globals.fileTypesToTableNames[fileType]!;
-
-      singleLoading.startLoading(title: "Preparing...", context: context);
-
-      final fileData = await _callData(fileName,tableName);
-      await _saveOfflineFile(fileName: fileName,fileData: fileData);
-
-      singleLoading.stopLoading();
-      _clearSelectAll();
-      
-      SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Now available offline.",icon: Icons.check,context: context);
-      
-    } catch (err) {
-      singleLoading.stopLoading();
-      SnakeAlert.errorSnake("An error occurred.",context);
-    }
-  }
-
   Future<void> _processSaveOfflineFileSelectAll({required int count}) async {
 
     try {
+
+      final offlineMode = OfflineMode();
 
       final singleLoading = SingleTextLoading();
       singleLoading.startLoading(title: "Preparing...", context: context);
@@ -274,7 +253,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
         final tableName = Globals.fileTypesToTableNames[fileType]!;
 
         final fileData = await _callData(checkedItemsName[i],tableName);
-        await _saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
+        await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
       }
 
       singleLoading.stopLoading();
@@ -705,14 +684,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
       Globals.directoryTitleValue = '';
     });
     _navHomeButtonVisibility(false);
-  }
-
-  void _updateRenameFile(String newFileName, int indexOldFile, int indexOldFileSearched) {
-    setState(() {
-      Globals.fileValues[indexOldFile] = newFileName;
-      Globals.filteredSearchedFiles[indexOldFileSearched] = newFileName;
-      _renameController.clear();
-    });
   }
   
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
@@ -1156,54 +1127,11 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   }
 
-  void _onRenameCancelled() {
-    _renameController.clear();
-    Navigator.pop(context);
-  }
-
-  void _onRenamePressed(String fileName) async {
-
-    try {
-
-      String verifyItemType = fileName.split('.').last;
-      String newItemValue = _renameController.text;
-
-      if(verifyItemType == fileName) {
-
-        await _renameDirectory(oldDirName: fileName,newDirName: newItemValue);
-
-        int indexOldFile = Globals.fileValues.indexOf(fileName);
-        int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(fileName);
-
-        _updateRenameFile(newItemValue, indexOldFile, indexOldFileSearched);
-        _renameController.clear();
-
-        return;
-      }
-
-      String newRenameValue = "$newItemValue.${fileName.split('.').last}";
-
-      if (Globals.fileValues.contains(newRenameValue)) {
-        AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
-      } else {
-        if (_renameController.text.isNotEmpty) {
-          await _renameFile(fileName, newRenameValue);
-          _renameController.clear();
-        }
-      }
-      
-    } catch (err) {
-      print("Exception from _onRenamePressed {main}: $err");
-    }
-  }
-
-  Future<void> _renameDirectory({
-    required String oldDirName, 
-    required String newDirName
-    }) async {
-
-      await RenameDirectory.renameDirectory(oldDirName,newDirName);
-      SnakeAlert.okSnake(message: "Directory `$oldDirName` renamed to `$newDirName`.",context: context);
+  void _updateRenameFile(String newFileName, int indexOldFile, int indexOldFileSearched) {
+    setState(() {
+      Globals.fileValues[indexOldFile] = newFileName;
+      Globals.filteredSearchedFiles[indexOldFileSearched] = newFileName;
+    });
   }
 
   Future<void> _renameFile(String oldFileName, String newFileName) async {
@@ -1226,6 +1154,47 @@ class cakeHomeWidgetState extends State<Mainboard> {
       print("Exception from _renameFile {main}: $failedRename");
       SnakeAlert.errorSnake("Failed to rename this file.",context);
     }
+  }
+
+  void _onRenamePressed(String fileName) async {
+
+    try {
+
+      String verifyItemType = fileName.split('.').last;
+      String newItemValue = RenameDialog.renameController.text;
+
+      if(verifyItemType == fileName) {
+
+        await _renameDirectory(oldDirName: fileName,newDirName: newItemValue);
+
+        int indexOldFile = Globals.fileValues.indexOf(fileName);
+        int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(fileName);
+
+        _updateRenameFile(newItemValue, indexOldFile, indexOldFileSearched);
+        
+        return;
+      }
+
+      String newRenameValue = "$newItemValue.${fileName.split('.').last}";
+
+      if (Globals.fileValues.contains(newRenameValue)) {
+        AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
+      } else {
+        await _renameFile(fileName, newRenameValue);
+      }
+      
+    } catch (err) {
+      print("Exception from _onRenamePressed {main}: $err");
+    }
+  }
+
+  Future<void> _renameDirectory({
+    required String oldDirName, 
+    required String newDirName
+  }) async {
+
+    await RenameDirectory.renameDirectory(oldDirName,newDirName);
+    SnakeAlert.okSnake(message: "Directory `$oldDirName` renamed to `$newDirName`.",context: context);
   }
 
   Future<void> _deletionFile(String username, String fileName, String tableName) async {
@@ -2356,149 +2325,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
       },
     );
   }
-
-  Future _buildRenameDialog(String fileName) async {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: ThemeColor.darkBlack,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Text(
-                      ShortenText().cutText(fileName),
-                      style: const TextStyle(
-                        color: ThemeColor.justWhite,
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
-                  ),
-                  child: TextFormField(
-                    style: const TextStyle(color: ThemeColor.secondaryWhite),
-                    enabled: true,
-                    controller: _renameController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter a new name"),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _onRenameCancelled();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _onRenamePressed(fileName);
-                            Navigator.pop(context);
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Rename'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-              const SizedBox(height: 15),
-            ],
-          ),
-        );
-      },
-    );
-  }
-  
-  Future _deleteFileDialog(String fileName) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ThemeColor.darkGrey,
-          title: Text(fileName,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          content: const Text(
-            'Delete this item? Action is permanent.',
-            style: TextStyle(color: ThemeColor.secondaryWhite),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ThemeColor.darkGrey,
-                elevation: 0,
-              ),
-              onPressed: () async {
-                Navigator.pop(context);
-                await _deleteFile(fileName, Globals.fileValues, Globals.filteredSearchedFiles, Globals.imageByteValues, Globals.imageValues, Globals.fromLogin, _onTextChanged);
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
   
   /// <summary>
   /// 
@@ -2552,7 +2378,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                _buildRenameDialog(fileName);
+                _openRenameDialog(fileName);
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -2572,7 +2398,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  SharingDialog().buildSharingDialog(fileName: fileName,shareToController: shareController,commentController: commentController,context: context);
+                  _openSharingDialog(fileName);
                 },
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
                   child: const Row(
@@ -2591,8 +2417,23 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             ElevatedButton(
               onPressed: () async {
+
                 Navigator.pop(context);
-                await _processSaveOfflineFile(fileName: fileName);
+              
+                final offlineMode = OfflineMode();
+                final singleLoading = SingleTextLoading();
+
+                final tableName = Globals.fileTypesToTableNames[fileName.split('.').last]!;
+
+                singleLoading.startLoading(title: "Preparing...", context: context);
+
+                final fileData = await _callData(fileName,tableName);
+
+                await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
+
+                singleLoading.stopLoading();
+                _clearSelectAll();
+
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -2629,7 +2470,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
             ElevatedButton(
               onPressed: () {
-                _deleteFileDialog(fileName);
+                _openDeleteDialog(fileName);
               },
 
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
@@ -4325,13 +4166,13 @@ class cakeHomeWidgetState extends State<Mainboard> {
     var timeNow = DateTime.now().hour;
 
     if (timeNow <= 12) {
-      return 'Good morning ';
+      return 'Good morning, ';
     } else if ((timeNow > 12) && (timeNow <= 16)) {
-    return 'Good afternoon ';
+    return 'Good afternoon, ';
     } else if ((timeNow > 16) && (timeNow < 20)) {
-    return 'Good evening ';
+    return 'Good evening, ';
     } else {
-    return 'Good night ';
+    return 'Good night, ';
     }
 
   }

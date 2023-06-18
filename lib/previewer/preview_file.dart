@@ -10,10 +10,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flowstorage_fsc/extra_query/rename.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/previewer/preview_excel.dart';
 import 'package:flowstorage_fsc/previewer/preview_image.dart';
@@ -29,10 +31,14 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/extra_query/delete.dart';
+import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
+import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -112,6 +118,78 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
     _fileSize.value = "";
 
     super.dispose();
+  }
+
+  void _deleteFile(String fileName) async {
+
+    String fileExtension = fileName.split('.').last;
+
+    await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[fileExtension]!,context);
+    _removeFileFromListView(fileName);
+
+  }
+
+  void _openDeleteDialog(String fileName) {
+    DeleteDialog().buildDeleteDialog(
+      fileName: fileName, 
+      onDeletePressed: () => _deleteFile(fileName), 
+      context: context
+    );
+  }
+
+  void _openRenameDialog(String fileName) {
+    RenameDialog().buildRenameFileDialog(
+      fileName: fileName, 
+      onRenamePressed: () => _onRenamePressed(fileName),
+      context: context
+    );
+  }
+
+  void _updateRenameFile(String newFileName, int indexOldFile, int indexOldFileSearched) {
+    Globals.fileValues[indexOldFile] = newFileName;
+    Globals.filteredSearchedFiles[indexOldFileSearched] = newFileName;
+    Globals.selectedFileName = newFileName;
+    appBarTitleNotifier.value = newFileName;
+  }
+
+  Future<void> _renameFile(String oldFileName, String newFileName) async {
+    
+    String fileType = oldFileName.split('.').last;
+    String tableName = Globals.fileTypesToTableNames[fileType]!;
+
+    try {
+      
+      Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : await OfflineMode().renameFile(oldFileName,newFileName);
+      int indexOldFile = Globals.fileValues.indexOf(oldFileName);
+      int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
+
+      if (indexOldFileSearched != -1) {
+        _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
+        SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
+      }
+
+    } catch (failedRename) {
+      print("Exception from _renameFile {main}: $failedRename");
+      SnakeAlert.errorSnake("Failed to rename this file.",context);
+    }
+  }
+
+  void _onRenamePressed(String fileName) async {
+
+    try {
+
+      String newItemValue = RenameDialog.renameController.text;
+      String newRenameValue = "$newItemValue.${fileName.split('.').last}";
+
+      if (Globals.fileValues.contains(newRenameValue)) {
+        AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
+      } else {
+        await _renameFile(fileName, newRenameValue);
+      }
+      
+    } catch (err) {
+      print("Exception from _onRenamePressed {main}: $err");
+    }
   }
 
   Future<Uint8List> _retrieveAudio() async {
@@ -219,57 +297,6 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
       SnakeAlert.errorSnake("Failed to delete ${ShortenText().cutText(fileName)}",context);
     }
     
-  }
-
-  Future _deleteFileDialog(String fileName,BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ThemeColor.darkGrey,
-          title: Text(fileName,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          content: const Text(
-            'Delete this file? Action is permanent.',
-            style: TextStyle(color: Color.fromARGB(255, 212, 212, 212)),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ThemeColor.darkGrey,
-                elevation: 0,
-              ),
-              onPressed: () async {
-                
-                Navigator.pop(context);
-
-                String fileExtension = fileName.split('.').last;
-
-                await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[fileExtension]!,context);
-                _removeFileFromListView(fileName);
-              },
-
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Widget _buildFileDataWidget(Uint8List? snapshotValue) {
@@ -840,126 +867,166 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
-  Widget _buildMiniTopButtons(BuildContext context) {
-
-    return Row(
-
-      children: [
-        
-        IconButton(
-          onPressed: () {
-            _buildBottomInfo();
-          }, 
-          icon: const Icon(Icons.info_outline_rounded),
-        ),
-
-        Theme(
-          data: Theme.of(context).copyWith(
-            cardColor: const Color.fromARGB(255, 15, 15, 15),
-          ),
-          child: PopupMenuButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15)
-            ),
-            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-              PopupMenuItem(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    elevation: 0,
-                    backgroundColor: const Color.fromARGB(255, 15, 15, 15),
-                  ),
-                  onPressed: () {
-                    SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.share),
-                      SizedBox(width: 5),
-                      Text('Share'),
-                    ],
-                  ),
-                )
-              ),  
-
-              const PopupMenuDivider(height: 4),
-
-              PopupMenuItem(
-                enabled: _currentTable != "file_info_expand" ? false : true,
-                child: IgnorePointer(
-                  ignoring: _currentTable == "file_info_expand" ? false : true,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+  Future buildBottomTrailing(String fileName) {
+    return showModalBottomSheet(
+      backgroundColor: ThemeColor.darkGrey,
+      context: context,
+      shape: GlobalsStyle.bottomDialogBorderStyle,
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      fileName.length > 50 ? "${fileName.substring(0,50)}..." : fileName,
+                      style: const TextStyle(
+                        color: ThemeColor.justWhite,
+                        fontSize: 15,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w500,
                       ),
-                      elevation: 0,
-                      backgroundColor: const Color.fromARGB(255, 15, 15, 15),
-                    ),
-                    onPressed: () async {
-
-                      final textValue = _textController.text;
-                      Clipboard.setData(ClipboardData(text: textValue));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Copied to clipboard'),duration: Duration(milliseconds: 1000),backgroundColor: ThemeColor.darkGrey)
-                      );
-                    
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.copy),
-                        const SizedBox(width: 5),
-                        Text('Copy',
-                          style: TextStyle(
-                            color: _currentTable == "file_info_expand" ? Colors.white : ThemeColor.thirdWhite,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
+                ],
+              ),
+              
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openRenameDialog(fileName);
+              },
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.edit),
+                  SizedBox(width: 10.0),
+                  Text(
+                    'Rename File',
+                    style: GlobalsStyle.btnBottomDialogTextStyle,
+                  ),
+                ],
+              ),
+            ),
+
+            Visibility(
+              visible: fileName.split('.').last != fileName,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
+                },
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                  child: const Row(
+                  children: [
+                    Icon(Icons.share_rounded),
+                    SizedBox(width: 10.0),
+                    Text('Share File',
+                      style: GlobalsStyle.btnBottomDialogTextStyle
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              PopupMenuItem(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+            const Divider(color: ThemeColor.thirdWhite),
+
+            ElevatedButton(
+              onPressed: () async {
+
+                Navigator.pop(context);
+
+                final offlineMode = OfflineMode();
+                final singleLoading = SingleTextLoading();
+
+                singleLoading.startLoading(title: "Preparing...", context: context);
+
+                final fileData = await _callDataDownload();
+
+                await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
+
+                singleLoading.stopLoading();
+
+              },
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off_rounded),
+                  SizedBox(width: 10.0),
+                  Text('Make available Offline',
+                    style: GlobalsStyle.btnBottomDialogTextStyle
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(color: ThemeColor.thirdWhite),
+
+            Visibility(
+              visible: _currentTable == "file_info_expand",
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  final textValue = _textController.text;
+                  Clipboard.setData(ClipboardData(text: textValue));
+                  SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+                }, 
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row( 
+                  children: [
+                      Icon(Icons.copy,size: 18),
+                      SizedBox(width: 10.0),
+                      Text(' Copy',
+                        style: GlobalsStyle.btnBottomDialogTextStyle
                     ),
-                    elevation: 0,
-                    backgroundColor: const Color.fromARGB(255, 15, 15, 15),
+                  ],
+                ),
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _callFileDownload(fileName: fileName);
+              },
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.download_rounded),
+                  SizedBox(width: 10.0),
+                  Text('Download',
+                    style: GlobalsStyle.btnBottomDialogTextStyle
                   ),
-                  onPressed: () {
-                    _deleteFileDialog(widget.selectedFilename,context);
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.delete,color: ThemeColor.darkRed),
-                      SizedBox(width: 5),
-                      Text('Delete',
-                        style: TextStyle(
-                          color: ThemeColor.darkRed
-                        ),
-                      ),
-                    ],
+                ],
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                _openDeleteDialog(widget.selectedFilename);
+              },
+
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.delete,color: ThemeColor.darkRed),
+                  SizedBox(width: 10.0),
+                  Text('Delete',
+                    style: TextStyle(
+                      color: ThemeColor.darkRed,
+                      fontSize: 17,
+                    )
                   ),
-                )
-              ),  
-
-            const PopupMenuDivider(height: 4),
-
-            ],
-
-            icon: const Icon(Icons.more_vert,color: Colors.white),
-
-          ),
-        ),
-      ],
+                ],
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 
@@ -985,7 +1052,14 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
               visible: _currentTable == "file_info" ? bottomBarVisible.value : true,
               child: AppBar(
               backgroundColor: _currentTable == "file_info" || _currentTable == "file_info_vid" ? const Color(0x44000000) : ThemeColor.darkBlack,
-              actions: [_buildMiniTopButtons(context)],
+              actions: <Widget>[
+                IconButton(
+                  onPressed: () async {
+                    await buildBottomTrailing(Globals.selectedFileName);
+                  },
+                  icon: const Icon(Icons.more_vert_rounded),
+                ),
+              ],
               titleSpacing: 0,
               elevation: 0,
               centerTitle: false,

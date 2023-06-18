@@ -1,25 +1,17 @@
-import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
-import 'package:flowstorage_fsc/sharing/share_file.dart';
+import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flutter/material.dart';
 
-class SharingPassword {
+class RenameDialog {
 
-  final TextEditingController sharingPasswordController = TextEditingController();
+  static final renameController = TextEditingController();
 
-  Future buildAskPasswordDialog(
-    String? sendTo, 
-    String? fileName, 
-    String? comment, 
-    var fileVal, 
-    String? fileExt, 
-    String? authString,
-    BuildContext context, 
-    {dynamic thumbnail}){
-
+  Future buildRenameFileDialog({
+    required String fileName,
+    required VoidCallback onRenamePressed,
+    required BuildContext context
+  }) async {
     return showDialog(
       context: context,
       builder: (context) {
@@ -29,15 +21,15 @@ class SharingPassword {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(18.0),
+                    padding: const EdgeInsets.all(18.0),
                     child: Text(
-                      "Enter this user Sharing Password",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
+                      ShortenText().cutText(fileName),
+                      style: const TextStyle(
+                        color: ThemeColor.justWhite,
                         fontSize: 15,
                         overflow: TextOverflow.ellipsis,
                         fontWeight: FontWeight.w500,
@@ -54,10 +46,10 @@ class SharingPassword {
                     border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
                   ),
                   child: TextFormField(
-                    style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
+                    style: const TextStyle(color: ThemeColor.secondaryWhite),
                     enabled: true,
-                    controller: sharingPasswordController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter password")
+                    controller: renameController,
+                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter a new name"),
                   ),
                 ),
               ),
@@ -73,7 +65,7 @@ class SharingPassword {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            sharingPasswordController.clear();
+                            renameController.clear();
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
@@ -97,31 +89,13 @@ class SharingPassword {
                         width: 85,
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () async {
-
-                            final loadingDialog = MultipleTextLoading();
-                            final compare = AuthModel().computeAuth(sharingPasswordController.text);
-
-                            if(compare == authString) {
-                              loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to $sendTo",context: context);  
-                              MySqlSharing().insertValuesParams(sendTo, fileName, comment, fileVal, fileExt, context,thumbnail: thumbnail);
-                            } else {
-                              AlertForm.alertDialogTitle("Sharing failed", "Entered password is incorrect.", context);
-                            }
-                            
-                            loadingDialog.stopLoading();
-
+                          onPressed: () {
+                            onRenamePressed();
+                            renameController.clear();
                             Navigator.pop(context);
-
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkPurple,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Share'),
+                          style: GlobalsStyle.btnMainStyle,
+                          child: const Text('Rename'),
                         ),
                       ),
                     ),
@@ -136,4 +110,5 @@ class SharingPassword {
       },
     );
   }
+
 }

@@ -222,7 +222,7 @@ class SharingDialog {
 
                             }
 
-                            loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to\t\t$shareToName\nFile name\t\t$fileName",context: context);
+                            loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to $shareToName",context: context);
 
                             final fileData = EncryptionClass().Encrypt(base64.encode(await _callData(fileName, tableName)));  
 

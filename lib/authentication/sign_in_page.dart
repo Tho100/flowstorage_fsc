@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/validate_email.dart';
 import 'package:flowstorage_fsc/user_settings/password_recovery_page.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -8,23 +9,6 @@ import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'package:flutter/material.dart';
-
-class InsertLoginInfo {
-
-  static insert(
-    String custEmail,
-    String custPass,
-    String custPin,
-    BuildContext context,
-    bool iSChecked
-  ) async {
-
-    final loginSetup = MysqlLogin();
-    await loginSetup.logParams(custEmail, custPass, custPin,iSChecked, context);
-
-  }
-
-}
 
 class cakeLogin extends StatefulWidget {
 
@@ -36,82 +20,97 @@ class cakeLogin extends StatefulWidget {
 
 class cakeLoginPageMain extends State<cakeLogin> {
 
-  String _CustEmailInit = ''; 
-  String _CustPassInit = '';
-  String _CustPinInit = '';
   BuildContext? loginContext;
 
   bool isChecked = false; 
-  bool _visiblePassword = false;
+  bool visiblePassword = false; 
 
-  final _emailController = TextEditingController();
-  final _passController = TextEditingController();
-  final _pinController = TextEditingController();
+  final emailController = TextEditingController();
+  final auth0Controller = TextEditingController();
+  final auth1Controller = TextEditingController();
 
-  bool validateEmail(String emailInput) {
-    final RegExp emailRegex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-    return emailRegex.hasMatch(emailInput);
+  Future<void> verifyUserSignInInformation({
+    required String email, 
+    required String auth0, 
+    required String auth1
+  }) async {
+
+    Globals.fromLogin = true;
+    loginContext = context;
+
+    final loginSetup = MysqlLogin();
+    await loginSetup.logParams(email, auth0, auth1, isChecked, context);
+
   }
+  
+  Future<void> processSignIn() async {
 
-  Future<void> setupLoginCaller(String custEmail, String custPass, String custPin) async {
+    final custAuth0Input = auth0Controller.text.trim();
+    final custAuth1Input = auth1Controller.text.trim();
+    final custEmailInput = emailController.text.trim();
 
-    setState(() {
-      Globals.fromLogin = true;
-      _CustEmailInit = custEmail;
-      _CustPassInit = custPass;
-      _CustPinInit = custPin;
-      loginContext = context;
-    });
+    if (!EmailValidator().validateEmail(custEmailInput)) {
+      AlertForm.alertDialogTitle("Sign In Failed","Email address is not valid.", context);
+      return;
+    }
 
-    InsertLoginInfo.insert(
-      _CustEmailInit,
-      _CustPassInit,
-      _CustPinInit,
-      loginContext!,
-      isChecked,
+    if (custAuth1Input.isEmpty) {
+      AlertForm.alertDialogTitle("Sign In Failed","Please enter your PIN key.",context);
+      return;
+    }
+
+    if (custEmailInput.isEmpty) {
+      AlertForm.alertDialogTitle("Sign In Failed","Please enter your email address.",context);
+      return;
+    }
+
+    if (custAuth0Input.isEmpty) {
+      AlertForm.alertDialogTitle("Sign In Failed","Please enter your password.",context);              
+      return;
+    }
+
+    await verifyUserSignInInformation(
+      email: custEmailInput, 
+      auth0: custAuth0Input, 
+      auth1: custAuth1Input
     );
   }
 
   @override
   void initState() {
     super.initState();
-    _visiblePassword = false;
+    visiblePassword = false;
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passController.dispose();
-    _pinController.dispose();
+    emailController.dispose();
+    auth0Controller.dispose();
+    auth1Controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
 
+    final mediaQuery = MediaQuery.of(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         elevation: 0,
-        title: const Text('',
-          style: TextStyle(
-            fontSize: 22,
-            color: ThemeColor.darkPurple,
-            fontWeight: FontWeight.bold
-          )),
         backgroundColor: ThemeColor.darkBlack,
-        centerTitle: false,
+        automaticallyImplyLeading: false,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-        )
+          )
       ),
-
       backgroundColor: ThemeColor.darkBlack,
       body: Padding (
 
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05,
-          vertical: MediaQuery.of(context).size.height * 0.05,
+          horizontal: mediaQuery.size.width * 0.05,
+          vertical: mediaQuery.size.height * 0.05,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -119,8 +118,8 @@ class cakeLoginPageMain extends State<cakeLogin> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.02,
-                vertical: MediaQuery.of(context).size.height * 0.02,
+                horizontal: mediaQuery.size.width * 0.02,
+                vertical: mediaQuery.size.height * 0.02,
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +135,7 @@ class cakeLoginPageMain extends State<cakeLogin> {
 
           MainTextField(
             hintText: "Enter your email address", 
-            controller: _emailController,
+            controller: emailController,
           ),
 
          const SizedBox(height: 18),
@@ -144,7 +143,7 @@ class cakeLoginPageMain extends State<cakeLogin> {
           Row(
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width*0.66,
+                width: mediaQuery.size.width*0.66,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -153,19 +152,19 @@ class cakeLoginPageMain extends State<cakeLogin> {
                   child: TextFormField(
                     style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
                     enabled: true,
-                    controller: _passController,
-                    obscureText: !_visiblePassword,
+                    controller: auth0Controller,
+                    obscureText: !visiblePassword,
                     
                     decoration: InputDecoration(
                       
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _visiblePassword ? Icons.visibility : Icons.visibility_off,
+                          visiblePassword ? Icons.visibility : Icons.visibility_off,
                           color: const Color.fromARGB(255, 141, 141, 141),
                         ), 
                         onPressed: () { 
                           setState(() {
-                            _visiblePassword = !_visiblePassword;
+                            visiblePassword = !visiblePassword;
                           });
                         },
                       ),
@@ -194,7 +193,7 @@ class cakeLoginPageMain extends State<cakeLogin> {
               const SizedBox(width: 18),
 
               SizedBox(
-                width: MediaQuery.of(context).size.width*0.2,
+                width: mediaQuery.size.width*0.2,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -202,7 +201,7 @@ class cakeLoginPageMain extends State<cakeLogin> {
                   child: TextFormField(
                     style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
                     enabled: true,
-                    controller: _pinController,
+                    controller: auth1Controller,
                     obscureText: true,
                     maxLength: 3,
                     keyboardType: TextInputType.number,
@@ -280,7 +279,7 @@ class cakeLoginPageMain extends State<cakeLogin> {
 
             MainButton(
               text: "Sign In", 
-              onPressed: _processLogin
+              onPressed: processSignIn
             ),
         
             const Spacer(),
@@ -320,41 +319,6 @@ class cakeLoginPageMain extends State<cakeLogin> {
         ),
       ),      
     );
-  }
-
-  Future<void> _processLogin() async {
-
-    try {
-
-      final custAuth0Input = _passController.text.trim();
-      final custAuth1Input = _pinController.text.trim();
-      final custEmailInput = _emailController.text.trim();
-
-      if (!validateEmail(custEmailInput)) {
-        AlertForm.alertDialogTitle("Sign In Failed","Email address is not valid.", context);
-        return;
-      }
-
-      if (custAuth1Input.isEmpty) {
-        AlertForm.alertDialogTitle("Sign In Failed","Please enter your PIN key.",context);
-        return;
-      }
-
-      if (custEmailInput.isEmpty) {
-        AlertForm.alertDialogTitle("Sign In Failed","Please enter your email address.",context);
-        return;
-      }
-
-      if (custAuth0Input.isEmpty) {
-        AlertForm.alertDialogTitle("Sign In Failed","Please enter your password.",context);              
-        return;
-      }
-
-      await setupLoginCaller(custEmailInput, custAuth0Input, custAuth1Input);
-
-    } catch (exceptionSignIn) {
-      // TODO: Ignore
-    }
   }
 
 }

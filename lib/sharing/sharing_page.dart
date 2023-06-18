@@ -133,7 +133,7 @@ class _SharingPage extends State<SharingPage> {
       final mySqlSharing = MySqlSharing();
       final loadingDialog = MultipleTextLoading();
 
-      loadingDialog.startLoading(title: "Sharing...", subText: "Sharing to\t\t$shareToUsername\n File name\t\t$fileName", context: context!);
+      loadingDialog.startLoading(title: "Sharing...", subText: "Sharing to $shareToUsername", context: context!);
 
       await mySqlSharing.insertValuesParams(
         shareToUsername, 

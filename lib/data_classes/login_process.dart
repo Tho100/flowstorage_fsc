@@ -66,7 +66,7 @@ class MysqlLogin {
 
     final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
 
-    final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
+    final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_word","file_info_apk", ...dirLists];
 
     final futures = tablesToCheck.map((table) async {
       final fileNames = await nameGetterLogin.retrieveParams(conn,custUsernameGetter, table);

@@ -1,7 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -48,6 +53,49 @@ class OfflineMode {
     } else if (Globals.textType.contains(fileType)) {
       final textData = utf8.decode(fileDataValue);
       SaveApi().saveFile(fileName: fileName, fileData: textData);
+    }
+  }
+
+  Future<void> saveOfflineFile({
+    required String fileName, 
+    required Uint8List fileData
+  }) async {
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
+
+    if(!offlineDirPath.existsSync()) {
+      offlineDirPath.createSync();
+      final setupFiles = File('${offlineDirPath.path}/$fileName');
+      await setupFiles.writeAsBytes(fileData);
+    } else {
+      final setupFiles = File('${offlineDirPath.path}/$fileName');
+      await setupFiles.writeAsBytes(fileData);
+    }
+     
+  }
+
+  Future<void> processSaveOfflineFile({
+    required String fileName, 
+    required Uint8List fileData,
+    required BuildContext context
+  }) async {
+
+    try {
+      
+      final fileType = fileName.split('.').last;
+
+      if(fileType == "pdf" || fileType == "docx" || fileType == "xlsx" || fileType == "xls" || fileType == "pptx" || fileType == "ptx") {
+        AlertForm.alertDialogTitle("Couldn't make this file offline.", "File type is not yet supported for offline.", context);
+        return;
+      }
+
+      await saveOfflineFile(fileName: fileName,fileData: fileData);
+      
+      SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Now available offline.",icon: Icons.check,context: context);
+      
+    } catch (err) {
+      SnakeAlert.errorSnake("An error occurred.",context);
     }
   }
 
