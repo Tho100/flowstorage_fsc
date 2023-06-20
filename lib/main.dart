@@ -865,7 +865,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
   Future<void> _callDirectoryData() async {
 
     final directoryDataReceiver = DirectoryDataReceiver();
-    final dataList = await directoryDataReceiver.retrieveParams(Globals.custUsername,appBarTitle.value);
+    final dataList = await directoryDataReceiver.retrieveParams(dirName: appBarTitle.value);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
     final dateList = dataList.map((data) => data['date'] as String).toList();

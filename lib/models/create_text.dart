@@ -292,7 +292,7 @@ class _CreateText extends State<CreateText> {
               child: const Text("Save",
                 style: TextStyle(
                   color: ThemeColor.darkPurple,
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.w600,
                 ),
               ),

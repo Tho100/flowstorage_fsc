@@ -37,6 +37,9 @@ class FolderDataReceiver {
 
     final connection = await SqlConnection.insertValueParams();
 
+    const querySelectThumbnail = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
+    const querySelectImage = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
+
     const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
     final params = {'username': username,'foldtitle': encryption.Encrypt(folderTitle)};
 
@@ -45,22 +48,25 @@ class FolderDataReceiver {
       final result = await connection.execute(query, params);
       final dataSet = <Map<String, dynamic>>{};
 
-      Uint8List fileBytes = Uint8List(0);
-      
+      late Uint8List fileBytes = Uint8List(0);
+
+      late String encryptedFileNames;
+      late String decryptedFileNames;
+      late String fileType;
+
       for (final row in result.rows) {
         
-        final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = encryption.Decrypt(encryptedFileNames);
+        encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
+        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
 
-        final fileType = fileNames.split('.').last.toLowerCase();
+        fileType = decryptedFileNames.split('.').last.toLowerCase();
 
         if (Globals.imageType.contains(fileType)) {
           
-          const query = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
           final encryptedImageBase64 = await retrieveFiles(
             conn: connection, 
             folderTitle: folderTitle, 
-            query: query, 
+            query: querySelectImage, 
             fileName: encryptedFileNames,
             returnColumn: "CUST_FILE"
           );
@@ -69,11 +75,10 @@ class FolderDataReceiver {
 
         } else if (Globals.videoType.contains(fileType)) {
           
-          const query = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
           final thumbnailBase64 = await retrieveFiles(
             conn: connection,
             folderTitle: folderTitle,
-            query: query,
+            query: querySelectThumbnail,
             fileName: encryptedFileNames,
             returnColumn: "CUST_THUMB"
           );
@@ -100,7 +105,7 @@ class FolderDataReceiver {
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
 
         final data = {
-          'name': fileNames,
+          'name': decryptedFileNames,
           'date': '$difference days ago, $formattedDate',
           'file_data': bufferedFileBytes,
         };

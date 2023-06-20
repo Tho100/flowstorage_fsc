@@ -25,45 +25,50 @@ class DirectoryDataReceiver {
     final params = {"username": Globals.custUsername, "dirname": directoryTitle,"filename": fileName};
     final results = await conn.execute(query,params);
 
-    for(final row in results.rows) {
+    for(final row in results.rows) { 
       return row.assoc()[returnColumn]!;
     }
 
     return '';
   }
   
-  Future<List<Map<String, dynamic>>> retrieveParams(
-    String username,
-    String dirName
-    ) async {
+  Future<List<Map<String, dynamic>>> retrieveParams({
+    required String dirName
+  }) async {
 
     final connection = await SqlConnection.insertValueParams();
 
-    final directoryName = encryption.Encrypt(dirName);
+    final encryptedDirectoryName = encryption.Encrypt(dirName);
 
-    const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
-    final params = {'username': username,'dirname': directoryName};
+    const querySelectMetadata = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
+    final params = {'username': Globals.custUsername,'dirname': encryptedDirectoryName};
+
+    const querySelectThumbnail = 'SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename';
+    const querySelectImage = 'SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename';
 
     try {
 
-      final result = await connection.execute(query, params);
+      late Uint8List fileBytes = Uint8List(0);
+
+      late String fileType;
+      late String encryptedFileNames;
+      late String decryptedFileNames;
+
+      final result = await connection.execute(querySelectMetadata, params);
       final dataSet = <Map<String, dynamic>>[];
-
-      Uint8List fileBytes = Uint8List(0);
-
+      
       for (final row in result.rows) {
 
-        final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = encryption.Decrypt(encryptedFileNames);
-        final fileType = fileNames.split('.').last.toLowerCase();
+        encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
+        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
+        fileType = decryptedFileNames.split('.').last.toLowerCase();
 
         if(Globals.imageType.contains(fileType)) {
 
-          const query = 'SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname';
           final encryptedImageBase64 = await retrieveFiles(
             conn: connection, 
-            directoryTitle: directoryName, 
-            query: query,
+            directoryTitle: encryptedDirectoryName, 
+            query: querySelectImage,
             fileName: encryptedFileNames, 
             returnColumn: "CUST_FILE"
           );
@@ -72,12 +77,10 @@ class DirectoryDataReceiver {
       
         } else if (Globals.videoType.contains(fileType)) {
 
-          const query = 'SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
-
           final thumbnailBase64 = await retrieveFiles(
             conn: connection, 
-            directoryTitle: directoryName, 
-            query: query, 
+            directoryTitle: encryptedDirectoryName, 
+            query: querySelectThumbnail, 
             fileName: encryptedFileNames,
             returnColumn: "CUST_THUMB"
           );
@@ -103,7 +106,7 @@ class DirectoryDataReceiver {
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
 
         final data = {
-          'name': fileNames,
+          'name': decryptedFileNames,
           'date': '$difference days ago, $formattedDate',
           'file_data': bufferedFileBytes,
         };

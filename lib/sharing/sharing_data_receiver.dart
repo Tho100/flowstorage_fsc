@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mysql_client/mysql_client.dart';
 import '../encryption/encryption_model.dart';
 
 /// <summary>
@@ -19,6 +20,24 @@ class SharingDataReceiver {
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
   final now = DateTime.now();
+  
+  Future<String> retrieveFiles({
+    required String query,
+    required String returnedColumn,
+    required String fileName,
+    required String username,
+    required MySQLConnectionPool connection
+  }) async {
+    
+    final params = {'username': username, 'filename': fileName};
+    final executeRetrieval = await connection.execute(query, params);
+
+    for (final row in executeRetrieval.rows) {
+      return row.assoc()[returnedColumn]!;
+    }
+
+    return '';
+  }
 
   Future<List<Map<String, dynamic>>> retrieveParams(String username, String originFrom) async {
 
@@ -33,12 +52,17 @@ class SharingDataReceiver {
       final result = await connection.execute(query, params);
       final dataSet = <Map<String, dynamic>>[];
 
-      for (final row in result.rows) {
-        final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = encryption.Decrypt(encryptedFileNames);
-        final fileType = fileNames.split('.').last.toLowerCase();
+      late Uint8List fileBytes = Uint8List(0);
 
-        Uint8List fileBytes = Uint8List(0);
+      late String encryptedFileNames;
+      late String decryptedFileNames;
+      late String fileType;
+
+      for (final row in result.rows) {
+
+        encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
+        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
+        fileType = decryptedFileNames.split('.').last.toLowerCase();
 
         switch (fileType) {
 
@@ -49,14 +73,16 @@ class SharingDataReceiver {
 
             final retrieveEncryptedMetadata =
                 'SELECT CUST_FILE FROM cust_sharing WHERE ${originFrom == 'sharedFiles' ? 'CUST_FROM' : 'CUST_TO'} = :username AND CUST_FILE_PATH = :filename';
-            final params = {'username': username, 'filename': encryptedFileNames};
-            final executeRetrieval = await connection.execute(retrieveEncryptedMetadata, params);
 
-            for (final row in executeRetrieval.rows) {
-              final encryptedFile = row.assoc()['CUST_FILE']!;
-              final decodedFile = base64.decode(EncryptionClass().Decrypt(encryptedFile));
-              fileBytes = decodedFile;
-            }
+            final encryptedBase64 = await retrieveFiles(
+              query: retrieveEncryptedMetadata, 
+              returnedColumn: "CUST_FILE", 
+              fileName: encryptedFileNames, 
+              username: username, 
+              connection: connection
+            );
+
+            fileBytes = base64.decode(EncryptionClass().Decrypt(encryptedBase64));
 
             break;
 
@@ -66,16 +92,18 @@ class SharingDataReceiver {
           case 'mov':
           case 'mkv':
           
-            final retrieveEncryptedMetadata =
+            final querySelectThumbnail =
                 'SELECT CUST_THUMB FROM cust_sharing WHERE ${originFrom == 'sharedFiles' ? 'CUST_FROM' : 'CUST_TO'} = :username AND CUST_FILE_PATH = :filename';
-            final params = {'username': username, 'filename': encryptedFileNames};
-            final executeRetrieval = await connection.execute(retrieveEncryptedMetadata, params);
 
-            for (final row in executeRetrieval.rows) {
-              final getThumbEncoded = row.assoc()['CUST_THUMB']!;
-              final decodedFile = base64.decode(getThumbEncoded);
-              fileBytes = decodedFile;
-            }
+            final base64EncodedThumbnail = await retrieveFiles(
+              query: querySelectThumbnail, 
+              returnedColumn: "CUST_THUMB", 
+              fileName: encryptedFileNames, 
+              username: username, 
+              connection: connection
+            );
+
+            fileBytes = base64.decode(base64EncodedThumbnail);
 
             break;
 
@@ -96,7 +124,7 @@ class SharingDataReceiver {
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
 
         final data = {
-          'name': fileNames,
+          'name': decryptedFileNames,
           'date': '$difference days ago, $formattedDate',
           'file_data': bufferedFileBytes,
         };
