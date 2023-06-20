@@ -129,6 +129,35 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
   }
 
+   Future<void> _deletionFile(String username, String fileName, String tableName, BuildContext context) async {
+
+    try {   
+
+      if(Globals.fileOrigin != "offlineFiles") {
+
+        final encryptVals = EncryptionClass().Encrypt(fileName);
+        await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
+        
+      } else {
+
+        final getDirApplication = await getApplicationDocumentsDirectory();
+        final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+
+        final file = File('${offlineDirs.path}/$fileName');
+        file.deleteSync();
+      }
+
+      SnakeAlert.okSnake(message: "`$fileName` Has been deleted",context: context);
+
+      NavigatePage.permanentPageMainboard(context);
+
+    } catch (err) {
+      print("Exception from _deletionFile {PreviewFile}: $err");
+      SnakeAlert.errorSnake("Failed to delete ${ShortenText().cutText(fileName)}",context);
+    }
+    
+  }
+
   void _openDeleteDialog(String fileName) {
     DeleteDialog().buildDeleteDialog(
       fileName: fileName, 
@@ -270,34 +299,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
   }
 
-  Future<void> _deletionFile(String username, String fileName, String tableName, BuildContext context) async {
-
-    try {   
-
-      if(Globals.fileOrigin != "offlineFiles") {
-
-        final encryptVals = EncryptionClass().Encrypt(fileName);
-        await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
-        
-      } else {
-
-        final getDirApplication = await getApplicationDocumentsDirectory();
-        final offlineDirs = Directory('${getDirApplication.path}/offline_files');
-
-        final file = File('${offlineDirs.path}/$fileName');
-        file.deleteSync();
-      }
-
-      SnakeAlert.okSnake(message: "`$fileName` Has been deleted",context: context);
-
-      NavigatePage.permanentPageMainboard(context);
-
-    } catch (err) {
-      print("Exception from _deletionFile {PreviewFile}: $err");
-      SnakeAlert.errorSnake("Failed to delete ${ShortenText().cutText(fileName)}",context);
-    }
-    
-  }
+ 
 
   Widget _buildFileDataWidget(Uint8List? snapshotValue) {
 
