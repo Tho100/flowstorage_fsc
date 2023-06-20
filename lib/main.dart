@@ -998,7 +998,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       final imageBytes = base64.encode(bytes); 
 
       if(Globals.fileValues.contains(imageName)) {
-        _buildIsAlreadyUploadedDialog(imageName);
+        TitledDialog.startDialog("Upload Failed", "$imageName already exists.",context);
         return;
       }
 
@@ -1250,40 +1250,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   /// <summary>
   /// 
-  /// If user tried to upload a file that has already 
-  /// been uploaded then throw this message dialog
-  /// 
-  /// </summary>
-
-  void _buildIsAlreadyUploadedDialog(String selectedFileName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        backgroundColor: ThemeColor.darkBlack,
-        title: const Text("Upload Failed",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        content: Text("'$selectedFileName' Already exists.",
-          style: const TextStyle(
-            color: Colors.white,
-          ),),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, "OK"),
-            child: const Text("OK",
-            style: TextStyle(
-              color: Colors.white,
-            )),
-          )
-        ]
-      )
-    );
-  }
-
-  /// <summary>
-  /// 
   /// Open user gallery (Video)
   /// 
   /// </summary>
@@ -1311,7 +1277,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       }
 
       if (Globals.fileValues.contains(selectedFileName)) {
-        _buildIsAlreadyUploadedDialog(selectedFileName);
+        TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
         return;
       } 
 
@@ -1459,7 +1425,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
-            _buildIsAlreadyUploadedDialog(selectedFileName);
+            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists..",context);
             continue;
           } 
 
@@ -1661,7 +1627,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
-            _buildIsAlreadyUploadedDialog(selectedFileName);
+            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             continue;
           }
 
@@ -1805,7 +1771,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       final folderName = path.basename(result);
 
       if (Globals.foldValues.contains(folderName)) {
-        _buildIsAlreadyUploadedDialog(folderName);
+        TitledDialog.startDialog("Upload Failed", "$folderName already exists.",context);
         return;
       }
 

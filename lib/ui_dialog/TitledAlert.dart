@@ -9,7 +9,7 @@ class TitledDialog {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: ThemeColor.darkGrey,
-          content: Container(
+          content: SizedBox( // Replaced with SizedBox from Container
             width: MediaQuery.of(context).size.width*4,
             height: 250,
             child: Center(
