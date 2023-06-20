@@ -39,20 +39,16 @@ class ThumbnailGetter {
       params = {'username': Globals.custUsername};
     }
 
-    try {
+    final getThumbBytesQue = await conn.execute(query, params);
+    final thumbnailBytesList = <Uint8List>[];
 
-      final getThumbBytesQue = await conn.execute(query, params);
-      final thumbnailBytesList = <Uint8List>[];
-
-      for (final res in getThumbBytesQue.rows) {
-        final thumbBytes = res.assoc()['CUST_THUMB'];
-        thumbnailBytesList.add(base64.decode(thumbBytes!));
-      }
-
-      return thumbnailBytesList;
-    } finally {
-      //
+    for (final res in getThumbBytesQue.rows) {
+      final thumbBytes = res.assoc()['CUST_THUMB'];
+      thumbnailBytesList.add(base64.decode(thumbBytes!));
     }
+
+    return thumbnailBytesList;
+  
   }
 
   Future<String?> retrieveParamsSingle({required String? fileName}) async {
@@ -86,53 +82,3 @@ class ThumbnailGetter {
 
   }
 }
-
-
-/*class ThumbnailGetter {
-
-  Future<List<Uint8List>> retrieveParams(String? custUsername, {String? fileName}) async {
-
-    final conn = await SqlConnection.insertValueParams();
-
-    late String query;
-    late Map<String, dynamic> params;
-
-    if (fileName != null) {
-      
-      if(getFileOrigin == "homeFiles") {
-        query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': custUsername, 'filename': EncryptionClass().Encrypt(fileName)};
-      } else if (getFileOrigin == "sharedFiles") {
-        query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': custUsername, 'filename': EncryptionClass().Encrypt(fileName)};
-      } else if (getFileOrigin == "sharedToMe") {
-        query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': custUsername, 'filename': EncryptionClass().Encrypt(fileName)};
-      } 
-
-    } else {
-
-      if(getFileOrigin == "homeFiles") {
-        query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username";
-        params = {'username': custUsername};
-      }
-
-    }
-
-    try {
-
-      final getThumbBytesQue = await conn.execute(query, params);
-      final thumbnailBytesList = <Uint8List>[];
-
-      for (final res in getThumbBytesQue.rows) {
-        final thumbBytes = res.assoc()['CUST_THUMB'];
-        thumbnailBytesList.add(base64.decode(thumbBytes!));
-      }
-
-      return thumbnailBytesList;
-
-    } finally {
-      //
-    }
-  }
-}*/

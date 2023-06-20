@@ -64,8 +64,8 @@ class _SharingPage extends State<SharingPage> {
 
         final thumbnailBytes = await VideoThumbnail.thumbnailData(
           video: file.path,
-          imageFormat: ImageFormat.WEBP,
-          quality: 20,
+          imageFormat: ImageFormat.JPEG,
+          quality: 40,
         );
 
         videoThumbnail = thumbnailBytes!;

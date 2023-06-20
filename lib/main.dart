@@ -1321,8 +1321,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
         File thumbnailFile = File(tempThumbnailPath);
         final thumbnailBytes = await VideoThumbnail.thumbnailData(
           video: filePathVal,
-          imageFormat: ImageFormat.WEBP,
-          quality: 50,
+          imageFormat: ImageFormat.JPEG,
+          quality: 40,
         );
 
         await thumbnailFile.writeAsBytes(thumbnailBytes!);
@@ -1660,7 +1660,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
           String? bodyBytes;
 
-          if (_fileType != 'png' && _fileType != 'jpg' && _fileType != 'jpeg' && _fileType != 'webp') {
+          if (_fileType != 'png' && _fileType != 'jpg' && _fileType != 'jpeg') {
             bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
           }
 
@@ -1684,8 +1684,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
             File thumbnailFile = File(tempThumbnailPath);
             final thumbnailBytes = await VideoThumbnail.thumbnailData(
               video: filePathVal,
-              imageFormat: ImageFormat.WEBP,
-              quality: 20,
+              imageFormat: ImageFormat.JPEG,
+              quality: 40,
             );
 
             await thumbnailFile.writeAsBytes(thumbnailBytes!);
@@ -2526,7 +2526,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
               
                         const SizedBox(height: 5),
               
-                        _buildFilterTypeButtons("Images",Icons.photo,'.png,.jpg,.jpeg,.webp'),
+                        _buildFilterTypeButtons("Images",Icons.photo,'.png,.jpg,.jpeg'),
               
                         Row(
               

@@ -63,7 +63,7 @@ class Globals {
   };
   
   static const Set<String> supportedFileTypes = {
-    "png","jpeg","webp","gif","jpg",
+    "png","jpeg","gif","jpg","webp",
     "html","sql","md","txt","pptx","ptx",
     "pdf","doc","docx","mp4","wav","avi","wmv","mov","mp3",
     "exe","xlsx","xls","csv","apk"
