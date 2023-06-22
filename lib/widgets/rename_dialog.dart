@@ -2,6 +2,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RenameDialog {
 
@@ -24,18 +25,28 @@ class RenameDialog {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Text(
-                      ShortenText().cutText(fileName),
-                      style: const TextStyle(
-                        color: ThemeColor.justWhite,
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Text(
+                        ShortenText().cutText(fileName),
+                        style: const TextStyle(
+                          color: ThemeColor.justWhite,
+                          fontSize: 15,
+                          overflow: TextOverflow.ellipsis,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
+
+                  IconButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: fileName));
+                    },
+                    icon: const Icon(Icons.copy,color: ThemeColor.thirdWhite,size: 22),
+                  ),
+
                 ],
               ),
               Padding(

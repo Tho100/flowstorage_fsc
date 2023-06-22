@@ -12,20 +12,23 @@ class SharingName {
   /// 
   /// </summary>
 
-  Future<String> shareToOtherName() async {
+  Future<String> shareToOtherName({required int usernameIndex}) async {
 
     final connection = await SqlConnection.insertValueParams();
-    
-    const query = "SELECT CUST_TO FROM cust_sharing WHERE CUST_FROM = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+
+    List<String> sharedToNameList = <String>[];
+
+    const query = "SELECT CUST_TO FROM cust_sharing WHERE CUST_FROM = :from";
+    final params = {'from': Globals.custUsername};
     final results = await connection.execute(query,params);
 
     String? sharedToName;
     for(final row in results.rows) {
       sharedToName = row.assoc()['CUST_TO'];
+      sharedToNameList.add(sharedToName!);
     }
 
-    return sharedToName!;
+    return sharedToNameList[usernameIndex];
     
   }
 

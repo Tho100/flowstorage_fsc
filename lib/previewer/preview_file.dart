@@ -54,6 +54,7 @@ class CakePreviewFile extends StatefulWidget {
   final String selectedFilename;
   final String originFrom;
   final String fileType;
+  final int tappedIndex;
 
   const CakePreviewFile({
     Key? key,
@@ -62,6 +63,7 @@ class CakePreviewFile extends StatefulWidget {
     required this.selectedFilename,
     required this.originFrom,
     required this.fileType,
+    required this.tappedIndex
   }) : super(key: key);
 
   @override
@@ -605,7 +607,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
               child: SizedBox(
                 width: double.infinity,
                 child: Text(
-                  widget.originFrom == "homeFiles" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" ? "  ${Globals.custUsername}" : widget.originFrom == "sharedFiles" ? "  ${await SharingName().shareToOtherName()}" : "  ${await SharingName().sharerName()}",
+                  widget.originFrom == "homeFiles" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" ? "  ${Globals.custUsername}" : widget.originFrom == "sharedFiles" ? "  ${await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex)}" : "  ${await SharingName().sharerName()}",
                   textAlign: TextAlign.start,
                   style: const TextStyle(
                     fontSize: 18,
@@ -1055,6 +1057,10 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
               child: AppBar(
               backgroundColor: _currentTable == "file_info" || _currentTable == "file_info_vid" ? const Color(0x44000000) : ThemeColor.darkBlack,
               actions: <Widget>[
+                IconButton(
+                  onPressed: _buildBottomInfo,
+                  icon: const Icon(Icons.info_outlined),
+                ),
                 IconButton(
                   onPressed: () async {
                     await buildBottomTrailing(Globals.selectedFileName);

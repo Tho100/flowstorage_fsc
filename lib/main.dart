@@ -1746,8 +1746,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     final thumbnailBytes = await VideoThumbnail.thumbnailData(
       video: videoPath,
-      imageFormat: ImageFormat.WEBP,
-      quality: 30,
+      imageFormat: ImageFormat.JPEG,
+      quality: 40,
     );
 
     File thumbnailFile = File(tempThumbnailPath);
@@ -2859,6 +2859,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
                         selectedFilename: Globals.selectedFileName,
                         originFrom: Globals.fileOrigin,
                         fileType: _fileType,
+                        tappedIndex: index
                       ),
                     ),
                   );
