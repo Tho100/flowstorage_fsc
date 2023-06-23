@@ -45,10 +45,14 @@ class InsertData {
       case 'file_info_gif':
       case 'file_info_exe':
 
+      case 'ps_info_text':
+      case 'ps_info_image':
+
         await insertFileInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,);
         break;
 
       case 'file_info_vid':
+      case 'ps_info_video':
         await insertVideoInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,thumb);
         break;
 

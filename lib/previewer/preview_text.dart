@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -49,10 +50,15 @@ class PreviewTextState extends State<PreviewText> {
 
       if (Globals.fileOrigin != "offlineFiles") {
 
+        final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_text" : "file_info_expand";
+        final uploaderUsername = Globals.fileOrigin == "psFiles" 
+        ? await UploaderName().getUploaderName(tableName: "ps_info_text",fileValues: Globals.textType)
+        : Globals.custUsername;
+
         return retrieveData.retrieveDataParams(
-          Globals.custUsername,
+          uploaderUsername,
           Globals.selectedFileName,
-          "file_info_expand",
+          tableName,
           Globals.fileOrigin,
         );
 

@@ -61,7 +61,36 @@ class Globals {
     'avi': 'file_info_vid',
     'mov': 'file_info_vid',
   };
-  
+
+  static const Map<String, String> fileTypesToTableNamesPs = {
+
+    'png': 'ps_info_image',
+    'jpg': 'ps_info_image',
+    'webp': 'ps_info_image',
+    'jpeg': 'ps_info_image',
+    'gif': 'ps_info_image',
+
+    'txt': 'ps_info_text',
+    'sql': 'ps_info_text',
+    'md': 'ps_info_text',
+    'csv': 'ps_info_text',
+    'html': 'ps_info_text',
+
+    'pdf': 'ps_info_pdf',
+    'doc': 'file_info_word',
+    'docx': 'file_info_word',
+    'pptx': 'file_info_ptx',
+    'ptx': 'file_info_ptx',
+    'xlsx': 'ps_info_excel',
+    'xls': 'ps_info_excel',
+    
+    'exe': 'ps_info_exe',
+
+    'mp4': 'ps_info_video',
+    'avi': 'ps_info_video',
+    'mov': 'ps_info_video',
+  };
+
   static const Set<String> supportedFileTypes = {
     "png","jpeg","gif","jpg","webp",
     "html","sql","md","txt","pptx","ptx",
@@ -72,6 +101,10 @@ class Globals {
   static const Set<String> imageType = {"png","jpeg","jpg","webp"};
   static const Set<String> textType = {"txt","csv","html","sql","md"};
   static const Set<String> videoType = {"mp4","wmv","avi","mov","mkv"};
+  static const Set<String> wordType = {"docx","doc"};
+  static const Set<String> excelType = {"xls","xlsx"};
+  static const Set<String> audioType = {"wav","mp3"};
+
   static const Set<String> tableNames = {
     "file_info","file_info_expand","file_info_exe","file_info_pdf",
     "file_info_vid","file_info_excel","file_info_ptx","file_info_audi",
@@ -99,6 +132,18 @@ class Globals {
       'sharedFiles': 'Shared files',
       'offlineFiles': 'Offline',
       'psFiles': 'Public Storage'
+    };
+  }
+
+  static Map<String,String> get nameToOrigin {
+    return {
+      'Home': 'homeFiles',
+      Globals.folderTitleValue: 'folderFiles',
+      Globals.directoryTitleValue: 'dirFiles',
+      'Shared to me': 'sharedToMe',
+      'Shared files': 'sharedFiles',
+      'Offline': 'offlineFiles',
+      'Public Storage': 'psFiles'
     };
   }
 

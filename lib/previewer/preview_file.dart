@@ -22,6 +22,7 @@ import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
+import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
@@ -378,15 +379,22 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
       switch (_currentTable) {
 
         case "file_info_vid":
+        case "ps_info_video":
         case "file_info_audi":
           return Future.value(Uint8List.fromList([0]));
 
         case "file_info":
+        case "ps_info_image":
           return Future.value(Uint8List.fromList([0]));
 
         default:
+
+          final uploaderUsername = Globals.fileOrigin == "psFiles" 
+          ? await UploaderName().getUploaderName(tableName: _currentTable,fileValues: Globals.textType)
+          : Globals.custUsername;
+        
           return await Future(() => retrieveData.retrieveDataParams(
-            Globals.custUsername,
+            uploaderUsername,
             widget.selectedFilename,
             _currentTable,
             widget.originFrom,
@@ -574,6 +582,39 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
+  Future<String> uploaderName() async {
+    
+    const localOriginFrom = {"homeFiles","folderFiles","dirFiles"};
+    const sharingOriginFrom = {"sharedFiles","sharedToMe"};
+
+    late String returnedUploaderName;
+
+    if(localOriginFrom.contains(widget.originFrom)) {
+      
+      returnedUploaderName = "${Globals.custUsername}";
+
+    } else if (sharingOriginFrom.contains(widget.originFrom)) {
+
+      returnedUploaderName = widget.originFrom == "sharedFiles" 
+      ? "${await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex)}" 
+      : "${await SharingName().sharerName()}";
+
+    } else if (widget.originFrom == "psFiles") {
+
+      final uploaderUsername = 
+      await UploaderName().getUploaderName(
+        tableName: Globals.fileTypesToTableNamesPs[_fileType]!,
+        fileValues: {_fileType}
+      );
+
+      returnedUploaderName = uploaderUsername;
+
+    }
+
+    return "  $returnedUploaderName";
+
+  }
+
   Future<Widget> _buildBottomBar(BuildContext context) async {
     return Container(
         height: 138,
@@ -592,7 +633,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
               child: SizedBox(
                 width: double.infinity,
                 child: Text(
-                  widget.originFrom == "homeFiles" || widget.originFrom == "sharedToMe" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" ? '   Uploaded By' : "   Shared To",
+                  widget.originFrom == "homeFiles" || widget.originFrom == "sharedToMe" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" || widget.originFrom == "psFiles" ? '   Uploaded By' : "   Shared To",
                   textAlign: TextAlign.start,
                   style: const TextStyle(
                     fontSize: 12,
@@ -602,18 +643,30 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
                 ),
               ),
             ),
+
             Padding(
-              padding: const EdgeInsets.only(left: 6, top: 12), 
+              padding: const EdgeInsets.only(left: 6, top: 12),
               child: SizedBox(
                 width: double.infinity,
-                child: Text(
-                  widget.originFrom == "homeFiles" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" ? "  ${Globals.custUsername}" : widget.originFrom == "sharedFiles" ? "  ${await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex)}" : "  ${await SharingName().sharerName()}",
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: FutureBuilder<String>(
+                  future: uploaderName(),
+                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container();
+                    } else if (snapshot.hasError) {
+                      return const Text('(Error)');
+                    } else {
+                      return Text(
+                        snapshot.data ?? '(Unknown)',
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
             ),
@@ -1045,7 +1098,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: _currentTable == "file_info" || _currentTable == "file_info_vid" ? true : false,
+      extendBodyBehindAppBar: _currentTable == "file_info" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? true : false,
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_appBarHeight),
@@ -1053,9 +1106,9 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
           valueListenable: bottomBarVisible,
           builder: (BuildContext context, bool value, Widget? child) {
             return Visibility(
-              visible: _currentTable == "file_info" ? bottomBarVisible.value : true,
+              visible: _currentTable == "file_info" || _currentTable == "ps_info_image" ? bottomBarVisible.value : true,
               child: AppBar(
-              backgroundColor: _currentTable == "file_info" || _currentTable == "file_info_vid" ? const Color(0x44000000) : ThemeColor.darkBlack,
+              backgroundColor: _currentTable == "file_info" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
               actions: <Widget>[
                 IconButton(
                   onPressed: _buildBottomInfo,

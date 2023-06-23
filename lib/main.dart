@@ -66,6 +66,7 @@ import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/rename.dart';
 
 import 'splash_screen.dart';
+import 'ui_dialog/loading/JustLoading.dart';
 
 void main() async {
   runApp(const MainRun());
@@ -851,6 +852,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
       await _callDirectoryData();
     } else if (Globals.fileOrigin == "offlineFiles") {
       await _callOfflineData();
+    } else if (Globals.fileOrigin == "psFiles") {
+      await _callPublicStorageData();
     }
   
     _onTextChanged('');
@@ -980,7 +983,12 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
   Future<void> _callPublicStorageData() async {
 
+    final justLoading = JustLoading();
+
+    _navDirectoryButtonVisibility(false);
     appBarTitle.value = "Public Storage";
+
+    justLoading.startLoading(context: context);
 
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams();
@@ -1006,6 +1014,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
     _onTextChanged('');
     _searchController.text = '';
     _navHomeButtonVisibility(true);
+
+    justLoading.stopLoading();
     
   }
 
@@ -1269,10 +1279,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     List<Future<void>> isolatedFileFutures = [];
 
-    print(table);
-    print(filePath);
-
-    /*isolatedFileFutures.add(insertData.insertValueParams(
+    isolatedFileFutures.add(insertData.insertValueParams(
       tableName: table,
       filePath: filePath,
       userName: Globals.custUsername,
@@ -1280,7 +1287,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       vidThumb: vidThumbnail,
     ));
 
-    await Future.wait(isolatedFileFutures);*/
+    await Future.wait(isolatedFileFutures);
   }
 
   /// <summary>
@@ -1366,10 +1373,12 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
         newFileToDisplay = thumbnailFile;
 
+        final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info_vid" : "ps_info_video";
+
         await _processUploadListView(
           filePathVal: filePathVal,
           selectedFileName: selectedFileName,
-          tableName: "file_info_vid",
+          tableName: verifyTableName,
           fileBase64Encoded: bodyBytes,
           newFileToDisplay: newFileToDisplay,
           thumbnailBytes: thumbnailBytes
@@ -1496,7 +1505,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
           if (Globals.imageType.contains(_fileType)) {
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info",fileBase64Encoded: bodyBytes);
+            final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info" : "ps_info_image";
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: verifyTableName,fileBase64Encoded: bodyBytes);
 
           }
 
@@ -1550,22 +1560,23 @@ class cakeHomeWidgetState extends State<Mainboard> {
     required String tableName,
     required String fileBase64Encoded, 
     File? newFileToDisplay,
-    dynamic thumbnailBytes}) async {
+    dynamic thumbnailBytes
+  }) async {
 
     final List<File> newImageValues = [];
     final List<File> newFilteredSearchedImage = [];
     final List<Uint8List> newImageByteValues = [];
     final List<Uint8List> newFilteredSearchedBytes = [];
 
-    tableName == "file_info" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
-    tableName == "file_info" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
+    tableName == "file_info" || tableName == "ps_info_image" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
+    tableName == "file_info" || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
-  
+
     await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
 
     setState(() {
-      Globals.fileOrigin = Globals.fileOrigin == "dirFiles" ? "dirFiles" : "homeFiles";
+      Globals.fileOrigin = Globals.nameToOrigin[appBarTitle.value]!;
       Globals.imageValues.addAll(newImageValues);
       Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
       Globals.imageByteValues.addAll(newImageByteValues);
@@ -1733,7 +1744,9 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
           } else {
             newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[_fileType]!);
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: Globals.fileTypesToTableNames[_fileType]!,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
+            final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[_fileType]! : Globals.fileTypesToTableNamesPs[_fileType]!;
+            print(getFileTable);
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 
           scaffoldMessenger.hideCurrentSnackBar();

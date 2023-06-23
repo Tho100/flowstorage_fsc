@@ -48,6 +48,9 @@ class RetrieveData {
     } else if (originFrom == "dirFiles") {
       query = "SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
       queryParams = {"username": username!, "dirname": encryption.Encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
+    } else if (originFrom == "psFiles") {
+      query = "SELECT CUST_FILE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
+      queryParams = {"username": username!, "filename": encryptedFileName};
     }
 
     final row = (await fscDbCon.execute(query, queryParams)).rows.first;

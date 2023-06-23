@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -48,10 +49,15 @@ class PreviewVideoState extends State<PreviewVideo> {
     
     _videoIsLoading.value = true;
 
+    final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_video" : "file_info_vid";
+    final uploaderUsername = Globals.fileOrigin == "psFiles" 
+    ? await UploaderName().getUploaderName(tableName: "ps_info_video",fileValues: Globals.videoType)
+    : Globals.custUsername;
+
     final videoBytes = await retrieveData.retrieveDataParams(
-      Globals.custUsername,
+      uploaderUsername,
       Globals.selectedFileName,
-      "file_info_vid",
+      tableName,
       Globals.fileOrigin,
     );
 
