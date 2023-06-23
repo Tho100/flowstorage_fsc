@@ -606,20 +606,6 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
       
             const SizedBox(height: 10),
       
-            _buildInfoText("Backup"),
-      
-            const SizedBox(height: 10),
-      
-            _buildRowWithButtons(
-              topText: "Backup recovery key", 
-              bottomText: "Recovery key enables password reset in case of forgotten passwords", 
-              onPressed: () async {
-                NavigatePage.goToPageBackupRecovery(context);
-              }
-            ),
-      
-            const SizedBox(height: 10),
-      
             _buildInfoText("Security"),
       
             const SizedBox(height: 10),
@@ -631,7 +617,31 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                 _buildAddPasscodeDialog();
               }
             ),
-            
+
+            const SizedBox(height: 15),
+
+            _buildRowWithButtons(
+              topText: "Backup recovery key", 
+              bottomText: "Recovery key enables password reset in case of forgotten passwords", 
+              onPressed: () async {
+                NavigatePage.goToPageBackupRecovery(context);
+              }
+            ),
+
+            const SizedBox(height: 10),
+      
+            _buildInfoText("Insight"),
+      
+            const SizedBox(height: 10),
+      
+            _buildRowWithButtons(
+              topText: "Statistics", 
+              bottomText: "Get more insight about your Flowstorage activity", 
+              onPressed: () {
+                NavigatePage.goToPageStatistics(context);
+              }
+            ),
+
             const SizedBox(height: 20),
 
             _buildLogoutButton(),

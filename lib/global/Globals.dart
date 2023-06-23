@@ -75,7 +75,13 @@ class Globals {
   static const Set<String> tableNames = {
     "file_info","file_info_expand","file_info_exe","file_info_pdf",
     "file_info_vid","file_info_excel","file_info_ptx","file_info_audi",
-    "file_info_word","file_info_directory","upload_info_directory"};
+    "file_info_word","file_info_directory","upload_info_directory"
+  };
+
+  static const Set<String> tableNamesPs = {
+    "ps_info_image","ps_info_text",
+    "ps_info_video"
+  };
 
   static const Map<String, int> filesUploadLimit = {
     'Basic': 25,
@@ -91,7 +97,8 @@ class Globals {
       'dirFiles': Globals.directoryTitleValue,
       'sharedToMe': 'Shared to me',
       'sharedFiles': 'Shared files',
-      'offlineFiles': 'Offline'
+      'offlineFiles': 'Offline',
+      'psFiles': 'Public Storage'
     };
   }
 

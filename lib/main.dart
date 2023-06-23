@@ -14,6 +14,7 @@ import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
@@ -977,6 +978,37 @@ class cakeHomeWidgetState extends State<Mainboard> {
     _navHomeButtonVisibility(true);
   }
 
+  Future<void> _callPublicStorageData() async {
+
+    appBarTitle.value = "Public Storage";
+
+    final psDataRetriever = PublicStorageDataRetriever();
+    final dataList = await psDataRetriever.retrieveParams();
+
+    final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
+    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
+
+    Globals.fileValues.clear();
+    Globals.dateStoresValues.clear();
+    Globals.filteredSearchedFiles.clear();
+    Globals.setDateValues.clear();
+    Globals.filteredSearchedBytes.clear();
+    Globals.filteredSearchedImage.clear();
+    Globals.imageValues.clear();
+    Globals.imageByteValues.clear();
+
+    Globals.fileValues.addAll(nameList);
+    Globals.dateStoresValues.addAll(dateList);
+    Globals.setDateValues.addAll(dateList);
+    Globals.imageByteValues.addAll(byteList);
+
+    _onTextChanged('');
+    _searchController.text = '';
+    _navHomeButtonVisibility(true);
+    
+  }
+
   // TODO: Open the user camera and 
   // retrieve photo data, encrypt the byte value
 
@@ -1237,7 +1269,10 @@ class cakeHomeWidgetState extends State<Mainboard> {
 
     List<Future<void>> isolatedFileFutures = [];
 
-    isolatedFileFutures.add(insertData.insertValueParams(
+    print(table);
+    print(filePath);
+
+    /*isolatedFileFutures.add(insertData.insertValueParams(
       tableName: table,
       filePath: filePath,
       userName: Globals.custUsername,
@@ -1245,7 +1280,7 @@ class cakeHomeWidgetState extends State<Mainboard> {
       vidThumb: vidThumbnail,
     ));
 
-    await Future.wait(isolatedFileFutures);
+    await Future.wait(isolatedFileFutures);*/
   }
 
   /// <summary>
@@ -3901,8 +3936,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
             label: "Share",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.pie_chart_outline_outlined),
-            label: "Statistics",
+            icon: Icon(Icons.search),
+            label: "Discover",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
@@ -3922,7 +3957,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
                 break;
             
             case 2:
-              NavigatePage.goToPageStatistics(context);
+              Globals.fileOrigin = "psFiles";
+              await _callPublicStorageData();
               break;
 
             case 3:
