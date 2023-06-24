@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/main.dart';
+import 'package:flowstorage_fsc/ui_dialog/TitledAlert.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
 
   final TextEditingController addPasswordController = TextEditingController();
   final TextEditingController addPasscodeController = TextEditingController();
-
+  
   @override
   void initState() {
     super.initState();
@@ -591,6 +592,15 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                 setState(() {
                   _sharingEnabledButton = _sharingEnabledButton == "Disable" ? "Enable" : "Disable";
                 });
+
+                final sharingStatus = _sharingEnabledButton == "Enable" ? "Disabled" : "Enabled";
+
+                const fileSharingDisabledMsg = "You disabled your file sharing. No one can share a file to you.";
+                const fileSharingEnabledMsg = "You enabled file sharing. People can share a file to you.";
+
+                final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
+
+                AlertForm.alertDialogTitle("Sharing $sharingStatus", conclusionSubMsg, context);
               }
             ),
       
@@ -637,6 +647,20 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
             _buildRowWithButtons(
               topText: "Statistics", 
               bottomText: "Get more insight about your Flowstorage activity", 
+              onPressed: () {
+                NavigatePage.goToPageStatistics(context);
+              }
+            ),
+
+            const SizedBox(height: 10),
+      
+            _buildInfoText("Cache"),
+      
+            const SizedBox(height: 10),
+      
+            _buildRowWithButtons(
+              topText: "Clear cache", 
+              bottomText: "Clear your files cache", 
               onPressed: () {
                 NavigatePage.goToPageStatistics(context);
               }
