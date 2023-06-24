@@ -6,7 +6,7 @@ class StripeCustomers {
   static Future<String> getCustomerIdByEmail(String email) async {
 
     const apiKey = 'sk_test_51MO4YYF2lxRV33xsBfTJLQypyLBjhoxYdz18VoLrZZ6hin4eJrAV9O6NzduqR02vosmC4INFgBgxD5TkrkpM3sZs00hqhx3ZzN';
-    final url = 'https://api.stripe.com/v1/customers';
+    const url = 'https://api.stripe.com/v1/customers';
 
     final response = await http.get(
       Uri.parse(url),

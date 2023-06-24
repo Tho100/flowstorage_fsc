@@ -12,13 +12,13 @@ class ByteGetterPs {
   static const _fileInfoTable = 'ps_info_image';
   static const _fileInfoExpandTable = 'ps_info_text';
   static const _fileInfoVidTable = 'ps_info_video';
-  static const _fileInfoPdfTable = 'file_info_pdf';
-  static const _fileInfoPtx = 'file_info_ptx';
-  static const _fileInfoExl = 'file_info_excel';
-  static const _fileInfoDoc = 'file_info_word';
-  static const _fileInfoApk = 'file_info_apk';
-  static const _fileInfoAudio = 'file_info_audi';
-  static const _fileInfoExe = 'file_info_exe';
+  static const _fileInfoPdfTable = 'ps_info_pdf';
+  static const _fileInfoPtx = 'ps_info_ptx';
+  static const _fileInfoExl = 'ps_info_excel';
+  static const _fileInfoDoc = 'ps_info_word';
+  static const _fileInfoApk = 'ps_info_apk';
+  static const _fileInfoAudio = 'ps_info_audi';
+  static const _fileInfoExe = 'ps_info_exe';
 
   int countDirCurr = 0;
 

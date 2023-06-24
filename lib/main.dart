@@ -1072,7 +1072,9 @@ class cakeHomeWidgetState extends State<Mainboard> {
     try {
 
       final fileType = fileName.split('.').last;
-      final tableName = Globals.fileTypesToTableNames[fileType];
+      final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType] : Globals.fileTypesToTableNames[fileType];
+
+      print(tableName);
 
       if(fileType == fileName) {
         await SaveDirectory().selectDirectoryUserDirectory(directoryName: fileName, context: context);
@@ -1745,7 +1747,6 @@ class cakeHomeWidgetState extends State<Mainboard> {
           } else {
             newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[_fileType]!);
             final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[_fileType]! : Globals.fileTypesToTableNamesPs[_fileType]!;
-            print(getFileTable);
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 

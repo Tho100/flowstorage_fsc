@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/public_storage/date_getter.dart';
 import 'package:flowstorage_fsc/public_storage/name_getter.dart';
 
 class PublicStorageDataRetriever {
+  
   final nameGetter = NameGetterPs();
   final dateGetter = DateGetterPs();
   final byteGetter = ByteGetterPs();

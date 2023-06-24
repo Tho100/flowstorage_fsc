@@ -47,6 +47,7 @@ class InsertData {
 
       case 'ps_info_text':
       case 'ps_info_image':
+      case 'ps_info_excel':
 
         await insertFileInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,);
         break;

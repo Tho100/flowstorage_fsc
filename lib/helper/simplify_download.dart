@@ -52,20 +52,22 @@ class SimplifyDownload {
 
     try {
 
-      if(currentTableValue == "file_info") {
+      const generalFilesTableName = {"file_info_expand","ps_info_text","file_info_vid","ps_info_video"};
+
+      if(currentTableValue == "file_info" || currentTableValue == "ps_info_image") {
 
         await ImageGallerySaver.saveImage(fileDataValue!);
 
-      } else if (currentTableValue == "file_info_expand") {
+      } else if (currentTableValue == "file_info_expand" || currentTableValue == "ps_info_text") {
 
         String textFileContent = utf8.decode(fileDataValue!);
         await SaveApi().saveFile(fileName: fileNameValue!,fileData: textFileContent);
         
-      } else if (currentTableValue == "file_info_vid") { 
+      } else if (currentTableValue == "file_info_vid" || currentTableValue == "ps_info_video") { 
 
         await _videoGallerySaver(fileDataValue!);
 
-      } else if (currentTableValue != "file_info_expand" || currentTableValue != "file_info_vid" || currentTableValue != "file_info_video") {
+      } else if (!(generalFilesTableName.contains(currentTableValue))) {
 
         await SaveApi().saveFile(fileName: fileNameValue!, fileData: fileDataValue!);
 

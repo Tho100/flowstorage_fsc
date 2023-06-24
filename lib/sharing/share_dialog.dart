@@ -181,8 +181,8 @@ class SharingDialog {
                               return;
                             }
 
-                            String fileExtension = fileName.split('.').last;
-                            String tableName = Globals.fileTypesToTableNames[fileExtension]!;
+                            final fileExtension = fileName.split('.').last;
+                            final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileExtension]! : Globals.fileTypesToTableNames[fileExtension]!;
                             String? thumbnail;
 
                             final shareToComment = commentController!.text.isEmpty ? '' : EncryptionClass().Encrypt(commentController.text);

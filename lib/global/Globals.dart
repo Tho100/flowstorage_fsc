@@ -33,33 +33,51 @@ class Globals {
   static List<File> filteredSearchedImage = <File>[];
   static List<Uint8List?> filteredSearchedBytes = <Uint8List?>[];
 
+  static const String fileInfoTable = 'file_info';
+  static const String fileInfoExpandTable = 'file_info_expand';
+  static const String fileInfoPdfTable = 'file_info_pdf';
+  static const String fileInfoWordTable = 'file_info_word';
+  static const String fileInfoPtxTable = 'file_info_ptx';
+  static const String fileInfoExcelTable = 'file_info_excel';
+  static const String fileInfoExeTable = 'file_info_exe';
+  static const String fileInfoVidTable = 'file_info_vid';
+
+  static const Set<String> imageType = {"png","jpeg","jpg","webp"};
+  static const Set<String> textType = {"txt","csv","html","sql","md"};
+  static const Set<String> videoType = {"mp4","wmv","avi","mov","mkv"};
+  static const Set<String> wordType = {"docx","doc"};
+  static const Set<String> excelType = {"xls","xlsx"};
+  static const Set<String> audioType = {"wav","mp3"};
+
   static const Map<String, String> fileTypesToTableNames = {
+    'png': fileInfoTable,
+    'jpg': fileInfoTable,
+    'webp': fileInfoTable,
+    'jpeg': fileInfoTable,
+    'gif': fileInfoTable,
 
-    'png': 'file_info',
-    'jpg': 'file_info',
-    'webp': 'file_info',
-    'jpeg': 'file_info',
-    'gif': 'file_info',
+    'txt': fileInfoExpandTable,
+    'sql': fileInfoExpandTable,
+    'md': fileInfoExpandTable,
+    'csv': fileInfoExpandTable,
+    'html': fileInfoExpandTable,
 
-    'txt': 'file_info_expand',
-    'sql': 'file_info_expand',
-    'md': 'file_info_expand',
-    'csv': 'file_info_expand',
-    'html': 'file_info_expand',
+    'pdf': fileInfoPdfTable,
 
-    'pdf': 'file_info_pdf',
-    'doc': 'file_info_word',
-    'docx': 'file_info_word',
-    'pptx': 'file_info_ptx',
-    'ptx': 'file_info_ptx',
-    'xlsx': 'file_info_excel',
-    'xls': 'file_info_excel',
-    
-    'exe': 'file_info_exe',
+    'doc': fileInfoWordTable,
+    'docx': fileInfoWordTable,
 
-    'mp4': 'file_info_vid',
-    'avi': 'file_info_vid',
-    'mov': 'file_info_vid',
+    'pptx': fileInfoPtxTable,
+    'ptx': fileInfoPtxTable,
+
+    'xlsx': fileInfoExcelTable,
+    'xls': fileInfoExcelTable,
+
+    'exe': fileInfoExeTable,
+
+    'mp4': fileInfoVidTable,
+    'avi': fileInfoVidTable,
+    'mov': fileInfoVidTable,
   };
 
   static const Map<String, String> fileTypesToTableNamesPs = {
@@ -98,13 +116,6 @@ class Globals {
     "exe","xlsx","xls","csv","apk"
   };
 
-  static const Set<String> imageType = {"png","jpeg","jpg","webp"};
-  static const Set<String> textType = {"txt","csv","html","sql","md"};
-  static const Set<String> videoType = {"mp4","wmv","avi","mov","mkv"};
-  static const Set<String> wordType = {"docx","doc"};
-  static const Set<String> excelType = {"xls","xlsx"};
-  static const Set<String> audioType = {"wav","mp3"};
-
   static const Set<String> tableNames = {
     "file_info","file_info_expand","file_info_exe","file_info_pdf",
     "file_info_vid","file_info_excel","file_info_ptx","file_info_audi",
@@ -112,8 +123,7 @@ class Globals {
   };
 
   static const Set<String> tableNamesPs = {
-    "ps_info_image","ps_info_text",
-    "ps_info_video"
+    "ps_info_image","ps_info_text","ps_info_video","ps_info_excel"
   };
 
   static const Map<String, int> filesUploadLimit = {

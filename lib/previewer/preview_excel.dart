@@ -36,7 +36,7 @@ class previewExcelState extends State<PreviewExcel> {
 
       final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_excel" : "file_info_excel";
       final uploaderUsername = Globals.fileOrigin == "psFiles" 
-      ? await UploaderName().getUploaderName(tableName: "ps_info_excel",fileValues: Globals.textType)
+      ? await UploaderName().getUploaderName(tableName: "ps_info_excel",fileValues: Globals.excelType)
       : Globals.custUsername;
 
       return retrieveData.retrieveDataParams(

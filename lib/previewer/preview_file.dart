@@ -186,8 +186,8 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
   Future<void> _renameFile(String oldFileName, String newFileName) async {
     
-    String fileType = oldFileName.split('.').last;
-    String tableName = Globals.fileTypesToTableNames[fileType]!;
+    final fileType = oldFileName.split('.').last;
+    final tableName = Globals.fileTypesToTableNames[fileType]!;
 
     try {
       
@@ -344,7 +344,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Widget _buildHeaderTitle() {
-    return _currentTable == "file_info_expand" ? Row(
+    return _currentTable == "file_info_expand" || _currentTable == "ps_info_text" ? Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -364,6 +364,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future<Uint8List> _callDataDownload() async {
+
     return await retrieveData.retrieveDataParams(
       Globals.custUsername,
       widget.selectedFilename,
@@ -507,7 +508,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
     try {
 
       final fileType = fileName.split('.').last;
-      final tableName = Globals.fileTypesToTableNames[fileType];
+      final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType]! : Globals.fileTypesToTableNames[fileType];
       final loadingDialog = MultipleTextLoading();
       
       loadingDialog.startLoading(title: "Downloading...", subText: fileName, context: context);
@@ -591,7 +592,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
     if(localOriginFrom.contains(widget.originFrom)) {
       
-      returnedUploaderName = "${Globals.custUsername}";
+      returnedUploaderName = Globals.custUsername;
 
     } else if (sharingOriginFrom.contains(widget.originFrom)) {
 
@@ -1094,7 +1095,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
   @override
   Widget build(BuildContext context) {
 
-    _currentTable = Globals.fileTypesToTableNames[_fileType]!;
+    _currentTable = Globals.fileOrigin != "homeFiles " ? Globals.fileTypesToTableNamesPs[_fileType]! : Globals.fileTypesToTableNames[_fileType]!;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -1124,7 +1125,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
               titleSpacing: 0,
               elevation: 0,
               centerTitle: false,
-              title: _currentTable == "file_info_expand"
+              title: _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
                 ? const SizedBox()
                 : ValueListenableBuilder<String>(
                   valueListenable: appBarTitleNotifier,
@@ -1143,9 +1144,9 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
             children: [
               _buildHeaderTitle(),
               Expanded(
-                child: _currentTable == "file_info_expand"
+                child: _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
                   ? PreviewText(controller: _textController)
-                  : (_currentTable == "file_info_excel"
+                  : (_currentTable == "file_info_excel" || _currentTable == "ps_info_excel"
                       ? const PreviewExcel()
                       : _buildFilePreview()),
               ),
