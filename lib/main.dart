@@ -157,6 +157,8 @@ class cakeHomeWidgetState extends State<Mainboard> {
   bool isAscendingItemName = false;
   bool isAscendingUploadDate = false;
 
+  bool isImageBottomTrailingVisible = false;
+
   Future<void>? _debounceSearch;
 
   final fileNameGetterHome = NameGetter();
@@ -2372,11 +2374,29 @@ class cakeHomeWidgetState extends State<Mainboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 12,top: 12, bottom: 12),
+                  child: Visibility(
+                    visible: Globals.imageType.contains(fileName.split('.').last),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image(
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.fileValues.indexWhere((name) => name == fileName)]!),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 12.0, top: 12.0),
                     child: Text(
                       fileName.length > 50 ? "${fileName.substring(0,50)}..." : fileName,
                       style: const TextStyle(
@@ -2387,9 +2407,15 @@ class cakeHomeWidgetState extends State<Mainboard> {
                       ),
                     ),
                   ),
-                ],
-              ),
-              
+                ),
+              ],
+            ),
+
+            Visibility(
+              visible: Globals.imageType.contains(fileName.split('.').last),
+              child: const Divider(color: ThemeColor.thirdWhite),
+            ),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);

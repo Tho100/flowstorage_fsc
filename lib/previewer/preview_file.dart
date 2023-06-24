@@ -818,7 +818,7 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
 
                         const SizedBox(width: 8),
 
-                        _currentTable == "file_info" ? _fileResolution.value == '' ? FutureBuilder<String>(
+                        _currentTable == "file_info" || _currentTable == "ps_info_image" ? _fileResolution.value == '' ? FutureBuilder<String>(
                           future: _returnImageSize(),
                           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                             if(snapshot.hasData) {
@@ -935,11 +935,29 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 12,top: 12, bottom: 12),
+                  child: Visibility(
+                    visible: Globals.imageType.contains(fileName.split('.').last),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image(
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.fileValues.indexWhere((name) => name == fileName)]!),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 12.0, top: 12.0),
                     child: Text(
                       fileName.length > 50 ? "${fileName.substring(0,50)}..." : fileName,
                       style: const TextStyle(
@@ -950,8 +968,15 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
+
+            
+            Visibility(
+              visible: Globals.imageType.contains(fileName.split('.').last),
+              child: const Divider(color: ThemeColor.thirdWhite),
+            ),
               
             ElevatedButton(
               onPressed: () {
@@ -1095,11 +1120,11 @@ class _CakePreviewFileState extends State<CakePreviewFile> {
   @override
   Widget build(BuildContext context) {
 
-    _currentTable = Globals.fileOrigin != "homeFiles " ? Globals.fileTypesToTableNamesPs[_fileType]! : Globals.fileTypesToTableNames[_fileType]!;
+    _currentTable = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[_fileType]! : Globals.fileTypesToTableNames[_fileType]!;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: _currentTable == "file_info" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? true : false,
+      extendBodyBehindAppBar: _currentTable == "file_info" || _currentTable == "ps_info_image" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? true : false,
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_appBarHeight),
