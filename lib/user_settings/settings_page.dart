@@ -127,7 +127,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                               side: const BorderSide(color: ThemeColor.darkPurple),
                             ),
                           ),
-                          child: const Text('Cancel'),
+                          child: const Text('Close'),
                         ),
                       ),
                     ),
@@ -151,7 +151,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
                               final getAddPassword = AddPasswordSharing();
                               getAddPassword.insertValuesParams(username: _custUsername, newAuth: addPasswordController.text);
 
-                              SnakeAlert.okSnake(message: "Password for file sharing has been added.",icon: Icons.check,context: context);
+                              AlertForm.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
 
                             } catch (err) {
                               print(err);
