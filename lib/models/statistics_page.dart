@@ -18,7 +18,7 @@ class StatsPage extends State<StatisticsPage> {
 
   final categoryNamesHomeFiles = ['Image', 'Audio', 'Document', 'Video', 'Text'];
 
-  late List<_UploadCountValue> data;
+  late List<UploadCountValue> data;
   bool dataIsLoading = true;
 
   int totalUpload = 0;
@@ -95,11 +95,11 @@ class StatsPage extends State<StatisticsPage> {
 
       setState(() {
         data = [
-          _UploadCountValue('Image', uploadCategoryList[0]),
-          _UploadCountValue('Audio',uploadCategoryList[1]),
-          _UploadCountValue('Document', document0+document1+document2),
-          _UploadCountValue('Video', uploadCategoryList[3]),
-          _UploadCountValue('Text', uploadCategoryList[4])
+          UploadCountValue('Image', uploadCategoryList[0]),
+          UploadCountValue('Audio',uploadCategoryList[1]),
+          UploadCountValue('Document', document0+document1+document2),
+          UploadCountValue('Video', uploadCategoryList[3]),
+          UploadCountValue('Text', uploadCategoryList[4])
         ];
         dataIsLoading = false;
       });
@@ -278,12 +278,12 @@ class StatsPage extends State<StatisticsPage> {
           // Enable legend
           legend: Legend(isVisible: false),
           tooltipBehavior: TooltipBehavior(enable: true),
-          series: <ChartSeries<_UploadCountValue, String>>[
-            ColumnSeries<_UploadCountValue, String>(
+          series: <ChartSeries<UploadCountValue, String>>[
+            ColumnSeries<UploadCountValue, String>(
               color: ThemeColor.darkPurple,
               dataSource: data,
-              xValueMapper: (_UploadCountValue value, _) => value.category,
-              yValueMapper: (_UploadCountValue value, _) => value.totalUpload,
+              xValueMapper: (UploadCountValue value, _) => value.category,
+              yValueMapper: (UploadCountValue value, _) => value.totalUpload,
               name: 'Files',
               // Enable data label
               dataLabelSettings: const DataLabelSettings(isVisible: true),
@@ -479,9 +479,9 @@ class StatsPage extends State<StatisticsPage> {
   }
 }
 
-class _UploadCountValue {
+class UploadCountValue {
 
-  _UploadCountValue(this.category, this.totalUpload);
+  UploadCountValue(this.category, this.totalUpload);
 
   final String category;
   final int totalUpload;

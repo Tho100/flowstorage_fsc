@@ -13,10 +13,10 @@ class ChangePassword extends StatefulWidget {
   const ChangePassword({Key? key}) : super(key: key);
 
   @override
-  _ChangePasswordState createState() => _ChangePasswordState();
+  ChangePasswordState createState() => ChangePasswordState();
 }
 
-class _ChangePasswordState extends State<ChangePassword> {
+class ChangePasswordState extends State<ChangePassword> {
 
   final TextEditingController newPassController = TextEditingController();
   final TextEditingController curPassController = TextEditingController();

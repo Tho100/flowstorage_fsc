@@ -8,10 +8,10 @@ class PreviewImage extends StatefulWidget {
   const PreviewImage({Key? key, required this.onPageChanged}) : super(key: key);
 
   @override
-  State<PreviewImage> createState() => previewImageState();
+  PreviewImageState createState() => PreviewImageState();
 }
 
-class previewImageState extends State<PreviewImage> {
+class PreviewImageState extends State<PreviewImage> {
 
   int currentSelectedIndex = 0;
   late PageController _pageController;

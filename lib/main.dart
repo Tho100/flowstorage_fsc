@@ -94,14 +94,14 @@ class MainRun extends StatelessWidget {
 
 void homePage() => runApp(
   const MaterialApp(
-  home: cakeMySignUp(),
+  home: CakeSignUpPage(),
 ));
 
 class Mainboard extends StatefulWidget {
   
   const Mainboard({super.key});
   @override
-  State<Mainboard> createState() => cakeHomeWidgetState();
+  State<Mainboard> createState() => CakeHomeState();
 
   static void clearUserRecords() {
     Globals.fromLogin = false;
@@ -117,7 +117,7 @@ class Mainboard extends StatefulWidget {
   }
 }
   
-class cakeHomeWidgetState extends State<Mainboard> { 
+class CakeHomeState extends State<Mainboard> { 
 
   final GlobalKey<ScaffoldState> sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
 

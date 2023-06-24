@@ -10,15 +10,15 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'package:flutter/material.dart';
 
-class cakeLogin extends StatefulWidget {
+class CakeSignInPage extends StatefulWidget {
 
-  const cakeLogin({Key? key}) : super(key: key);
+  const CakeSignInPage({Key? key}) : super(key: key);
 
   @override
-  cakeLoginPageMain createState() => cakeLoginPageMain(); 
+  CakeSignInPageState createState() => CakeSignInPageState(); 
 }
 
-class cakeLoginPageMain extends State<cakeLogin> {
+class CakeSignInPageState extends State<CakeSignInPage> {
 
   BuildContext? loginContext;
 

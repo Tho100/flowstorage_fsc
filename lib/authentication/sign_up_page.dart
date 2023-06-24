@@ -12,14 +12,14 @@ import 'package:flowstorage_fsc/data_classes/register_process.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:intl/intl.dart';
 
-class cakeMySignUp extends StatefulWidget {
-  const cakeMySignUp({super.key});
+class CakeSignUpPage extends StatefulWidget {
+  const CakeSignUpPage({super.key});
 
   @override
-  State<cakeMySignUp> createState() => cakeSignUpPage();
+  CakeSignUpPageState createState() => CakeSignUpPageState();
 }
 
-class cakeSignUpPage extends State<cakeMySignUp> {
+class CakeSignUpPageState extends State<CakeSignUpPage> {
 
   final dateToStr = DateFormat('yyyy/MM/dd').format(DateTime.now());
 

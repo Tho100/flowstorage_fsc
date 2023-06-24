@@ -4,10 +4,8 @@ import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/main.dart';
-import 'package:flowstorage_fsc/ui_dialog/TitledAlert.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -32,10 +30,10 @@ class CakeSettingsPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CakeSettingsPageState createState() => _CakeSettingsPageState();
+  CakeSettingsPageState createState() => CakeSettingsPageState();
 }
 
-class _CakeSettingsPageState extends State<CakeSettingsPage> {
+class CakeSettingsPageState extends State<CakeSettingsPage> {
 
   late String _custUsername;
   late String _custEmail;
@@ -660,7 +658,7 @@ class _CakeSettingsPageState extends State<CakeSettingsPage> {
       
             _buildRowWithButtons(
               topText: "Clear cache", 
-              bottomText: "Clear your files cache", 
+              bottomText: "Clear Flowstorage cache", 
               onPressed: () {
                 NavigatePage.goToPageStatistics(context);
               }

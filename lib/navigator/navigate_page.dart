@@ -51,13 +51,13 @@ class NavigatePage {
 
   static void goToPageLogin(BuildContext context) {
      Navigator.push(context, 
-      MaterialPageRoute(builder: (context) => const cakeLogin()),
+      MaterialPageRoute(builder: (context) => const CakeSignInPage()),
     );
   }
 
   static void goToPageRegister(BuildContext context) {
     Navigator.push(context, 
-      MaterialPageRoute(builder: (context) => const cakeMySignUp()),
+      MaterialPageRoute(builder: (context) => const CakeSignUpPage()),
     );
   }
   

@@ -68,10 +68,10 @@ class CakePreviewFile extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CakePreviewFileState createState() => _CakePreviewFileState();
+  CakePreviewFileState createState() => CakePreviewFileState();
 }
 
-class _CakePreviewFileState extends State<CakePreviewFile> {
+class CakePreviewFileState extends State<CakePreviewFile> {
 
   ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
 

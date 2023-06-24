@@ -16,10 +16,10 @@ class PreviewExcel extends StatefulWidget {
   const PreviewExcel({super.key,});
 
   @override
-  State<PreviewExcel> createState() => previewExcelState();
+  State<PreviewExcel> createState() => PreviewExcelState();
 }
 
-class previewExcelState extends State<PreviewExcel> {
+class PreviewExcelState extends State<PreviewExcel> {
 
   List<DataColumn> _columnsExcel = [];
   List<DataRow> _rowsExcel = [];
