@@ -103,18 +103,6 @@ class Mainboard extends StatefulWidget {
   @override
   State<Mainboard> createState() => CakeHomeState();
 
-  static void clearUserRecords() {
-    Globals.fromLogin = false;
-    Globals.fileValues.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
-    Globals.foldValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-  }
 }
   
 class CakeHomeState extends State<Mainboard> { 
@@ -820,6 +808,7 @@ class CakeHomeState extends State<Mainboard> {
 
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.imageByteValues.addAll(uniqueBytes);
+
     Globals.dateStoresValues.addAll(dates);
     Globals.setDateValues.addAll(dates);
 
@@ -1865,7 +1854,7 @@ class CakeHomeState extends State<Mainboard> {
 
     final files = Directory(folderPath).listSync().whereType<File>().toList();
 
-    if(files.length == Globals.filesUploadLimit[Globals.accountType]) {
+    if(files.length == AccountPlan.mapFilesUpload[Globals.accountType]) {
       TitledDialog.startDialog("Couldn't upload $folderName", "It looks like the number of files in this folder exceeded the number of file you can upload. Please upgrade your account plan.", context);
       return;
     }
@@ -2297,7 +2286,7 @@ class CakeHomeState extends State<Mainboard> {
   /// 
   /// </summary>
 
-  Future _upgradeDialog(String Messages) {
+  Future _upgradeDialog(String message) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2307,7 +2296,7 @@ class CakeHomeState extends State<Mainboard> {
           style: TextStyle(
               color: Colors.white
           )),
-          content: Text(Messages,
+          content: Text(message,
             style: const TextStyle(
               color: Colors.white,
             )),
@@ -3374,7 +3363,11 @@ class CakeHomeState extends State<Mainboard> {
 
             ElevatedButton(
               onPressed: () async {
-                await SaveFolder().selectDirectoryUserFolder(folderName: folderName, context: context);
+                if(Globals.accountType == "Basic") {
+                  _upgradeDialog("Upgrade your account to any paid plan to download folder.");
+                } else {
+                  await SaveFolder().selectDirectoryUserFolder(folderName: folderName, context: context);
+                }
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -3382,10 +3375,10 @@ class CakeHomeState extends State<Mainboard> {
                   Icon(Icons.download_rounded),
                   SizedBox(width: 8.0),
                   Text('Download',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 200, 200, 200),
-                        fontSize: 16,
-                      )),
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 200, 200, 200),
+                    fontSize: 16,
+                  )),
                 ],
               ),
             ),

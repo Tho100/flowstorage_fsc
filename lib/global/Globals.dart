@@ -126,13 +126,6 @@ class Globals {
     "ps_info_image","ps_info_text","ps_info_video","ps_info_excel"
   };
 
-  static const Map<String, int> filesUploadLimit = {
-    'Basic': 25,
-    'Max': 500,
-    'Express': 1000,
-    'Supreme': 2000
-  };
-
   static Map<String,String> get originToName {
     return {
       'homeFiles': 'Home',

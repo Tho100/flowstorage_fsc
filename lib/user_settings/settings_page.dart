@@ -5,7 +5,6 @@ import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/main.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -351,8 +350,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                 backgroundColor: ThemeColor.darkGrey,
                 elevation: 0,
               ),
-              onPressed: () async {
-                Mainboard.clearUserRecords();
+              onPressed: () async { 
+                _clearUserRecords();
                 await _deleteAutoLoginAndOfflineFiles();
                 NavigatePage.replacePageHome(context);
               },
@@ -365,6 +364,21 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
         );
       },
     );
+  }
+
+  void _clearUserRecords() {
+
+    Globals.fromLogin = false;
+    Globals.fileValues.clear();
+    Globals.imageValues.clear();
+    Globals.imageByteValues.clear();
+    Globals.foldValues.clear();
+    Globals.dateStoresValues.clear();
+    Globals.setDateValues.clear();
+    Globals.filteredSearchedFiles.clear();
+    Globals.filteredSearchedBytes.clear();
+    Globals.filteredSearchedImage.clear();
+
   }
 
   @override
@@ -660,7 +674,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "Clear cache", 
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
-                NavigatePage.goToPageStatistics(context);
+                // TODO: Clear user app cache
               }
             ),
 

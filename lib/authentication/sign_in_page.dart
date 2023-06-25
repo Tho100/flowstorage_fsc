@@ -300,7 +300,7 @@ class CakeSignInPageState extends State<CakeSignInPage> {
                     onPressed: () {
                       Navigator.push(
                         context, 
-                        MaterialPageRoute(builder: (context) => ResetBackup(username: Globals.custUsername, email: Globals.custEmail)));
+                        MaterialPageRoute(builder: (context) => ResetBackup(username: Globals.custUsername)));
                     },
                     child: const Text('Reset with Recovery Key',  
                       style: TextStyle(

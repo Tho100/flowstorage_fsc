@@ -7,7 +7,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:excel/excel.dart' as excelViewer;
+import 'package:excel/excel.dart' as excel_viewer;
 
 class PreviewExcel extends StatefulWidget {
 
@@ -77,7 +77,7 @@ class PreviewExcelState extends State<PreviewExcel> {
       builder: (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
         if (snapshot.hasData) {
 
-          final excelValues = excelViewer.Excel.decodeBytes(snapshot.data!);
+          final excelValues = excel_viewer.Excel.decodeBytes(snapshot.data!);
           workSheets = excelValues.tables.keys.toList();
 
           _columnsExcel = excelValues.tables[workSheets!.first]!.row(0).map(
@@ -118,7 +118,7 @@ class PreviewExcelState extends State<PreviewExcel> {
               return DataCell(
                 TextField(
                   controller: TextEditingController(text: editedValue),
-                  onChanged: (newValue) {
+                  onChanged: (newValue) { 
                     setState(() {
                       if (!_editedValues.containsKey(rowIndex)) {
                         _editedValues[rowIndex] = {};
@@ -126,7 +126,7 @@ class PreviewExcelState extends State<PreviewExcel> {
 
                       _editedValues[rowIndex]![columnIndex] = newValue;
 
-                      final cellIndex = excelViewer.CellIndex.indexByColumnRow(
+                      final cellIndex = excel_viewer.CellIndex.indexByColumnRow(
                         columnIndex: columnIndex,
                         rowIndex: rowIndex,
                       );

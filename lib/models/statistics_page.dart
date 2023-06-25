@@ -167,7 +167,7 @@ class StatsPage extends State<StatisticsPage> {
     );
   }
 
-  Widget _buildInfo(String HeaderText, String SubText) {
+  Widget _buildInfo(String headerText, String subText) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Row(
@@ -175,7 +175,7 @@ class StatsPage extends State<StatisticsPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            HeaderText,
+            headerText,
             style: const TextStyle(
               color: Color.fromARGB(225, 255, 255, 255),
               fontSize: 16,
@@ -187,7 +187,7 @@ class StatsPage extends State<StatisticsPage> {
           const Spacer(),
 
           Text(
-            SubText,
+            subText,
             style: const TextStyle(
               color: Color.fromARGB(200, 255, 255, 255),
               fontSize: 16,
@@ -314,7 +314,7 @@ class StatsPage extends State<StatisticsPage> {
     );
   }
 
-  Widget _buildInfoUsage(String HeaderText, String SubText) {
+  Widget _buildInfoUsage(String headerText, String subText) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Row(
@@ -322,7 +322,7 @@ class StatsPage extends State<StatisticsPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            HeaderText,
+            headerText,
             style: const TextStyle(
               color: Color.fromARGB(225, 255, 255, 255),
               fontSize: 19,
@@ -334,7 +334,7 @@ class StatsPage extends State<StatisticsPage> {
           const Spacer(),
 
           Text(
-            SubText,
+            subText,
             style: const TextStyle(
               color: Color.fromARGB(200, 255, 255, 255),
               fontSize: 19,
