@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -57,6 +58,27 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   void dispose() {
     addPasswordController.dispose();
     super.dispose();
+  }
+
+  void _clearUserRecords() {
+
+    Globals.fromLogin = false;
+    Globals.fileValues.clear();
+    Globals.imageValues.clear();
+    Globals.imageByteValues.clear();
+    Globals.foldValues.clear();
+    Globals.dateStoresValues.clear();
+    Globals.setDateValues.clear();
+    Globals.filteredSearchedFiles.clear();
+    Globals.filteredSearchedBytes.clear();
+    Globals.filteredSearchedImage.clear();
+
+  }
+
+  void _clearAppCache() async {
+    var cacheDir = await getTemporaryDirectory();
+    await DefaultCacheManager().emptyCache();
+    cacheDir.delete(recursive: true);
   }
 
   Future _buildAddPasswordDialog() {
@@ -366,21 +388,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
     );
   }
 
-  void _clearUserRecords() {
-
-    Globals.fromLogin = false;
-    Globals.fileValues.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
-    Globals.foldValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -674,7 +681,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "Clear cache", 
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
-                // TODO: Clear user app cache
+                _clearAppCache();
               }
             ),
 

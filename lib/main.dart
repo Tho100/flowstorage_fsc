@@ -126,15 +126,15 @@ class CakeHomeState extends State<Mainboard> {
   ValueNotifier<String> appBarTitle  = ValueNotifier<String>('');
   ValueNotifier<String> sortingText  = ValueNotifier<String>('Default');
 
+  ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
+  ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
+  ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
+
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
 
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
   List<String> checkedItemsName = [];
-
-  ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
-  ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
-  ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
 
   bool _isFromUpload = false;
   File? fileToDisplay;
@@ -3959,20 +3959,24 @@ class CakeHomeState extends State<Mainboard> {
         unselectedItemColor: Colors.grey,
         fixedColor: Colors.grey,
         currentIndex: bottomNavigationBarIndex,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.folder_outlined),
             label: "Folders",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.share_outlined),
             label: "Share",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Discover",
+            icon: SizedBox(
+              width: 25, // Set the desired width here
+              height: 25, // Set the desired height here
+              child: Image.asset('assets/nice/public_icon.png'),
+            ),
+            label: "Public",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             label: "Settings"
           ),
