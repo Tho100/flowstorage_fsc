@@ -3987,8 +3987,8 @@ class CakeHomeState extends State<Mainboard> {
           ),
           BottomNavigationBarItem(
             icon: SizedBox(
-              width: 25, // Set the desired width here
-              height: 25, // Set the desired height here
+              width: 25, 
+              height: 25,
               child: Image.asset('assets/nice/public_icon.png'),
             ),
             label: "Public",
