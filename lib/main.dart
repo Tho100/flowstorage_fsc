@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/directory/save_directory.dart';
@@ -1316,6 +1317,8 @@ class CakeHomeState extends State<Mainboard> {
         return;
       } 
 
+      await CallNotify().customNotification(title: "Uploading...", subMesssage: "1 File(s) in progress");
+
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: SizedBox(
@@ -1426,6 +1429,10 @@ class CakeHomeState extends State<Mainboard> {
           return;
         }
 
+        await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress");
+
+        // TODO: Show uploading notification
+
         if(countSelectedFiles > 2) {
 
           scaffoldMessenger.showSnackBar(
@@ -1520,6 +1527,8 @@ class CakeHomeState extends State<Mainboard> {
           _addItemToListView(fileName: selectedFileName);
           
         }
+
+      await NotificationApi.stopNotification(0);
 
       if(countSelectedFiles >= 2) {
         scaffoldMessenger.showSnackBar(
@@ -1627,6 +1636,8 @@ class CakeHomeState extends State<Mainboard> {
           _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
           return;
         }
+
+        await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress");
 
         if(countSelectedFiles > 2) {
 
@@ -1758,15 +1769,17 @@ class CakeHomeState extends State<Mainboard> {
 
         }
 
-        if(countSelectedFiles > 2) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text("${countSelectedFiles.toString()} Items has been added"),
-              duration: const Duration(seconds: 2),
-              backgroundColor: ThemeColor.mediumGrey
-            )
-          );
-        }
+      if(countSelectedFiles > 2) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text("${countSelectedFiles.toString()} Items has been added"),
+            duration: const Duration(seconds: 2),
+            backgroundColor: ThemeColor.mediumGrey
+          )
+        );
+      }
+
+      await NotificationApi.stopNotification(0);
 
       countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished",count: countSelectedFiles) : null;
 
@@ -1815,6 +1828,8 @@ class CakeHomeState extends State<Mainboard> {
         return;
       }
 
+      await CallNotify().customNotification(title: "Uploading folder...", subMesssage: "${ShortenText().cutText(folderName)} In progress");
+
       final scaffoldMessenger = ScaffoldMessenger.of(context);
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -1824,6 +1839,8 @@ class CakeHomeState extends State<Mainboard> {
       );
 
       await _uploadFolder(folderPath: result, folderName: folderName);
+
+      await NotificationApi.stopNotification(0);
 
       scaffoldMessenger.hideCurrentSnackBar();
       scaffoldMessenger.showSnackBar(

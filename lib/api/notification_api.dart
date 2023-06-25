@@ -26,4 +26,8 @@ class NotificationApi {
     String? payload
   }) async => _notifications.show(
     id, title, body, await _notificationDetails(),payload: payload);
+    
+  static Future stopNotification(int id) async {
+    await _notifications.cancel(id);
+  }
 }
