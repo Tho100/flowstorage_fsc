@@ -1,0 +1,154 @@
+import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flutter/material.dart';
+
+class BottomTrailing {
+
+  Future buildBottomTrailing({
+    required String fileName,
+    required VoidCallback onRenamePressed,
+    required VoidCallback onDownloadPressed,
+    required VoidCallback onDeletePressed,
+    required VoidCallback onSharingPressed,
+    required VoidCallback onAOPressed,
+    required BuildContext context
+  }) {
+    return showModalBottomSheet(
+      backgroundColor: ThemeColor.darkGrey,
+      context: context,
+      shape: GlobalsStyle.bottomDialogBorderStyle,
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 12,top: 12, bottom: 12),
+                  child: Visibility(
+                    visible: Globals.imageType.contains(fileName.split('.').last),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image(
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.fileValues.indexWhere((name) => name == fileName)]!),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 12.0, top: 12.0),
+                    child: Text(
+                      fileName.length > 50 ? "${fileName.substring(0,50)}..." : fileName,
+                      style: const TextStyle(
+                        color: ThemeColor.justWhite,
+                        fontSize: 15,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Visibility(
+              visible: Globals.imageType.contains(fileName.split('.').last),
+              child: const Divider(color: ThemeColor.thirdWhite),
+            ),
+
+            ElevatedButton(
+              onPressed: onRenamePressed,
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.edit),
+                  SizedBox(width: 10.0),
+                  Text(
+                    'Rename File',
+                    style: GlobalsStyle.btnBottomDialogTextStyle,
+                  ),
+                ],
+              ),
+            ),
+
+            Visibility(
+              visible: fileName.split('.').last != fileName,
+              child: ElevatedButton(
+                onPressed: onSharingPressed,
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                  child: const Row(
+                  children: [
+                    Icon(Icons.share_rounded),
+                    SizedBox(width: 10.0),
+                    Text('Share File',
+                      style: GlobalsStyle.btnBottomDialogTextStyle
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const Divider(color: ThemeColor.thirdWhite),
+
+            ElevatedButton(
+              onPressed: onAOPressed,
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off_rounded),
+                  SizedBox(width: 10.0),
+                  Text('Make available Offline',
+                    style: GlobalsStyle.btnBottomDialogTextStyle
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(color: ThemeColor.thirdWhite),
+
+            ElevatedButton(
+              onPressed: onDownloadPressed,
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.download_rounded),
+                  SizedBox(width: 10.0),
+                  Text('Download',
+                    style: GlobalsStyle.btnBottomDialogTextStyle
+                  ),
+                ],
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: onDeletePressed,
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.delete,color: ThemeColor.darkRed),
+                  SizedBox(width: 10.0),
+                  Text('Delete',
+                    style: TextStyle(
+                      color: ThemeColor.darkRed,
+                      fontSize: 17,
+                    )
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+}

@@ -17,8 +17,6 @@ import 'package:mysql_client/mysql_client.dart';
 
 class LoginGetter {
 
-  static const _fileInfoDirectory = 'file_info_directory';
-
   int countDirCurr = 0;
 
   final crud = Crud();
@@ -83,7 +81,7 @@ class LoginGetter {
       final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
       getByteValue.addAll(thumbnailBytes);
 
-    } else if (tableName == _fileInfoDirectory) {
+    } else if (tableName == GlobalsTable.directoryInfoTable) {
 
       final images = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
       getByteValue.addAll(images);
