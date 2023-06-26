@@ -629,17 +629,21 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           children: [
     
             const SizedBox(height: 2),
+
             Padding(
               padding: const EdgeInsets.only(left: 6, top: 10), 
               child: SizedBox(
                 width: double.infinity,
-                child: Text(
-                  widget.originFrom == "homeFiles" || widget.originFrom == "sharedToMe" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" || widget.originFrom == "psFiles" ? '   Uploaded By' : "   Shared To",
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color.fromARGB(255, 136, 136, 136),
-                    fontWeight: FontWeight.w500,
+                child: Visibility(
+                  visible: Globals.fileOrigin != "offlineFiles",
+                  child: Text(
+                    widget.originFrom == "homeFiles" || widget.originFrom == "sharedToMe" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" || widget.originFrom == "psFiles" ? '   Uploaded By' : "   Shared To",
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color.fromARGB(255, 136, 136, 136),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -655,7 +659,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Container();
                     } else if (snapshot.hasError) {
-                      return const Text('(Error)');
+                      return const Text('');
                     } else {
                       return Text(
                         snapshot.data ?? '(Unknown)',

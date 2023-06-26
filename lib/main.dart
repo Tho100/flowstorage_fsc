@@ -456,6 +456,8 @@ class CakeHomeState extends State<Mainboard> {
       final imagePath = await CunningDocumentScanner.getPictures();
       final generateFileName = Generator.generateRandomString(Generator.generateRandomInt(5,15));
 
+      await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
+
       for(var images in imagePath!) {
 
         File compressedDocImage = await _processImageCompression(path: images,quality: 65); 
@@ -476,6 +478,8 @@ class CakeHomeState extends State<Mainboard> {
       _addItemToListView(fileName: "$generateFileName.pdf");
 
       await file.delete();
+
+      await NotificationApi.stopNotification(0);
 
       SnakeAlert.okSnake(message: "$generateFileName.pdf Has been added",icon: Icons.check,context: context);
 
@@ -1430,8 +1434,6 @@ class CakeHomeState extends State<Mainboard> {
         }
 
         await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress");
-
-        // TODO: Show uploading notification
 
         if(countSelectedFiles > 2) {
 
