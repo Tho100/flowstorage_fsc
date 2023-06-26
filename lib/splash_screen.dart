@@ -2,6 +2,7 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/account_type_getter.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
@@ -146,15 +147,21 @@ class _SplashScreen extends State<SplashScreen> {
       Globals.custEmail = savedCustEmail;
       Globals.accountType = accTypeGetter;
 
-      final dirListCount = await _countRowTable("file_info_directory");
-      final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
+      final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable);
+      final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
-      final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
+      final tablesToCheck = [
+      GlobalsTable.homeImageTable, GlobalsTable.homeTextTable, 
+      GlobalsTable.homePdfTable, GlobalsTable.homeExcelTable, 
+      GlobalsTable.homeVideoTable, GlobalsTable.homeAudioTable,
+      GlobalsTable.homePtxTable, GlobalsTable.homeWordTable,
+       ...dirLists
+      ];
 
       final futures = tablesToCheck.map((table) async {
         final fileNames = await nameGetterStartup.retrieveParams(conn,savedCustUsername, table);
         final bytes = await loginGetterStartup.getLeadingParams(conn,savedCustUsername, table);
-        final dates = table == "file_info_directory"
+        final dates = table == GlobalsTable.directoryInfoTable
             ? List.generate(1, (_) => "Directory")
             : await dateGetterStartup.getDateParams(savedCustUsername, table);
         return [fileNames, bytes, dates];
@@ -167,7 +174,7 @@ class _SplashScreen extends State<SplashScreen> {
       final dates = <String>[];
       final retrieveFolders = <String>{};
 
-      if (await _countRowTable("folder_upload_info") > 0) {
+      if (await _countRowTable(GlobalsTable.folderUploadTable) > 0) {
         retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
       }
 

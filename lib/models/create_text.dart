@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
@@ -193,7 +194,12 @@ class _CreateText extends State<CreateText> {
       final String bodyBytes = base64.encode(toUtf8Bytes);
 
       final String getFileName = "${_fileNameController.text.trim().replaceAll(".", "")}.txt";
-      final String setTableUpload = Globals.fileOrigin == "homeFiles" ? "file_info_expand" : Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : "folder_upload_info";
+      final String setTableUpload = 
+      Globals.fileOrigin == "homeFiles" 
+      ? GlobalsTable.homeTextTable 
+      : Globals.fileOrigin == "dirFiles" 
+      ? "upload_info_directory" 
+      : GlobalsTable.folderUploadTable;
 
       await _insertUserFile(table: setTableUpload,filePath: getFileName,fileValue: bodyBytes);
 

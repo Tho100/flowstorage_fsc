@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/global_table.dart';
+
 /// <summary>
 /// 
 /// Initialize global variables and list for listView
@@ -116,10 +118,13 @@ class Globals {
     "exe","xlsx","xls","csv","apk"
   };
 
-  static const Set<String> tableNames = {
-    "file_info","file_info_expand","file_info_exe","file_info_pdf",
-    "file_info_vid","file_info_excel","file_info_ptx","file_info_audi",
-    "file_info_word","file_info_directory","upload_info_directory"
+  static final Set<String> tableNames = {
+    GlobalsTable.homeImageTable, GlobalsTable.homeTextTable,
+    GlobalsTable.homeExeTable,GlobalsTable.homePdfTable,
+    GlobalsTable.homeVideoTable,GlobalsTable.homeExcelTable,
+    GlobalsTable.homePtxTable, GlobalsTable.homeAudioTable,
+    GlobalsTable.homeWordTable,
+    "file_info_directory","upload_info_directory"
   };
 
   static const Set<String> tableNamesPs = {

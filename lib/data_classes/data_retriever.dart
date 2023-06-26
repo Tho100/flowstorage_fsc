@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
@@ -16,16 +17,6 @@ import 'package:mysql_client/mysql_client.dart';
 
 class LoginGetter {
 
-  static const _fileInfoTable = 'file_info';
-  static const _fileInfoExpandTable = 'file_info_expand';
-  static const _fileInfoVidTable = 'file_info_vid';
-  static const _fileInfoPdfTable = 'file_info_pdf';
-  static const _fileInfoPtx = 'file_info_ptx';
-  static const _fileInfoExl = 'file_info_excel';
-  static const _fileInfoDoc = 'file_info_word';
-  static const _fileInfoApk = 'file_info_apk';
-  static const _fileInfoAudio = 'file_info_audi';
-  static const _fileInfoExe = 'file_info_exe';
   static const _fileInfoDirectory = 'file_info_directory';
 
   int countDirCurr = 0;
@@ -35,18 +26,18 @@ class LoginGetter {
   final thumbnailGetter = ThumbnailGetter();
 
   final tableNameToAssetsImage = {
-    _fileInfoExpandTable: "txt0.png",
-    _fileInfoPdfTable: "pdf0.png",
-    _fileInfoAudio: "txt0.png",
-    _fileInfoExl: "exl0.png",
-    _fileInfoPtx: "ptx0.png",
-    _fileInfoDoc: "doc0.png",
-    _fileInfoExe: "exe0.png",
-    _fileInfoApk: "apk0.png"
+    GlobalsTable.homeTextTable: "txt0.png",
+    GlobalsTable.homePdfTable: "pdf0.png",
+    GlobalsTable.homeAudioTable: "music0.png",
+    GlobalsTable.homeExcelTable: "exl0.png",
+    GlobalsTable.homePtxTable: "ptx0.png",
+    GlobalsTable.homeWordTable: "doc0.png",
+    GlobalsTable.homeExeTable: "exe0.png",
+    GlobalsTable.homeApkTable: "apk0.png"
   };
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String? username, String tableName) async {
-    if (tableName == _fileInfoTable) {
+    if (tableName == GlobalsTable.homeImageTable) {
       return _getFileInfoParams(conn, username);
     } else {
       return _getOtherTableParams(conn, username, tableName);
@@ -55,7 +46,7 @@ class LoginGetter {
 
   Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, String? username) async {
 
-    const query = 'SELECT CUST_FILE FROM $_fileInfoTable WHERE CUST_USERNAME = :username';
+    const query = 'SELECT CUST_FILE FROM ${GlobalsTable.homeImageTable} WHERE CUST_USERNAME = :username';
     final params = {'username': username};
     final executeRetrieval = await conn.execute(query, params);
     final getByteValue = <Uint8List>[];
@@ -87,7 +78,7 @@ class LoginGetter {
       getByteValue.addAll(loadPdfImg);
     }
 
-    if (tableName == _fileInfoVidTable) {
+    if (tableName == GlobalsTable.homeVideoTable) {
 
       final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
       getByteValue.addAll(thumbnailBytes);

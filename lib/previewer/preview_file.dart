@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/extra_query/rename.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
@@ -379,15 +380,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       switch (_currentTable) {
 
-        case "file_info_vid":
+        case GlobalsTable.homeVideoTable:
+        case GlobalsTable.homeAudioTable:
+        case GlobalsTable.homeImageTable:
         case "ps_info_video":
-        case "file_info_audi":
-          return Future.value(Uint8List.fromList([0]));
-
-        case "file_info":
         case "ps_info_image":
           return Future.value(Uint8List.fromList([0]));
-
+        
         default:
 
           final uploaderUsername = Globals.fileOrigin == "psFiles" 
@@ -610,10 +609,31 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       returnedUploaderName = uploaderUsername;
 
+    } else {
+
+      returnedUploaderName = Globals.custUsername;
+
     }
 
     return "  $returnedUploaderName";
 
+  }
+
+  Widget uploadedByText() {
+    return Text(
+      widget.originFrom == "homeFiles" 
+      || widget.originFrom == "sharedToMe" 
+      || widget.originFrom == "folderFiles" 
+      || widget.originFrom == "dirFiles" 
+      || widget.originFrom == "psFiles" 
+      || widget.originFrom == "offlineFiles" ? '   Uploaded By' : "   Shared To",
+      textAlign: TextAlign.start,
+      style: const TextStyle(
+        fontSize: 12,
+        color: Color.fromARGB(255, 136, 136, 136),
+        fontWeight: FontWeight.w500,
+      ),
+    );
   }
 
   Future<Widget> _buildBottomBar(BuildContext context) async {
@@ -634,18 +654,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               padding: const EdgeInsets.only(left: 6, top: 10), 
               child: SizedBox(
                 width: double.infinity,
-                child: Visibility(
-                  visible: Globals.fileOrigin != "offlineFiles",
-                  child: Text(
-                    widget.originFrom == "homeFiles" || widget.originFrom == "sharedToMe" || widget.originFrom == "folderFiles" || widget.originFrom == "dirFiles" || widget.originFrom == "psFiles" ? '   Uploaded By' : "   Shared To",
-                    textAlign: TextAlign.start,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color.fromARGB(255, 136, 136, 136),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+                child: uploadedByText()
               ),
             ),
 
@@ -822,7 +831,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
                         const SizedBox(width: 8),
 
-                        _currentTable == "file_info" || _currentTable == "ps_info_image" ? _fileResolution.value == '' ? FutureBuilder<String>(
+                        _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" ? _fileResolution.value == '' ? FutureBuilder<String>(
                           future: _returnImageSize(),
                           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                             if(snapshot.hasData) {
@@ -1128,7 +1137,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: _currentTable == "file_info" || _currentTable == "ps_info_image" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? true : false,
+      extendBodyBehindAppBar: _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" || _currentTable == GlobalsTable.homeVideoTable || _currentTable == "ps_info_video" ? true : false,
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_appBarHeight),
@@ -1136,9 +1145,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           valueListenable: bottomBarVisible,
           builder: (BuildContext context, bool value, Widget? child) {
             return Visibility(
-              visible: _currentTable == "file_info" || _currentTable == "ps_info_image" ? bottomBarVisible.value : true,
+              visible: _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" ? bottomBarVisible.value : true,
               child: AppBar(
-              backgroundColor: _currentTable == "file_info" || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
+              backgroundColor: _currentTable == GlobalsTable.homeImageTable || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
               actions: <Widget>[
                 IconButton(
                   onPressed: _buildBottomInfo,
@@ -1154,7 +1163,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               titleSpacing: 0,
               elevation: 0,
               centerTitle: false,
-              title: _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
+              title: _currentTable == GlobalsTable.homeTextTable || _currentTable == "ps_info_text"
                 ? const SizedBox()
                 : ValueListenableBuilder<String>(
                   valueListenable: appBarTitleNotifier,

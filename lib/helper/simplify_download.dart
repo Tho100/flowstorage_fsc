@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/api/save_api.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -54,16 +55,16 @@ class SimplifyDownload {
 
       const generalFilesTableName = {"file_info_expand","ps_info_text","file_info_vid","ps_info_video"};
 
-      if(currentTableValue == "file_info" || currentTableValue == "ps_info_image") {
+      if(currentTableValue == GlobalsTable.homeImageTable || currentTableValue == "ps_info_image") {
 
         await ImageGallerySaver.saveImage(fileDataValue!);
 
-      } else if (currentTableValue == "file_info_expand" || currentTableValue == "ps_info_text") {
+      } else if (currentTableValue == GlobalsTable.homeTextTable || currentTableValue == "ps_info_text") {
 
         String textFileContent = utf8.decode(fileDataValue!);
         await SaveApi().saveFile(fileName: fileNameValue!,fileData: textFileContent);
         
-      } else if (currentTableValue == "file_info_vid" || currentTableValue == "ps_info_video") { 
+      } else if (currentTableValue == GlobalsTable.homeVideoTable || currentTableValue == "ps_info_video") { 
 
         await _videoGallerySaver(fileDataValue!);
 

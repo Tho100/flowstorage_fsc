@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -49,12 +50,12 @@ class StatsPage extends State<StatisticsPage> {
       });
 
       final futuresFile = [
-        _countUpload("file_info"),
-        _countUpload("file_info_audi"),
-        _countUpload("file_info_pdf"),
-        _countUpload("file_info_vid"),
-        _countUpload("file_info_expand"),
-        _countUpload("file_info_ptx"),
+        _countUpload(GlobalsTable.homeImageTable),
+        _countUpload(GlobalsTable.homeAudioTable),
+        _countUpload(GlobalsTable.homePdfTable),
+        _countUpload(GlobalsTable.homeVideoTable),
+        _countUpload(GlobalsTable.homeTextTable),
+        _countUpload(GlobalsTable.homePtxTable),
       ];
 
       final uploadCategoryList = await Future.wait(futuresFile);
@@ -82,16 +83,16 @@ class StatsPage extends State<StatisticsPage> {
       categoryWithMostUpload = categoryNamesHomeFiles[maxCategoryIndex];
       categoryWithLeastUpload = categoryNamesHomeFiles[minCategoryIndex];
 
-      final countDirectories = await _countUploadFoldAndDir("file_info_directory", "DIR_NAME");
+      final countDirectories = await _countUploadFoldAndDir(GlobalsTable.directoryInfoTable, "DIR_NAME");
 
       folderCount = Globals.foldValues.length;
       directoryCount = countDirectories;
 
       accountCreationDate = await _accountCreationDate();
 
-      final document0 = await _countUpload("file_info_pdf");
-      final document1 = await _countUpload("file_info_excel");
-      final document2 = await _countUpload("file_info_word");
+      final document0 = await _countUpload(GlobalsTable.homePdfTable);
+      final document1 = await _countUpload(GlobalsTable.homeExcelTable);
+      final document2 = await _countUpload(GlobalsTable.homeWordTable);
 
       setState(() {
         data = [

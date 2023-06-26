@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -35,15 +36,16 @@ class InsertData {
 
     switch (tableName) {
 
-      case 'file_info':
-      case 'file_info_expand':
-      case 'file_info_pdf':
-      case 'file_info_ptx':
-      case 'file_info_audi':
-      case 'file_info_excel':
-      case 'file_info_word':
+      case GlobalsTable.homeImageTable:
+      case GlobalsTable.homeTextTable:
+      case GlobalsTable.homePdfTable:
+      case GlobalsTable.homePtxTable:
+      case GlobalsTable.homeAudioTable:
+      case GlobalsTable.homeExcelTable:
+      case GlobalsTable.homeWordTable:
+      case GlobalsTable.homeExeTable:
+      
       case 'file_info_gif':
-      case 'file_info_exe':
 
       case 'ps_info_text':
       case 'ps_info_image':
@@ -52,7 +54,7 @@ class InsertData {
         await insertFileInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,);
         break;
 
-      case 'file_info_vid':
+      case GlobalsTable.homeVideoTable:
       case 'ps_info_video':
         await insertVideoInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,thumb);
         break;

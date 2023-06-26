@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/directory/save_directory.dart';
 import 'package:flowstorage_fsc/folder_query/save_folder.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
@@ -776,15 +777,21 @@ class CakeHomeState extends State<Mainboard> {
 
     final conn = await SqlConnection.insertValueParams();
     
-    final dirListCount = await _countRowTable("file_info_directory", Globals.custUsername);
-    final dirLists = List.generate(dirListCount, (_) => "file_info_directory");
+    final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, Globals.custUsername);
+    final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
-    final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf","file_info_excel", "file_info_vid","file_info_audi","file_info_ptx","file_info_word", ...dirLists];
+    final tablesToCheck = [
+      GlobalsTable.homeImageTable, GlobalsTable.homeTextTable, 
+      GlobalsTable.homePdfTable, GlobalsTable.homeExcelTable, 
+      GlobalsTable.homeVideoTable, GlobalsTable.homeAudioTable,
+      GlobalsTable.homePtxTable, GlobalsTable.homeWordTable,
+       ...dirLists
+    ];
 
     final futures = tablesToCheck.map((table) async {
       final fileNames = await fileNameGetterHome.retrieveParams(conn,Globals.custUsername, table);
       final bytes = await loginGetterHome.getLeadingParams(conn,Globals.custUsername, table);
-      final dates = table == "file_info_directory"
+      final dates = table == GlobalsTable.directoryInfoTable
           ? List.generate(1,(_) => "Directory")
           : await dateGetterHome.getDateParams(Globals.custUsername, table);
       return [fileNames, bytes, dates];
@@ -1043,7 +1050,7 @@ class CakeHomeState extends State<Mainboard> {
       await _processUploadListView(
         filePathVal: imagePath, 
         selectedFileName: imageName, 
-        tableName: "file_info", 
+        tableName: GlobalsTable.homeImageTable, 
         fileBase64Encoded: imageBytes
       );
 
@@ -1507,7 +1514,7 @@ class CakeHomeState extends State<Mainboard> {
 
           if (Globals.imageType.contains(_fileType)) {
 
-            final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info" : "ps_info_image";
+            final verifyTableName = Globals.fileOrigin == "homeFiles" ? GlobalsTable.homeImageTable : "ps_info_image";
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: verifyTableName,fileBase64Encoded: bodyBytes);
 
           }
@@ -1572,8 +1579,8 @@ class CakeHomeState extends State<Mainboard> {
     final List<Uint8List> newImageByteValues = [];
     final List<Uint8List> newFilteredSearchedBytes = [];
 
-    tableName == "file_info" || tableName == "ps_info_image" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
-    tableName == "file_info" || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
+    tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
+    tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
 
@@ -1721,7 +1728,7 @@ class CakeHomeState extends State<Mainboard> {
             List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info",fileBase64Encoded: compressedImageBase64Encoded);
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
 
           } else if (Globals.videoType.contains(_fileType)) {
 
