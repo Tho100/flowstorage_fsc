@@ -940,8 +940,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future _callBottomTrailling(int index) {
-
-    final fileName = Globals.filteredSearchedFiles[index];
+  
+    final fileName = appBarTitleNotifier.value;
 
     return BottomTrailing().buildBottomTrailing(
         fileName: fileName, 
@@ -1003,6 +1003,17 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               child: AppBar(
               backgroundColor: _currentTable == GlobalsTable.homeImageTable || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
               actions: <Widget>[
+                Visibility(
+                  visible: _currentTable == GlobalsTable.homeTextTable || Globals.fileOrigin == "ps_info_text",
+                  child: IconButton(
+                    onPressed: () {
+                      final textValue = _textController.text;
+                      Clipboard.setData(ClipboardData(text: textValue));
+                      SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+                    },
+                    icon: const Icon(Icons.copy)
+                  ),
+                ),
                 IconButton(
                   onPressed: _buildBottomInfo,
                   icon: const Icon(Icons.info_outlined),
