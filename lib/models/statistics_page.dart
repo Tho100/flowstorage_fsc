@@ -1,6 +1,7 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
@@ -171,95 +172,115 @@ class StatsPage extends State<StatisticsPage> {
 
   Widget _buildInfo(String headerText, String subText) {
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.only(top: 14.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-            headerText,
-            style: const TextStyle(
-              color: Color.fromARGB(225, 255, 255, 255),
-              fontSize: 16,
-              fontWeight: FontWeight.bold
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Text(
+                headerText,
+                style: const TextStyle(
+                  color: Color.fromARGB(225, 255, 255, 255),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+                ),
+                textAlign: TextAlign.left,
+              ),
             ),
-            textAlign: TextAlign.left,
-          ),
-
-          const Spacer(),
-
-          Text(
-            subText,
-            style: const TextStyle(
-              color: Color.fromARGB(200, 255, 255, 255),
-              fontSize: 16,
-              fontWeight: FontWeight.bold
+    
+            const Spacer(),
+    
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Text(
+                subText,
+                style: const TextStyle(
+                  color: Color.fromARGB(200, 255, 255, 255),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+                ),
+                textAlign: TextAlign.left,
+              ),
             ),
-            textAlign: TextAlign.left,
-          ),
-        ],
+          ],
       ),
     );
   }
 
-  Widget _buildBottom(BuildContext context, String origin) {
-
-    // Most Uploaded
-    // Least Uploaded
-    // Latest Uploaded
-
-    // Total Upload
-    // Folder Count
-    // Directory Count
-
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: SizedBox(
-        height: 135,
-        width: MediaQuery.of(context).size.width-25,
-        child: Container(
-          decoration: BoxDecoration(
-            color: ThemeColor.darkGrey,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: ThemeColor.darkGrey, width: 2),
-          ),
-          child: Column(
-            children: [
-              _buildInfo(
-                origin == "top" 
-              ? "Most Uploaded" 
-              : "Total Upload",
-                
-                origin == "top" 
-                ? categoryWithMostUpload
-                : totalUpload.toString()
-              ),
-
-              _buildInfo(
-                origin == "top" 
-              ? "Least Uploaded" 
-              : "Folder Count",
-
-                origin == "top"
-                ? categoryWithLeastUpload
-                : folderCount.toString()
-              ),
-
-              _buildInfo(
-                  origin == "top" 
-                ? "Account Creation Date" 
-                : "Directory Count",
-
-                  origin == "top" 
-                  ? accountCreationDate
-                  : directoryCount.toString()
-                ),
-
-            ],
+  Widget _buildHeaderInfo(String text) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(text,
+            style: GlobalsStyle.settingsInfoTextStyle
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildInfoContainer() {
+    
+    final mediaQuery = MediaQuery.of(context).size;
+
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+
+          const SizedBox(height: 5),
+
+          _buildHeaderInfo("Upload Stats"),
+
+          const SizedBox(height: 5),
+
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: ThemeColor.darkGrey, width: 2),
+            ),
+            height: 125,
+            width: mediaQuery.width-35,
+            child: Column(
+              children: [
+                _buildInfo("Most Uploaded", categoryWithMostUpload),
+                _buildInfo("Least Uploaded", categoryWithLeastUpload),
+                _buildInfo("Total Upload", totalUpload.toString()),
+              ],
+            )
+          ),
+
+          const SizedBox(height: 18),
+
+          _buildHeaderInfo("Other Stats"),
+
+          const SizedBox(height: 5),
+
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: ThemeColor.darkGrey, width: 2),
+            ),
+            height: 125,
+            width: mediaQuery.width-35,
+            child: Column(
+              children: [
+                _buildInfo("Folder Count", folderCount.toString()),
+                _buildInfo("Directory Count", directoryCount.toString()),
+                _buildInfo("Account created in", accountCreationDate),
+              ],
+            )
+          ),
+
+          const SizedBox(height: 15),
+
+          Container(),
+
+        ],
       ),
     );
+
   }
 
   Widget _buildChart(context) {
@@ -307,9 +328,7 @@ class StatsPage extends State<StatisticsPage> {
             const SizedBox(height: 5),
             _buildChart(context),
             const SizedBox(height: 12),
-            _buildBottom(context,"top"),
-            const SizedBox(height: 5),
-            _buildBottom(context,"bottom"),
+            _buildInfoContainer(),
           ],
         ),
       ),
@@ -318,7 +337,7 @@ class StatsPage extends State<StatisticsPage> {
 
   Widget _buildInfoUsage(String headerText, String subText) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(18.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -411,8 +430,7 @@ class StatsPage extends State<StatisticsPage> {
         width: MediaQuery.of(context).size.width-25,
         child: Container(
           decoration: BoxDecoration(
-            color: ThemeColor.darkGrey,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: ThemeColor.darkGrey, width: 2),
           ),
           child: Column(
