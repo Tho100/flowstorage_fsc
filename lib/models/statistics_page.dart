@@ -67,6 +67,7 @@ class StatsPage extends State<StatisticsPage> {
       int minCategoryIndex = 0;
 
       for (int i = 0; i < uploadCategoryList.length; i++) {
+
         final uploadCount = uploadCategoryList[i];
 
         if (uploadCount > maxUploadCount) {
@@ -80,8 +81,8 @@ class StatsPage extends State<StatisticsPage> {
         }
       }
 
-      categoryWithMostUpload = categoryNamesHomeFiles[maxCategoryIndex];
-      categoryWithLeastUpload = categoryNamesHomeFiles[minCategoryIndex];
+      categoryWithMostUpload = uploadCategoryList[maxCategoryIndex] == 0 ? "None" : categoryNamesHomeFiles[maxCategoryIndex];
+      categoryWithLeastUpload = categoryNamesHomeFiles[minCategoryIndex] == "Image" ? "None" : categoryNamesHomeFiles[minCategoryIndex];
 
       final countDirectories = await _countUploadFoldAndDir(GlobalsTable.directoryInfoTable, "DIR_NAME");
 

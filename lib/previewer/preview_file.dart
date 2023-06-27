@@ -939,45 +939,45 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
-  Future _callBottomTrailling(int index) {
+  Future _callBottomTrailling() {
   
     final fileName = appBarTitleNotifier.value;
 
     return BottomTrailing().buildBottomTrailing(
-        fileName: fileName, 
-        onRenamePressed: () {
-          Navigator.pop(context);
-          _openRenameDialog(fileName);
-        }, 
-        onDownloadPressed: () async {
-          Navigator.pop(context);
-          await _callFileDownload(fileName: fileName);
-        }, 
-        onDeletePressed: () {
-          _openDeleteDialog(fileName);
-        },
-        onSharingPressed: () {
-          Navigator.pop(context);
-          SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
-        }, 
-        onAOPressed: () async {
+      fileName: fileName, 
+      onRenamePressed: () {
+        Navigator.pop(context);
+        _openRenameDialog(fileName);
+      }, 
+      onDownloadPressed: () async {
+        Navigator.pop(context);
+        await _callFileDownload(fileName: fileName);
+      }, 
+      onDeletePressed: () {
+        _openDeleteDialog(fileName);
+      },
+      onSharingPressed: () {
+        Navigator.pop(context);
+        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
+      }, 
+      onAOPressed: () async {
 
-          Navigator.pop(context);
+        Navigator.pop(context);
 
-          final offlineMode = OfflineMode();
-          final singleLoading = SingleTextLoading();
+        final offlineMode = OfflineMode();
+        final singleLoading = SingleTextLoading();
 
-          singleLoading.startLoading(title: "Preparing...", context: context);
+        singleLoading.startLoading(title: "Preparing...", context: context);
 
-          final fileData = await _callDataDownload();
+        final fileData = await _callDataDownload();
 
-          await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
+        await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
 
-          singleLoading.stopLoading();
+        singleLoading.stopLoading();
 
-        }, 
-        context: context
-      );
+      }, 
+      context: context
+    );
   }
 
   void _updateAppBarTitle() {
@@ -1020,7 +1020,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                 ),
                 IconButton(
                   onPressed: () async {
-                    _callBottomTrailling(widget.tappedIndex);
+                    _callBottomTrailling();
                   },
                   icon: const Icon(Icons.more_vert_rounded),
                 ),
