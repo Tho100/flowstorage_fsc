@@ -63,7 +63,13 @@ class PasscodePageState extends State<PasscodePage> {
       final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, savedCustUsername);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
-      final tablesToCheck = ["file_info", "file_info_expand", "file_info_pdf", "file_info_vid","file_info_audi","file_info_ptx","file_info_exe","file_info_excel","file_info_apk", ...dirLists];
+      final tablesToCheck = [
+        GlobalsTable.homeImageTable, GlobalsTable.homeTextTable, 
+        GlobalsTable.homePdfTable, GlobalsTable.homeExcelTable, 
+        GlobalsTable.homeVideoTable, GlobalsTable.homeAudioTable,
+        GlobalsTable.homePtxTable, GlobalsTable.homeWordTable,
+        ...dirLists
+      ];
 
       final futures = tablesToCheck.map((table) async {
         final fileNames = await fileNameGetterStartup.retrieveParams(conn,savedCustUsername, table);
@@ -99,6 +105,7 @@ class PasscodePageState extends State<PasscodePage> {
       final uniqueBytes = bytes.toList();
 
       Globals.fromLogin = true;
+      Globals.fileOrigin = "homeFiles";
 
       Globals.fileValues.addAll(uniqueFileNames);
       Globals.foldValues.addAll(retrieveFolders);

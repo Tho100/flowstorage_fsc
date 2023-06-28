@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/data_classes/thumbnail_retriever.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
@@ -18,6 +20,7 @@ import 'package:flutter/material.dart';
 class SharingDialog {
 
   final retrieveData = RetrieveData();
+  final mySqlSharing = MySqlSharing();
 
   Future<void> _shareFileToOther({
     required String shareToName, 
@@ -29,16 +32,14 @@ class SharingDialog {
     BuildContext? context,
     }) async {
 
-      final mySqlSharing = MySqlSharing();
-
       await mySqlSharing.insertValuesParams(
-      shareToName, 
-      encryptedFileName, 
-      shareToComment,
-      fileData,
-      fileExtension,
+      sendTo: shareToName, 
+      fileName: encryptedFileName, 
+      comment: shareToComment,
+      fileData: fileData,
+      fileType: fileExtension,
       thumbnail: thumbnail,
-      context!
+      context: context!
     );
   }
 
@@ -222,6 +223,8 @@ class SharingDialog {
 
                             }
 
+                            await CallNotify().customNotification(title: "Sharing...", subMesssage: "Sharing to $shareToName");
+
                             loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to $shareToName",context: context);
 
                             final fileData = EncryptionClass().Encrypt(base64.encode(await _callData(fileName, tableName)));  
@@ -237,6 +240,8 @@ class SharingDialog {
                             );
 
                             loadingDialog.stopLoading();
+
+                            await NotificationApi.stopNotification(0);
 
                           },
                           style: GlobalsStyle.btnMainStyle,

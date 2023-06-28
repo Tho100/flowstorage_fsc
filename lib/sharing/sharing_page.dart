@@ -136,13 +136,13 @@ class _SharingPage extends State<SharingPage> {
       loadingDialog.startLoading(title: "Sharing...", subText: "Sharing to $shareToUsername", context: context!);
 
       await mySqlSharing.insertValuesParams(
-        shareToUsername, 
-        encryptedFileName, 
-        shareToComment,
-        fileData,
-        fileExtension,
+        sendTo: shareToUsername, 
+        fileName: encryptedFileName, 
+        comment: shareToComment,
+        fileData: fileData,
+        fileType: fileExtension,
         thumbnail: base64.encode(videoThumbnail),
-        context
+        context: context
       );
 
       loadingDialog.stopLoading();

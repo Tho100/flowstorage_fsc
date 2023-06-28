@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 class SharingPassword {
 
   final TextEditingController sharingPasswordController = TextEditingController();
+  final mysqlSharing = MySqlSharing();
 
   Future buildAskPasswordDialog(
     String? sendTo, 
@@ -101,10 +102,21 @@ class SharingPassword {
 
                             final loadingDialog = MultipleTextLoading();
                             final compare = AuthModel().computeAuth(sharingPasswordController.text);
-
+                
                             if(compare == authString) {
+                              
                               loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to $sendTo",context: context);  
-                              MySqlSharing().insertValuesParams(sendTo, fileName, comment, fileVal, fileExt, context,thumbnail: thumbnail);
+
+                              mysqlSharing.insertValuesParams(
+                                sendTo: sendTo, 
+                                fileName: fileName, 
+                                comment: comment, 
+                                fileData: fileVal, 
+                                fileType: fileExt, 
+                                context: context,
+                                thumbnail: thumbnail
+                              );
+
                             } else {
                               AlertForm.alertDialogTitle("Sharing failed", "Entered password is incorrect.", context);
                             }

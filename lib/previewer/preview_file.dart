@@ -752,19 +752,16 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future _buildBottomInfo() {
+
+    final mediaQuery = MediaQuery.of(context);
+
     return showModalBottomSheet(
       backgroundColor: const Color.fromARGB(255, 25, 25, 25),
       context: context,
-      shape: const RoundedRectangleBorder( 
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25)
-        )
-      ),
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom),
+            bottom: mediaQuery.viewInsets.bottom),
             child: SizedBox(
               height: 150,
               child: Scaffold(

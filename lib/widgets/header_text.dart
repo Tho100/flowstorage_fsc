@@ -35,11 +35,11 @@ class HeaderText extends StatelessWidget {
           const SizedBox(height: 12),
           
           Text(
-            subTitle,
+           subTitle,
             style: const TextStyle(
               color: Color(0xFFB4B4B4),
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
             ),
           ),
         ],
