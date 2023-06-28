@@ -122,6 +122,26 @@ class _CommentPage extends State<CommentPage> {
     
   }
 
+  Future<String> _psFileComment() async {
+
+    final fileType = Globals.selectedFileName.split('.').last;
+    final tableName = Globals.fileTypesToTableNamesPs[fileType];
+
+    final connection = await SqlConnection.insertValueParams();
+    
+    final query = "SELECT CUST_COMMENT FROM $tableName WHERE CUST_FILE_PATH = :filename";
+    final params = {'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+    final results = await connection.execute(query,params);
+
+    String? decryptedComment;
+    for(final row in results.rows) {
+      print(row.assoc()['CUST_COMMENT']);
+      decryptedComment = EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
+    }
+
+    return decryptedComment!;
+  }
+
   Future<Widget> _buildComment() async {
 
     late final String mainFileComment;
@@ -132,6 +152,8 @@ class _CommentPage extends State<CommentPage> {
       mainFileComment = await _sharedFileComment();
     } else if (_fileOrigin == "sharedToMe") {
       mainFileComment = await _sharedToMeComment();
+    } else if (_fileOrigin == "psFiles") {
+      mainFileComment = await _psFileComment();
     }
 
     final TextEditingController commentText = TextEditingController(text: mainFileComment);
