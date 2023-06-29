@@ -138,7 +138,7 @@ class _CommentPage extends State<CommentPage> {
       decryptedComment = EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
     }
 
-    return decryptedComment!;
+    return decryptedComment! == '' ? '(No Comment)' : decryptedComment;
   }
 
   Future<Widget> _buildComment() async {

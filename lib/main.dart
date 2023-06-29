@@ -23,6 +23,7 @@ import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
+import 'package:flowstorage_fsc/widgets/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 
@@ -160,8 +161,17 @@ class CakeHomeState extends State<Mainboard> {
   final insertData = InsertData();
   final crud = Crud();
 
-  void _openPsCommentDialog(String fileName) {
-    // TODO: Create comment dialog class witho onpressed event
+  void _openPsCommentDialog({
+    required String filePathVal,
+    required String fileName,
+    required String tableName,
+    required String base64Encoded,
+  }) {
+    PsCommentDialog().buildPsCommentDialog(
+      fileName: fileName,
+      onUploadPressed: () async => await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded),
+      context: context
+    );
   }
 
   void _openDeleteDialog(String fileName) {
@@ -1391,14 +1401,20 @@ class CakeHomeState extends State<Mainboard> {
 
         final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info_vid" : "ps_info_video";
 
-        await _processUploadListView(
-          filePathVal: filePathVal,
-          selectedFileName: selectedFileName,
-          tableName: verifyTableName,
-          fileBase64Encoded: bodyBytes,
-          newFileToDisplay: newFileToDisplay,
-          thumbnailBytes: thumbnailBytes
-        );
+        if(verifyTableName == "ps_info_video") {
+          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes);
+        } else {
+
+          await _processUploadListView(
+            filePathVal: filePathVal,
+            selectedFileName: selectedFileName,
+            tableName: verifyTableName,
+            fileBase64Encoded: bodyBytes,
+            newFileToDisplay: newFileToDisplay,
+            thumbnailBytes: thumbnailBytes
+          );
+
+        }
 
         await thumbnailFile.delete();
 
@@ -1487,7 +1503,7 @@ class CakeHomeState extends State<Mainboard> {
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
-            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists..",context);
+            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             continue;
           } 
 
@@ -1524,27 +1540,32 @@ class CakeHomeState extends State<Mainboard> {
           if (Globals.imageType.contains(_fileType)) {
 
             final verifyTableName = Globals.fileOrigin == "homeFiles" ? GlobalsTable.homeImageTable : "ps_info_image";
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: verifyTableName,fileBase64Encoded: bodyBytes);
+
+            if(verifyTableName == "ps_info_image") {
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes);
+            } else {
+              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: verifyTableName,fileBase64Encoded: bodyBytes);
+            }
 
           }
 
-          scaffoldMessenger.hideCurrentSnackBar();
+        scaffoldMessenger.hideCurrentSnackBar();
 
-          if(countSelectedFiles < 2) {
+        if(countSelectedFiles < 2) {
 
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: Text("${shortenText.cutText(selectedFileName)} Has been added."),
-                duration: const Duration(seconds: 2),
-                backgroundColor: ThemeColor.mediumGrey,
-              )
-            );
-            countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
-          }
-          
-          _addItemToListView(fileName: selectedFileName);
-          
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text("${shortenText.cutText(selectedFileName)} Has been added."),
+              duration: const Duration(seconds: 2),
+              backgroundColor: ThemeColor.mediumGrey,
+            )
+          );
+          countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
         }
+        
+        _addItemToListView(fileName: selectedFileName);
+        
+      }
 
       await NotificationApi.stopNotification(0);
 
@@ -3826,7 +3847,7 @@ class CakeHomeState extends State<Mainboard> {
             ),
         
             Visibility(
-              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" ? false : true,
+              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
               child: ElevatedButton(
               onPressed: () async {
                 final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);

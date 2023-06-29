@@ -12,6 +12,8 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 
 class Globals {
 
+  static String psCommentValue = '';
+
   static String custUsername = '';
   static String custEmail = '';
   static String accountType = '';

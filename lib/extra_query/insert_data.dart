@@ -44,23 +44,25 @@ class InsertData {
       case GlobalsTable.homeExcelTable:
       case GlobalsTable.homeWordTable:
       case GlobalsTable.homeExeTable:
-      
-      case 'file_info_gif':
 
-      case 'ps_info_text':
-      case 'ps_info_image':
-      case 'ps_info_excel':
-
-        await insertFileInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,);
+        await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
         break;
 
       case GlobalsTable.homeVideoTable:
       case 'ps_info_video':
-        await insertVideoInfo(conn,tableName,encryptedFilePath,userName,_uploadDate,encryptedFileVal,thumb);
+        await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 
       case 'upload_info_directory':
-        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,_uploadDate,thumb,filePath);
+        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
+        break;
+
+      case 'ps_info_text':
+      case 'ps_info_image':
+      case 'ps_info_excel':
+      print("IN");
+
+        await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
         break;
 
       default:
@@ -73,12 +75,23 @@ class InsertData {
     String tableName,
     String encryptedFilePath,
     String userName,
-    String uploadDate,
     String encryptedFileVal,
   ) async {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE) VALUES (?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, uploadDate, encryptedFileVal]);
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal]);
+  }
+
+  Future<void> insertFileInfoPs(
+    MySQLConnectionPool conn,
+    String tableName,
+    String encryptedFilePath,
+    String userName,
+    String encryptedFileVal,
+  ) async {
+
+    await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT) VALUES (?, ?, ?, ?,?)')
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal,EncryptionClass().Encrypt(Globals.psCommentValue)]);
   }
 
   Future<void> insertVideoInfo(
@@ -86,13 +99,12 @@ class InsertData {
     String tableName,
     String encryptedFilePath,
     String userName,
-    String uploadDate,
     String encryptedFileVal,
     String? thumb,
   ) async {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB) VALUES (?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, uploadDate, encryptedFileVal, thumb]);
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb]);
   }
 
   Future<void> insertDirectoryInfo(
@@ -102,7 +114,6 @@ class InsertData {
     String encryptedFileVal,
     String? directoryName,
     String encryptedFilePath,
-    String uploadDate,
     String? thumb,
     String localFilePath,
 
@@ -112,6 +123,6 @@ class InsertData {
     final encryptedDirName = _encryptionClass.Encrypt(directoryName);
 
     await conn.prepare('INSERT INTO upload_info_directory (CUST_USERNAME, CUST_FILE, DIR_NAME, CUST_FILE_PATH, UPLOAD_DATE, FILE_EXT, CUST_THUMB) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        ..execute([custUsername, encryptedFileVal, encryptedDirName, encryptedFilePath, uploadDate, fileExtension, thumb]);
+        ..execute([custUsername, encryptedFileVal, encryptedDirName, encryptedFilePath, _uploadDate, fileExtension, thumb]);
   }
 }

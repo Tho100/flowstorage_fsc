@@ -39,13 +39,9 @@ class LoginGetter {
 
     if (tableName == GlobalsTable.homeImageTable) {
 
-      print(GlobalsData.homeImageData.length);
-
       if(GlobalsData.homeImageData.isEmpty) {
-        print("NOT IN");
         return _getFileInfoParams(conn, username);
       } else {
-        print("IN");
         return GlobalsData.homeImageData;
       }
 
@@ -93,21 +89,14 @@ class LoginGetter {
 
     if (tableName == GlobalsTable.homeVideoTable) {
 
-      print("IN VID");
-
-      print(GlobalsData.homeThumbnailData.length);
-
       if(GlobalsData.homeThumbnailData.isEmpty) {
         
-        print("NOT IN");
-
         final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
 
         GlobalsData.homeThumbnailData.addAll(thumbnailBytes);
         getByteValue.addAll(thumbnailBytes);
 
       } else {
-        print("IN");
         getByteValue.addAll(GlobalsData.homeThumbnailData);
       }
 
