@@ -135,7 +135,6 @@ class _CommentPage extends State<CommentPage> {
 
     String? decryptedComment;
     for(final row in results.rows) {
-      print(row.assoc()['CUST_COMMENT']);
       decryptedComment = EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
     }
 
@@ -157,7 +156,8 @@ class _CommentPage extends State<CommentPage> {
     }
 
     final TextEditingController commentText = TextEditingController(text: mainFileComment);
-    
+    final mediaQuery = MediaQuery.of(context).size;
+
     return Column(
       children: [
 
@@ -166,7 +166,7 @@ class _CommentPage extends State<CommentPage> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.7, 
+            height: mediaQuery.height * 0.7, 
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               color: ThemeColor.darkBlack, 

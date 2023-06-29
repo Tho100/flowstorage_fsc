@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
@@ -35,11 +36,23 @@ class LoginGetter {
   };
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String? username, String tableName) async {
+
     if (tableName == GlobalsTable.homeImageTable) {
-      return _getFileInfoParams(conn, username);
+
+      print(GlobalsData.homeImageData.length);
+
+      if(GlobalsData.homeImageData.isEmpty) {
+        print("NOT IN");
+        return _getFileInfoParams(conn, username);
+      } else {
+        print("IN");
+        return GlobalsData.homeImageData;
+      }
+
     } else {
       return _getOtherTableParams(conn, username, tableName);
     }
+
   }
 
   Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, String? username) async {
@@ -60,6 +73,8 @@ class LoginGetter {
       getByteValue.add(bufferedFileBytes);
     }
 
+    GlobalsData.homeImageData.addAll(getByteValue);
+
     return getByteValue;
   }
 
@@ -78,8 +93,23 @@ class LoginGetter {
 
     if (tableName == GlobalsTable.homeVideoTable) {
 
-      final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
-      getByteValue.addAll(thumbnailBytes);
+      print("IN VID");
+
+      print(GlobalsData.homeThumbnailData.length);
+
+      if(GlobalsData.homeThumbnailData.isEmpty) {
+        
+        print("NOT IN");
+
+        final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
+
+        GlobalsData.homeThumbnailData.addAll(thumbnailBytes);
+        getByteValue.addAll(thumbnailBytes);
+
+      } else {
+        print("IN");
+        getByteValue.addAll(GlobalsData.homeThumbnailData);
+      }
 
     } else if (tableName == GlobalsTable.directoryInfoTable) {
 

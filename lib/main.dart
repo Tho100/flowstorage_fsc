@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/directory/save_directory.dart';
 import 'package:flowstorage_fsc/folder_query/save_folder.dart';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
@@ -158,6 +159,10 @@ class CakeHomeState extends State<Mainboard> {
   final retrieveData = RetrieveData();
   final insertData = InsertData();
   final crud = Crud();
+
+  void _openPsCommentDialog(String fileName) {
+    // TODO: Create comment dialog class witho onpressed event
+  }
 
   void _openDeleteDialog(String fileName) {
     DeleteDialog().buildDeleteDialog( 
@@ -1254,6 +1259,9 @@ class CakeHomeState extends State<Mainboard> {
         final encryptVals = EncryptionClass().Encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
+        GlobalsData.homeImageData.clear();
+        GlobalsData.homeThumbnailData.clear();
+
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       } else {
@@ -1584,6 +1592,9 @@ class CakeHomeState extends State<Mainboard> {
     tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
+
+    verifyTableName == "file_info" ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
+    verifyTableName == "file_info_vid" ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
 
     await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
 
