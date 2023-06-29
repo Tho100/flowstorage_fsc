@@ -166,10 +166,12 @@ class CakeHomeState extends State<Mainboard> {
     required String fileName,
     required String tableName,
     required String base64Encoded,
+    File? newFileToDisplay,
+    dynamic thumbnail,
   }) {
     PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
-      onUploadPressed: () async => await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded),
+      onUploadPressed: () async => await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail),
       context: context
     );
   }
@@ -968,6 +970,9 @@ class CakeHomeState extends State<Mainboard> {
       await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[extension]!);
     }
 
+    GlobalsData.homeImageData.clear();
+    GlobalsData.homeThumbnailData.clear();
+    
     _removeFileFromListView(fileName: fileName, isFromSelectAll: false, onTextChanged: onTextChanged);
 
   }
@@ -1092,8 +1097,6 @@ class CakeHomeState extends State<Mainboard> {
 
       final fileType = fileName.split('.').last;
       final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType] : Globals.fileTypesToTableNames[fileType];
-
-      print(tableName);
 
       if(fileType == fileName) {
         await SaveDirectory().selectDirectoryUserDirectory(directoryName: fileName, context: context);
@@ -1269,9 +1272,6 @@ class CakeHomeState extends State<Mainboard> {
         final encryptVals = EncryptionClass().Encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
-        GlobalsData.homeImageData.clear();
-        GlobalsData.homeThumbnailData.clear();
-
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       } else {
@@ -1402,7 +1402,7 @@ class CakeHomeState extends State<Mainboard> {
         final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info_vid" : "ps_info_video";
 
         if(verifyTableName == "ps_info_video") {
-          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes);
+          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
         } else {
 
           await _processUploadListView(

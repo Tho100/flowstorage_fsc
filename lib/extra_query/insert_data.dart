@@ -49,7 +49,6 @@ class InsertData {
         break;
 
       case GlobalsTable.homeVideoTable:
-      case 'ps_info_video':
         await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 
@@ -60,9 +59,15 @@ class InsertData {
       case 'ps_info_text':
       case 'ps_info_image':
       case 'ps_info_excel':
-      print("IN");
+      case 'ps_info_pdf':
+      case 'ps_info_word':
 
         await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
+        break;
+
+      case 'ps_info_video':
+      print("HI");
+        await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 
       default:
@@ -80,18 +85,6 @@ class InsertData {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE) VALUES (?, ?, ?, ?)')
         ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal]);
-  }
-
-  Future<void> insertFileInfoPs(
-    MySQLConnectionPool conn,
-    String tableName,
-    String encryptedFilePath,
-    String userName,
-    String encryptedFileVal,
-  ) async {
-
-    await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT) VALUES (?, ?, ?, ?,?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal,EncryptionClass().Encrypt(Globals.psCommentValue)]);
   }
 
   Future<void> insertVideoInfo(
@@ -125,4 +118,29 @@ class InsertData {
     await conn.prepare('INSERT INTO upload_info_directory (CUST_USERNAME, CUST_FILE, DIR_NAME, CUST_FILE_PATH, UPLOAD_DATE, FILE_EXT, CUST_THUMB) VALUES (?, ?, ?, ?, ?, ?, ?)')
         ..execute([custUsername, encryptedFileVal, encryptedDirName, encryptedFilePath, _uploadDate, fileExtension, thumb]);
   }
+
+  Future<void> insertFileInfoPs(
+    MySQLConnectionPool conn,
+    String tableName,
+    String encryptedFilePath,
+    String userName,
+    String encryptedFileVal,
+  ) async {
+
+    await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT) VALUES (?, ?, ?, ?,?)')
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, EncryptionClass().Encrypt(Globals.psCommentValue)]);
+  }
+
+  Future<void> insertVideoInfoPs(
+    MySQLConnectionPool conn,
+    String encryptedFilePath,
+    String userName,
+    String encryptedFileVal,
+    String? thumb,
+  ) async {
+
+    await conn.prepare('INSERT INTO ps_info_video (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB, CUST_COMMENT) VALUES (?, ?, ?, ?, ?, ?)')
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb, EncryptionClass().Encrypt(Globals.psCommentValue)]);
+  }
+
 }
