@@ -161,6 +161,11 @@ class CakeHomeState extends State<Mainboard> {
   final insertData = InsertData();
   final crud = Crud();
 
+  String getCurrentPageName() {
+    final getPageName = appBarTitle.value == "" ? "homeFiles" : appBarTitle.value;
+    return getPageName;
+  }
+
   void _openPsCommentDialog({
     required String filePathVal,
     required String fileName,
@@ -1399,16 +1404,16 @@ class CakeHomeState extends State<Mainboard> {
 
         newFileToDisplay = thumbnailFile;
 
-        final verifyTableName = Globals.fileOrigin == "homeFiles" ? "file_info_vid" : "ps_info_video";
+        final verifyOrigin = Globals.nameToOrigin[getCurrentPageName()];
 
-        if(verifyTableName == "ps_info_video") {
-          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+        if(verifyOrigin == "psFiles") {
+          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_video", base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
         } else {
 
           await _processUploadListView(
             filePathVal: filePathVal,
             selectedFileName: selectedFileName,
-            tableName: verifyTableName,
+            tableName: GlobalsTable.homeVideoTable,
             fileBase64Encoded: bodyBytes,
             newFileToDisplay: newFileToDisplay,
             thumbnailBytes: thumbnailBytes
@@ -1499,11 +1504,13 @@ class CakeHomeState extends State<Mainboard> {
 
           if (!Globals.imageType.contains(_fileType)) {
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
+            await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
             TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
+            await NotificationApi.stopNotification(0);
             continue;
           } 
 
@@ -1539,12 +1546,12 @@ class CakeHomeState extends State<Mainboard> {
 
           if (Globals.imageType.contains(_fileType)) {
 
-            final verifyTableName = Globals.fileOrigin == "homeFiles" ? GlobalsTable.homeImageTable : "ps_info_image";
+            final verifyOrigin = Globals.nameToOrigin[getCurrentPageName()];
 
-            if(verifyTableName == "ps_info_image") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: verifyTableName, base64Encoded: bodyBytes);
+            if(verifyOrigin == "psFiles") {
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_image", base64Encoded: bodyBytes);
             } else {
-              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: verifyTableName,fileBase64Encoded: bodyBytes);
+              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: bodyBytes);
             }
 
           }
@@ -1614,13 +1621,12 @@ class CakeHomeState extends State<Mainboard> {
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
 
-    verifyTableName == "file_info" ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
-    verifyTableName == "file_info_vid" ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
+    verifyTableName == GlobalsTable.homeImageTable ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
+    verifyTableName == GlobalsTable.homeVideoTable ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
 
     await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
 
     setState(() {
-      Globals.fileOrigin = Globals.nameToOrigin[appBarTitle.value]!;
       Globals.imageValues.addAll(newImageValues);
       Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
       Globals.imageByteValues.addAll(newImageByteValues);
@@ -2821,6 +2827,12 @@ class CakeHomeState extends State<Mainboard> {
     return RefreshIndicator(
       color: ThemeColor.darkPurple,
       onRefresh: () async {
+
+        if(Globals.fileOrigin == "homeFiles") {
+          GlobalsData.homeImageData.clear();
+          GlobalsData.homeThumbnailData.clear();
+        }
+        
         await _refreshListView();
       },
       child: SizedBox(
@@ -4161,7 +4173,7 @@ class CakeHomeState extends State<Mainboard> {
 
     final getGreeting = _setupGreetingTime();
     final setupGreeting = "$getGreeting${Globals.custUsername}";
-    
+
     String setupTitle = appBarTitle.value == '' ? setupGreeting : appBarTitle.value;
 
     return PreferredSize(

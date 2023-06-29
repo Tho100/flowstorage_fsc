@@ -66,7 +66,6 @@ class InsertData {
         break;
 
       case 'ps_info_video':
-      print("HI");
         await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 

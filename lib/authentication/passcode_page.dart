@@ -55,9 +55,10 @@ class PasscodePageState extends State<PasscodePage> {
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail,BuildContext context) async {
 
     try {
-      
+
       final accTypeGetter = await MySqlAccType().retrieveParams(savedCustEmail);
 
+      Globals.fileOrigin = "homeFiles";
       Globals.accountType = accTypeGetter;
 
       final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, savedCustUsername);
@@ -105,7 +106,6 @@ class PasscodePageState extends State<PasscodePage> {
       final uniqueBytes = bytes.toList();
 
       Globals.fromLogin = true;
-      Globals.fileOrigin = "homeFiles";
 
       Globals.fileValues.addAll(uniqueFileNames);
       Globals.foldValues.addAll(retrieveFolders);

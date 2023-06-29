@@ -153,7 +153,7 @@ class Globals {
       'Shared to me': 'sharedToMe',
       'Shared files': 'sharedFiles',
       'Offline': 'offlineFiles',
-      'Public Storage': 'psFiles'
+      'Public Storage': 'psFiles',
     };
   }
 
