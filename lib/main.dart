@@ -594,8 +594,8 @@ class CakeHomeState extends State<Mainboard> {
 
       SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
 
-    } catch (err) {
-      print("Exception from _processDeletingAllItems {main}: $err");
+    } catch (err, st) {
+      logger.e('Exception from _processDeletingAllItems {main}',err,st);
       SnakeAlert.errorSnake("An error occurred.", context);
     } 
   }
@@ -950,8 +950,8 @@ class CakeHomeState extends State<Mainboard> {
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 
-    } catch (err) {
-      print("Exception from _buildDirectory: $err");
+    } catch (err, st) {
+      logger.e('Exception from _buildDirectory {main}',err,st);
       AlertForm.alertDialog('Failed to create directory.', context);
     }
   }
@@ -964,8 +964,8 @@ class CakeHomeState extends State<Mainboard> {
       await DeleteDirectory.deleteDirectory(directoryName: directoryName);
       SnakeAlert.okSnake(message: "Directory `$directoryName` has been deleted.",context: context);
 
-    } catch (err) {
-      print("Exception from _deletionDirectory: $err");
+    } catch (err, st) {
+      logger.e('Exception from _deletionDirectory {main}',err,st);
       SnakeAlert.errorSnake("Failed to delete $directoryName",context);
     }
 
@@ -1227,8 +1227,8 @@ class CakeHomeState extends State<Mainboard> {
         SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
       }
 
-    } catch (failedRename) {
-      print("Exception from _renameFile {main}: $failedRename");
+    } catch (err, st) {
+      logger.e('Exception from _renameFile {main}',err,st);
       SnakeAlert.errorSnake("Failed to rename this file.",context);
     }
   }
@@ -1260,8 +1260,8 @@ class CakeHomeState extends State<Mainboard> {
         await _renameFile(fileName, newRenameValue);
       }
       
-    } catch (err) {
-      print("Exception from _onRenamePressed {main}: $err");
+    } catch (err, st) {
+      logger.e('Exception from _onRenamedPressed {main}',err,st);
     }
   }
 
@@ -1292,8 +1292,8 @@ class CakeHomeState extends State<Mainboard> {
 
       }
 
-    } catch (err) {
-      print("Exception from _deletionFile {main}: $err");
+    } catch (err, st) {
+      logger.e('Exception from _deletionFile {main}',err,st);
       SnakeAlert.errorSnake("Failed to delete ${ShortenText().cutText(fileName)}",context);
     }
 
@@ -1445,8 +1445,8 @@ class CakeHomeState extends State<Mainboard> {
 
       await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
 
-    } catch (failedUpload) {
-      print("Exception from _openGalleryVideo {main}: $failedUpload");
+    } catch (err, st) {
+      logger.e('Exception from _openGalleryVideo {main}',err,st);
       SnakeAlert.errorSnake("Upload failed.",context);
     }
   }
@@ -1594,8 +1594,8 @@ class CakeHomeState extends State<Mainboard> {
         countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
       } 
 
-    } catch (failedUpload) {
-      print("Exception from _openGalleryImage {main}: $failedUpload");
+    } catch (err, st) {
+      logger.e('Exception from _openGalleryImage {main}',err,st);
       SnakeAlert.errorSnake("Upload failed.",context);
     }
   }
@@ -1839,8 +1839,8 @@ class CakeHomeState extends State<Mainboard> {
 
       countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished",count: countSelectedFiles) : null;
 
-    } catch (failedUpload) {
-      print("Exception from _openDialogFile {main}: $failedUpload");
+    } catch (err, st) {
+      logger.e('Exception from _openDialogFile {main}',err,st);
       SnakeAlert.errorSnake("Upload failed.",context);
     }
   }
@@ -1909,8 +1909,8 @@ class CakeHomeState extends State<Mainboard> {
 
       await CallNotify().customNotification(title: "Folder Uploaded", subMesssage: "$folderName Has been added");
 
-    } catch (err) {
-      print("Exception on _openDialogFolder {main}: $err");
+    } catch (err, st) {
+      logger.e('Exception from _openDialogFolder {main}',err,st);
       SnakeAlert.errorSnake("Upload failed.",context);
     }
   }

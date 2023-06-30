@@ -35,7 +35,7 @@ class MultipleTextLoading {
 
     return AlertDialog(
       backgroundColor: backgroundColor,
-      content: Container(
+      content: SizedBox(
         width: 325,
         height: 78,
         child: Column(

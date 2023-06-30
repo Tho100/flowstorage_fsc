@@ -235,7 +235,7 @@ class SharingDialog {
                               shareToComment: shareToComment, 
                               fileExtension: '.$fileExtension', 
                               fileData: fileData,
-                              thumbnail: thumbnail != null ? thumbnail : '',
+                              thumbnail: thumbnail ?? '',
                               context: context
                             );
 

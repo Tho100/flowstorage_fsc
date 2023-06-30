@@ -246,7 +246,7 @@ class _SharingPage extends State<SharingPage> {
 
                     try {
 
-                      if(videoThumbnail.length != 0) {
+                      if(videoThumbnail.isNotEmpty) {
                         return Image.memory(Uint8List.fromList(videoThumbnail));
                       } else {
                         return Image.memory(base64Decode(encodedValues));
@@ -268,7 +268,7 @@ class _SharingPage extends State<SharingPage> {
 
   Widget _buildTextField(TextEditingController? controller,String headerText,bool fromComment,double commentHeight,bool enabled) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
         child: TextFormField(
           style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
