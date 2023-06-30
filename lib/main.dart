@@ -28,6 +28,7 @@ import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -152,15 +153,17 @@ class CakeHomeState extends State<Mainboard> {
 
   bool isImageBottomTrailingVisible = false;
 
-  Future<void>? _debounceSearch;
+  Timer? _debounceTimer;
 
   final fileNameGetterHome = NameGetter();
   final loginGetterHome = LoginGetter();
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
   final insertData = InsertData();
-  final crud = Crud();
 
+  final crud = Crud();
+  final logger = Logger();
+  
   String getCurrentPageName() {
     final getPageName = appBarTitle.value == "" ? "homeFiles" : appBarTitle.value;
     return getPageName;
@@ -509,8 +512,8 @@ class CakeHomeState extends State<Mainboard> {
 
       await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
 
-    } catch (err) {
-      print("Exception from _initializeCameraScanner {main}: $err");
+    } catch (err, st) {
+      logger.e('Exception from _initializeCameraScanner {main}',err, st);
       SnakeAlert.errorSnake("Failed to start scanner.",context);
     }
   }
@@ -616,7 +619,7 @@ class CakeHomeState extends State<Mainboard> {
   void _updateCheckboxState(int index, bool value) {
     setState(() {
       checkedList[index] = value;
-      itemIsChecked = checkedList.where((item) => item == true).length > 0 ? true : false;
+      itemIsChecked = checkedList.where((item) => item == true).isNotEmpty ? true : false;
       value == true ? checkedItemsName.add(Globals.filteredSearchedFiles[index]) : checkedItemsName.removeWhere((item) => item == Globals.filteredSearchedFiles[index]);
     });
     appBarTitle.value = "${(checkedList.where((item) => item == true).length).toString()} item(s) selected";
@@ -630,9 +633,10 @@ class CakeHomeState extends State<Mainboard> {
   /// </summary>
   
   void _onTextChanged(String value) {
-    _debounceSearch = null;
-    _debounceSearch = Future.delayed(const Duration(milliseconds: 280), () {
-      final searchTerms = value.split(",").map((term) => term.trim().toLowerCase()).toList();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 280), () {
+      final searchTerms =
+          value.split(",").map((term) => term.trim().toLowerCase()).toList();
 
       final filteredFiles = Globals.fileValues.where((file) {
         return searchTerms.any((term) => file.toLowerCase().contains(term));
@@ -645,30 +649,32 @@ class CakeHomeState extends State<Mainboard> {
       }).toList();
 
       final filteredByteValues = Globals.imageByteValues.where((bytes) {
-      final index = Globals.imageByteValues.indexOf(bytes);
-      final file = Globals.fileValues[index];
-      return searchTerms.any((term) => file.toLowerCase().contains(term));
+        final index = Globals.imageByteValues.indexOf(bytes);
+        final file = Globals.fileValues[index];
+        return searchTerms.any((term) => file.toLowerCase().contains(term));
       }).toList();
 
       setState(() {
-        
         Globals.filteredSearchedFiles = filteredFiles;
         Globals.filteredSearchedImage = filteredImageValues;
         Globals.filteredSearchedBytes = filteredByteValues;
 
         if (filteredFiles.isNotEmpty) {
           final index = Globals.fileValues.indexOf(filteredFiles.first);
-          leadingImageSearchedValue = Globals.fromLogin == false && filteredImageValues.isNotEmpty && filteredImageValues.length > index
-            ? Image.file(filteredImageValues[index])
-            : filteredByteValues.isNotEmpty && filteredByteValues.length > index
-              ? Image.memory(filteredByteValues[index]!)
-              : null;
+          leadingImageSearchedValue = Globals.fromLogin == false &&
+                  filteredImageValues.isNotEmpty &&
+                  filteredImageValues.length > index
+              ? Image.file(filteredImageValues[index])
+              : filteredByteValues.isNotEmpty && filteredByteValues.length > index
+                  ? Image.memory(filteredByteValues[index]!)
+                  : null;
         } else {
           leadingImageSearchedValue = null;
         }
       });
     });
   }
+
 
   Future<int> _getUsageProgressBar() async {
 
@@ -679,8 +685,8 @@ class CakeHomeState extends State<Mainboard> {
 
       return percentage;
 
-    } catch (err) {
-      print("Exception on _getUsageProgressBar (main): $err");
+    } catch (err, st) {
+      logger.e('Exception on _getUsageProgressBar (main)',err, st);
       return 0;
     }
 
@@ -1721,11 +1727,13 @@ class CakeHomeState extends State<Mainboard> {
 
           if (!Globals.supportedFileTypes.contains(_fileType)) {
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
+            await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
             TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
+            await NotificationApi.stopNotification(0);
             continue;
           }
 
@@ -4243,7 +4251,7 @@ class CakeHomeState extends State<Mainboard> {
 
   @override 
   void dispose() {
-    _debounceSearch = null;
+    _debounceTimer!.cancel();
     _focusNode.dispose();
     _searchController.dispose();
     _renameController.dispose();
