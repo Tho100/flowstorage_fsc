@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:logger/logger.dart';
 
 /// <summary>
 /// 
@@ -9,8 +10,8 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
 class DirectoryClass {
 
-  final _encryptionClass = EncryptionClass();
-  final now = DateTime.now();
+  final logger = Logger();
+  final encryptionClass = EncryptionClass();
 
   Future<void> createDirectory(String? directoryName,String? username) async {
     
@@ -19,12 +20,12 @@ class DirectoryClass {
       final conn = await SqlConnection.insertValueParams();
 
       const query = "INSERT INTO file_info_directory(DIR_NAME,CUST_USERNAME) VALUES (:dirname,:username)";
-      final params = {'dirname': _encryptionClass.Encrypt(directoryName),'username': username};
+      final params = {'dirname': encryptionClass.Encrypt(directoryName),'username': username};
 
       await conn.execute(query,params);
 
-    } catch (err) {
-      print("Exception from DirectoryCreate class: $err");
+    } catch (err, st) {
+      logger.e("Exception from createDirectory {create_directory}",err, st);
     }
   }
 

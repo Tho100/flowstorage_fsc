@@ -686,6 +686,7 @@ class CakeHomeState extends State<Mainboard> {
       return percentage;
 
     } catch (err, st) {
+      Globals.accountType = "Basic";
       logger.e('Exception on _getUsageProgressBar (main)',err, st);
       return 0;
     }
@@ -3698,22 +3699,22 @@ class CakeHomeState extends State<Mainboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      "Add item to Flowstorage",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                      ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(15.0),
+                  child: Text(
+                    "Add item to Flowstorage",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 15,
                     ),
                   ),
-                ],
-              ),
-      
+                ),
+              ],
+            ),
+    
             ElevatedButton(
               onPressed: () async {
                 if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
@@ -3815,7 +3816,7 @@ class CakeHomeState extends State<Mainboard> {
             ),
           ),
 
-         ElevatedButton(
+          ElevatedButton(
             onPressed: () async {
               if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                 Navigator.pop(context);
@@ -3843,16 +3844,16 @@ class CakeHomeState extends State<Mainboard> {
           const Divider(color: ThemeColor.thirdWhite),
 
           ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  Navigator.pop(context);
-                  NavigatePage.goToPageCreateText(context);
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
+            onPressed: () async {
+              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                Navigator.pop(context);
+                NavigatePage.goToPageCreateText(context);
+              } else {
+                _upgradeDialog(
+                  "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                );
+              }
+            },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
                 children: [

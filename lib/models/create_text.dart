@@ -47,6 +47,7 @@ class _CreateText extends State<CreateText> {
     ));
 
     await Future.wait(isolatedFileFutures);
+
   }
 
   Future<bool> _isFileExists(String fileName) async {
@@ -136,7 +137,6 @@ class _CreateText extends State<CreateText> {
                           onPressed: () async {
 
                             String getFileTitle = _fileNameController.text.trim();
-
 
                             if (getFileTitle.isEmpty) {
                               return;

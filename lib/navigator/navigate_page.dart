@@ -115,8 +115,8 @@ class NavigatePage {
       );
 
     } catch (err) {
-      print("Exception on goToPageSettings (NavigatePage): $err");
       SnakeAlert.errorSnake("No internet connection.", context);
+      print("Exception on goToPageSettings (NavigatePage): $err");
     }
   }
 

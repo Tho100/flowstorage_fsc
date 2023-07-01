@@ -18,6 +18,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,6 +31,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreen extends State<SplashScreen> {
+
+  final logger = Logger();
 
   final emailGetterStartup = EmailGetter();
   final nameGetterStartup = NameGetter();
@@ -92,8 +95,8 @@ class _SplashScreen extends State<SplashScreen> {
           
         }
       }
-    } catch (err) {
-      print("Exception from _navigateToNextScreen {SplashScreen}: $err");
+    } catch (err, st) {
+      logger.e("Exception from _navigateToNextScreen {SplashScreen}",err, st);
       NavigatePage.replacePageHome(context);
     }
   }

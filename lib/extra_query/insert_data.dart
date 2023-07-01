@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
   
 /// <summary>
@@ -15,7 +16,8 @@ import 'package:mysql_client/mysql_client.dart';
 /// </summary>
 
 class InsertData {
-
+  
+  final logger = Logger();
   final _encryptionClass = EncryptionClass();
   final _uploadDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
@@ -27,51 +29,57 @@ class InsertData {
     dynamic vidThumb,
   }) async {
 
-    final conn = await SqlConnection.insertValueParams();
+    try {
 
-    final encryptedFilePath = _encryptionClass.Encrypt(filePath);
-    final encryptedFileVal = _encryptionClass.Encrypt(fileVal);
+      final conn = await SqlConnection.insertValueParams();
 
-    final thumb = vidThumb != null ? base64.encode(vidThumb) : null;
+      final encryptedFilePath = _encryptionClass.Encrypt(filePath);
+      final encryptedFileVal = _encryptionClass.Encrypt(fileVal);
 
-    switch (tableName) {
+      final thumb = vidThumb != null ? base64.encode(vidThumb) : null;
 
-      case GlobalsTable.homeImageTable:
-      case GlobalsTable.homeTextTable:
-      case GlobalsTable.homePdfTable:
-      case GlobalsTable.homePtxTable:
-      case GlobalsTable.homeAudioTable:
-      case GlobalsTable.homeExcelTable:
-      case GlobalsTable.homeWordTable:
-      case GlobalsTable.homeExeTable:
+      switch (tableName) {
 
-        await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
-        break;
+        case GlobalsTable.homeImageTable:
+        case GlobalsTable.homeTextTable:
+        case GlobalsTable.homePdfTable:
+        case GlobalsTable.homePtxTable:
+        case GlobalsTable.homeAudioTable:
+        case GlobalsTable.homeExcelTable:
+        case GlobalsTable.homeWordTable:
+        case GlobalsTable.homeExeTable:
 
-      case GlobalsTable.homeVideoTable:
-        await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
-        break;
+          await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
+          break;
 
-      case 'upload_info_directory':
-        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
-        break;
+        case GlobalsTable.homeVideoTable:
+          await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
+          break;
 
-      case 'ps_info_text':
-      case 'ps_info_image':
-      case 'ps_info_excel':
-      case 'ps_info_pdf':
-      case 'ps_info_word':
+        case 'upload_info_directory':
+          await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
+          break;
 
-        await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
-        break;
+        case 'ps_info_text':
+        case 'ps_info_image':
+        case 'ps_info_excel':
+        case 'ps_info_pdf':
+        case 'ps_info_word':
 
-      case 'ps_info_video':
-        await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
-        break;
+          await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
+          break;
 
-      default:
-        throw ArgumentError('Invalid tableName: $tableName');
+        case 'ps_info_video':
+          await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
+          break;
+
+        default:
+          throw ArgumentError('Invalid tableName: $tableName');
+      }
+    } catch (err, st) {
+      logger.e("Exception from insertValueParams {insert_data}", err, st);
     }
+    // added try/catch
   }
 
   Future<void> insertFileInfo(

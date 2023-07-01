@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 
@@ -18,6 +19,8 @@ class StatisticsPage extends StatefulWidget {
 
 class StatsPage extends State<StatisticsPage> {
 
+  final logger = Logger();
+  
   final categoryNamesHomeFiles = ['Image', 'Audio', 'Document', 'Video', 'Text'];
 
   late List<UploadCountValue> data;
@@ -107,9 +110,9 @@ class StatsPage extends State<StatisticsPage> {
         dataIsLoading = false;
       });
 
-    } catch (err) {
+    } catch (err, st) {
       SnakeAlert.errorSnake("No internet connection.", context);
-      print("Exception from _initData (StatisticsPage): $err");
+      logger.e('Exception from _initData {statistics_page}',err,st);
     }
 
   }

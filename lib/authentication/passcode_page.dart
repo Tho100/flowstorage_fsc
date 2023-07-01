@@ -18,6 +18,7 @@ import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class PasscodePage extends StatefulWidget {
@@ -29,6 +30,8 @@ class PasscodePage extends StatefulWidget {
 }
 
 class PasscodePageState extends State<PasscodePage> {
+
+  final logger = Logger();
 
   final List<TextEditingController> controllers = List.generate(4, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
@@ -150,9 +153,9 @@ class PasscodePageState extends State<PasscodePage> {
         SnakeAlert.errorSnake("Incorrect passcode.", context);
       }
 
-    } catch (err) {
+    } catch (err, st) {
       NavigatePage.replacePageHome(context);
-      print("Exception from validatePassCode {PasscodePage}: $err");
+      logger.e("Exception from validatePassCode {PasscodePage}",err, st);
     } 
 
   }
