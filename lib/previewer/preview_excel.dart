@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:excel/excel.dart' as excel_viewer;
+import 'package:logger/logger.dart';
 
 class PreviewExcel extends StatefulWidget {
 
@@ -46,8 +47,8 @@ class PreviewExcelState extends State<PreviewExcel> {
         Globals.fileOrigin,
       );
       
-    } catch (err) {
-      print("Exception from _callData {PreviewText}\n$err");
+    } catch (err, st) {
+      Logger().e("Exception from _callData {preview_excel}", err, st);
       return Future.value(Uint8List(0));
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 class StripeCustomers {
 
@@ -75,9 +76,9 @@ class StripeCustomers {
     );
 
     if (response.statusCode == 200) {
-      print('Email deleted successfully.');
+      Logger().i('Email deleted successfully.');
     } else {
-      throw Exception('Failed to delete email');
+      Logger().i('Failed to delete email');
     }
 
   }

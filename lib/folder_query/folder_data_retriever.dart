@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -114,8 +115,8 @@ class FolderDataReceiver {
 
       return dataSet.toList();
 
-    } catch (failedRetrieval) {
-      print("Exception from retrieveParams {folder_data_retriever}: $failedRetrieval");
+    } catch (err, st) {
+      Logger().e("Exception from retrieveParams {folder_data_retriever}", err, st);
       return <Map<String, dynamic>>[];
     }
   }

@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -67,8 +68,8 @@ class PreviewTextState extends State<PreviewText> {
       }
 
       
-    } catch (err) {
-      print("Exception from _callData {PreviewText}\n$err");
+    } catch (err, st) {
+      Logger().e("Exception from _callData {PreviewText}", err, st);
       return Future.value(Uint8List(0));
     }
   }

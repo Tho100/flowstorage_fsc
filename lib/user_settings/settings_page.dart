@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -172,8 +173,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
                               AlertForm.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
 
-                            } catch (err) {
-                              print(err);
+                            } catch (err, st) {
+                              Logger().e("Exception from _buildAddPassword {settings_page}", err, st);
                               AlertForm.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
                             }
 
@@ -216,8 +217,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
       AlertForm.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by sign in again to your account.", context);
 
-    } catch (err) {
-      print("Exception from _addPasscode {SettingsMenu}: $err");
+    } catch (err, st) {
+      Logger().e("Exception from _addPasscode {SettingsMenu}", err, st);
       AlertForm.alertDialogTitle("An error occurred", "Please try again.", context);
     }
 

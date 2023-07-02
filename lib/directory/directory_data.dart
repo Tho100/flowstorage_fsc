@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class DirectoryDataReceiver {
@@ -115,8 +116,8 @@ class DirectoryDataReceiver {
 
       return dataSet;
 
-    } catch (failedRetrieval) {
-      print("Exception from retrieveParams {directory_data}: $failedRetrieval");
+    } catch (err, st) {
+      Logger().e("Exception from retrieveParams {directory_data}", err, st);
       return <Map<String, dynamic>>[];
     }
   }

@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SimplifyDownload {
@@ -76,8 +77,8 @@ class SimplifyDownload {
 
       await CallNotify().downloadedNotification(fileName: fileNameValue!);
 
-    } catch (err) {
-      print("Exception from downloadFile {SimplifyDownload}: $err");
+    } catch (err, st) {
+      Logger().e("Exception from downloadFile {SimplifyDownload}", err, st);
       await CallNotify().customNotification(title: "Something went wrong",subMesssage: "Failed to download $fileNameValue");
     } 
    

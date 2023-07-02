@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_username_page.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import '../home_page.dart';
 import '../authentication/passcode_page.dart';
@@ -114,9 +115,9 @@ class NavigatePage {
         ),
       );
 
-    } catch (err) {
+    } catch (err, st) {
       SnakeAlert.errorSnake("No internet connection.", context);
-      print("Exception on goToPageSettings (NavigatePage): $err");
+      Logger().e("Exception on goToPageSettings (NavigatePage)", err, st);
     }
   }
 

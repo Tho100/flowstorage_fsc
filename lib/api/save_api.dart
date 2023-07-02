@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
+import 'package:logger/logger.dart';
 
 class SaveApi {
   
+  final logger = Logger();
+
   Future<String> saveFile({
     required String fileName, 
     required dynamic fileData,
@@ -24,7 +27,7 @@ class SaveApi {
       } else if (fileData is String) {
         await file.writeAsString(fileData);
       } else {
-        print('Exception from saveMultipleFiles {save_api}: unsupported file format');
+        logger.e('Exception from saveMultipleFiles {save_api}: unsupported file format');
       }
     }
 
@@ -45,7 +48,7 @@ class SaveApi {
     } else if (fileData is String) {
       await file.writeAsString(fileData);
     } else {
-      print('Exception from saveMultipleFiles {save_api}: unsupported file format');
+      logger.e('Exception from saveMultipleFiles {save_api}: unsupported file format');
     }
 
   }

@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/JustLoading.dart';
+import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -34,7 +35,9 @@ class MysqlLogin {
   final nameGetterLogin = NameGetter();
   final loginGetterLogin = LoginGetter();
   final dateGetterLogin = DateGetter();
+  
   final crud = Crud();
+  final logger = Logger();
 
   String custEmailInit = '';
 
@@ -196,9 +199,9 @@ class MysqlLogin {
       } else {
         AlertForm.alertDialog("Account not found.", context);
       }
-    } catch (err) {
-      print("Exception from logParams {MYSQL_login}: $err");
+    } catch (err, st) {
       AlertForm.alertDialogTitle("Something is wrong...", "No internet connection.", context);
+      logger.e("Exception from logParams {MYSQL_login}", err, st);
       
     } finally {
       await conn.close();

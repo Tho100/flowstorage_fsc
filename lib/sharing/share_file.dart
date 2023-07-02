@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/ui_dialog/TitledAlert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 
 class MySqlSharing {
 
@@ -41,8 +42,8 @@ class MySqlSharing {
 
       await _crud.insert(query: insertSharingData, params: params);
 
-    } catch (err) {
-      print("Exception from startSharing {share_file}: $err");
+    } catch (err, st) {
+      Logger().e("Exception from startSharing {share_file}", err, st);
     }
   }
 
@@ -78,8 +79,8 @@ class MySqlSharing {
         "${ShortenText().cutText(EncryptionClass().Decrypt(fileName))} Has been shared to $sendTo",
       );
 
-    } catch (err) {
-      print("Exception from insertValuesParam {share_file}");
+    } catch (err, st) {
+      Logger().e("Exception from insertValuesParam {share_file}", err, st);
       await CallNotify().customNotification(
         title: "Something went wrong",
         subMesssage: "Failed to share ${{ShortenText().cutText(EncryptionClass().Decrypt(fileName))}}",

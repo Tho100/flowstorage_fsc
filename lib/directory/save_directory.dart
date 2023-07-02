@@ -11,6 +11,7 @@ import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:logger/logger.dart';
 
 class SaveDirectory {
   
@@ -53,8 +54,8 @@ class SaveDirectory {
 
       return dataSet;
 
-    } catch (failedRetrieval) {
-      print("Exception from retrieveParams {directory_data}: $failedRetrieval");
+    } catch (err, st) {
+      Logger().e("Exception from retrieveParams {directory_data}", err, st);
       return <Map<String, dynamic>>[];
     }
   }
