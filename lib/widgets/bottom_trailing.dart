@@ -65,18 +65,21 @@ class BottomTrailing {
               child: const Divider(color: ThemeColor.thirdWhite),
             ),
 
-            ElevatedButton(
-              onPressed: onRenamePressed,
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Rename File',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
+            Visibility(
+              visible: Globals.fileOrigin != "psFiles",
+              child: ElevatedButton(
+                onPressed: onRenamePressed,
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.edit),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Rename File',
+                      style: GlobalsStyle.btnBottomDialogTextStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -129,20 +132,23 @@ class BottomTrailing {
               ),
             ),
 
-            ElevatedButton(
-              onPressed: onDeletePressed,
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.delete,color: ThemeColor.darkRed),
-                  SizedBox(width: 10.0),
-                  Text('Delete',
-                    style: TextStyle(
-                      color: ThemeColor.darkRed,
-                      fontSize: 17,
-                    )
-                  ),
-                ],
+            Visibility(
+              visible: Globals.fileOrigin != "psFiles",
+              child: ElevatedButton(
+                onPressed: onDeletePressed,
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.delete,color: ThemeColor.darkRed),
+                    SizedBox(width: 10.0),
+                    Text('Delete',
+                      style: TextStyle(
+                        color: ThemeColor.darkRed,
+                        fontSize: 17,
+                      )
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

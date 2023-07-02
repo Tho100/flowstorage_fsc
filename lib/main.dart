@@ -176,12 +176,23 @@ class CakeHomeState extends State<Mainboard> {
     required String base64Encoded,
     File? newFileToDisplay,
     dynamic thumbnail,
-  }) {
-    PsCommentDialog().buildPsCommentDialog(
+  }) async {
+
+    await NotificationApi.stopNotification(0);
+    await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
+
+    await PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
-      onUploadPressed: () async => await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail),
+      onUploadPressed: () async { 
+        await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
+        _addItemToListView(fileName: fileName);
+      },
       context: context
     );
+
+    await NotificationApi.stopNotification(0);
+    await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
+
   }
 
   void _openDeleteDialog(String fileName) {
@@ -1414,7 +1425,10 @@ class CakeHomeState extends State<Mainboard> {
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
         if(verifyOrigin == "psFiles") {
+
           _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_video", base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+          return;
+
         } else {
 
           await _processUploadListView(
@@ -1557,7 +1571,7 @@ class CakeHomeState extends State<Mainboard> {
 
             if(verifyOrigin == "psFiles") {
               _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_image", base64Encoded: bodyBytes);
-              // TODO: return here, then do the rest here
+              return;
             } else {
               await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: bodyBytes);
             }

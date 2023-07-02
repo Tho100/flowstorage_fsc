@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 
 import 'package:flutter/foundation.dart';
@@ -49,7 +50,14 @@ class RetrieveData {
       query = "SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
       queryParams = {"username": username!, "dirname": encryption.Encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
     } else if (originFrom == "psFiles") {
-      query = "SELECT CUST_FILE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
+
+      late String toPsFileName = "";
+
+      if(GlobalsTable.tableNames.contains(tableName)) {
+        toPsFileName = GlobalsTable.publicToPsTables[tableName]!;
+      }
+
+      query = "SELECT CUST_FILE FROM $toPsFileName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       queryParams = {"username": username!, "filename": encryptedFileName};
     }
 

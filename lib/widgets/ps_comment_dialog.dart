@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
@@ -62,7 +63,8 @@ class PsCommentDialog {
                         width: 85,
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            await NotificationApi.stopNotification(0);
                             commentController.clear();
                             Navigator.pop(context);
                           },
@@ -90,8 +92,10 @@ class PsCommentDialog {
                           onPressed: () {
 
                             Globals.psCommentValue = commentController.text;
+                            
                             onUploadPressed();
                             _clearComment();
+
                             Navigator.pop(context);
 
                           },

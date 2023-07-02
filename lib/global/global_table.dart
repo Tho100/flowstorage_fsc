@@ -24,7 +24,21 @@ class GlobalsTable {
   };
 
   static const Set<String> tableNamesPs = {
-    "ps_info_image","ps_info_text","ps_info_video","ps_info_excel"
+    "ps_info_image","ps_info_text","ps_info_video","ps_info_excel",
+    "ps_info_pdf","ps_info_word","ps_info_ptx","ps_info_msi","ps_info_apk",
+    "ps_info_exe","ps_info_audio"
+  };
+
+  static final Map<String,String> publicToPsTables = {
+    homeImageTable: "ps_info_image",
+    homeVideoTable: "ps_info_video",
+    homeTextTable: "ps_info_text",
+    homeWordTable: "ps_info_word",
+    homePtxTable: "ps_info_ptx",
+    homePdfTable: "ps_info_pdf",
+    homeApkTable: "ps_info_apk",
+    homeExeTable: "ps_info_exe",
+    homeAudioTable: "ps_info_audio",
   };
 
 }
