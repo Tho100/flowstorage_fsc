@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -9,9 +10,9 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CreateText extends StatefulWidget {
@@ -25,6 +26,8 @@ class _CreateText extends State<CreateText> {
 
   final TextEditingController _textEditingController = TextEditingController();
   final TextEditingController _fileNameController = TextEditingController();
+
+  final logger = Logger();
   
   bool _saveVisibility = true;
   bool _textFormEnabled = true;
@@ -53,7 +56,6 @@ class _CreateText extends State<CreateText> {
   Future<bool> _isFileExists(String fileName) async {
     return Globals.fileValues.contains(EncryptionClass().Decrypt(fileName));
   }
-
 
   Future _askFileName() {
     return showDialog(
@@ -142,11 +144,6 @@ class _CreateText extends State<CreateText> {
                               return;
                             }
                             
-                            if (await _isFileExists(EncryptionClass().Encrypt("$getFileTitle.txt"))) {
-                              AlertForm.alertDialog("File with this name already exists.", context);
-                              return;
-                            }
-                            
                             await _saveText(_textEditingController.text);
 
                           },
@@ -174,19 +171,46 @@ class _CreateText extends State<CreateText> {
     ); 
   }
 
-  Future<File> getImageFileFromAssets(String path) async {   
-    final byteData = await rootBundle.load('assets/$path');   
-    final file = await File('${(await getTemporaryDirectory()).path}/$path')       
-    .create(recursive: true);   
-    await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));   
-    return file; 
+  String _tableToUploadTo() {
+
+    late String tableToUploadTo = "";
+
+    if(Globals.fileOrigin == "homeFiles") {
+      tableToUploadTo = GlobalsTable.homeTextTable;
+    } else if (Globals.fileOrigin == "dirFiles") {
+      tableToUploadTo = "upload_info_directory";
+    } else if (Globals.fileOrigin == "foldFiles") {
+      tableToUploadTo = "folder_upload_info";
+    } else if (Globals.fileOrigin == "psFiles") {
+      tableToUploadTo = "ps_info_text";
+    }
+
+    return tableToUploadTo;
   }
 
   Future<void> _saveText(String inputValue) async {
 
     try {
-      
+    
       if(inputValue.isEmpty) {
+        return;
+      }
+
+      final internetStatus = await Connectivity().checkConnectivity();
+      
+      if(internetStatus == ConnectivityResult.none) {
+
+        _saveFileAsOffline(inputValue);
+        _fileNameController.clear();
+
+        SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
+        Navigator.pop(context);
+
+        return;
+      }
+
+      if (await _isFileExists(EncryptionClass().Encrypt("$inputValue.txt"))) {
+        AlertForm.alertDialog("File with this name already exists.", context);
         return;
       }
 
@@ -194,14 +218,12 @@ class _CreateText extends State<CreateText> {
       final String bodyBytes = base64.encode(toUtf8Bytes);
 
       final String getFileName = "${_fileNameController.text.trim().replaceAll(".", "")}.txt";
-      final String setTableUpload = 
-      Globals.fileOrigin == "homeFiles" 
-      ? GlobalsTable.homeTextTable 
-      : Globals.fileOrigin == "dirFiles" 
-      ? "upload_info_directory" 
-      : GlobalsTable.folderUploadTable;
 
-      await _insertUserFile(table: setTableUpload,filePath: getFileName,fileValue: bodyBytes);
+      await _insertUserFile(
+        table: _tableToUploadTo(), 
+        filePath: getFileName, 
+        fileValue: bodyBytes
+      );
 
       setState(() {
         _saveVisibility = false;
@@ -215,17 +237,8 @@ class _CreateText extends State<CreateText> {
       Navigator.pop(context);
 
 
-    } catch (err) {
-      
-      // User save the file without connect, an exception will arise.
-      // Save file as offline file instead
-      
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
-      _saveFileAsOffline(inputValue);
-
-      _fileNameController.clear();
-      Navigator.pop(context);
-
+    } catch (err, st) {
+      logger.e("Exception from _saveText {create_text}", err, st);
     }
 
   }

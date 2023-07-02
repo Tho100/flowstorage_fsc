@@ -1,5 +1,4 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/data_classes/account_type_getter.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
@@ -68,6 +67,7 @@ class _SplashScreen extends State<SplashScreen> {
 
       final getLocalUsername = (await _retrieveLocallyStoredInformation())[0];
       final getLocalEmail = (await _retrieveLocallyStoredInformation())[1];
+      final getLocalAccountType = (await _retrieveLocallyStoredInformation())[2];
 
       if(getLocalUsername == '') {
  
@@ -79,6 +79,7 @@ class _SplashScreen extends State<SplashScreen> {
         bool isPassCodeExists = await storage.containsKey(key: "key0015");
 
         Globals.custUsername = getLocalUsername;
+        Globals.accountType = getLocalAccountType;
         Globals.custEmail = getLocalEmail;
         Globals.fileOrigin = "homeFiles";
 
@@ -90,7 +91,7 @@ class _SplashScreen extends State<SplashScreen> {
 
           final conn = await SqlConnection.insertValueParams();
 
-          await _callData(conn,getLocalUsername,getLocalEmail,context);
+          await _callData(conn,getLocalUsername,getLocalEmail,getLocalAccountType,context);
           NavigatePage.permanentPageMainboard(context);
           
         }
@@ -105,6 +106,7 @@ class _SplashScreen extends State<SplashScreen> {
     
     String username = '';
     String email = '';
+    String accountType = '';
 
     final getDirApplication = await getApplicationDocumentsDirectory();
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -119,6 +121,7 @@ class _SplashScreen extends State<SplashScreen> {
         if (lines.length >= 2) {
           username = lines[0];
           email = lines[1];
+          accountType = lines[2];
         }
       }
     }
@@ -126,6 +129,7 @@ class _SplashScreen extends State<SplashScreen> {
     List<String> accountInfo = [];
     accountInfo.add(EncryptionClass().Decrypt(username));
     accountInfo.add(EncryptionClass().Decrypt(email));
+    accountInfo.add(accountType);
 
     return accountInfo;
   }
@@ -140,15 +144,13 @@ class _SplashScreen extends State<SplashScreen> {
 
   }
 
-  Future<void> _callData(MySQLConnectionPool conn,String savedCustUsername,String savedCustEmail,BuildContext context) async {
+  Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername, String savedCustEmail, String savedAccountType,BuildContext context) async {
 
     try {
 
-      final accTypeGetter = await MySqlAccType().retrieveParams(savedCustEmail);
-
       Globals.custUsername = savedCustUsername;
       Globals.custEmail = savedCustEmail;
-      Globals.accountType = accTypeGetter;
+      Globals.accountType = savedAccountType;
 
       final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);

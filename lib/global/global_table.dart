@@ -14,4 +14,17 @@ class GlobalsTable {
   static const directoryInfoTable = "file_info_directory";
   static const folderUploadTable = "folder_upload_info";
 
+  static final Set<String> tableNames = {
+    GlobalsTable.homeImageTable, GlobalsTable.homeTextTable,
+    GlobalsTable.homeExeTable,GlobalsTable.homePdfTable,
+    GlobalsTable.homeVideoTable,GlobalsTable.homeExcelTable,
+    GlobalsTable.homePtxTable, GlobalsTable.homeAudioTable,
+    GlobalsTable.homeWordTable,
+    "file_info_directory","upload_info_directory"
+  };
+
+  static const Set<String> tableNamesPs = {
+    "ps_info_image","ps_info_text","ps_info_video","ps_info_excel"
+  };
+
 }

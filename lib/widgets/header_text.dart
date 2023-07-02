@@ -39,7 +39,7 @@ class HeaderText extends StatelessWidget {
             style: const TextStyle(
               color: ThemeColor.secondaryWhite,  // # Color(0xFFB4B4B4)
               fontWeight: FontWeight.w700,
-              fontSize: 17,
+              fontSize: 16,
             ),
           ),
         ],

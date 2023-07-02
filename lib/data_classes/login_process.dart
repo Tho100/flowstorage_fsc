@@ -116,7 +116,7 @@ class MysqlLogin {
     Globals.setDateValues.addAll(dates);
 
     if (isChecked) {
-      await _setupAutoLogin(custUsernameGetter,custEmailInit);
+      await _setupAutoLogin(custUsernameGetter,custEmailInit,custTypeGetter);
     }
 
     custUsernameList.clear();
@@ -124,7 +124,7 @@ class MysqlLogin {
   }
 
 
-  Future<void> _setupAutoLogin(String custUsername,String custEmail) async {
+  Future<void> _setupAutoLogin(String custUsername,String custEmail, String accountType) async {
 
     final getDirApplication = await getApplicationDocumentsDirectory();
 
@@ -147,7 +147,7 @@ class MysqlLogin {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync("${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(custEmail)}");
+        setupFiles.writeAsStringSync("${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(custEmail)}\n$accountType");
 
       } catch (e) {
         // TODO: Ignore

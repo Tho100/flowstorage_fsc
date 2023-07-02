@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -154,7 +155,7 @@ class ChangeUsername extends StatelessWidget {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}');
+        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}\n${Globals.accountType}');
 
       } catch (e) {
         // TODO: Ignore
@@ -167,7 +168,7 @@ class ChangeUsername extends StatelessWidget {
 
   Future<void> _updateUsername(String newUsername) async {
 
-    for(final tables in Globals.tableNames) {
+    for(final tables in GlobalsTable.tableNames) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
       final params = {'newname': newUsername,'oldname': Globals.custUsername};

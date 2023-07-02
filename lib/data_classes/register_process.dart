@@ -125,6 +125,8 @@ class MysqlInformation {
 
   Future<void> setupAutoLogin(String custUsername,String email) async {
     
+    const accountType = "Basic";
+    
     final getDirApplication = await getApplicationDocumentsDirectory();
 
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -144,7 +146,7 @@ class MysqlInformation {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(email)}');
+        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(email)}\n$accountType');
 
       } catch (e) {
         // 

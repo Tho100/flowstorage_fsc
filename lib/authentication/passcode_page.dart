@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
-import 'package:flowstorage_fsc/data_classes/account_type_getter.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
@@ -55,14 +54,11 @@ class PasscodePageState extends State<PasscodePage> {
 
   }
 
-  Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail,BuildContext context) async {
+  Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail, String savedAccountType ,BuildContext context) async {
 
     try {
 
-      final accTypeGetter = await MySqlAccType().retrieveParams(savedCustEmail);
-
       Globals.fileOrigin = "homeFiles";
-      Globals.accountType = accTypeGetter;
 
       final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, savedCustUsername);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
@@ -143,7 +139,7 @@ class PasscodePageState extends State<PasscodePage> {
 
         justLoading.startLoading(context: context);
 
-        await _callData(conn,Globals.custUsername,Globals.custEmail,context);
+        await _callData(conn,Globals.custUsername,Globals.custEmail, Globals.accountType,context);
 
         justLoading.stopLoading();
         

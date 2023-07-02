@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/public_storage/byte_getter.dart';
 import 'package:flowstorage_fsc/public_storage/date_getter.dart';
 import 'package:flowstorage_fsc/public_storage/name_getter.dart';
@@ -15,7 +15,7 @@ class PublicStorageDataRetriever {
   Future<List<Map<String, dynamic>>> retrieveParams() async {
 
     final conn = await SqlConnection.insertValueParams();
-    const tablesToCheck = Globals.tableNamesPs;
+    const tablesToCheck = GlobalsTable.tableNamesPs;
 
     final futures = tablesToCheck.map((table) async {
 

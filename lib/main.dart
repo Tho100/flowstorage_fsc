@@ -164,7 +164,7 @@ class CakeHomeState extends State<Mainboard> {
   final crud = Crud();
   final logger = Logger();
   
-  String getCurrentPageName() {
+  String _getCurrentPageName() {
     final getPageName = appBarTitle.value == "" ? "homeFiles" : appBarTitle.value;
     return getPageName;
   }
@@ -1022,7 +1022,6 @@ class CakeHomeState extends State<Mainboard> {
     final justLoading = JustLoading();
 
     _navDirectoryButtonVisibility(false);
-    appBarTitle.value = "Public Storage";
 
     justLoading.startLoading(context: context);
 
@@ -1050,6 +1049,7 @@ class CakeHomeState extends State<Mainboard> {
     _onTextChanged('');
     _searchController.text = '';
     _navHomeButtonVisibility(true);
+    appBarTitle.value = "Public Storage";
 
     justLoading.stopLoading();
     
@@ -1062,7 +1062,7 @@ class CakeHomeState extends State<Mainboard> {
 
     try {
 
-      final takenPhoto = await Image_Picker.pickerImage(source: ImageSource.camera);
+      final takenPhoto = await GalleryImagePicker.pickerImage(source: ImageSource.camera);
 
       if (takenPhoto == null) {
         return;
@@ -1337,7 +1337,7 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
       final shortenText = ShortenText();
-      final XFile? pickedVideo = await Image_Picker.pickerVideo(source: ImageSource.gallery);
+      final XFile? pickedVideo = await GalleryImagePicker.pickerVideo(source: ImageSource.gallery);
 
       if (pickedVideo == null) {
         return;
@@ -1411,7 +1411,7 @@ class CakeHomeState extends State<Mainboard> {
 
         newFileToDisplay = thumbnailFile;
 
-        final verifyOrigin = Globals.nameToOrigin[getCurrentPageName()];
+        final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
         if(verifyOrigin == "psFiles") {
           _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_video", base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
@@ -1463,7 +1463,7 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
         final shortenText = ShortenText();
-        final List<XFile>? pickedImages = await Image_Picker.pickMultiImage();
+        final List<XFile>? pickedImages = await GalleryImagePicker.pickMultiImage();
 
         if (pickedImages == null) {
           return;
@@ -1553,15 +1553,17 @@ class CakeHomeState extends State<Mainboard> {
 
           if (Globals.imageType.contains(_fileType)) {
 
-            final verifyOrigin = Globals.nameToOrigin[getCurrentPageName()];
+            final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
             if(verifyOrigin == "psFiles") {
               _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_image", base64Encoded: bodyBytes);
+
+              // TODO: return here, then do the rest here
             } else {
               await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: bodyBytes);
             }
 
-          }
+        }
 
         scaffoldMessenger.hideCurrentSnackBar();
 
