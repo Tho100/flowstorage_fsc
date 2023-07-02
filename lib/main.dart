@@ -1557,7 +1557,6 @@ class CakeHomeState extends State<Mainboard> {
 
             if(verifyOrigin == "psFiles") {
               _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_image", base64Encoded: bodyBytes);
-
               // TODO: return here, then do the rest here
             } else {
               await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: bodyBytes);

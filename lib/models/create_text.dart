@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -196,19 +195,6 @@ class _CreateText extends State<CreateText> {
         return;
       }
 
-      final internetStatus = await Connectivity().checkConnectivity();
-      
-      if(internetStatus == ConnectivityResult.none) {
-
-        _saveFileAsOffline(inputValue);
-        _fileNameController.clear();
-
-        SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
-        Navigator.pop(context);
-
-        return;
-      }
-
       if (await _isFileExists(EncryptionClass().Encrypt("$inputValue.txt"))) {
         AlertForm.alertDialog("File with this name already exists.", context);
         return;
@@ -236,9 +222,19 @@ class _CreateText extends State<CreateText> {
 
       Navigator.pop(context);
 
-
     } catch (err, st) {
+
       logger.e("Exception from _saveText {create_text}", err, st);
+
+      _saveFileAsOffline(inputValue);
+      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
+
+      _fileNameController.clear();
+
+      Navigator.pop(context);
+
+      return;
+
     }
 
   }

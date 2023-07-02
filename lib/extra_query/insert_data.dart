@@ -29,57 +29,51 @@ class InsertData {
     dynamic vidThumb,
   }) async {
 
-    try {
+    final conn = await SqlConnection.insertValueParams();
 
-      final conn = await SqlConnection.insertValueParams();
+    final encryptedFilePath = _encryptionClass.Encrypt(filePath);
+    final encryptedFileVal = _encryptionClass.Encrypt(fileVal);
 
-      final encryptedFilePath = _encryptionClass.Encrypt(filePath);
-      final encryptedFileVal = _encryptionClass.Encrypt(fileVal);
+    final thumb = vidThumb != null ? base64.encode(vidThumb) : null;
 
-      final thumb = vidThumb != null ? base64.encode(vidThumb) : null;
+    switch (tableName) {
 
-      switch (tableName) {
+      case GlobalsTable.homeImageTable:
+      case GlobalsTable.homeTextTable:
+      case GlobalsTable.homePdfTable:
+      case GlobalsTable.homePtxTable:
+      case GlobalsTable.homeAudioTable:
+      case GlobalsTable.homeExcelTable:
+      case GlobalsTable.homeWordTable:
+      case GlobalsTable.homeExeTable:
 
-        case GlobalsTable.homeImageTable:
-        case GlobalsTable.homeTextTable:
-        case GlobalsTable.homePdfTable:
-        case GlobalsTable.homePtxTable:
-        case GlobalsTable.homeAudioTable:
-        case GlobalsTable.homeExcelTable:
-        case GlobalsTable.homeWordTable:
-        case GlobalsTable.homeExeTable:
+        await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
+        break;
 
-          await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
-          break;
+      case GlobalsTable.homeVideoTable:
+        await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
+        break;
 
-        case GlobalsTable.homeVideoTable:
-          await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
-          break;
+      case 'upload_info_directory':
+        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
+        break;
 
-        case 'upload_info_directory':
-          await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
-          break;
+      case 'ps_info_text':
+      case 'ps_info_image':
+      case 'ps_info_excel':
+      case 'ps_info_pdf':
+      case 'ps_info_word':
 
-        case 'ps_info_text':
-        case 'ps_info_image':
-        case 'ps_info_excel':
-        case 'ps_info_pdf':
-        case 'ps_info_word':
+        await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
+        break;
 
-          await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
-          break;
+      case 'ps_info_video':
+        await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
+        break;
 
-        case 'ps_info_video':
-          await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
-          break;
-
-        default:
-          throw ArgumentError('Invalid tableName: $tableName');
-      }
-    } catch (err, st) {
-      logger.e("Exception from insertValueParams {insert_data}", err, st);
+      default:
+        throw ArgumentError('Invalid tableName: $tableName');
     }
-    // added try/catch
   }
 
   Future<void> insertFileInfo(
