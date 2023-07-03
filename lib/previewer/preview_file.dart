@@ -18,6 +18,7 @@ import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/previewer/preview_audio.dart';
 import 'package:flowstorage_fsc/previewer/preview_excel.dart';
 import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
@@ -27,7 +28,6 @@ import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
-import 'package:flowstorage_fsc/players/ajbyte_source.dart';
 import 'package:flowstorage_fsc/data_classes/update_data.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
@@ -46,9 +46,8 @@ import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 
 class CakePreviewFile extends StatefulWidget {
 
@@ -84,16 +83,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final double _appBarHeight = 55.0;
   late String _currentTable;
 
-  final StreamController<double> _sliderValueController = StreamController<double>();
-
   final TextEditingController _shareToController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
-  final AudioPlayer _audioPlayerController = AudioPlayer();
-
-  late VideoPlayerController _videoPlayerController;
-
-  final ValueNotifier<bool> _videoIsPlaying = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _videoIsLoading = ValueNotifier<bool>(false);
 
   final ValueNotifier<String> _fileSize = ValueNotifier<String>('');  
   final ValueNotifier<String> _fileResolution = ValueNotifier<String>('');
@@ -106,19 +97,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     super.initState();
     _fileType = widget.fileType;
     _currentTable = ""; 
-    _videoPlayerController = VideoPlayerController.network('');
   }
 
   @override
   void dispose() {
-    _sliderValueController.close();
     _shareToController.dispose();
     _commentController.dispose();
-    _audioPlayerController.dispose();
-    _videoPlayerController.dispose();
-    _videoIsPlaying.dispose();
     _textController.dispose();
-    _videoIsLoading.dispose();
     _fileResolution.value = "";
     _fileSize.value = "";
 
@@ -156,9 +141,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       NavigatePage.permanentPageMainboard(context);
 
-    } catch (err) {
-      print("Exception from _deletionFile {PreviewFile}: $err");
+    } catch (err, st) {
       SnakeAlert.errorSnake("Failed to delete ${ShortenText().cutText(fileName)}",context);
+      Logger().e("Exception from _deletionFile {PreviewFile}", err, st);
     }
     
   }
@@ -202,9 +187,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
       }
 
-    } catch (failedRename) {
-      print("Exception from _renameFile {main}: $failedRename");
+    } catch (err, st) {
       SnakeAlert.errorSnake("Failed to rename this file.",context);
+      Logger().e("Exception from _renameFile {main}", err, st);
     }
   }
 
@@ -221,90 +206,10 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         await _renameFile(fileName, newRenameValue);
       }
       
-    } catch (err) {
-      print("Exception from _onRenamePressed {main}: $err");
+    } catch (err, st) {
+      Logger().e("Exception from _onRenamePressed {main}", err, st);
     }
   }
-
-  Future<Uint8List> _retrieveAudio() async {
-
-    final byteAudio = await retrieveData.retrieveDataParams(Globals.custUsername, widget.selectedFilename, "file_info_audi", widget.originFrom);
-    return byteAudio;
-
-  }
-
-  Future<void> _playAudio(Uint8List byteAudio) async {
-
-    String? audioContentType;
-
-    if(_fileType == "wav") {
-      audioContentType = 'audio/wav';
-    } else if (_fileType == "mp3") {
-      audioContentType = 'audio/mpeg';
-    }
-
-    await _audioPlayerController.setAudioSource(MyJABytesSource(byteAudio,audioContentType!));
-    
-    _audioPlayerController.play();
-  }
-
-  Widget _previewAudio() {
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-
-          const Spacer(),
-
-          Image.asset('assets/nice/music0.png'),
-
-          const Spacer(),
-
-          StreamBuilder<double>(
-            stream: _sliderValueController.stream,
-            initialData: 0.0,
-            builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
-              return Slider(
-                value: snapshot.data ?? 0.0,
-                min: 0,
-                max: 100,
-                thumbColor: ThemeColor.darkPurple,
-                inactiveColor: ThemeColor.darkGrey,
-                onChanged: (double value) {
-                  _sliderValueController.add(value);
-                }
-              );
-            },
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: ThemeColor.darkBlack,
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(12),
-                ),
-                onPressed: () async {
-  
-                  final byteAudio = await _retrieveAudio();
-                  await _playAudio(byteAudio);
-
-                },
-                child: const Icon(Icons.play_arrow_rounded,color: ThemeColor.secondaryWhite,size: 52)
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-  }
-
- 
 
   Widget _buildFileDataWidget(Uint8List? snapshotValue) {
 
@@ -329,8 +234,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       'wmv': () => const PreviewVideo(),
       'avi': () => const PreviewVideo(),
 
-      'mp3': () => _previewAudio(),
-      'wav': () => _previewAudio(),
+      'mp3': () => const PreviewAudio(),
+      'wav': () => const PreviewAudio(),
 
     };
 
@@ -386,6 +291,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         case GlobalsTable.homeImageTable:
         case "ps_info_video":
         case "ps_info_image":
+
           return Future.value(Uint8List.fromList([0]));
         
         default:
@@ -402,8 +308,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           )
         );
       }
-    } catch (err) {
-      print("Exception from _callData {File Preview}\n$err");
+    } catch (err, st) {
+      Logger().e("Exception from _callData {File Preview}", err, st);
       return Future.value(Uint8List(0));
     }
   }

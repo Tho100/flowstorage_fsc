@@ -38,6 +38,7 @@ class Globals {
   static const String fileInfoTable = 'file_info';
   static const String fileInfoExpandTable = 'file_info_expand';
   static const String fileInfoPdfTable = 'file_info_pdf';
+  static const String fileInfoAudioTable = 'file_info_audi';
   static const String fileInfoWordTable = 'file_info_word';
   static const String fileInfoPtxTable = 'file_info_ptx';
   static const String fileInfoExcelTable = 'file_info_excel';
@@ -80,6 +81,9 @@ class Globals {
     'mp4': fileInfoVidTable,
     'avi': fileInfoVidTable,
     'mov': fileInfoVidTable,
+
+    'mp3' : fileInfoAudioTable,
+    'wav': fileInfoAudioTable
   };
 
   static const Map<String, String> fileTypesToTableNamesPs = {

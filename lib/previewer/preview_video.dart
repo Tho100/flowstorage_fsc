@@ -29,7 +29,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   Future<void> _initializeVideoPlayer(String videoUrl) async {
 
-    _videoPlayerController = VideoPlayerController.network(videoUrl);
+    _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
     await _videoPlayerController.initialize();
     _videoPlayerController.play();
@@ -70,7 +70,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     super.initState();
     indexThumbnail = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
     videoThumbailByte = Globals.filteredSearchedBytes[indexThumbnail]!;
-    _videoPlayerController = VideoPlayerController.network('');
+    _videoPlayerController = VideoPlayerController.networkUrl(Uri());
   }
 
   @override
