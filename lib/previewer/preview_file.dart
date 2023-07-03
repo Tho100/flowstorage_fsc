@@ -328,8 +328,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         }
       });
 
-    } catch (err) {
-      print("Exception on _removeFileFromListView {PreviewFile}: $err");
+    } catch (err, st) {
+      Logger().e("Exception on _removeFileFromListView {PreviewFile}", err, st);
     }
 
   }
@@ -379,8 +379,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       SnakeAlert.okSnake(message: "Changes saved.", icon: Icons.check,context: context);
 
-    } catch (err) { 
-      print("Exception from _saveExcelChanges {PreviewFile}: $err");
+    } catch (err, st) { 
+      Logger().e("Exception from _saveExcelChanges {PreviewFile}", err, st);
       SnakeAlert.errorSnake("Failed to save changes.",context);
 
     }

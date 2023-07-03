@@ -31,8 +31,6 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   Future<Uint8List> _retrieveAudio() async {
 
-    print("HI");
-
     final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_audio" : "file_info_audi";
     final uploaderUsername = Globals.fileOrigin == "psFiles" 
     ? await UploaderName().getUploaderName(tableName: "ps_info_video",fileValues: Globals.videoType)
@@ -44,8 +42,6 @@ class PreviewAudioState extends State<PreviewAudio> {
       tableName,
       Globals.fileOrigin,
     );
-
-    print("FININSH");
 
     return audioBytes;
 
@@ -132,8 +128,8 @@ class PreviewAudioState extends State<PreviewAudio> {
                 audioIsPlaying = !audioIsPlaying;
                 iconPausePlay.value = audioIsPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded;
           
-                /*final byteAudio = await _retrieveAudio();
-                await _playAudio(byteAudio);*/
+                final byteAudio = await _retrieveAudio();
+                await _playAudio(byteAudio);
               },
               icon: Icon(value, color: ThemeColor.secondaryWhite, size: 64),
             ),
