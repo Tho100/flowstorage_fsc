@@ -90,7 +90,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final ValueNotifier<String> _fileResolution = ValueNotifier<String>('');
 
   final TextEditingController _textController = TextEditingController();
-  ValueNotifier<bool> bottomBarVisible = ValueNotifier<bool>(true);
+  static ValueNotifier<bool> bottomBarVisible = ValueNotifier<bool>(true);
+
+  final Set<String> filesWithCustomHeader = {GlobalsTable.homeTextTable,GlobalsTable.homeAudioTable,"ps_info_audio","ps_info_text"};
 
   @override
   void initState() {
@@ -233,10 +235,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       'mov': () => const PreviewVideo(),
       'wmv': () => const PreviewVideo(),
       'avi': () => const PreviewVideo(),
-
-      'mp3': () => const PreviewAudio(),
-      'wav': () => const PreviewAudio(),
-
     };
 
     if (previewMap.containsKey(_fileType)) {
@@ -887,6 +885,31 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     appBarTitleNotifier.value = Globals.selectedFileName;
   }
 
+  Widget buildFileOnCondition() {
+    
+    const textTables = {GlobalsTable.homeTextTable, "ps_info_text"};
+    const audioTables = {GlobalsTable.homeAudioTable, "ps_info_audio"};
+    const excelTables = {GlobalsTable.homeExcelTable, "ps_info_excel"};
+
+    if(textTables.contains(_currentTable)) {
+      return PreviewText(controller: _textController);
+    } else if (excelTables.contains(_currentTable)) {
+      return const PreviewExcel();
+    } else if (audioTables.contains(_currentTable)) {
+      return const PreviewAudio();
+    } else {
+      return _buildFilePreview();
+    }
+
+    /*if(_currentTable == GlobalsTable.homeTextTable || _currentTable )
+
+     _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
+      ? PreviewText(controller: _textController)
+      : (_currentTable == "file_info_excel" || _currentTable == "ps_info_excel"
+          ? const PreviewExcel()
+          : _buildFilePreview());*/
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -931,7 +954,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               titleSpacing: 0,
               elevation: 0,
               centerTitle: false,
-              title: _currentTable == GlobalsTable.homeTextTable || _currentTable == "ps_info_text"
+              title: filesWithCustomHeader.contains(_currentTable)
                 ? const SizedBox()
                 : ValueListenableBuilder<String>(
                   valueListenable: appBarTitleNotifier,
@@ -944,38 +967,34 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           }
         ),
       ),
-        body: Container(
-          alignment: Alignment.center,
-          child: Column(
-            children: [
-              _buildHeaderTitle(),
-              Expanded(
-                child: _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
-                  ? PreviewText(controller: _textController)
-                  : (_currentTable == "file_info_excel" || _currentTable == "ps_info_excel"
-                      ? const PreviewExcel()
-                      : _buildFilePreview()),
-              ),
-              ValueListenableBuilder<bool>(
-                valueListenable: bottomBarVisible, 
-                builder: (BuildContext context, bool value, Widget? child) {
-                  return Visibility(
-                    visible: value,
-                    child: FutureBuilder<Widget>(
-                      future: _buildBottomBar(context),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return snapshot.data!;
-                        } else {
-                          return Container();
-                        }
-                      },
-                    ),
-                  );
-                }
-              ),
-            ],
-          ),
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            _buildHeaderTitle(),
+            Expanded(
+              child: buildFileOnCondition(),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: bottomBarVisible, 
+              builder: (BuildContext context, bool value, Widget? child) {
+                return Visibility(
+                  visible: value,
+                  child: FutureBuilder<Widget>(
+                    future: _buildBottomBar(context),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return snapshot.data!;
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ),
+                );
+              }
+            ),
+          ],
+        ),
 
       ),
     );

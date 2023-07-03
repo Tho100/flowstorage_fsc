@@ -2676,7 +2676,7 @@ class CakeHomeState extends State<Mainboard> {
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
                 children: [
-                  Icon(Icons.download),
+                  Icon(Icons.chevron_left),
                   SizedBox(width: 10.0),
                   Text(
                     'Shared to me',
@@ -2701,7 +2701,7 @@ class CakeHomeState extends State<Mainboard> {
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
                 children: [
-                  Icon(Icons.upload),
+                  Icon(Icons.chevron_right),
                   SizedBox(width: 10.0),
                   Text(
                     'Shared files',
