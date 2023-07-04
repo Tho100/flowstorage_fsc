@@ -6,7 +6,9 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -234,7 +236,8 @@ class _CreateText extends State<CreateText> {
         _addTextFileToListView(fileName: getFileName);
       });
 
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been created.", icon: Icons.check, context: context);
+      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
+      await CallNotify().customNotification(title: "Text File Saved", subMesssage: ShortenText().cutText("$getFileName Has been saved"));
 
       _fileNameController.clear();
 

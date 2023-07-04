@@ -32,6 +32,7 @@ class GlobalsTable {
   static final Map<String,String> publicToPsTables = {
     homeImageTable: "ps_info_image",
     homeVideoTable: "ps_info_video",
+    homeExcelTable: "ps_info_excel",
     homeTextTable: "ps_info_text",
     homeWordTable: "ps_info_word",
     homePtxTable: "ps_info_ptx",

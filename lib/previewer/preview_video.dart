@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
 import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
+import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -18,39 +19,41 @@ class PreviewVideo extends StatefulWidget {
 
 class PreviewVideoState extends State<PreviewVideo> {
 
-  late VideoPlayerController _videoPlayerController;
-  final ValueNotifier<bool> _videoIsPlaying = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _videoIsLoading = ValueNotifier<bool>(false);
+  late VideoPlayerController videoPlayerController;
+
+  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
+
+  bool videoIsPlaying = false;
+  bool videoIsLoading = false;
+  bool videoIsPlayed = false;
 
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
-  Size? videoSize;
+  late Size? videoSize;
 
   final retrieveData = RetrieveData();
 
   Future<void> _initializeVideoPlayer(String videoUrl) async {
 
-    _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+    videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
-    await _videoPlayerController.initialize();
-    _videoPlayerController.play();
+    await videoPlayerController.initialize();
+    videoPlayerController.play();
 
     setState(() {});
 
-    _videoIsPlaying.value = true;
-    _videoIsLoading.value = false;
+    videoIsPlaying = true;
+    videoIsLoading = false;
 
-    videoSize = _videoPlayerController.value.size;
+    videoSize = videoPlayerController.value.size;
 
   }
 
   Future<void> _playVideo() async {
-
-    CakePreviewFileState.bottomBarVisible.value = false;
     
     setState(() {});
     
-    _videoIsLoading.value = true;
+    videoIsLoading = true;
 
     final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_video" : "file_info_vid";
     final uploaderUsername = Globals.fileOrigin == "psFiles" 
@@ -66,6 +69,66 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
     await _initializeVideoPlayer(videoUrl);
+
+  }
+
+  Widget buildPlayPauseButton() {
+    return Positioned.fill(
+      child: Align(
+        alignment: Alignment.center,
+        child: ValueListenableBuilder(
+          valueListenable: iconPausePlay,
+          builder: (BuildContext context, IconData value, Widget? child) {
+            return IconButton(
+              color: ThemeColor.justWhite,
+              iconSize: 64,
+              icon: Icon(
+                iconPausePlay.value
+              ),
+              onPressed: () async {
+                CakePreviewFileState.bottomBarVisible.value = false;
+                videoIsPlayed = !videoIsPlayed;
+                iconPausePlay.value = videoIsPlayed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
+                await _playVideo();
+              },
+            );
+          }
+        ),
+      ),
+    );
+  }
+
+  Widget buildLoadingVideo() {
+    return Positioned.fill(
+      child: Center(child: LoadingFile.buildLoading()),
+    );
+  }
+
+  Widget buildVideo() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: SizedBox(
+            width: videoSize!.width,
+            height: videoSize!.height,
+            child: VideoPlayer(videoPlayerController),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildThumbnail(bool isVideoPlaying) {
+    return Visibility(
+      visible: !isVideoPlaying,
+      replacement: Container(),
+      child: Image.memory(
+        videoThumbailByte,
+        fit: BoxFit.contain,
+      ),
+    );
   }
 
   @override
@@ -73,63 +136,26 @@ class PreviewVideoState extends State<PreviewVideo> {
     super.initState();
     indexThumbnail = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
     videoThumbailByte = Globals.filteredSearchedBytes[indexThumbnail]!;
-    _videoPlayerController = VideoPlayerController.networkUrl(Uri());
+    videoPlayerController = VideoPlayerController.networkUrl(Uri());
   }
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    CakePreviewFileState.bottomBarVisible.value = true;
+    videoPlayerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final bool isVideoPlaying = _videoIsPlaying.value;
-    final bool isVideoLoading = _videoIsLoading.value;
-
     return Center(
       child: Stack(
         children: [
-          Visibility(
-            visible: !isVideoPlaying,
-            replacement: Container(),
-            child: Image.memory(
-              videoThumbailByte,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.center,
-              child: IconButton(
-                icon: Icon(
-                  isVideoPlaying ? Icons.pause : Icons.play_arrow,
-                ),
-                color: Colors.white,
-                iconSize: 64.0,
-                onPressed: _playVideo,
-              ),
-            ),
-          ),
-          if (isVideoLoading)
-            Positioned.fill(
-              child: Center(child: LoadingFile.buildLoading()),
-            ),
-          if (isVideoPlaying)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox(
-                    width: videoSize!.width,
-                    height: videoSize!.height,
-                    child: VideoPlayer(_videoPlayerController),
-                  ),
-                ),
-              ),
-            ),
+          buildThumbnail(videoIsPlaying),
+          buildPlayPauseButton(),
+          if(videoIsLoading) buildLoadingVideo(),
+          if(videoIsPlaying) buildVideo()
         ],
       ),
     );
