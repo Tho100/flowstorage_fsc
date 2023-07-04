@@ -48,6 +48,7 @@ class PsCommentDialog {
                     style: const TextStyle(color: ThemeColor.secondaryWhite),
                     enabled: true,
                     controller: commentController,
+                    maxLines: 5,
                     decoration: GlobalsStyle.setupTextFieldDecoration("Enter a comment (Optional)"),
                   ),
                 ),

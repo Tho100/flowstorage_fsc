@@ -1057,6 +1057,8 @@ class CakeHomeState extends State<Mainboard> {
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
+    Globals.fileOrigin = "psFiles";
+    
     _onTextChanged('');
     _searchController.text = '';
     _navHomeButtonVisibility(true);
@@ -1691,7 +1693,7 @@ class CakeHomeState extends State<Mainboard> {
 
         final resultPicker = await FilePicker.platform.pickFiles(
           type: FileType.any,
-          allowMultiple: true,
+          allowMultiple: Globals.fileOrigin == "psFiles" ? false : true,
           
         );
 
@@ -1791,7 +1793,9 @@ class CakeHomeState extends State<Mainboard> {
             List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
+            Globals.fileOrigin != "psFiles" 
+            ? await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded)
+            : _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: "ps_info_image", base64Encoded: compressedImageBase64Encoded);
 
           } else if (Globals.videoType.contains(_fileType)) {
 
@@ -3859,29 +3863,32 @@ class CakeHomeState extends State<Mainboard> {
 
           const Divider(color: ThemeColor.thirdWhite),
 
-          ElevatedButton(
-            onPressed: () async {
-              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                Navigator.pop(context);
-                NavigatePage.goToPageCreateText(context);
-              } else {
-                _upgradeDialog(
-                  "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                );
-              }
-            },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.add_box),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Create Text file',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
+          Visibility(
+            visible: Globals.fileOrigin != "psFiles",
+            child: ElevatedButton(
+              onPressed: () async {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                  Navigator.pop(context);
+                  NavigatePage.goToPageCreateText(context);
+                } else {
+                  _upgradeDialog(
+                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                  );
+                }
+              },
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.add_box),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Create Text file',
+                      style: GlobalsStyle.btnBottomDialogTextStyle,
+                    ),
+                  ],
+                ),
               ),
-            ),
+          ),
         
             Visibility(
               visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
@@ -3964,7 +3971,6 @@ class CakeHomeState extends State<Mainboard> {
                 break;
             
             case 2:
-              Globals.fileOrigin = "psFiles";
               await _callPublicStorageData();
               break;
 

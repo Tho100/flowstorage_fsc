@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
@@ -27,6 +28,7 @@ class _CreateText extends State<CreateText> {
   final TextEditingController _fileNameController = TextEditingController();
 
   final logger = Logger();
+  final getAssets = GetAssets();
   
   bool _saveVisibility = true;
   bool _textFormEnabled = true;
@@ -187,6 +189,21 @@ class _CreateText extends State<CreateText> {
     return tableToUploadTo;
   }
 
+  void _addTextFileToListView({required String fileName}) async {
+
+    final txtImageFile = await getAssets.loadAssetsFile('txt0.png');
+    final txtImageData = await getAssets.loadAssetsData('txt0.png');
+
+    Globals.setDateValues.add("Just now");
+    Globals.fileValues.add(fileName);
+    Globals.filteredSearchedFiles.add(fileName);
+    
+    Globals.imageValues.add(txtImageFile);
+    Globals.filteredSearchedImage.add(txtImageFile);
+    Globals.imageByteValues.add(txtImageData);
+    Globals.filteredSearchedBytes.add(txtImageData);
+  }
+
   Future<void> _saveText(String inputValue) async {
 
     try {
@@ -214,9 +231,10 @@ class _CreateText extends State<CreateText> {
       setState(() {
         _saveVisibility = false;
         _textFormEnabled = false;
+        _addTextFileToListView(fileName: getFileName);
       });
 
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
+      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been created.", icon: Icons.check, context: context);
 
       _fileNameController.clear();
 

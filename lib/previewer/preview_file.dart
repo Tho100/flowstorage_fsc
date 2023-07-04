@@ -501,8 +501,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else if (sharingOriginFrom.contains(widget.originFrom)) {
 
       returnedUploaderName = widget.originFrom == "sharedFiles" 
-      ? "${await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex)}" 
-      : "${await SharingName().sharerName()}";
+      ? await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex) 
+      : await SharingName().sharerName();
 
     } else if (widget.originFrom == "psFiles") {
 
