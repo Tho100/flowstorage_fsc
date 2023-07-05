@@ -197,6 +197,7 @@ class _CreateText extends State<CreateText> {
     final txtImageData = await getAssets.loadAssetsData('txt0.png');
 
     Globals.setDateValues.add("Just now");
+    Globals.dateStoresValues.add("Just now");
     Globals.fileValues.add(fileName);
     Globals.filteredSearchedFiles.add(fileName);
     

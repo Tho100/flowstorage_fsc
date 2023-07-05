@@ -1693,8 +1693,7 @@ class CakeHomeState extends State<Mainboard> {
 
         final resultPicker = await FilePicker.platform.pickFiles(
           type: FileType.any,
-          allowMultiple: Globals.fileOrigin == "psFiles" ? false : true,
-          
+          allowMultiple: Globals.fileOrigin == "psFiles" ? false : true
         );
 
         if (resultPicker == null) {
@@ -1793,9 +1792,12 @@ class CakeHomeState extends State<Mainboard> {
             List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
-            Globals.fileOrigin != "psFiles" 
-            ? await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded)
-            : _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: "ps_info_image", base64Encoded: compressedImageBase64Encoded);
+            if(Globals.fileOrigin == "psFiles") {
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: "ps_info_image", base64Encoded: compressedImageBase64Encoded);
+              return;
+            } else {
+              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
+            }
 
           } else if (Globals.videoType.contains(_fileType)) {
 
@@ -2929,20 +2931,20 @@ class CakeHomeState extends State<Mainboard> {
                 color: ThemeColor.darkBlack,
                 child: ListTile(
                   leading: setLeadingImageSearched != null
-                      ? Image(
-                          image: setLeadingImageSearched.image,
-                          fit: BoxFit.cover,
-                          height: 31,
-                          width: 31,
-                        )
-                      : const SizedBox(),
+                    ? Image(
+                        image: setLeadingImageSearched.image,
+                        fit: BoxFit.cover,
+                        height: 31,
+                        width: 31,
+                      )
+                    : const SizedBox(),
                   trailing: GestureDetector(
                     onTap: () {
                       _callBottomTrailling(index);
                     },
                     child: editAllIsPressed
-                        ? _buildCheckboxItem(index)
-                        : const Icon(Icons.more_vert, color: Colors.white),
+                      ? _buildCheckboxItem(index)
+                      : const Icon(Icons.more_vert, color: Colors.white),
                   ),
                   title: Text(
                     fileTitleSearchedValue,
@@ -2954,8 +2956,8 @@ class CakeHomeState extends State<Mainboard> {
                   ),
                   subtitle: Text(
                     _isFromUpload == true
-                        ? Globals.setDateValues[index]
-                        : Globals.dateStoresValues[index],
+                      ? Globals.setDateValues[index]
+                      : Globals.dateStoresValues[index],
                     style: const TextStyle(
                       color: ThemeColor.secondaryWhite,
                       fontSize: 12.8,

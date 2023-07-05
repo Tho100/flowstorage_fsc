@@ -23,9 +23,9 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
 
+  bool buttonPlayPausePressed = false;
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
-  bool videoIsPlayed = false;
 
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
@@ -87,8 +87,8 @@ class PreviewVideoState extends State<PreviewVideo> {
               ),
               onPressed: () async {
                 CakePreviewFileState.bottomBarVisible.value = false;
-                videoIsPlayed = !videoIsPlayed;
-                iconPausePlay.value = videoIsPlayed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
+                buttonPlayPausePressed = !buttonPlayPausePressed;
+                iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
                 await _playVideo();
               },
             );
