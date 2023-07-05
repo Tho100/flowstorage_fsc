@@ -280,10 +280,17 @@ class CakeHomeState extends State<Mainboard> {
 
       for(int i=0; i<count; i++) {
         
+        late final Uint8List fileData;
+
         final fileType = checkedItemsName[i].split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType]!;
 
-        final fileData = await _callData(checkedItemsName[i],tableName);
+        if(Globals.imageType.contains(fileType)) {
+          fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(checkedItemsName[i])]!;
+        } else {
+          fileData = await _callData(checkedItemsName[i],tableName);
+        }
+
         await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
       }
 
@@ -396,10 +403,10 @@ class CakeHomeState extends State<Mainboard> {
     final adjustedDifference = adjustedDateTime.difference(now).inDays.abs();
 
     if (adjustedDifference == 0) {
-      return '0 days ago, ${DateFormat('MMM dd yyyy').format(adjustedDateTime)}';
+      return '0 days ago ${GlobalsStyle.dotSeperator} ${DateFormat('MMM dd yyyy').format(adjustedDateTime)}';
     } else {
       final daysAgoText = '$adjustedDifference days ago';
-      return '$daysAgoText, ${DateFormat('MMM dd yyyy').format(adjustedDateTime)}';
+      return '$daysAgoText ${GlobalsStyle.dotSeperator} ${DateFormat('MMM dd yyyy').format(adjustedDateTime)}';
     }
   }
 
@@ -2472,15 +2479,23 @@ class CakeHomeState extends State<Mainboard> {
         onAOPressed: () async {
 
           Navigator.pop(context);
-
+  
           final offlineMode = OfflineMode();
           final singleLoading = SingleTextLoading();
 
-          final tableName = Globals.fileTypesToTableNames[fileName.split('.').last]!;
+          final fileType = fileName.split('.').last;
+          final tableName = Globals.fileTypesToTableNames[fileType]!;
+
+          late final Uint8List fileData;
+          final indexFile = Globals.fileValues.indexOf(fileName);
 
           singleLoading.startLoading(title: "Preparing...", context: context);
 
-          final fileData = await _callData(fileName,tableName);
+          if(Globals.imageType.contains(fileType)) {
+            fileData = Globals.filteredSearchedBytes[indexFile]!;
+          } else {
+            fileData = await _callData(fileName,tableName);
+          }
 
           await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
 

@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql_client/mysql_client.dart';
 
@@ -27,7 +28,7 @@ class DateGetterPs {
       final difference = now.difference(date).inDays;
 
       final formattedDate = DateFormat('MMM d yyyy').format(date);
-      storeDateValues.add('$difference days ago, $formattedDate');
+      storeDateValues.add('$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate');
 
     }
     

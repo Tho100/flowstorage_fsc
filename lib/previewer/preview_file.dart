@@ -867,10 +867,17 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
         final offlineMode = OfflineMode();
         final singleLoading = SingleTextLoading();
+  
+        late final Uint8List fileData;
+        final fileType = fileName.split('.').last;
 
         singleLoading.startLoading(title: "Preparing...", context: context);
 
-        final fileData = await _callDataDownload();
+        if(Globals.imageType.contains(fileType)) {
+          fileData = Globals.filteredSearchedBytes[widget.tappedIndex]!;
+        } else {
+          fileData = await _callDataDownload();
+        }
 
         await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
 

@@ -4,8 +4,8 @@ class ShortenText {
 
     String? finalText;
 
-    if(input.length > 35) {
-      finalText = "${input.substring(0,35)}...";
+    if(input.length > 28) {
+      finalText = "${input.substring(0,28)}...";
     } else {
       finalText = input;
     }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class GlobalsStyle {
 
+  static const dotSeperator = " \u{2022} ";
+
   static const appBarTextStyle = TextStyle(
     overflow: TextOverflow.ellipsis,
     color: Color.fromARGB(255,232,232,232),

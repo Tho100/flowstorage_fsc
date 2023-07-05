@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:intl/intl.dart';
 
 /// <summary>
@@ -39,7 +40,7 @@ class DateGetter {
       final difference = now.difference(date).inDays;
 
       final formattedDate = DateFormat('MMM d yyyy').format(date);
-      storeDateValues.add('$difference days ago, $formattedDate');
+      storeDateValues.add('$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate');
 
     }
     

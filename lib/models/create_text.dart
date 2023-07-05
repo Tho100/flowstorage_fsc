@@ -205,6 +205,7 @@ class _CreateText extends State<CreateText> {
     Globals.filteredSearchedImage.add(txtImageFile);
     Globals.imageByteValues.add(txtImageData);
     Globals.filteredSearchedBytes.add(txtImageData);
+    
   }
 
   Future<void> _saveText(String inputValue) async {
