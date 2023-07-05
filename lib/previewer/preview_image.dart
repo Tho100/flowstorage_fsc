@@ -13,31 +13,50 @@ class PreviewImage extends StatefulWidget {
 
 class PreviewImageState extends State<PreviewImage> {
 
+  static List<String> imagesNameList = Globals.filteredSearchedFiles.where((image) => Globals.imageType.any((ext) => image.endsWith(ext))).toList();
+  
   int currentSelectedIndex = 0;
-  late PageController _pageController;
+  int imageTotalLength = imagesNameList.length;
+
+  late final PageController pageController;
 
   @override
   void initState() {
     super.initState();
     currentSelectedIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
-    _pageController = PageController(initialPage: currentSelectedIndex); 
+    pageController = PageController(initialPage: currentSelectedIndex);
   }
 
-  void _handlePageChange(int index) {
-    String getSelectedFileName = Globals.fileValues[index];
+  void validateFileType(String fileType) {
+    if(Globals.imageType.contains(fileType)) {
+      imageTotalLength = Globals.filteredSearchedFiles.length;
+    } else {
+      imageTotalLength = 0;
+      return;
+    }
+  }
+
+  void handlePageChange(int index) {
+
+    final getSelectedFileName = Globals.fileValues[index];
+    final fileType = getSelectedFileName.split('.').last;
+
     setState(() {
-      Globals.selectedFileName = getSelectedFileName;
+      validateFileType(fileType);
     });
+
+    Globals.selectedFileName = getSelectedFileName;
     widget.onPageChanged();
+
   }
 
   @override
   Widget build(BuildContext context) {
     return PageView.builder(
       physics: const ClampingScrollPhysics(),
-      controller: _pageController,
-      itemCount: Globals.filteredSearchedBytes.length,
-      onPageChanged: _handlePageChange,
+      controller: pageController, 
+      itemCount: imagesNameList.length,
+      onPageChanged: handlePageChange,
       itemBuilder: (context, index) {
         return InteractiveViewer(
           scaleEnabled: true,

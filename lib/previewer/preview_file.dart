@@ -907,14 +907,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else {
       return _buildFilePreview();
     }
-
-    /*if(_currentTable == GlobalsTable.homeTextTable || _currentTable )
-
-     _currentTable == "file_info_expand" || _currentTable == "ps_info_text"
-      ? PreviewText(controller: _textController)
-      : (_currentTable == "file_info_excel" || _currentTable == "ps_info_excel"
-          ? const PreviewExcel()
-          : _buildFilePreview());*/
   }
 
   @override
