@@ -169,6 +169,17 @@ class CakeHomeState extends State<Mainboard> {
     return getPageName;
   }
 
+  void _clearGlobalData() {
+    Globals.fileValues.clear();
+    Globals.dateStoresValues.clear();
+    Globals.filteredSearchedFiles.clear();
+    Globals.setDateValues.clear();
+    Globals.filteredSearchedBytes.clear();
+    Globals.filteredSearchedImage.clear();
+    Globals.imageValues.clear();
+    Globals.imageByteValues.clear();
+  }
+
   void _openPsCommentDialog({
     required String filePathVal,
     required String fileName,
@@ -882,14 +893,7 @@ class CakeHomeState extends State<Mainboard> {
 
   Future<void> _refreshListView() async {
 
-    Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    _clearGlobalData();
 
     if(Globals.fileOrigin == "homeFiles") {
       await _refreshHomeFiles();
@@ -926,14 +930,7 @@ class CakeHomeState extends State<Mainboard> {
     final dateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
     
-    Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
     Globals.dateStoresValues.addAll(dateList);
@@ -1016,14 +1013,7 @@ class CakeHomeState extends State<Mainboard> {
     final dateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
 
-    Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
     Globals.dateStoresValues.addAll(dateList);
@@ -1050,14 +1040,7 @@ class CakeHomeState extends State<Mainboard> {
     final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
     final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
-    Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
     Globals.dateStoresValues.addAll(dateList);
