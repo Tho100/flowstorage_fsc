@@ -17,10 +17,9 @@ class ByteGetterPs {
   static const _fileInfoExl = 'ps_info_excel';
   static const _fileInfoDoc = 'ps_info_word';
   static const _fileInfoApk = 'ps_info_apk';
-  static const _fileInfoAudio = 'ps_info_audi';
+  static const _fileInfoAudio = 'ps_info_audio';
   static const _fileInfoExe = 'ps_info_exe';
-
-  int countDirCurr = 0;
+  static const _fileInfoMsi = 'ps_info_msi';
 
   final crud = Crud();
   final getAssets = GetAssets();
@@ -29,9 +28,10 @@ class ByteGetterPs {
   final tableNameToAssetsImage = {
     _fileInfoExpandTable: "txt0.png",
     _fileInfoPdfTable: "pdf0.png",
-    _fileInfoAudio: "txt0.png",
+    _fileInfoAudio: "music0.png",
     _fileInfoExl: "exl0.png",
     _fileInfoPtx: "ptx0.png",
+    _fileInfoMsi: "dir0.png",
     _fileInfoDoc: "doc0.png",
     _fileInfoExe: "exe0.png",
     _fileInfoApk: "apk0.png"
@@ -81,8 +81,8 @@ class ByteGetterPs {
         totalCount = row.typedColAt<int>(0)!;
       }
 
-      final loadPdfImg = await Future.wait(List.generate(totalCount, (_) => GetAssets().loadAssetsData(iconName)));
-      getByteValue.addAll(loadPdfImg);
+      final loadImg = await Future.wait(List.generate(totalCount, (_) => GetAssets().loadAssetsData(iconName)));
+      getByteValue.addAll(loadImg);
     }
 
     if (tableName == _fileInfoVidTable) {

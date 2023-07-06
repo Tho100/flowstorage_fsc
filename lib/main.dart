@@ -191,6 +191,7 @@ class CakeHomeState extends State<Mainboard> {
 
     await NotificationApi.stopNotification(0);
 
+    if(!mounted) return;
     await PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
       onUploadPressed: () async { 
@@ -272,6 +273,8 @@ class CakeHomeState extends State<Mainboard> {
       }
 
       loadingDialog.stopLoading();
+
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "$count item(s) has been saved.",icon: Icons.check,context: context);
 
     } catch (err) {
@@ -308,82 +311,12 @@ class CakeHomeState extends State<Mainboard> {
       singleLoading.stopLoading();
       _clearSelectAll();
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "$count item(s) now available offline.",icon: Icons.check,context: context);
       
     } catch (err) {
       SnakeAlert.errorSnake("An error occurred.",context);
     }
-  }
-
-  Future<void> _callOfflineData() async {
-
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
-
-    if(!offlineDirs.existsSync()) { 
-      AlertForm.alertDialog("No offline file is available yet.", context);
-      return;
-    }
-
-    Globals.fileOrigin = "offlineFiles";
-    appBarTitle.value = "Offline";
-    _clearSelectAll(); 
-
-    final files = offlineDirs.listSync().whereType<File>().toList();
-
-    List<String> fileValues = [];
-    List<String> filteredSearchedFiles = [];
-    List<String> dateStoresValues = [];
-    List<String> setDateValues = [];
-    List<Uint8List> imageByteValues = [];
-    List<Uint8List> filteredSearchedBytes = [];
-
-    for (var file in files) {
-
-      String fileName = path.basename(file.path);
-      String? fileType = fileName.split('.').last;
-
-      Uint8List imageBytes;
-      String actualFileSize = '';
-
-      if (Globals.imageType.contains(fileType)) {
-
-        imageBytes = await file.readAsBytes();
-
-        int fileSize = imageBytes.length;
-        double fileSizeMB = fileSize / (1024 * 1024);
-        actualFileSize = "${fileSizeMB.toStringAsFixed(2)}Mb";
-
-      } else if (Globals.textType.contains(fileType)) {
-        
-        imageBytes = await GetAssets().loadAssetsData("txt0.png");
-        actualFileSize = "Unknown";
-
-      } else {
-        continue;
-      }
-
-      fileValues.add(fileName);
-      filteredSearchedFiles.add(fileName);
-      dateStoresValues.add(actualFileSize);
-      setDateValues.add(actualFileSize);
-      imageByteValues.add(imageBytes);
-      filteredSearchedBytes.add(imageBytes);
-    }
-
-    setState(() {
-      Globals.fileValues = fileValues;
-      Globals.filteredSearchedFiles = filteredSearchedFiles;
-      Globals.dateStoresValues = dateStoresValues;
-      Globals.setDateValues = setDateValues;
-      Globals.imageByteValues = imageByteValues;
-      Globals.filteredSearchedBytes = filteredSearchedBytes;
-    });
-
-    _navHomeButtonVisibility(true);
-    _navDirectoryButtonVisibility(false);
-    _floatingButtonVisiblity(false);
-    
   }
 
   DateTime _parseDate(String dateString) {
@@ -521,6 +454,7 @@ class CakeHomeState extends State<Mainboard> {
         
       }
 
+      if(!mounted) return;
       await scannerPdf.savePdf(fileName: generateFileName,context: context);
 
       final tempDir = await getTemporaryDirectory();
@@ -537,6 +471,7 @@ class CakeHomeState extends State<Mainboard> {
 
       await NotificationApi.stopNotification(0);
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "$generateFileName.pdf Has been added",icon: Icons.check,context: context);
 
       await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
@@ -621,6 +556,7 @@ class CakeHomeState extends State<Mainboard> {
 
       await _deleteAllSelectedItems(count: count);
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
 
     } catch (err, st) {
@@ -788,6 +724,7 @@ class CakeHomeState extends State<Mainboard> {
         Globals.fileOrigin = 'homeFiles';
       });
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "$folderName Folder has been deleted.",icon: Icons.check,context: context);
 
     } catch (err) {
@@ -810,6 +747,7 @@ class CakeHomeState extends State<Mainboard> {
         });
       }
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "`$oldFolderName` Has been renamed to `$newFolderName`", context: context);
 
     } catch (err) {
@@ -891,6 +829,78 @@ class CakeHomeState extends State<Mainboard> {
 
   }
 
+  Future<void> _callOfflineData() async {
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+
+    if(!offlineDirs.existsSync()) { 
+      if(!mounted) return;
+      AlertForm.alertDialog("No offline file is available yet.", context);
+      return;
+    }
+
+    Globals.fileOrigin = "offlineFiles";
+    appBarTitle.value = "Offline";
+    _clearSelectAll(); 
+
+    final files = offlineDirs.listSync().whereType<File>().toList();
+
+    List<String> fileValues = [];
+    List<String> filteredSearchedFiles = [];
+    List<String> dateStoresValues = [];
+    List<String> setDateValues = [];
+    List<Uint8List> imageByteValues = [];
+    List<Uint8List> filteredSearchedBytes = [];
+
+    for (var file in files) {
+
+      String fileName = path.basename(file.path);
+      String? fileType = fileName.split('.').last;
+
+      Uint8List imageBytes;
+      String actualFileSize = '';
+
+      if (Globals.imageType.contains(fileType)) {
+
+        imageBytes = await file.readAsBytes();
+
+        int fileSize = imageBytes.length;
+        double fileSizeMB = fileSize / (1024 * 1024);
+        actualFileSize = "${fileSizeMB.toStringAsFixed(2)}Mb";
+
+      } else if (Globals.textType.contains(fileType)) {
+        
+        imageBytes = await GetAssets().loadAssetsData("txt0.png");
+        actualFileSize = "Unknown";
+
+      } else {
+        continue;
+      }
+
+      fileValues.add(fileName);
+      filteredSearchedFiles.add(fileName);
+      dateStoresValues.add(actualFileSize);
+      setDateValues.add(actualFileSize);
+      imageByteValues.add(imageBytes);
+      filteredSearchedBytes.add(imageBytes);
+    }
+
+    setState(() {
+      Globals.fileValues = fileValues;
+      Globals.filteredSearchedFiles = filteredSearchedFiles;
+      Globals.dateStoresValues = dateStoresValues;
+      Globals.setDateValues = setDateValues;
+      Globals.imageByteValues = imageByteValues;
+      Globals.filteredSearchedBytes = filteredSearchedBytes;
+    });
+
+    _navHomeButtonVisibility(true);
+    _navDirectoryButtonVisibility(false);
+    _floatingButtonVisiblity(false);
+    
+  }
+
   Future<void> _refreshListView() async {
 
     _clearGlobalData();
@@ -916,6 +926,7 @@ class CakeHomeState extends State<Mainboard> {
     sortingText.value = "Default";
 
     if(Globals.fileValues.isEmpty) {
+      if(!mounted) return;
       _buildEmptyBody(context);
     }
 
@@ -978,6 +989,8 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
       await DeleteDirectory.deleteDirectory(directoryName: directoryName);
+    
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "Directory `$directoryName` has been deleted.",context: context);
 
     } catch (err, st) {
@@ -1036,16 +1049,16 @@ class CakeHomeState extends State<Mainboard> {
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams();
 
-    final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
-    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
-    final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
+    //final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
+    //final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    //final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
     _clearGlobalData();
 
-    Globals.fileValues.addAll(nameList);
+    /*Globals.fileValues.addAll(nameList);
     Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    Globals.imageByteValues.addAll(byteList);*/
 
     Globals.fileOrigin = "psFiles";
     
@@ -1079,6 +1092,7 @@ class CakeHomeState extends State<Mainboard> {
       final imageBytes = base64.encode(bytes); 
 
       if(Globals.fileValues.contains(imageName)) {
+        if(!mounted) return;
         TitledDialog.startDialog("Upload Failed", "$imageName already exists.",context);
         return;
       }
@@ -1137,6 +1151,8 @@ class CakeHomeState extends State<Mainboard> {
       } 
 
       loadingDialog.stopLoading();
+
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been downloaded.",icon: Icons.check,context: context);
 
     } catch (err) {
@@ -1228,6 +1244,8 @@ class CakeHomeState extends State<Mainboard> {
 
       if (indexOldFileSearched != -1) {
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
+
+        if(!mounted) return;
         SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
       }
 
@@ -1275,6 +1293,8 @@ class CakeHomeState extends State<Mainboard> {
   }) async {
 
     await RenameDirectory.renameDirectory(oldDirName,newDirName);
+
+    if(!mounted) return;
     SnakeAlert.okSnake(message: "Directory `$oldDirName` renamed to `$newDirName`.",context: context);
   }
 
@@ -1287,11 +1307,14 @@ class CakeHomeState extends State<Mainboard> {
         final encryptVals = EncryptionClass().Encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
+        if(!mounted) return;
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       } else {
 
         await OfflineMode().deleteFile(fileName);
+
+        if(!mounted) return;
         SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
 
       }
@@ -1353,11 +1376,13 @@ class CakeHomeState extends State<Mainboard> {
       _fileType = selectedFileName.split('.').last;
 
       if (!Globals.videoType.contains(_fileType)) {
+        if(!mounted) return;
         TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
         return;
       }
 
       if (Globals.fileValues.contains(selectedFileName)) {
+        if(!mounted) return;
         TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
         return;
       } 
@@ -1516,12 +1541,14 @@ class CakeHomeState extends State<Mainboard> {
           _fileType = selectedFileName.split('.').last;
 
           if (!Globals.imageType.contains(_fileType)) {
+            if(!mounted) return;
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
+            if(!mounted) return;
             TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             await NotificationApi.stopNotification(0);
             continue;

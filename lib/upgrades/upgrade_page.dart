@@ -26,8 +26,12 @@ class UpradePage extends StatefulWidget {
 
 class _UpgradePage extends State<UpradePage> {
 
-  final singleLoading = SingleTextLoading();
   String userChoosenPlan = "";
+
+  final singleLoading = SingleTextLoading();
+
+  final cardButtonHeight = 58.0;
+  final cardButtonWidth = 255.0;
 
   Widget _buildBanner() {
     return const Column(
@@ -141,37 +145,40 @@ class _UpgradePage extends State<UpradePage> {
 
                 const SizedBox(height: 15),
 
-                const Center(
-                  child: Text(
-                    " + Folder Download",
-                    style: TextStyle(
-                      color: ThemeColor.darkBlack,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                const SizedBox(height: 5),
-
-                const Center(
-                  child: Text(
-                    " + Upload up to 5 Folders",
-                    style: TextStyle(
-                      color: ThemeColor.darkBlack,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
+                    Text(
+                      " + Folder Download",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+
+                    SizedBox(height: 5),
+
+                    Text(
+                        " + Upload up to 5 Folders",
+                        style: TextStyle(
+                          color: ThemeColor.darkBlack,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    
+                  ],
                 ),
 
                 const SizedBox(height: 35),
 
                 SizedBox(
-                  width: 255,
-                  height: 50,
+                  width: cardButtonWidth,
+                  height: cardButtonHeight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColor.darkBlack,
@@ -237,37 +244,39 @@ class _UpgradePage extends State<UpradePage> {
 
                 const SizedBox(height: 15),
 
-                const Center(
-                  child: Text(
-                    " + Folder Download",
-                    style: TextStyle(
-                      color: ThemeColor.darkBlack,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                const SizedBox(height: 5),
-
-                const Center(
-                  child: Text(
-                    " + Upload up to 10 Folders",
-                    style: TextStyle(
-                      color: ThemeColor.darkBlack,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
+                    Text(
+                      " + Folder Download",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+                    
+                    SizedBox(height: 5),
+
+                    Text(
+                      " + Upload up to 10 Folders",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 35),
 
                 SizedBox(
-                  width: 255,
-                  height: 50,
+                  width: cardButtonWidth,
+                  height: cardButtonHeight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColor.darkBlack,
@@ -333,51 +342,52 @@ class _UpgradePage extends State<UpradePage> {
 
                 const SizedBox(height: 15),
 
-                const Center(
-                child: Text(
-                  " + Folder Download",
-                  style: TextStyle(
-                    color: ThemeColor.darkBlack,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-              const SizedBox(height: 5),
-
-               const Center(
-                child: Text(
-                  " + Upload up to 5 Directory",
-                  style: TextStyle(
-                    color: ThemeColor.darkBlack,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-                const SizedBox(height: 5),
-
-                const Center(
-                  child: Text(
-                    " + Upload up to 20 Folders",
-                    style: TextStyle(
-                      color: ThemeColor.darkBlack,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
+                    Text(
+                      " + Folder Download",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+
+                    SizedBox(height: 5),
+
+                    Text(
+                      " + Upload up to 5 Directory",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 5),
+
+                    Text(
+                      " + Upload up to 20 Folders",
+                      style: TextStyle(
+                        color: ThemeColor.darkBlack,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                  ],
                 ),
 
                 const SizedBox(height: 25),
 
                 SizedBox(
-                  width: 255,
-                  height: 50,
+                  width: cardButtonWidth,
+                  height: cardButtonHeight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColor.darkBlack,

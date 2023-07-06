@@ -550,15 +550,16 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
       
                 const Spacer(),
                 SizedBox(
-                    width: 100,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        NavigatePage.goToPageUpgrade(context);
-                      },
-                      style: GlobalsStyle.btnMainStyle,
-                      child: const Text('Upgrade'),
-                    ),
+                  width: 110,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      NavigatePage.goToPageUpgrade(context);
+                    },
+                    style: GlobalsStyle.btnMainStyle,
+                    child: const Text('Upgrade'),
                   ),
+                ),
                 const SizedBox(width: 10),
               ],
             ),

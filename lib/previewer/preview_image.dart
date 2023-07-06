@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flutter/material.dart';
 
@@ -13,11 +14,9 @@ class PreviewImage extends StatefulWidget {
 
 class PreviewImageState extends State<PreviewImage> {
 
-  static List<String> imagesNameList = Globals.filteredSearchedFiles.where((image) => Globals.imageType.any((ext) => image.endsWith(ext))).toList();
-  
   int currentSelectedIndex = 0;
-  int imageTotalLength = imagesNameList.length;
-
+  List<String> imagesNameList = Globals.filteredSearchedFiles.where((image) => Globals.imageType.any((ext) => image.endsWith(ext))).toList();
+  
   late final PageController pageController;
 
   @override
@@ -27,27 +26,10 @@ class PreviewImageState extends State<PreviewImage> {
     pageController = PageController(initialPage: currentSelectedIndex);
   }
 
-  void validateFileType(String fileType) {
-    if(Globals.imageType.contains(fileType)) {
-      imageTotalLength = Globals.filteredSearchedFiles.length;
-    } else {
-      imageTotalLength = 0;
-      return;
-    }
-  }
-
   void handlePageChange(int index) {
-
-    final getSelectedFileName = Globals.fileValues[index];
-    final fileType = getSelectedFileName.split('.').last;
-
-    setState(() {
-      validateFileType(fileType);
-    });
-
+    final getSelectedFileName = imagesNameList[index];
     Globals.selectedFileName = getSelectedFileName;
-    widget.onPageChanged();
-
+    widget.onPageChanged(); 
   }
 
   @override
@@ -55,7 +37,7 @@ class PreviewImageState extends State<PreviewImage> {
     return PageView.builder(
       physics: const ClampingScrollPhysics(),
       controller: pageController, 
-      itemCount: imagesNameList.length,
+      itemCount: Globals.fileOrigin == "homeFiles" ? imagesNameList.length : Globals.filteredSearchedFiles.length,
       onPageChanged: handlePageChange,
       itemBuilder: (context, index) {
         return InteractiveViewer(
@@ -64,7 +46,7 @@ class PreviewImageState extends State<PreviewImage> {
           child: Container(
           constraints: const BoxConstraints.expand(),
           child: Image.memory(
-            Globals.filteredSearchedBytes[index]!,
+            Globals.fileOrigin == "homeFiles" ? GlobalsData.homeImageData[index] : Globals.filteredSearchedBytes[index]!,
             fit: BoxFit.fitWidth,
           ),
           ),
