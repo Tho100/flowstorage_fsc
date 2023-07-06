@@ -684,6 +684,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
                 _clearAppCache();
+                AlertForm.alertDialogTitle("Cache Cleared","Flowstorage caches has been cleared.", context);
               }
             ),
 

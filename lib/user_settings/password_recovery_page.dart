@@ -192,12 +192,11 @@ class _ResetBackupState extends State<ResetBackup> {
         emailController.clear();
         pinController.clear();
         recoveryController.clear();        
-        
+
         if(!mounted) return;
         Navigator.push(
           context, 
           MaterialPageRoute(builder: (context) => ResetAuthentication(username: widget.thisUsername, email: email)));
-
       }
 
     } catch (exportBackupFailed) {
