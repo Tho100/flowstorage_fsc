@@ -70,7 +70,8 @@ class _SplashScreen extends State<SplashScreen> {
       final getLocalAccountType = (await _retrieveLocallyStoredInformation())[2];
 
       if(getLocalUsername == '') {
- 
+
+        if(!mounted) return;
         NavigatePage.replacePageHome(context);
 
       } else {
@@ -85,13 +86,17 @@ class _SplashScreen extends State<SplashScreen> {
 
         if(isPassCodeExists) {
 
+          if(!mounted) return;
           NavigatePage.goToPagePasscode(context);
 
         } else {
 
           final conn = await SqlConnection.insertValueParams();
 
+          if(!mounted) return;
           await _callData(conn,getLocalUsername,getLocalEmail,getLocalAccountType,context);
+          
+          if(!mounted) return;
           NavigatePage.permanentPageMainboard(context);
           
         }

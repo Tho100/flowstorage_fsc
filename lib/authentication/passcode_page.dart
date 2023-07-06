@@ -137,15 +137,18 @@ class PasscodePageState extends State<PasscodePage> {
 
         final justLoading = JustLoading();
 
+        if(!mounted) return;
         justLoading.startLoading(context: context);
 
         await _callData(conn,Globals.custUsername,Globals.custEmail, Globals.accountType,context);
 
         justLoading.stopLoading();
         
+        if(!mounted) return;
         NavigatePage.permanentPageMainboard(context);
 
       } else {
+        if(!mounted) return;
         SnakeAlert.errorSnake("Incorrect passcode.", context);
       }
 

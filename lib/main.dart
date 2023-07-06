@@ -1049,16 +1049,16 @@ class CakeHomeState extends State<Mainboard> {
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams();
 
-    //final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
-    //final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
-    //final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
+    final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
+    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
     _clearGlobalData();
 
-    /*Globals.fileValues.addAll(nameList);
+    Globals.fileValues.addAll(nameList);
     Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);*/
+    Globals.imageByteValues.addAll(byteList);
 
     Globals.fileOrigin = "psFiles";
     
@@ -1760,12 +1760,14 @@ class CakeHomeState extends State<Mainboard> {
           _fileType = selectedFileName.split('.').last;
 
           if (!Globals.supportedFileTypes.contains(_fileType)) {
+            if(!mounted) return;
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
+            if(!mounted) return;
             TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             await NotificationApi.stopNotification(0);
             continue;
@@ -1919,6 +1921,7 @@ class CakeHomeState extends State<Mainboard> {
       final folderName = path.basename(result);
 
       if (Globals.foldValues.contains(folderName)) {
+        if(!mounted) return;
         TitledDialog.startDialog("Upload Failed", "$folderName already exists.",context);
         return;
       }
@@ -2506,7 +2509,8 @@ class CakeHomeState extends State<Mainboard> {
           } else {
             fileData = await _callData(fileName,tableName);
           }
-
+          
+          if(!mounted) return;
           await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
 
           singleLoading.stopLoading();
@@ -2817,6 +2821,7 @@ class CakeHomeState extends State<Mainboard> {
                 isAscendingUploadDate = false;
 
                 await _refreshListView();
+                if(!mounted) return;
                 Navigator.pop(context);
 
               },
@@ -3098,6 +3103,7 @@ class CakeHomeState extends State<Mainboard> {
 
                             await _buildDirectory(getDirectoryTitle);
                             directoryCreateController.clear();
+                            if(!mounted) return;
                             Navigator.pop(context);
 
                           },
@@ -3151,6 +3157,7 @@ class CakeHomeState extends State<Mainboard> {
               ),
               onPressed: () async {
                 await _deleteFolder(folderName);
+                if(!mounted) return;
                 Navigator.pop(context);
               },
 
@@ -3450,6 +3457,7 @@ class CakeHomeState extends State<Mainboard> {
 
                         loadingDialog.stopLoading();
 
+                        if(!mounted) return;
                         Navigator.pop(context);
 
                       },
@@ -3817,7 +3825,10 @@ class CakeHomeState extends State<Mainboard> {
 
                 if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]!) {
                   await _openDialogFolder();
+                  
+                  if(!mounted) return;
                   Navigator.pop(context);
+
                 } else {
                   _upgradeDialog("You're currently limited to ${AccountPlan.mapFoldersUpload[Globals.accountType]} folders upload. Upgrade your account plan to upload more folder.");
                 }
@@ -4054,6 +4065,7 @@ class CakeHomeState extends State<Mainboard> {
                 await _processDeletingAllItems(count: count);
                 loadingDialog.stopLoading();
 
+                if(!mounted) return;
                 Navigator.pop(context);
 
               },

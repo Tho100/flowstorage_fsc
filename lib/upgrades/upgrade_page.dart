@@ -511,7 +511,8 @@ class _UpgradePage extends State<UpradePage> {
     singleLoading.stopLoading();
 
     if(returnedEmail.contains(Globals.custEmail)) {
-
+      
+      if(!mounted) return;
       singleLoading.startLoading(title: "Upgrading...", context: context);
 
       final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
@@ -527,9 +528,11 @@ class _UpgradePage extends State<UpradePage> {
 
       CallNotify().customNotification(title: "Account Upgraded", subMesssage: "Thank you for subscribing to our service! You subscribed for $userChoosenPlan plan");
 
+      if(!mounted) return;
       AlertForm.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
 
     } else {
+      if(!mounted) return;
       AlertForm.alertDialogTitle("Payment failed", "No payment has been made.", context);
     }
 

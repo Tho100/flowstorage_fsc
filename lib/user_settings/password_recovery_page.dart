@@ -177,11 +177,13 @@ class _ResetBackupState extends State<ResetBackup> {
       }
 
       if(await _getRecov(await _getUsername(email)) != recovTokInput) {
+        if(!mounted) return;
         AlertForm.alertDialog("Invalid recovery key.", context);
         return;
       }
 
       if(await _authIncorrect(await _getUsername(email), AuthModel().computeAuth(authenticationString))) {
+        if(!mounted) return;
         AlertForm.alertDialog("Entered PIN is incorrect.", context);
         return;
 
@@ -190,7 +192,8 @@ class _ResetBackupState extends State<ResetBackup> {
         emailController.clear();
         pinController.clear();
         recoveryController.clear();        
-
+        
+        if(!mounted) return;
         Navigator.push(
           context, 
           MaterialPageRoute(builder: (context) => ResetAuthentication(username: widget.thisUsername, email: email)));
