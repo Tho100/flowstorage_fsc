@@ -195,15 +195,20 @@ class CakeHomeState extends State<Mainboard> {
     await PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
       onUploadPressed: () async { 
+
         await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
+
         _addItemToListView(fileName: fileName);
+        Globals.psUploadPassed = true;
+
       },
       context: context
     );
 
     await NotificationApi.stopNotification(0);
-    await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
+    Globals.psUploadPassed == true ? await CallNotify().uploadedNotification(title: "Upload Finished", count: 1) : null;
+    Globals.psUploadPassed = false;
 
   }
 
@@ -1544,7 +1549,9 @@ class CakeHomeState extends State<Mainboard> {
             }
 
         }
-
+        
+        _addItemToListView(fileName: selectedFileName);
+        
         scaffoldMessenger.hideCurrentSnackBar();
 
         if(countSelectedFiles < 2) {
@@ -1553,9 +1560,7 @@ class CakeHomeState extends State<Mainboard> {
           countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
 
         }
-        
-        _addItemToListView(fileName: selectedFileName);
-        
+
       }
 
       await NotificationApi.stopNotification(0);

@@ -29,30 +29,32 @@ class PsCommentDialog {
 
               Row(
                 children: [
-                  Expanded(
+
+                  const Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 12, top: 4),
+                      padding: EdgeInsets.only(left: 14, top: 4),
                       child: Text(
-                        ShortenText().cutText(fileName),
-                        style: const TextStyle(
+                        "Public Storage",
+                        style: TextStyle(
                           color: ThemeColor.justWhite,
-                          fontSize: 20,
+                          fontSize: 16,
                           overflow: TextOverflow.ellipsis,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ),
+
                   Padding(
                     padding: const EdgeInsets.only(right: 5, top: 4),
                     child: TextButton( 
                       style: TextButton.styleFrom(
                         foregroundColor: ThemeColor.secondaryWhite,
                       ),
-                      onPressed: () async {
-                        await NotificationApi.stopNotification(0);
-                        commentController.clear();
+                      onPressed: () {
+                        clearValues();
                         Navigator.pop(context);
+                        return;
                       },
                       child: const Text("Cancel",
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -70,7 +72,7 @@ class PsCommentDialog {
                         Globals.psCommentValue = commentController.text;
                         
                         onUploadPressed();
-                        _clearComment();
+                        clearComment();
 
                         Navigator.pop(context);
                       },
@@ -84,11 +86,11 @@ class PsCommentDialog {
                 ],
               ),
 
-              const Padding(
-                padding: EdgeInsets.only(left: 14, top: 4),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, top: 4),
                 child: Text(
-                  "Public Storage",
-                  style: TextStyle(
+                  ShortenText().cutText(fileName),
+                  style: const TextStyle(
                     color: ThemeColor.secondaryWhite,
                     fontSize: 15,
                     overflow: TextOverflow.ellipsis,
@@ -119,7 +121,7 @@ class PsCommentDialog {
               const SizedBox(height: 5),
 
               const Padding(
-                padding: EdgeInsets.only(left: 12.0),
+                padding: EdgeInsets.only(left: 14.0),
                 child: Text(
                   "Tags", 
                   style: TextStyle(
@@ -158,7 +160,7 @@ class PsCommentDialog {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 5),
             ],
           ),
         );
@@ -166,7 +168,15 @@ class PsCommentDialog {
     );
   }
 
-  void _clearComment() {
+  void clearValues() async {
+    await NotificationApi.stopNotification(0);
+    Globals.psUploadPassed = false;
+    Globals.psCommentValue = '';
+    Globals.psTagValue = '';
+    commentController.clear();
+  }
+
+  void clearComment() {
     Globals.psCommentValue = commentController.text;
     commentController.clear();
   }

@@ -10,6 +10,7 @@ import 'dart:typed_data';
 
 class Globals {
 
+  static bool psUploadPassed = false;
   static String psCommentValue = '';
   static String psTagValue = '';
 
