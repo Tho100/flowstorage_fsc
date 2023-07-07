@@ -213,7 +213,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     }
   }
 
-  Widget _buildFileDataWidget(Uint8List? snapshotValue) {
+  Widget _buildFileDataWidget() {
 
     Widget previewWidget;
 
@@ -225,11 +225,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       'webp': () => PreviewImage(onPageChanged: _updateAppBarTitle),
       'gif': () => PreviewImage(onPageChanged: _updateAppBarTitle),
 
-      'pdf': () => PreviewPdf(pdfData: snapshotValue),
-      'ppt': () => PreviewPdf(pdfData: snapshotValue),
-      'pptx': () => PreviewPdf(pdfData: snapshotValue),
-      'docx': () => PreviewPdf(pdfData: snapshotValue),
-      'doc': () => PreviewPdf(pdfData: snapshotValue),
+      'pdf': () => const PreviewPdf(),
+      'ppt': () => const PreviewPdf(),
+      'pptx': () => const PreviewPdf(),
+      'docx': () => const PreviewPdf(),
+      'doc': () => const PreviewPdf(),
 
       'mp4': () => const PreviewVideo(),
       'mov': () => const PreviewVideo(),
@@ -238,12 +238,10 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     };
 
     if (previewMap.containsKey(_fileType)) {
-      previewWidget = snapshotValue!.isEmpty ? FailedLoad.buildFailedLoad() : previewMap[_fileType]!();
+      previewWidget = previewMap[_fileType]!();
     } else {
       previewWidget = FailedLoad.buildFailedLoad();
     }
-
-    snapshotValue = null;
 
     return previewWidget;
   }
@@ -339,24 +337,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       onTap: () {
         bottomBarVisible.value = !bottomBarVisible.value;
       },
-      child: FutureBuilder<Uint8List>(
-        future: _callData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              return SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: _buildFileDataWidget(snapshot.data!),
-              );
-            } else if (snapshot.hasError) {
-              return FailedLoad.buildFailedLoad();
-            }
-          }
-          return Center(child: LoadingFile.buildLoading());
-        }
-    ),
-      
+      child: _buildFileDataWidget(),
     );
   }
 

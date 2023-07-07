@@ -55,6 +55,8 @@ class RetrieveData {
 
       if(GlobalsTable.tableNames.contains(tableName)) {
         toPsFileName = GlobalsTable.publicToPsTables[tableName]!;
+      } else {
+        toPsFileName = tableName!;
       }
 
       query = "SELECT CUST_FILE FROM $toPsFileName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";

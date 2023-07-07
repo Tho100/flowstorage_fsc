@@ -9,6 +9,9 @@ class PsCommentDialog {
 
   static final commentController = TextEditingController();
 
+  static const tagsItems = {"Entertainment","Software","Gaming","Politics","Random","Music"};
+  static final colorTagsItems = {Colors.orange, Colors.blue, Colors.green, Colors.redAccent, Colors.grey, Colors.deepOrangeAccent};
+
   Future buildPsCommentDialog({
     required String fileName,
     required VoidCallback onUploadPressed,
@@ -24,18 +27,76 @@ class PsCommentDialog {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
 
-              Padding(
-                padding: const EdgeInsets.all(18.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12, top: 4),
+                      child: Text(
+                        ShortenText().cutText(fileName),
+                        style: const TextStyle(
+                          color: ThemeColor.justWhite,
+                          fontSize: 20,
+                          overflow: TextOverflow.ellipsis,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5, top: 4),
+                    child: TextButton( 
+                      style: TextButton.styleFrom(
+                        foregroundColor: ThemeColor.secondaryWhite,
+                      ),
+                      onPressed: () async {
+                        await NotificationApi.stopNotification(0);
+                        commentController.clear();
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8, top: 4),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: ThemeColor.darkPurple
+                      ),
+                      onPressed: () {
+                        Globals.psCommentValue = commentController.text;
+                        
+                        onUploadPressed();
+                        _clearComment();
+
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Upload",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const Padding(
+                padding: EdgeInsets.only(left: 14, top: 4),
                 child: Text(
-                  ShortenText().cutText(fileName),
-                  style: const TextStyle(
-                    color: ThemeColor.justWhite,
+                  "Public Storage",
+                  style: TextStyle(
+                    color: ThemeColor.secondaryWhite,
                     fontSize: 15,
                     overflow: TextOverflow.ellipsis,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+
+              const SizedBox(height: 5),
                 
               Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -53,61 +114,46 @@ class PsCommentDialog {
                   ),
                 ),
               ),
+
               const SizedBox(height: 5),
-              Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await NotificationApi.stopNotification(0);
-                            commentController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
+
+              const Padding(
+                padding: EdgeInsets.only(left: 12.0),
+                child: Text(
+                  "Tags", 
+                  style: TextStyle(
+                    color: ThemeColor.justWhite,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 55,
+                  child: ListView.builder(
+                    itemCount: 6,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) => Container(
+                      height: 45,
+                      width: 122,
+                      margin: const EdgeInsets.all(10),
+                      color: Colors.transparent,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)
                           ),
-                          child: const Text('Cancel'),
+                          backgroundColor: colorTagsItems.elementAt(index)
                         ),
-                      ),
+                        onPressed: () {},
+                        child: Text(tagsItems.elementAt(index)),
+                      )
                     ),
                   ),
-
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-
-                            Globals.psCommentValue = commentController.text;
-                            
-                            onUploadPressed();
-                            _clearComment();
-
-                            Navigator.pop(context);
-
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Upload'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
+                ),
               ),
               const SizedBox(height: 15),
             ],

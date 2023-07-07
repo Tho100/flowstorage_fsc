@@ -445,7 +445,7 @@ class CakeHomeState extends State<Mainboard> {
       final imagePath = await CunningDocumentScanner.getPictures();
       final generateFileName = Generator.generateRandomString(Generator.generateRandomInt(5,15));
 
-      await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
+      Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress") : null;
 
       for(var images in imagePath!) {
 
@@ -461,9 +461,14 @@ class CakeHomeState extends State<Mainboard> {
       final file = File('${tempDir.path}/$generateFileName.pdf');
 
       final toBase64Encoded = base64.encode(file.readAsBytesSync());
-
       final newFileToDisplay = await GetAssets().loadAssetsFile("pdf0.png");
-      await _processUploadListView(filePathVal: file.path,selectedFileName: "$generateFileName.pdf",tableName: "file_info_pdf",fileBase64Encoded: toBase64Encoded,newFileToDisplay: newFileToDisplay);
+
+      if(Globals.fileOrigin == "psFiles") {
+        _openPsCommentDialog(filePathVal: file.path, fileName: "$generateFileName.pdf",tableName: "ps_info_pdf", base64Encoded: toBase64Encoded, newFileToDisplay: newFileToDisplay);
+        return;
+      } else {
+        await _processUploadListView(filePathVal: file.path,selectedFileName: "$generateFileName.pdf",tableName: "file_info_pdf", fileBase64Encoded: toBase64Encoded,newFileToDisplay: newFileToDisplay);
+      }
 
       _addItemToListView(fileName: "$generateFileName.pdf");
 
@@ -1097,12 +1102,17 @@ class CakeHomeState extends State<Mainboard> {
         return;
       }
 
-      await _processUploadListView(
-        filePathVal: imagePath, 
-        selectedFileName: imageName, 
-        tableName: GlobalsTable.homeImageTable, 
-        fileBase64Encoded: imageBytes
-      );
+      if(Globals.fileOrigin == "psFiles") {
+        _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBytes);
+        return;
+      } else {
+        await _processUploadListView(
+          filePathVal: imagePath, 
+          selectedFileName: imageName, 
+          tableName: GlobalsTable.homeImageTable, 
+          fileBase64Encoded: imageBytes
+        );
+      }
 
       _isFromUpload = true;
 
@@ -1387,7 +1397,7 @@ class CakeHomeState extends State<Mainboard> {
         return;
       } 
 
-      await CallNotify().customNotification(title: "Uploading...", subMesssage: "1 File(s) in progress");
+      Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "1 File(s) in progress") : null;
 
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -1411,7 +1421,7 @@ class CakeHomeState extends State<Mainboard> {
         ),
       );
   
-      final filePathVal = pickedVideo.path.toString();
+      final filePathVal = pickedVideo.path.toString(); 
 
       String bodyBytes;
       bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
@@ -1508,7 +1518,7 @@ class CakeHomeState extends State<Mainboard> {
           return;
         }
 
-        await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress");
+        Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
 
         if(countSelectedFiles > 2) {
 
@@ -1725,7 +1735,7 @@ class CakeHomeState extends State<Mainboard> {
           return;
         }
 
-        await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress");
+        Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
 
         if(countSelectedFiles > 2) {
 
@@ -3819,7 +3829,7 @@ class CakeHomeState extends State<Mainboard> {
             ),
 
             Visibility(
-              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" ? false : true,
+              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
               child: ElevatedButton(
               onPressed: () async {
 

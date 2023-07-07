@@ -1,8 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
+import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
@@ -29,23 +28,12 @@ class PreviewExcelState extends State<PreviewExcel> {
   final Map<int, Map<int, String>> _editedValues = {}; 
   final List<List<TextEditingController>> _excelControllers = [];
   
-  final retrieveData = RetrieveData();
-
   Future<Uint8List> _callData() async {
 
     try {
 
-      final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_excel" : "file_info_excel";
-      final uploaderUsername = Globals.fileOrigin == "psFiles" 
-      ? await UploaderName().getUploaderName(tableName: "ps_info_excel",fileValues: Globals.excelType)
-      : Globals.custUsername;
-
-      return retrieveData.retrieveDataParams(
-        uploaderUsername,
-        Globals.selectedFileName,
-        tableName,
-        Globals.fileOrigin,
-      );
+      final fileData = await CallPreviewData().call(tableNamePs: "ps_info_excel", tableNameHome: "file_info_excel", fileValues: Globals.excelType);
+      return fileData;
       
     } catch (err, st) {
       Logger().e("Exception from _callData {preview_excel}", err, st);

@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
+import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +27,6 @@ class PreviewText extends StatefulWidget {
 
 class PreviewTextState extends State<PreviewText> {
 
-  final retrieveData = RetrieveData();
-
   Future<Uint8List> _loadOfflineFile(String fileName) async {
     
     final getDirApplication = await getApplicationDocumentsDirectory();
@@ -48,20 +45,11 @@ class PreviewTextState extends State<PreviewText> {
   Future<Uint8List> _callData() async {
 
     try {
-
+      
       if (Globals.fileOrigin != "offlineFiles") {
 
-        final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_text" : "file_info_expand";
-        final uploaderUsername = Globals.fileOrigin == "psFiles" 
-        ? await UploaderName().getUploaderName(tableName: "ps_info_text",fileValues: Globals.textType)
-        : Globals.custUsername;
-
-        return retrieveData.retrieveDataParams(
-          uploaderUsername,
-          Globals.selectedFileName,
-          tableName,
-          Globals.fileOrigin,
-        );
+        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_text", tableNameHome: "file_info_expand", fileValues: Globals.textType);
+        return fileData;
 
       } else {
         return await _loadOfflineFile(Globals.selectedFileName);

@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
-import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +30,6 @@ class PreviewVideoState extends State<PreviewVideo> {
   late Uint8List videoThumbailByte; 
   late Size? videoSize;
 
-  final retrieveData = RetrieveData();
-
   Future<void> _initializeVideoPlayer(String videoUrl) async {
 
     videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
@@ -55,17 +52,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     
     videoIsLoading = true;
 
-    final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_video" : "file_info_vid";
-    final uploaderUsername = Globals.fileOrigin == "psFiles" 
-    ? await UploaderName().getUploaderName(tableName: "ps_info_video",fileValues: Globals.videoType)
-    : Globals.custUsername;
-
-    final videoBytes = await retrieveData.retrieveDataParams(
-      uploaderUsername,
-      Globals.selectedFileName,
-      tableName,
-      Globals.fileOrigin,
-    );
+    final videoBytes = await CallPreviewData().call(tableNamePs: "ps_info_video", tableNameHome: "file_info_vid", fileValues: Globals.videoType);
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
     await _initializeVideoPlayer(videoUrl);
