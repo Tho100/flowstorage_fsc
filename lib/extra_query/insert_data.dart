@@ -61,8 +61,10 @@ class InsertData {
       case 'ps_info_text':
       case 'ps_info_image':
       case 'ps_info_excel':
-      case 'ps_info_pdf':
+      case 'ps_info_ptx':
       case 'ps_info_word':
+      case 'ps_info_exe':
+      case 'ps_info_pdf':
 
         await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
         break;
@@ -128,8 +130,8 @@ class InsertData {
     String encryptedFileVal,
   ) async {
 
-    await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT) VALUES (?, ?, ?, ?,?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, EncryptionClass().Encrypt(Globals.psCommentValue)]);
+    await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?)')
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, EncryptionClass().Encrypt(Globals.psCommentValue), Globals.psTagValue]);
   }
 
   Future<void> insertVideoInfoPs(
@@ -140,8 +142,8 @@ class InsertData {
     String? thumb,
   ) async {
 
-    await conn.prepare('INSERT INTO ps_info_video (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB, CUST_COMMENT) VALUES (?, ?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb, EncryptionClass().Encrypt(Globals.psCommentValue)]);
+    await conn.prepare('INSERT INTO ps_info_video (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb, EncryptionClass().Encrypt(Globals.psCommentValue),Globals.psTagValue]);
   }
 
 }

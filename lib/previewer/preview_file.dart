@@ -40,7 +40,6 @@ import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
-import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 
 import 'package:flutter/foundation.dart';

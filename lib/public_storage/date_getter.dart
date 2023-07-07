@@ -13,13 +13,15 @@ class DateGetterPs {
 
   Future<List<String>> getDateParams(MySQLConnectionPool conn, String tableName) async {
     
-    final selectUploadDate = "SELECT UPLOAD_DATE FROM $tableName";
+    final selectUploadDate = "SELECT UPLOAD_DATE, CUST_TAG FROM $tableName";
     final retrieveUploadDate = await conn.execute(selectUploadDate);
 
     final storeDateValues = <String>[];
     for (final res in retrieveUploadDate.rows) {
 
       final dateValue = res.assoc()['UPLOAD_DATE']!;
+      final tagValue = res.assoc()['CUST_TAG'];
+
       final dateValueWithDashes = dateValue.replaceAll('/', '-');
       final dateComponents = dateValueWithDashes.split('-');
 
@@ -28,7 +30,8 @@ class DateGetterPs {
       final difference = now.difference(date).inDays;
 
       final formattedDate = DateFormat('MMM d yyyy').format(date);
-      storeDateValues.add('$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate');
+
+      storeDateValues.add('$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate ${GlobalsStyle.dotSeperator} $tagValue');
 
     }
     

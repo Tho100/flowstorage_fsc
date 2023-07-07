@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class PsCommentDialog {
 
   static final commentController = TextEditingController();
-
+  
   static const tagsItems = {"Entertainment","Software","Gaming","Politics","Random","Music"};
   static final colorTagsItems = {Colors.orange, Colors.blue, Colors.green, Colors.redAccent, Colors.grey, Colors.deepOrangeAccent};
 
@@ -66,6 +66,7 @@ class PsCommentDialog {
                         foregroundColor: ThemeColor.darkPurple
                       ),
                       onPressed: () {
+
                         Globals.psCommentValue = commentController.text;
                         
                         onUploadPressed();
@@ -148,7 +149,9 @@ class PsCommentDialog {
                           ),
                           backgroundColor: colorTagsItems.elementAt(index)
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Globals.psTagValue = tagsItems.elementAt(index);
+                        },
                         child: Text(tagsItems.elementAt(index)),
                       )
                     ),

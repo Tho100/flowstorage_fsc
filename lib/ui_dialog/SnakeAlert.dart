@@ -43,5 +43,40 @@ class SnakeAlert {
     );
   }
 
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> uploadingSnake({
+    required ScaffoldMessengerState snackState, 
+    required String message
+  }) {
+    return snackState.showSnackBar(
+      SnackBar(
+        backgroundColor: ThemeColor.mediumGrey,
+        content: Row(
+          children: [
+            Text(message), 
+            const Spacer(),
+            TextButton(
+              onPressed: () {
+                // TODO: Cancel upload operation
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> temporarySnake({
+    required ScaffoldMessengerState snackState, 
+    required String message
+  }) {
+    return snackState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        backgroundColor: ThemeColor.mediumGrey,
+      )
+    );
+  }
 
 }

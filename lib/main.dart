@@ -23,7 +23,7 @@ import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
-import 'package:flowstorage_fsc/widgets/ps_comment_dialog.dart';
+import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 
@@ -1114,13 +1114,15 @@ class CakeHomeState extends State<Mainboard> {
         );
       }
 
-      _isFromUpload = true;
+      _addItemToListView(fileName: imageName);
+
+      /*_isFromUpload = true;
 
       setState(() {
         Globals.setDateValues.add("Just now");
         Globals.fileValues.add(imageName);
         Globals.filteredSearchedFiles.add(imageName);
-      });
+      });*/
 
       await CallNotify().uploadedNotification(title: "Upload Finished",count: 1);
 
@@ -1399,27 +1401,9 @@ class CakeHomeState extends State<Mainboard> {
 
       Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "1 File(s) in progress") : null;
 
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: SizedBox(
-            height: 30,
-            child: Row(
-              children: [
-                Text("Uploading ${shortenText.cutText(selectedFileName)}"), 
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    // TODO: Cancel upload operation
-                  },
-                  child: const Text('Cancel'),
-                ),
-              ],
-            ),
-          ),
-          backgroundColor: ThemeColor.mediumGrey,
-          
-        ),
-      );
+      Globals.fileOrigin != "psFiles" 
+      ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
+      : null;
   
       final filePathVal = pickedVideo.path.toString(); 
 
@@ -1472,18 +1456,11 @@ class CakeHomeState extends State<Mainboard> {
         await thumbnailFile.delete();
 
       } 
+      
+      _addItemToListView(fileName: selectedFileName);
 
       scaffoldMessenger.hideCurrentSnackBar();
-      
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text("${shortenText.cutText(selectedFileName)} Has been added."),
-          duration: const Duration(seconds: 2),
-          backgroundColor: ThemeColor.mediumGrey,
-        )
-      );
-
-      _addItemToListView(fileName: selectedFileName);
+      SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(selectedFileName)} Has been added.");
 
       await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
 
@@ -1521,28 +1498,7 @@ class CakeHomeState extends State<Mainboard> {
         Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
 
         if(countSelectedFiles > 2) {
-
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: SizedBox(
-                height: 30,
-                child: Row(
-                  children: [
-                    Text("Uploading $countSelectedFiles item(s)..."),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Cancel upload operation
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                ),
-              ),
-              backgroundColor: ThemeColor.mediumGrey,
-              
-            ),
-          );
+          SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading $countSelectedFiles item(s)...");
         }
 
         for (final pickedFile in pickedImages) {
@@ -1566,27 +1522,9 @@ class CakeHomeState extends State<Mainboard> {
 
           if(countSelectedFiles < 2) {
 
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: SizedBox(
-                  height: 30,
-                  child: Row(
-                    children: [
-                      Text("Uploading ${shortenText.cutText(selectedFileName)}"),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Cancel upload operation
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ),
-                backgroundColor: ThemeColor.mediumGrey,
-                
-              ),
-            );
+            Globals.fileOrigin != "psFiles" 
+            ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
+            : null;
           }
 
           final filePathVal = pickedFile.path.toString();
@@ -1611,14 +1549,9 @@ class CakeHomeState extends State<Mainboard> {
 
         if(countSelectedFiles < 2) {
 
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text("${shortenText.cutText(selectedFileName)} Has been added."),
-              duration: const Duration(seconds: 2),
-              backgroundColor: ThemeColor.mediumGrey,
-            )
-          );
+          SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(selectedFileName)} Has been added.");
           countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
+
         }
         
         _addItemToListView(fileName: selectedFileName);
@@ -1628,16 +1561,11 @@ class CakeHomeState extends State<Mainboard> {
       await NotificationApi.stopNotification(0);
 
       if(countSelectedFiles >= 2) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text("${countSelectedFiles.toString()} Items has been added"),
-            duration: const Duration(seconds: 2),
-            backgroundColor: ThemeColor.mediumGrey
-          )
-        );
 
+        SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${countSelectedFiles.toString()} Items has been added");
         countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
-      } 
+
+      }
 
     } catch (err, st) {
       logger.e('Exception from _openGalleryImage {main}',err,st);
@@ -1738,27 +1666,9 @@ class CakeHomeState extends State<Mainboard> {
         Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
 
         if(countSelectedFiles > 2) {
-
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: SizedBox(
-                height: 30,
-                child: Row(
-                  children: [
-                    Text("Uploading $countSelectedFiles item(s)..."),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Cancel upload operation
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                ),
-              ),
-              backgroundColor: ThemeColor.mediumGrey,
-              
-            ),
+          SnakeAlert.uploadingSnake(
+            snackState: scaffoldMessenger, 
+            message: "Uploading $countSelectedFiles item(s)..."
           );
         }
 
@@ -1785,27 +1695,12 @@ class CakeHomeState extends State<Mainboard> {
 
           if(countSelectedFiles < 2) {
 
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: SizedBox(
-                  height: 30,
-                  child: Row(
-                    children: [
-                      Text("Uploading ${shortenText.cutText(selectedFileName)}"),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Cancel upload operation
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ),
-                backgroundColor: ThemeColor.mediumGrey,
-                
-              ),
-            );
+            Globals.fileOrigin != "psFiles" 
+            ? SnakeAlert.uploadingSnake(
+              snackState: scaffoldMessenger, 
+              message: "Uploading ${shortenText.cutText(selectedFileName)}"
+            ) 
+            : null;
           }
 
           final filePathVal = pickedFile.path.toString();
@@ -1859,30 +1754,20 @@ class CakeHomeState extends State<Mainboard> {
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 
+          _addItemToListView(fileName: selectedFileName);
+
           scaffoldMessenger.hideCurrentSnackBar();
 
           if(countSelectedFiles < 2) {
-
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: Text("Uploading ${shortenText.cutText(selectedFileName)}"),
-                duration: const Duration(seconds: 2),
-                backgroundColor: ThemeColor.mediumGrey,
-              )
-            );
+            SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(selectedFileName)} Has been added");
           }
-
-          _addItemToListView(fileName: selectedFileName);
 
         }
 
       if(countSelectedFiles > 2) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text("${countSelectedFiles.toString()} Items has been added"),
-            duration: const Duration(seconds: 2),
-            backgroundColor: ThemeColor.mediumGrey
-          )
+        SnakeAlert.temporarySnake(
+          snackState: scaffoldMessenger, 
+          message: "${countSelectedFiles.toString()} Items has been added"
         );
       }
 

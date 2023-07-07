@@ -11,6 +11,7 @@ import 'dart:typed_data';
 class Globals {
 
   static String psCommentValue = '';
+  static String psTagValue = '';
 
   static String custUsername = '';
   static String custEmail = '';
