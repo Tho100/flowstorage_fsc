@@ -8,9 +8,19 @@ import 'package:flutter/material.dart';
 class PsCommentDialog {
 
   static final commentController = TextEditingController();
-  
   static const tagsItems = {"Entertainment","Software","Gaming","Politics","Random","Music"};
   static final colorTagsItems = {Colors.orange, Colors.blue, Colors.green, Colors.redAccent, Colors.grey, Colors.deepOrangeAccent};
+
+  final tagsToColor = {
+    "Entertainment": Colors.orange,
+    "Gaming": Colors.green,
+    "Software": Colors.blue,
+    "Politics": Colors.redAccent,
+    "Random": Colors.grey,
+    "Music": Colors.deepOrangeAccent,
+  };
+
+  final ValueNotifier<String> selectedTagValue = ValueNotifier<String>('');
 
   Future buildPsCommentDialog({
     required String fileName,
@@ -120,16 +130,41 @@ class PsCommentDialog {
 
               const SizedBox(height: 5),
 
-              const Padding(
-                padding: EdgeInsets.only(left: 14.0),
-                child: Text(
-                  "Tags", 
-                  style: TextStyle(
-                    color: ThemeColor.justWhite,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 14.0),
+                    child: Text(
+                      "Tags", 
+                      style: TextStyle(
+                        color: ThemeColor.justWhite,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5.0),
+                    child: ValueListenableBuilder<String>(
+                      valueListenable: selectedTagValue,
+                      builder: (BuildContext context, String value, Widget? child) {
+                        return Visibility(
+                          visible: value != "",
+                          child: Text(
+                            "${GlobalsStyle.dotSeperator} $value",
+                            style: TextStyle(
+                              color: tagsToColor[value],
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ), 
+                          ),
+                        );
+                      }
+                    )
+                  ),
+                  
+                ],
               ),
 
               Padding(
@@ -153,6 +188,7 @@ class PsCommentDialog {
                         ),
                         onPressed: () {
                           Globals.psTagValue = tagsItems.elementAt(index);
+                          selectedTagValue.value = Globals.psTagValue;
                         },
                         child: Text(tagsItems.elementAt(index)),
                       )
