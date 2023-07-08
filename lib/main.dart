@@ -192,12 +192,22 @@ class CakeHomeState extends State<Mainboard> {
     await NotificationApi.stopNotification(0);
 
     if(!mounted) return;
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     await PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
       onUploadPressed: () async { 
+        
+        SnakeAlert.uploadingSnake(
+          snackState: scaffoldMessenger, 
+          message: "Uploading ${ShortenText().cutText(fileName)}"
+        );
 
         await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
+        
+        scaffoldMessenger.hideCurrentSnackBar();
 
         _addItemToListView(fileName: fileName);
         Globals.psUploadPassed = true;
@@ -207,6 +217,7 @@ class CakeHomeState extends State<Mainboard> {
     );
 
     await NotificationApi.stopNotification(0);
+    Globals.psUploadPassed == true ? SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added") : null;
     Globals.psUploadPassed == true ? await CallNotify().uploadedNotification(title: "Upload Finished", count: 1) : null;
     Globals.psUploadPassed = false;
 
