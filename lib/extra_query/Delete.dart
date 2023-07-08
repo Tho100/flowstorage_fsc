@@ -15,10 +15,8 @@ class Delete {
     final crud = Crud();
 
     if(Globals.fileOrigin == "homeFiles") {
-
       query = "DELETE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'filename': fileName!};
-
     } else if (Globals.fileOrigin == "sharedToMe") {
       query = "DELETE FROM CUST_SHARING WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'filename': fileName!};

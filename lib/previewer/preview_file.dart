@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/extra_query/rename.dart';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -128,7 +129,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
         final encryptVals = EncryptionClass().Encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
-        
+
+        Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.remove(fileName) : null;
+        GlobalsData.homeImageData.clear();
+        GlobalsData.homeThumbnailData.clear();
+
       } else {
 
         final getDirApplication = await getApplicationDocumentsDirectory();
@@ -138,8 +143,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         file.deleteSync();
       }
 
-      SnakeAlert.okSnake(message: "`$fileName` Has been deleted",context: context);
+      if(!mounted) return;
 
+      SnakeAlert.okSnake(message: "`$fileName` Has been deleted",context: context);
       NavigatePage.permanentPageMainboard(context);
 
     } catch (err, st) {

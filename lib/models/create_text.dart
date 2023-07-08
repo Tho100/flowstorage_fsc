@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -237,6 +238,8 @@ class _CreateText extends State<CreateText> {
         _textFormEnabled = false;
         _addTextFileToListView(fileName: getFileName);
       });
+
+      Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.add(getFileName) : null;
 
       SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
       await CallNotify().customNotification(title: "Text File Saved", subMesssage: ShortenText().cutText("$getFileName Has been saved"));

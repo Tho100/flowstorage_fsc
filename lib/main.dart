@@ -794,7 +794,7 @@ class CakeHomeState extends State<Mainboard> {
   Future<void> _refreshHomeFiles() async {
 
     final conn = await SqlConnection.insertValueParams();
-    
+
     final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, Globals.custUsername);
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
@@ -833,6 +833,7 @@ class CakeHomeState extends State<Mainboard> {
 
     final uniqueFileNames = fileNames.toList();
     final uniqueBytes = bytes.toList();
+
 
     Globals.fromLogin = true;
 
@@ -995,6 +996,7 @@ class CakeHomeState extends State<Mainboard> {
 
       });
 
+      GlobalsData.homeFilesNameData.add(directoryName);
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 
@@ -1030,7 +1032,8 @@ class CakeHomeState extends State<Mainboard> {
     } else {
       await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[extension]!);
     }
-
+    
+    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.remove(fileName) : null;
     GlobalsData.homeImageData.clear();
     GlobalsData.homeThumbnailData.clear();
     
@@ -1499,12 +1502,12 @@ class CakeHomeState extends State<Mainboard> {
         final shortenText = ShortenText();
         final List<XFile>? pickedImages = await GalleryImagePicker.pickMultiImage();
 
-        if (pickedImages == null) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        int countSelectedFiles = pickedImages!.length;
+
+        if (countSelectedFiles == 0) {
           return;
         }
-
-        final scaffoldMessenger = ScaffoldMessenger.of(context);
-        int countSelectedFiles = pickedImages.length;
 
         if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
           _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
@@ -1537,7 +1540,6 @@ class CakeHomeState extends State<Mainboard> {
           } 
 
           if(countSelectedFiles < 2) {
-
             Globals.fileOrigin != "psFiles" 
             ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
             : null;
@@ -1616,10 +1618,11 @@ class CakeHomeState extends State<Mainboard> {
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
 
+    await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
+
     verifyTableName == GlobalsTable.homeImageTable ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
     verifyTableName == GlobalsTable.homeVideoTable ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
-
-    await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
+    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.add(selectedFileName) : null;
 
     setState(() {
       Globals.imageValues.addAll(newImageValues);
@@ -2800,6 +2803,7 @@ class CakeHomeState extends State<Mainboard> {
       onRefresh: () async {
 
         if(Globals.fileOrigin == "homeFiles") {
+          GlobalsData.homeFilesNameData.clear();
           GlobalsData.homeImageData.clear();
           GlobalsData.homeThumbnailData.clear();
         }
