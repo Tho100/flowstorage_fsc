@@ -190,7 +190,7 @@ class MysqlLogin {
           await _callData(conn,isChecked);
 
           justLoading.stopLoading();
-
+          
           NavigatePage.permanentPageMainboard(context);
 
         } else {

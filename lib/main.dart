@@ -135,6 +135,7 @@ class CakeHomeState extends State<Mainboard> {
   ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
+  ValueNotifier<bool> staggaredListViewSelected = ValueNotifier<bool>(false);
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
@@ -2788,138 +2789,6 @@ class CakeHomeState extends State<Mainboard> {
 
   /// <summary>
   /// 
-  /// Main page for listView item when the user added/loaded
-  /// files
-  /// 
-  /// </summary>
-
-  Widget _buildHomeBody(BuildContext context) {
-
-    const double itemExtentValue = 58;
-    final double mediaHeight = MediaQuery.of(context).size.height - 325;
-
-    return RefreshIndicator(
-      color: ThemeColor.darkPurple,
-      onRefresh: () async {
-
-        if(Globals.fileOrigin == "homeFiles") {
-          GlobalsData.homeFilesNameData.clear();
-          GlobalsData.homeImageData.clear();
-          GlobalsData.homeThumbnailData.clear();
-        }
-        
-        await _refreshListView();
-      },
-      child: SizedBox(
-        height: mediaHeight,
-        child: ListView.builder(
-          itemExtent: itemExtentValue,
-          itemCount: Globals.filteredSearchedFiles.length,
-          itemBuilder: (BuildContext context, int index) {
-            
-            final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
-            final setLeadingImageSearched = Globals.fromLogin == false &&
-                    Globals.filteredSearchedImage.length > index
-                ? Image.file(Globals.filteredSearchedImage[index])
-                : Globals.filteredSearchedBytes.length > index
-                    ? Image.memory(Globals.filteredSearchedBytes[index]!)
-                    : null;
-
-            return InkWell(
-              onLongPress: () {
-                _callBottomTrailling(index);
-              },
-              onTap: () async {
-
-                Globals.selectedFileName = Globals.filteredSearchedFiles[index];
-                _fileType = Globals.selectedFileName.split('.').last;
-
-                if (Globals.supportedFileTypes.contains(_fileType)) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CakePreviewFile(
-                        custUsername: Globals.custUsername,
-                        fileValues: Globals.fileValues,
-                        selectedFilename: Globals.selectedFileName,
-                        originFrom: Globals.fileOrigin,
-                        fileType: _fileType,
-                        tappedIndex: index
-                      ),
-                    ),
-                  );
-                } else if (_fileType == Globals.selectedFileName) {
-                  
-                  Globals.fileOrigin = "dirFiles";
-                  Globals.directoryTitleValue = Globals.selectedFileName;
-                  appBarTitle.value = Globals.selectedFileName;
-
-                  _navDirectoryButtonVisibility(false);
-                  
-                  final loadingDialog = MultipleTextLoading();
-
-                  loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.directoryTitleValue} files.",context: context);
-                  await _callDirectoryData();
-
-                  loadingDialog.stopLoading();
-
-                  return;
-                } else {
-                  TitledDialog.startDialog(
-                    "Couldn't open ${Globals.selectedFileName}",
-                    "It looks like you're trying to open a file which is not supported by Flowstorage",
-                    context,
-                  );
-                }
-              },
-              child: Ink(
-                color: ThemeColor.darkBlack,
-                child: ListTile(
-                  leading: setLeadingImageSearched != null
-                    ? Image(
-                        image: setLeadingImageSearched.image,
-                        fit: BoxFit.cover,
-                        height: 31,
-                        width: 31,
-                      )
-                    : const SizedBox(),
-                  trailing: GestureDetector(
-                    onTap: () {
-                      _callBottomTrailling(index);
-                    },
-                    child: editAllIsPressed
-                      ? _buildCheckboxItem(index)
-                      : const Icon(Icons.more_vert, color: Colors.white),
-                  ),
-                  title: Text(
-                    fileTitleSearchedValue,
-                    style: const TextStyle(
-                      color: ThemeColor.justWhite,
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: 16,
-                    ),
-                  ),
-                  subtitle: Text(
-                    _isFromUpload == true
-                      ? Globals.setDateValues[index]
-                      : Globals.dateStoresValues[index],
-                    style: const TextStyle(
-                      color: ThemeColor.secondaryWhite,
-                      fontSize: 12.8,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-
-  /// <summary>
-  /// 
   /// Opens a showModalBotom for directory creation
   /// 
   /// </summary>
@@ -3590,6 +3459,7 @@ class CakeHomeState extends State<Mainboard> {
               ),
             ),
             const Spacer(),
+
             ElevatedButton(
               onPressed: () {
                 _buildFilterType();
@@ -3597,10 +3467,31 @@ class CakeHomeState extends State<Mainboard> {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 backgroundColor: ThemeColor.darkBlack,
+                minimumSize: Size.zero,
+                padding: EdgeInsets.zero,
+              ).copyWith(
+                fixedSize: MaterialStateProperty.all<Size>(const Size(40, 40)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(),
+                  Icon(Icons.filter_list_rounded, size: 27),
+                ],
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                staggaredListViewSelected.value = !staggaredListViewSelected.value;
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: ThemeColor.darkBlack,
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.filter_list_rounded,size: 25),
+                  Icon(Icons.now_widgets_outlined,size: 25),
                 ],
               ),
             ),
@@ -3612,7 +3503,6 @@ class CakeHomeState extends State<Mainboard> {
       ],
     );
   }
-
 
   Widget _buildSearchBar() {
     return GestureDetector(
@@ -4215,6 +4105,152 @@ class CakeHomeState extends State<Mainboard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// <summary>
+  /// 
+  /// Main page for listView item when the user added/loaded
+  /// files
+  /// 
+  /// </summary>
+
+  Widget _buildListView() {
+
+    const double itemExtentValue = 58;
+
+    return ListView.builder(
+      itemExtent: itemExtentValue,
+      itemCount: Globals.filteredSearchedFiles.length,
+      itemBuilder: (BuildContext context, int index) {
+        
+        final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
+        final setLeadingImageSearched = Globals.fromLogin == false &&
+                Globals.filteredSearchedImage.length > index
+            ? Image.file(Globals.filteredSearchedImage[index])
+            : Globals.filteredSearchedBytes.length > index
+                ? Image.memory(Globals.filteredSearchedBytes[index]!)
+                : null;
+
+        return InkWell(
+          onLongPress: () {
+            _callBottomTrailling(index);
+          },
+          onTap: () async {
+
+            Globals.selectedFileName = Globals.filteredSearchedFiles[index];
+            _fileType = Globals.selectedFileName.split('.').last;
+
+            if (Globals.supportedFileTypes.contains(_fileType)) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CakePreviewFile(
+                    custUsername: Globals.custUsername,
+                    fileValues: Globals.fileValues,
+                    selectedFilename: Globals.selectedFileName,
+                    originFrom: Globals.fileOrigin,
+                    fileType: _fileType,
+                    tappedIndex: index
+                  ),
+                ),
+              );
+            } else if (_fileType == Globals.selectedFileName) {
+              
+              Globals.fileOrigin = "dirFiles";
+              Globals.directoryTitleValue = Globals.selectedFileName;
+              appBarTitle.value = Globals.selectedFileName;
+
+              _navDirectoryButtonVisibility(false);
+              
+              final loadingDialog = MultipleTextLoading();
+
+              loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.directoryTitleValue} files.",context: context);
+              await _callDirectoryData();
+
+              loadingDialog.stopLoading();
+
+              return;
+            } else {
+              TitledDialog.startDialog(
+                "Couldn't open ${Globals.selectedFileName}",
+                "It looks like you're trying to open a file which is not supported by Flowstorage",
+                context,
+              );
+            }
+          },
+          child: Ink(
+            color: ThemeColor.darkBlack,
+            child: ListTile(
+              leading: setLeadingImageSearched != null
+                ? Image(
+                    image: setLeadingImageSearched.image,
+                    fit: BoxFit.cover,
+                    height: 31,
+                    width: 31,
+                  )
+                : const SizedBox(),
+              trailing: GestureDetector(
+                onTap: () {
+                  _callBottomTrailling(index);
+                },
+                child: editAllIsPressed
+                  ? _buildCheckboxItem(index)
+                  : const Icon(Icons.more_vert, color: Colors.white),
+              ),
+              title: Text(
+                fileTitleSearchedValue,
+                style: const TextStyle(
+                  color: ThemeColor.justWhite,
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Text(
+                _isFromUpload == true
+                  ? Globals.setDateValues[index]
+                  : Globals.dateStoresValues[index],
+                style: const TextStyle(
+                  color: ThemeColor.secondaryWhite,
+                  fontSize: 12.8,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStaggeredListView() {
+    return;
+  }
+
+  Widget _buildHomeBody(BuildContext context) {
+
+    final double mediaHeight = MediaQuery.of(context).size.height - 325;
+
+    return RefreshIndicator(
+      color: ThemeColor.darkPurple,
+      onRefresh: () async {
+
+        if(Globals.fileOrigin == "homeFiles") {
+          GlobalsData.homeFilesNameData.clear();
+          GlobalsData.homeImageData.clear();
+          GlobalsData.homeThumbnailData.clear();
+        }
+        
+        await _refreshListView();
+      },
+      child: SizedBox(
+        height: mediaHeight,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: staggaredListViewSelected,
+          builder: (BuildContext context, bool value, Widget? child) {
+            return value == false ? _buildListView() : _buildStaggeredListView();
+          }
         ),
       ),
     );
