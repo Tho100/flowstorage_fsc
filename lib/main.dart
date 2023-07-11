@@ -73,6 +73,7 @@ import 'package:flowstorage_fsc/extra_query/rename.dart';
 
 import 'splash_screen.dart';
 import 'ui_dialog/loading/JustLoading.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 void main() async {
   runApp(const MainRun());
@@ -135,7 +136,7 @@ class CakeHomeState extends State<Mainboard> {
   ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
-  ValueNotifier<bool> staggaredListViewSelected = ValueNotifier<bool>(false);
+  ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
@@ -3476,22 +3477,27 @@ class CakeHomeState extends State<Mainboard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(),
-                  Icon(Icons.filter_list_rounded, size: 27),
+                  Icon(Icons.filter_list_rounded, size: 28),
                 ],
               ),
             ),
 
             ElevatedButton(
               onPressed: () {
-                staggaredListViewSelected.value = !staggaredListViewSelected.value;
+                staggeredListViewSelected.value = !staggeredListViewSelected.value;
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 backgroundColor: ThemeColor.darkBlack,
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.now_widgets_outlined,size: 25),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: staggeredListViewSelected,
+                    builder: (BuildContext context, bool value, Widget? child) {
+                      return value == false ? const Icon(Icons.now_widgets_outlined,size: 25) : const Icon(Icons.list_outlined,size: 30);
+                    }
+                  ),
                 ],
               ),
             ),
@@ -4224,8 +4230,39 @@ class CakeHomeState extends State<Mainboard> {
     );
   }
 
+  Widget _buildStaggeredItems(int index) {
+    Uint8List imageBytes = Globals.filteredSearchedBytes[index]!;
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: Image.memory(imageBytes,fit: BoxFit.cover),
+          ),
+        ),
+        onTap: () {
+          print("HELLO");
+        }
+      ),
+    );
+  }
+
   Widget _buildStaggeredListView() {
-    return;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0,left: 8.0, right: 8.0, bottom: 8.0),
+      child: StaggeredGridView.countBuilder(
+        crossAxisCount: 2,
+        itemCount: Globals.filteredSearchedFiles.length,
+        itemBuilder: (BuildContext context, int index) => _buildStaggeredItems(index),
+        staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
+        mainAxisSpacing: 4.0,
+        crossAxisSpacing: 4.0,
+      ),
+    );
   }
 
   Widget _buildHomeBody(BuildContext context) {
@@ -4247,7 +4284,7 @@ class CakeHomeState extends State<Mainboard> {
       child: SizedBox(
         height: mediaHeight,
         child: ValueListenableBuilder<bool>(
-          valueListenable: staggaredListViewSelected,
+          valueListenable: staggeredListViewSelected,
           builder: (BuildContext context, bool value, Widget? child) {
             return value == false ? _buildListView() : _buildStaggeredListView();
           }
