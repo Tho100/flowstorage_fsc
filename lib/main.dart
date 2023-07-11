@@ -4235,6 +4235,27 @@ class CakeHomeState extends State<Mainboard> {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: GestureDetector(
+        onTap: () async {
+
+          Globals.selectedFileName = Globals.filteredSearchedFiles[index];
+          _fileType = Globals.selectedFileName.split('.').last;
+
+          if (Globals.supportedFileTypes.contains(_fileType)) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CakePreviewFile(
+                  custUsername: Globals.custUsername,
+                  fileValues: Globals.fileValues,
+                  selectedFilename: Globals.selectedFileName,
+                  originFrom: Globals.fileOrigin,
+                  fileType: _fileType,
+                  tappedIndex: index
+                ),
+              ),
+            );
+          }
+        },
         child: Container(
           decoration: const BoxDecoration(
             color: Colors.transparent,
@@ -4244,9 +4265,6 @@ class CakeHomeState extends State<Mainboard> {
             child: Image.memory(imageBytes,fit: BoxFit.cover),
           ),
         ),
-        onTap: () {
-          print("HELLO");
-        }
       ),
     );
   }
