@@ -3495,6 +3495,12 @@ class CakeHomeState extends State<Mainboard> {
               ),
             ),
 
+            const Text(GlobalsStyle.dotSeperator,
+              style: TextStyle(
+                color: ThemeColor.thirdWhite,fontSize: 18
+              )
+            ),
+
             ElevatedButton(
               onPressed: () {
                 staggeredListViewSelected.value = !staggeredListViewSelected.value;
