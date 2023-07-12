@@ -20,17 +20,6 @@ class PsCommentDialog {
     "Random",
   };
 
-  final tagsToColor = {
-    "Entertainment": Colors.orange,
-    "Creativity": const Color.fromARGB(255, 138, 43, 226),
-    "Data": const Color.fromARGB(255, 0, 206, 209),
-    "Gaming": Colors.green,
-    "Software": Colors.blue,
-    "Education": Colors.redAccent,
-    "Music": Colors.deepOrangeAccent,
-    "Random": Colors.grey,
-  };
-
   final ValueNotifier<String> selectedTagValue = ValueNotifier<String>('');
 
   Future buildPsCommentDialog({
@@ -165,7 +154,7 @@ class PsCommentDialog {
                           child: Text(
                             "${GlobalsStyle.dotSeperator} $value",
                             style: TextStyle(
-                              color: tagsToColor[value],
+                              color: GlobalsStyle.psTagsToColor[value],
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ), 
@@ -195,7 +184,7 @@ class PsCommentDialog {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)
                           ),
-                          backgroundColor: tagsToColor[tagsItems.elementAt(index)]
+                          backgroundColor: GlobalsStyle.psTagsToColor[tagsItems.elementAt(index)]
                         ),
                         onPressed: () {
                           Globals.psTagValue = tagsItems.elementAt(index);

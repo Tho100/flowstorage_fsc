@@ -207,7 +207,8 @@ class CakeHomeState extends State<Mainboard> {
 
         await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
-        
+        GlobalsData.psTagsValuesData.add(Globals.psTagValue);
+
         scaffoldMessenger.hideCurrentSnackBar();
 
         _addItemToListView(fileName: fileName);
@@ -1071,6 +1072,8 @@ class CakeHomeState extends State<Mainboard> {
 
     justLoading.startLoading(context: context);
 
+    GlobalsData.psTagsValuesData.clear();
+
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams();
 
@@ -1727,6 +1730,8 @@ class CakeHomeState extends State<Mainboard> {
 
           String? bodyBytes;
 
+          final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
+
           if (!(Globals.imageType.contains(fileExtension))) {
             bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
           }
@@ -1736,12 +1741,12 @@ class CakeHomeState extends State<Mainboard> {
             List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
-            if(Globals.fileOrigin == "psFiles") {
+            if(verifyOrigin == "psFiles") {
               _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: "ps_info_image", base64Encoded: compressedImageBase64Encoded);
               return;
-            } else {
-              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
             }
+
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
 
           } else if (Globals.videoType.contains(fileExtension)) {
 
@@ -1769,8 +1774,14 @@ class CakeHomeState extends State<Mainboard> {
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_vid",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay,thumbnailBytes: thumbnailBytes);
 
           } else {
-            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
+
             final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[fileExtension]! : Globals.fileTypesToTableNamesPs[fileExtension]!;
+            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
+
+            if(verifyOrigin == "psFiles") {
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: getFileTable, base64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
+              return;
+            }
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 
@@ -3468,15 +3479,14 @@ class CakeHomeState extends State<Mainboard> {
                 elevation: 0,
                 backgroundColor: ThemeColor.darkBlack,
                 minimumSize: Size.zero,
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.only(left: 10.0),
               ).copyWith(
                 fixedSize: MaterialStateProperty.all<Size>(const Size(40, 40)),
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(),
-                  Icon(Icons.filter_list_rounded, size: 28),
+                  Icon(Icons.filter_list_outlined, size: 28),
                 ],
               ),
             ),
@@ -3488,6 +3498,10 @@ class CakeHomeState extends State<Mainboard> {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 backgroundColor: ThemeColor.darkBlack,
+                minimumSize: Size.zero,
+                padding: const EdgeInsets.only(left: 4.0),
+              ).copyWith(
+                fixedSize: MaterialStateProperty.all<Size>(const Size(40, 40)),
               ),
               child: Row(
                 children: [
@@ -4220,8 +4234,8 @@ class CakeHomeState extends State<Mainboard> {
                 _isFromUpload == true
                   ? Globals.setDateValues[index]
                   : Globals.dateStoresValues[index],
-                style: const TextStyle(
-                  color: ThemeColor.secondaryWhite,
+                style: TextStyle(
+                  color: Globals.fileOrigin != "psFiles" ? ThemeColor.secondaryWhite : GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
                   fontSize: 12.8,
                 ),
               ),

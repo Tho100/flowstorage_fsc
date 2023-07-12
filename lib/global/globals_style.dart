@@ -5,6 +5,17 @@ class GlobalsStyle {
 
   static const dotSeperator = " \u{2022} ";
 
+  static final psTagsToColor = {
+    "Entertainment": Colors.orange,
+    "Creativity": const Color.fromARGB(255, 138, 43, 226),
+    "Data": const Color.fromARGB(255, 0, 206, 209),
+    "Gaming": Colors.green,
+    "Software": Colors.blue,
+    "Education": Colors.redAccent,
+    "Music": Colors.deepOrangeAccent,
+    "Random": Colors.grey,
+  };
+
   static const appBarTextStyle = TextStyle(
     overflow: TextOverflow.ellipsis,
     color: Color.fromARGB(255,232,232,232),
