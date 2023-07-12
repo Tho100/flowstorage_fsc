@@ -15,6 +15,7 @@ import 'package:flowstorage_fsc/upgrades/max_page.dart';
 import 'package:flowstorage_fsc/upgrades/supreme_page.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class UpradePage extends StatefulWidget {
@@ -460,12 +461,14 @@ class _UpgradePage extends State<UpradePage> {
 
   Future<void> updateUserAccountPlan(String customerId) async {
     
+    final dateToStr = DateFormat('yyyy/MM/dd').format(DateTime.now());
+
     const queryUpdateAccType = "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_EMAIL = :email AND CUST_USERNAME = :username";
     final params = {"username": Globals.custUsername,"email": Globals.custEmail,"type": userChoosenPlan};
     await Crud().update(query: queryUpdateAccType, params: params);
 
-    const queryInsertBuyer = "INSERT INTO cust_buyer(CUST_USERNAME,CUST_EMAIL,ACC_TYPE,CUST_ID) VALUES (:username,:email,:type,:id)";
-    final paramsBuyer = {"username": Globals.custUsername,"email": Globals.custEmail,"type": userChoosenPlan,"id": customerId};
+    const queryInsertBuyer = "INSERT INTO cust_buyer(CUST_USERNAME,CUST_EMAIL,ACC_TYPE,CUST_ID,PURCHASE_DATE) VALUES (:username,:email,:type,:id,:date)";
+    final paramsBuyer = {"username": Globals.custUsername,"email": Globals.custEmail,"type": userChoosenPlan,"id": customerId,"date": dateToStr};
     await Crud().insert(query: queryInsertBuyer, params: paramsBuyer);
 
   }

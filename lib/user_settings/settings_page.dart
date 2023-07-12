@@ -215,7 +215,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
       const storage = FlutterSecureStorage();
       await storage.write(key: "key0015",value: passcodeInput);
 
-      AlertForm.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by sign in again to your account.", context);
+      if(!mounted) return;
+      AlertForm.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by re-signing to your account.", context);
 
     } catch (err, st) {
       Logger().e("Exception from _addPasscode {SettingsMenu}", err, st);
@@ -264,7 +265,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                     keyboardType: TextInputType.number,
                     maxLength: 4,
                     controller: addPasscodeController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter passcode")
+                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter passcode (4 Digits)")
                   ),
                 ),
               ),
@@ -305,7 +306,9 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            _addPasscode();
+                            if(addPasscodeController.text.length == 4) {
+                              _addPasscode();
+                            }
                           },
                           style: GlobalsStyle.btnMainStyle,
                           child: const Text('Confirm'),
@@ -376,6 +379,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               onPressed: () async { 
                 _clearUserRecords();
                 await _deleteAutoLoginAndOfflineFiles();
+
+                if(!mounted) return;
                 NavigatePage.replacePageHome(context);
               },
               child: const Text(
@@ -620,7 +625,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                 const fileSharingEnabledMsg = "You enabled file sharing. People can share a file to you.";
 
                 final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
-
+                
+                if(!mounted) return;
                 AlertForm.alertDialogTitle("Sharing $sharingStatus", conclusionSubMsg, context);
               }
             ),

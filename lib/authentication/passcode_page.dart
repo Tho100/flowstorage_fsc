@@ -180,7 +180,7 @@ class PasscodePageState extends State<PasscodePage> {
 
         const Padding(
           padding: EdgeInsets.only(left: 28.0),
-          child: HeaderText(title: "Passcode", subTitle: "Enter your passcode to continue with Flowstorage"),
+          child: HeaderText(title: "Passcode", subTitle: "Enter your passcode to unlock Flowstorage"),
         ),
 
         const SizedBox(height: 25),

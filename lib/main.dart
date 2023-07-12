@@ -3505,7 +3505,6 @@ class CakeHomeState extends State<Mainboard> {
         ),
 
         const Divider(color: ThemeColor.thirdWhite,height: 0),
-
       ],
     );
   }
@@ -3565,14 +3564,14 @@ class CakeHomeState extends State<Mainboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    "Add item to Flowstorage",
-                    style: TextStyle(
+                    Globals.fileOrigin != "psFiles" ? "Add item to Flowstorage" : "Upload to Public Storage",
+                    style: const TextStyle(
                       color: Color.fromARGB(255, 255, 255, 255),
                       fontSize: 15,
                     ),
@@ -4123,6 +4122,50 @@ class CakeHomeState extends State<Mainboard> {
   /// 
   /// </summary>
 
+  Future<void> _navigateToPreviewFile(int index) async {
+    
+    Globals.selectedFileName = Globals.filteredSearchedFiles[index];
+    _fileType = Globals.selectedFileName.split('.').last;
+
+    if (Globals.supportedFileTypes.contains(_fileType)) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CakePreviewFile(
+            custUsername: Globals.custUsername,
+            fileValues: Globals.fileValues,
+            selectedFilename: Globals.selectedFileName,
+            originFrom: Globals.fileOrigin,
+            fileType: _fileType,
+            tappedIndex: index
+          ),
+        ),
+      );
+    } else if (_fileType == Globals.selectedFileName) {
+      
+      Globals.fileOrigin = "dirFiles";
+      Globals.directoryTitleValue = Globals.selectedFileName;
+      appBarTitle.value = Globals.selectedFileName;
+
+      _navDirectoryButtonVisibility(false);
+      
+      final loadingDialog = MultipleTextLoading();
+
+      loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.directoryTitleValue} files.",context: context);
+      await _callDirectoryData();
+
+      loadingDialog.stopLoading();
+
+      return;
+    } else {
+      TitledDialog.startDialog(
+        "Couldn't open ${Globals.selectedFileName}",
+        "It looks like you're trying to open a file which is not supported by Flowstorage",
+        context,
+      );
+    }
+  }
+
   Widget _buildListView() {
 
     const double itemExtentValue = 58;
@@ -4145,47 +4188,7 @@ class CakeHomeState extends State<Mainboard> {
             _callBottomTrailling(index);
           },
           onTap: () async {
-
-            Globals.selectedFileName = Globals.filteredSearchedFiles[index];
-            _fileType = Globals.selectedFileName.split('.').last;
-
-            if (Globals.supportedFileTypes.contains(_fileType)) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CakePreviewFile(
-                    custUsername: Globals.custUsername,
-                    fileValues: Globals.fileValues,
-                    selectedFilename: Globals.selectedFileName,
-                    originFrom: Globals.fileOrigin,
-                    fileType: _fileType,
-                    tappedIndex: index
-                  ),
-                ),
-              );
-            } else if (_fileType == Globals.selectedFileName) {
-              
-              Globals.fileOrigin = "dirFiles";
-              Globals.directoryTitleValue = Globals.selectedFileName;
-              appBarTitle.value = Globals.selectedFileName;
-
-              _navDirectoryButtonVisibility(false);
-              
-              final loadingDialog = MultipleTextLoading();
-
-              loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.directoryTitleValue} files.",context: context);
-              await _callDirectoryData();
-
-              loadingDialog.stopLoading();
-
-              return;
-            } else {
-              TitledDialog.startDialog(
-                "Couldn't open ${Globals.selectedFileName}",
-                "It looks like you're trying to open a file which is not supported by Flowstorage",
-                context,
-              );
-            }
+            await _navigateToPreviewFile(index);
           },
           child: Ink(
             color: ThemeColor.darkBlack,
@@ -4235,6 +4238,9 @@ class CakeHomeState extends State<Mainboard> {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: GestureDetector(
+        onLongPress: () {
+          _callBottomTrailling(index);
+        },
         onTap: () async {
 
           Globals.selectedFileName = Globals.filteredSearchedFiles[index];
