@@ -8,16 +8,27 @@ import 'package:flutter/material.dart';
 class PsCommentDialog {
 
   static final commentController = TextEditingController();
-  static const tagsItems = {"Entertainment","Software","Gaming","Politics","Random","Music"};
-  static final colorTagsItems = {Colors.orange, Colors.blue, Colors.green, Colors.redAccent, Colors.grey, Colors.deepOrangeAccent};
+
+  static const tagsItems = {
+    "Entertainment",
+    "Creativity",
+    "Data",
+    "Gaming",
+    "Software",
+    "Education",
+    "Music",
+    "Random",
+  };
 
   final tagsToColor = {
     "Entertainment": Colors.orange,
+    "Creativity": const Color.fromARGB(255, 138, 43, 226),
+    "Data": const Color.fromARGB(255, 0, 206, 209),
     "Gaming": Colors.green,
     "Software": Colors.blue,
-    "Politics": Colors.redAccent,
-    "Random": Colors.grey,
+    "Education": Colors.redAccent,
     "Music": Colors.deepOrangeAccent,
+    "Random": Colors.grey,
   };
 
   final ValueNotifier<String> selectedTagValue = ValueNotifier<String>('');
@@ -172,7 +183,7 @@ class PsCommentDialog {
                 child: SizedBox(
                   height: 55,
                   child: ListView.builder(
-                    itemCount: 6,
+                    itemCount: tagsItems.length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) => Container(
                       height: 45,
@@ -184,7 +195,7 @@ class PsCommentDialog {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)
                           ),
-                          backgroundColor: colorTagsItems.elementAt(index)
+                          backgroundColor: tagsToColor[tagsItems.elementAt(index)]
                         ),
                         onPressed: () {
                           Globals.psTagValue = tagsItems.elementAt(index);
