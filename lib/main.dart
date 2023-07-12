@@ -116,9 +116,8 @@ class CakeHomeState extends State<Mainboard> {
 
   final GlobalKey<ScaffoldState> sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
 
-  final _focusNode = FocusNode();
-  final _searchController = TextEditingController();
-  final _renameController = TextEditingController();
+  final searchBarFocusNode = FocusNode();
+  final searchBarController = TextEditingController();
 
   final focusNodeRedudane = FocusNode();
   final searchControllerRedudane = TextEditingController();
@@ -142,7 +141,7 @@ class CakeHomeState extends State<Mainboard> {
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
   List<String> checkedItemsName = [];
 
-  bool _isFromUpload = false;
+  bool isFromUpload = false;
   File? fileToDisplay;
 
   dynamic leadingImageSearchedValue;
@@ -153,7 +152,7 @@ class CakeHomeState extends State<Mainboard> {
 
   bool isImageBottomTrailingVisible = false;
 
-  Timer? _debounceTimer;
+  Timer? debounceSearchingTimer;
   String fileExtension = '';
 
   final fileNameGetterHome = NameGetter();
@@ -446,7 +445,7 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   void _addItemToListView({required String fileName}) {
-    _isFromUpload = true;
+    isFromUpload = true;
     setState(() {
       Globals.setDateValues.add("Just now");
       Globals.fileValues.add(fileName);
@@ -621,8 +620,8 @@ class CakeHomeState extends State<Mainboard> {
   /// </summary>
   
   void _onTextChanged(String value) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 280), () {
+    debounceSearchingTimer?.cancel();
+    debounceSearchingTimer = Timer(const Duration(milliseconds: 280), () {
       final searchTerms =
           value.split(",").map((term) => term.trim().toLowerCase()).toList();
 
@@ -730,7 +729,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.imageByteValues.addAll(byteList);
 
     _onTextChanged('');
-    _searchController.text = '';
+    searchBarController.text = '';
     _navHomeButtonVisibility(true);
   }
 
@@ -946,7 +945,7 @@ class CakeHomeState extends State<Mainboard> {
     }
   
     _onTextChanged('');
-    _searchController.text = '';
+    searchBarController.text = '';
     sortingText.value = "Default";
 
     if(Globals.fileValues.isEmpty) {
@@ -973,7 +972,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.imageByteValues.addAll(byteList);
 
     _onTextChanged('');
-    _searchController.text = '';
+    searchBarController.text = '';
     _navHomeButtonVisibility(true);
     Globals.fileOrigin = "dirFiles";
 
@@ -989,7 +988,7 @@ class CakeHomeState extends State<Mainboard> {
 
       setState(() {
 
-        _isFromUpload = true;
+        isFromUpload = true;
         Globals.setDateValues.add("Directory");
         Globals.filteredSearchedImage.add(directoryImage);
         Globals.imageByteValues.add(directoryImage.readAsBytesSync());
@@ -1060,7 +1059,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.imageByteValues.addAll(byteList);
 
     _onTextChanged('');
-    _searchController.text = '';
+    searchBarController.text = '';
     _navHomeButtonVisibility(true);
   }
 
@@ -1081,6 +1080,11 @@ class CakeHomeState extends State<Mainboard> {
     final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
     final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
+    final getTagsValue = dateList.
+      map((tags) => tags.split(' ').last).toList();
+
+    GlobalsData.psTagsValuesData.addAll(getTagsValue);
+
     _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
@@ -1091,7 +1095,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.fileOrigin = "psFiles";
     
     _onTextChanged('');
-    _searchController.text = '';
+    searchBarController.text = '';
     _navHomeButtonVisibility(true);
     appBarTitle.value = "Public Storage";
 
@@ -3526,7 +3530,7 @@ class CakeHomeState extends State<Mainboard> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        _focusNode.unfocus();
+        searchBarFocusNode.unfocus();
       },
       child: Container(
         decoration: BoxDecoration(
@@ -3539,12 +3543,12 @@ class CakeHomeState extends State<Mainboard> {
           child: TextField(
             onChanged: (value) {
               if (value.isEmpty) {
-                _focusNode.unfocus();
+                searchBarFocusNode.unfocus();
               }
               _onTextChanged(value);
             },
-            controller: _searchController,
-            focusNode: _focusNode,
+            controller: searchBarController,
+            focusNode: searchBarFocusNode,
             style: const TextStyle(
               color: Color.fromARGB(230, 255, 255, 255)
             ),
@@ -4231,7 +4235,7 @@ class CakeHomeState extends State<Mainboard> {
                 ),
               ),
               subtitle: Text(
-                _isFromUpload == true
+                isFromUpload == true
                   ? Globals.setDateValues[index]
                   : Globals.dateStoresValues[index],
                 style: TextStyle(
@@ -4320,10 +4324,9 @@ class CakeHomeState extends State<Mainboard> {
 
   @override 
   void dispose() {
-    _debounceTimer!.cancel();
-    _focusNode.dispose();
-    _searchController.dispose();
-    _renameController.dispose();
+    debounceSearchingTimer!.cancel();
+    searchBarFocusNode.dispose();
+    searchBarController.dispose();
     searchControllerRedudane.dispose();
     focusNodeRedudane.dispose();
     directoryCreateController.dispose();
@@ -4337,7 +4340,7 @@ class CakeHomeState extends State<Mainboard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: _focusNode.unfocus,
+      onTap: searchBarFocusNode.unfocus,
       child: Scaffold(
         key: sidebarMenuScaffoldKey,
         backgroundColor: ThemeColor.darkBlack,

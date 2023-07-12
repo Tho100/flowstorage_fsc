@@ -16,6 +16,17 @@ class GlobalsStyle {
     "Random": Colors.grey,
   };
 
+  static final psTagsColor = {
+    Colors.orange,
+    const Color.fromARGB(255, 138, 43, 226),
+    const Color.fromARGB(255, 0, 206, 209),
+    Colors.green,
+    Colors.blue,
+    Colors.redAccent,
+    Colors.deepOrangeAccent,
+    Colors.grey,
+  };
+
   static const appBarTextStyle = TextStyle(
     overflow: TextOverflow.ellipsis,
     color: Color.fromARGB(255,232,232,232),
