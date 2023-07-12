@@ -128,8 +128,6 @@ class CakeHomeState extends State<Mainboard> {
   final shareController = TextEditingController();
   final commentController = TextEditingController();
 
-  String _fileType = '';
-
   ValueNotifier<String> appBarTitle  = ValueNotifier<String>('');
   ValueNotifier<String> sortingText  = ValueNotifier<String>('Default');
 
@@ -156,6 +154,7 @@ class CakeHomeState extends State<Mainboard> {
   bool isImageBottomTrailingVisible = false;
 
   Timer? _debounceTimer;
+  String fileExtension = '';
 
   final fileNameGetterHome = NameGetter();
   final loginGetterHome = LoginGetter();
@@ -1406,9 +1405,9 @@ class CakeHomeState extends State<Mainboard> {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       final selectedFileName = pickedVideo.name;
-      _fileType = selectedFileName.split('.').last;
+      fileExtension = selectedFileName.split('.').last;
 
-      if (!Globals.videoType.contains(_fileType)) {
+      if (!Globals.videoType.contains(fileExtension)) {
         if(!mounted) return;
         TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
         return;
@@ -1431,7 +1430,7 @@ class CakeHomeState extends State<Mainboard> {
       String bodyBytes;
       bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
 
-      if (Globals.videoType.contains(_fileType)) {
+      if (Globals.videoType.contains(fileExtension)) {
 
         String setupThumbnailName = selectedFileName.replaceRange(selectedFileName.lastIndexOf("."), selectedFileName.length, ".jpeg");
 
@@ -1525,9 +1524,9 @@ class CakeHomeState extends State<Mainboard> {
         for (final pickedFile in pickedImages) {
 
           final selectedFileName = pickedFile.name;
-          _fileType = selectedFileName.split('.').last;
+          fileExtension = selectedFileName.split('.').last;
 
-          if (!Globals.imageType.contains(_fileType)) {
+          if (!Globals.imageType.contains(fileExtension)) {
             if(!mounted) return;
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
             await NotificationApi.stopNotification(0);
@@ -1552,7 +1551,7 @@ class CakeHomeState extends State<Mainboard> {
           List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
           String bodyBytes = base64.encode(bytes);
 
-          if (Globals.imageType.contains(_fileType)) {
+          if (Globals.imageType.contains(fileExtension)) {
 
             final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
@@ -1698,9 +1697,9 @@ class CakeHomeState extends State<Mainboard> {
         for (final pickedFile in resultPicker.files) {
 
           final selectedFileName = pickedFile.name;
-          _fileType = selectedFileName.split('.').last;
+          fileExtension = selectedFileName.split('.').last;
 
-          if (!Globals.supportedFileTypes.contains(_fileType)) {
+          if (!Globals.supportedFileTypes.contains(fileExtension)) {
             if(!mounted) return;
             TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
             await NotificationApi.stopNotification(0);
@@ -1728,11 +1727,11 @@ class CakeHomeState extends State<Mainboard> {
 
           String? bodyBytes;
 
-          if (_fileType != 'png' && _fileType != 'jpg' && _fileType != 'jpeg') {
+          if (!(Globals.imageType.contains(fileExtension))) {
             bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
           }
 
-          if (Globals.imageType.contains(_fileType)) {
+          if (Globals.imageType.contains(fileExtension)) {
 
             List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
@@ -1744,7 +1743,7 @@ class CakeHomeState extends State<Mainboard> {
               await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
             }
 
-          } else if (Globals.videoType.contains(_fileType)) {
+          } else if (Globals.videoType.contains(fileExtension)) {
 
             String setupThumbnailName = selectedFileName.replaceRange(selectedFileName.lastIndexOf("."), selectedFileName.length, ".jpeg");
 
@@ -1770,8 +1769,8 @@ class CakeHomeState extends State<Mainboard> {
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_vid",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay,thumbnailBytes: thumbnailBytes);
 
           } else {
-            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[_fileType]!);
-            final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[_fileType]! : Globals.fileTypesToTableNamesPs[_fileType]!;
+            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
+            final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[fileExtension]! : Globals.fileTypesToTableNamesPs[fileExtension]!;
             await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
           }
 
@@ -4125,9 +4124,9 @@ class CakeHomeState extends State<Mainboard> {
   Future<void> _navigateToPreviewFile(int index) async {
     
     Globals.selectedFileName = Globals.filteredSearchedFiles[index];
-    _fileType = Globals.selectedFileName.split('.').last;
+    fileExtension = Globals.selectedFileName.split('.').last;
 
-    if (Globals.supportedFileTypes.contains(_fileType)) {
+    if (Globals.supportedFileTypes.contains(fileExtension)) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -4136,12 +4135,12 @@ class CakeHomeState extends State<Mainboard> {
             fileValues: Globals.fileValues,
             selectedFilename: Globals.selectedFileName,
             originFrom: Globals.fileOrigin,
-            fileType: _fileType,
+            fileType: fileExtension,
             tappedIndex: index
           ),
         ),
       );
-    } else if (_fileType == Globals.selectedFileName) {
+    } else if (fileExtension == Globals.selectedFileName) {
       
       Globals.fileOrigin = "dirFiles";
       Globals.directoryTitleValue = Globals.selectedFileName;
@@ -4242,25 +4241,7 @@ class CakeHomeState extends State<Mainboard> {
           _callBottomTrailling(index);
         },
         onTap: () async {
-
-          Globals.selectedFileName = Globals.filteredSearchedFiles[index];
-          _fileType = Globals.selectedFileName.split('.').last;
-
-          if (Globals.supportedFileTypes.contains(_fileType)) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CakePreviewFile(
-                  custUsername: Globals.custUsername,
-                  fileValues: Globals.fileValues,
-                  selectedFilename: Globals.selectedFileName,
-                  originFrom: Globals.fileOrigin,
-                  fileType: _fileType,
-                  tappedIndex: index
-                ),
-              ),
-            );
-          }
+          await _navigateToPreviewFile(index);
         },
         child: Container(
           decoration: const BoxDecoration(
