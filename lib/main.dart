@@ -4291,13 +4291,25 @@ class CakeHomeState extends State<Mainboard> {
             ),
             const SizedBox(height: 10),
             Text(
-              ShortenText().cutText(Globals.filteredSearchedFiles[index]),
+              ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 25),
               style: const TextStyle(
                 color: ThemeColor.justWhite,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 2),
+            if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
+            Visibility(
+              visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
+              child: Text(
+                GlobalsData.psTagsValuesData[index],
+                style: TextStyle(
+                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 5),
           ],

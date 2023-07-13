@@ -1,11 +1,13 @@
 class ShortenText {
 
-  String cutText(String input) {
+  String cutText(String input, {int? customLength}) {
 
     String? finalText;
 
-    if(input.length > 28) {
-      finalText = "${input.substring(0,28)}...";
+    int maxLength = customLength ?? 28;
+
+    if(input.length > maxLength) {
+      finalText = "${input.substring(0,maxLength)}...";
     } else {
       finalText = input;
     }
