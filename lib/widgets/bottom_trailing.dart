@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 
@@ -66,7 +67,7 @@ class BottomTrailing {
             ),
 
             Visibility(
-              visible: Globals.fileOrigin != "psFiles",
+              visible: VisibilityChecker.setNotVisible("psFiles"),
               child: ElevatedButton(
                 onPressed: onRenamePressed,
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
@@ -84,7 +85,7 @@ class BottomTrailing {
             ),
 
             Visibility(
-              visible: fileName.split('.').last != fileName,
+              visible: VisibilityChecker.setNotVisible("offlineFiles") && fileName.split('.').last != fileName,
               child: ElevatedButton(
                 onPressed: onSharingPressed,
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
@@ -100,19 +101,25 @@ class BottomTrailing {
               ),
             ),
 
-            const Divider(color: ThemeColor.thirdWhite),
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              child: const Divider(color: ThemeColor.thirdWhite)
+            ),
 
-            ElevatedButton(
-              onPressed: onAOPressed,
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.wifi_off_rounded),
-                  SizedBox(width: 10.0),
-                  Text('Make available Offline',
-                    style: GlobalsStyle.btnBottomDialogTextStyle
-                  ),
-                ],
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              child: ElevatedButton(
+                onPressed: onAOPressed,
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.wifi_off_rounded),
+                    SizedBox(width: 10.0),
+                    Text('Make available Offline',
+                      style: GlobalsStyle.btnBottomDialogTextStyle
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -133,7 +140,7 @@ class BottomTrailing {
             ),
 
             Visibility(
-              visible: Globals.fileOrigin != "psFiles",
+              visible: VisibilityChecker.setNotVisible("psFiles"),
               child: ElevatedButton(
                 onPressed: onDeletePressed,
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,

@@ -16,6 +16,7 @@ import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
@@ -163,7 +164,7 @@ class CakeHomeState extends State<Mainboard> {
 
   final crud = Crud();
   final logger = Logger();
-  
+
   String _getCurrentPageName() {
     final getPageName = appBarTitle.value == "" ? "homeFiles" : appBarTitle.value;
     return getPageName;
@@ -281,10 +282,18 @@ class CakeHomeState extends State<Mainboard> {
 
       for(int i=0; i<count; i++) {
 
+        late Uint8List getBytes;
+
         final fileType = checkedItemsName[i].split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType];
 
-        Uint8List getBytes = await _callData(checkedItemsName[i],tableName!);
+        if(Globals.imageType.contains(fileType)) {
+          final fileIndex = Globals.filteredSearchedFiles.indexOf(checkedItemsName[i]);
+          getBytes = Globals.filteredSearchedBytes.elementAt(fileIndex)!;
+        } else {
+          getBytes = await _callData(checkedItemsName[i],tableName!);
+        }
+
         await SaveApi().saveMultipleFiles(directoryPath: directoryPath, fileName: checkedItemsName[i], fileData: getBytes);
 
       }
@@ -1143,14 +1152,6 @@ class CakeHomeState extends State<Mainboard> {
 
       _addItemToListView(fileName: imageName);
 
-      /*_isFromUpload = true;
-
-      setState(() {
-        Globals.setDateValues.add("Just now");
-        Globals.fileValues.add(imageName);
-        Globals.filteredSearchedFiles.add(imageName);
-      });*/
-
       await CallNotify().uploadedNotification(title: "Upload Finished",count: 1);
 
     } catch (err) {
@@ -1177,11 +1178,18 @@ class CakeHomeState extends State<Mainboard> {
 
       if(Globals.fileOrigin != "offlineFiles") {
 
-        Uint8List getBytes = await _callData(fileName,tableName!);
+        late Uint8List getBytes;
+
+        if(Globals.imageType.contains(fileType)) {
+          int findIndexImage = Globals.filteredSearchedFiles.indexOf(fileName);
+          getBytes = Globals.filteredSearchedBytes[findIndexImage]!;
+        } else {
+          getBytes = await _callData(fileName,tableName!);
+        }
 
         await SimplifyDownload(
           fileName: fileName,
-          currentTable: tableName,
+          currentTable: tableName!,
           fileData: getBytes
         ).downloadFile();
 
@@ -3518,7 +3526,7 @@ class CakeHomeState extends State<Mainboard> {
                   ValueListenableBuilder<bool>(
                     valueListenable: staggeredListViewSelected,
                     builder: (BuildContext context, bool value, Widget? child) {
-                      return value == false ? const Icon(Icons.now_widgets_outlined,size: 25) : const Icon(Icons.list_outlined,size: 30);
+                      return value == false ? const Icon(Icons.space_dashboard_outlined,size: 25) : const Icon(Icons.format_list_bulleted_outlined,size: 28);
                     }
                   ),
                 ],
@@ -3652,7 +3660,7 @@ class CakeHomeState extends State<Mainboard> {
             ),
 
             Visibility(
-              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
+              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles"]),//!_setVisibility("dirFiles") || !_etVisibility("dirFiles"),//Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
               child: ElevatedButton(
               onPressed: () async {
 
@@ -3735,7 +3743,7 @@ class CakeHomeState extends State<Mainboard> {
           const Divider(color: ThemeColor.thirdWhite),
 
           Visibility(
-            visible: Globals.fileOrigin != "psFiles",
+            visible: VisibilityChecker.setNotVisible("psFiles"),
             child: ElevatedButton(
               onPressed: () async {
                 if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
@@ -3759,10 +3767,10 @@ class CakeHomeState extends State<Mainboard> {
                   ],
                 ),
               ),
-          ),
+            ),
         
             Visibility(
-              visible: Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
+              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles"]),//Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
               child: ElevatedButton(
               onPressed: () async {
                 final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
@@ -3973,21 +3981,24 @@ class CakeHomeState extends State<Mainboard> {
               ),
             ),
 
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await _processSaveOfflineFileSelectAll(count: checkedItemsName.length);
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.wifi_off_rounded),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Make available offline',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await _processSaveOfflineFileSelectAll(count: checkedItemsName.length);
+                },
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.wifi_off_rounded),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Make available offline',
+                      style: GlobalsStyle.btnBottomDialogTextStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -4273,7 +4284,7 @@ class CakeHomeState extends State<Mainboard> {
           ),
           child: ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: Image.memory(imageBytes,fit: BoxFit.cover),
+            child: Image.memory(imageBytes, fit: BoxFit.cover),
           ),
         ),
       ),

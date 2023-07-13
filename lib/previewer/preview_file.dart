@@ -915,7 +915,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               backgroundColor: _currentTable == GlobalsTable.homeImageTable || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
               actions: <Widget>[
                 Visibility(
-                  visible: _currentTable == GlobalsTable.homeTextTable || Globals.fileOrigin == "ps_info_text",
+                  visible: _currentTable == GlobalsTable.homeTextTable || _currentTable == "ps_info_text",
                   child: IconButton(
                     onPressed: () {
                       final textValue = _textController.text;
