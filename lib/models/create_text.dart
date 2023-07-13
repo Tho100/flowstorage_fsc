@@ -241,12 +241,13 @@ class _CreateText extends State<CreateText> {
 
       Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.add(getFileName) : null;
 
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
       await CallNotify().customNotification(title: "Text File Saved", subMesssage: ShortenText().cutText("$getFileName Has been saved"));
 
-      _fileNameController.clear();
-
+      if(!mounted) return;
+      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
       Navigator.pop(context);
+      
+      _fileNameController.clear();
 
     } catch (err, st) {
 

@@ -3505,7 +3505,7 @@ class CakeHomeState extends State<Mainboard> {
 
             const Text(GlobalsStyle.dotSeperator,
               style: TextStyle(
-                color: ThemeColor.thirdWhite,fontSize: 18
+                color: ThemeColor.thirdWhite,fontSize: 16
               )
             ),
 
@@ -4278,14 +4278,29 @@ class CakeHomeState extends State<Mainboard> {
         onTap: () async {
           await _navigateToPreviewFile(index);
         },
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: Image.memory(imageBytes, fit: BoxFit.cover),
-          ),
+        child: Column(
+          children: [
+           Container(
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: Image.memory(imageBytes, fit: BoxFit.cover),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              ShortenText().cutText(Globals.filteredSearchedFiles[index]),
+              style: const TextStyle(
+                color: ThemeColor.justWhite,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 5),
+          ],
         ),
       ),
     );
