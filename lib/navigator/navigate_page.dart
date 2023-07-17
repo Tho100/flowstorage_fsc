@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/models/feedback_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';

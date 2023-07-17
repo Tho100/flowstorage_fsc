@@ -10,9 +10,9 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -27,14 +27,14 @@ class CreateText extends StatefulWidget {
 
 class _CreateText extends State<CreateText> {
 
-  final TextEditingController _textEditingController = TextEditingController();
-  final TextEditingController _fileNameController = TextEditingController();
+  final TextEditingController textEditingController = TextEditingController();
+  final TextEditingController fileNameController = TextEditingController();
 
   final logger = Logger();
   final getAssets = GetAssets();
   
-  bool _saveVisibility = true;
-  bool _textFormEnabled = true;
+  bool saveVisibility = true;
+  bool textFormEnabled = true;
 
   Future<void> _insertUserFile({
     
@@ -99,7 +99,7 @@ class _CreateText extends State<CreateText> {
                     autofocus: true,
                     style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
                     enabled: true,
-                    controller: _fileNameController,
+                    controller: fileNameController,
                     decoration: GlobalsStyle.setupTextFieldDecoration("filename.txt")
                   ),
                 ),
@@ -116,7 +116,7 @@ class _CreateText extends State<CreateText> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            _fileNameController.clear();
+                            fileNameController.clear();
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
@@ -142,13 +142,13 @@ class _CreateText extends State<CreateText> {
                         child: ElevatedButton(
                           onPressed: () async {
 
-                            String getFileTitle = _fileNameController.text.trim();
+                            String getFileTitle = fileNameController.text.trim();
 
                             if (getFileTitle.isEmpty) {
                               return;
                             }
                             
-                            await _saveText(_textEditingController.text);
+                            await _saveText(textEditingController.text);
 
                           },
 
@@ -218,14 +218,15 @@ class _CreateText extends State<CreateText> {
       }
 
       if (await _isFileExists(EncryptionClass().Encrypt("$inputValue.txt"))) {
-        AlertForm.alertDialog("File with this name already exists.", context);
+        if(!mounted) return;
+        CustomAlertDialog.alertDialog("File with this name already exists.", context);
         return;
       }
 
       final toUtf8Bytes = utf8.encode(inputValue);
       final String bodyBytes = base64.encode(toUtf8Bytes);
 
-      final String getFileName = "${_fileNameController.text.trim().replaceAll(".", "")}.txt";
+      final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
 
       await _insertUserFile(
         table: _tableToUploadTo(), 
@@ -234,29 +235,29 @@ class _CreateText extends State<CreateText> {
       );
 
       setState(() {
-        _saveVisibility = false;
-        _textFormEnabled = false;
+        saveVisibility = false;
+        textFormEnabled = false;
         _addTextFileToListView(fileName: getFileName);
       });
 
-      Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.add(getFileName) : null;
+      Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.clear() : null;
 
       await CallNotify().customNotification(title: "Text File Saved", subMesssage: ShortenText().cutText("$getFileName Has been saved"));
 
       if(!mounted) return;
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
+      SnakeAlert.okSnake(message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
       Navigator.pop(context);
       
-      _fileNameController.clear();
+      fileNameController.clear();
 
     } catch (err, st) {
 
       logger.e("Exception from _saveText {create_text}", err, st);
 
       _saveFileAsOffline(inputValue);
-      SnakeAlert.okSnake(message: "`${_fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
+      SnakeAlert.okSnake(message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
 
-      _fileNameController.clear();
+      fileNameController.clear();
 
       Navigator.pop(context);
 
@@ -268,7 +269,7 @@ class _CreateText extends State<CreateText> {
 
   void _saveFileAsOffline(String inputValue) async {
 
-    final String getFileName = "${_fileNameController.text.trim().replaceAll(".", "")}.txt";
+    final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
 
     final toUtf8Bytes = utf8.encode(inputValue);
 
@@ -290,8 +291,8 @@ class _CreateText extends State<CreateText> {
         padding: const EdgeInsets.all(8.0),
         child: TextFormField(
           autofocus: true,
-          controller: _textEditingController,
-          enabled: _textFormEnabled,
+          controller: textEditingController,
+          enabled: textFormEnabled,
           keyboardType: TextInputType.multiline,
             maxLines: null,
             style: GoogleFonts.roboto(
@@ -313,8 +314,8 @@ class _CreateText extends State<CreateText> {
 
   @override
   void dispose() {
-    _textEditingController.dispose();
-    _fileNameController.dispose();
+    textEditingController.dispose();
+    fileNameController.dispose();
     super.dispose();
   }
 
@@ -326,7 +327,7 @@ class _CreateText extends State<CreateText> {
         actions: [
 
           Visibility(
-            visible: _saveVisibility,
+            visible: saveVisibility,
             child: TextButton(
               onPressed: () {
                 _askFileName();

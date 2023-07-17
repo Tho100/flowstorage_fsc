@@ -3,7 +3,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:io';
@@ -36,11 +36,11 @@ class CakeSettingsPage extends StatefulWidget {
 
 class CakeSettingsPageState extends State<CakeSettingsPage> {
 
-  late String _custUsername;
-  late String _custEmail;
-  late String _accType;
-  late int _uploadLimit;
-  late String _sharingEnabledButton;
+  late String custUsername;
+  late String custEmail;
+  late String accountType;
+  late int uploadLimit;
+  late String sharingEnabledButton;
 
   final TextEditingController addPasswordController = TextEditingController();
   final TextEditingController addPasscodeController = TextEditingController();
@@ -48,11 +48,11 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   @override
   void initState() {
     super.initState();
-    _custUsername = widget.custUsername;
-    _custEmail = widget.custEmail;
-    _accType = widget.accType;
-    _uploadLimit = widget.uploadLimit;
-    _sharingEnabledButton = widget.sharingEnabledButton == '0' ? 'Disable' : 'Enable';
+    custUsername = widget.custUsername;
+    custEmail = widget.custEmail;
+    accountType = widget.accType;
+    uploadLimit = widget.uploadLimit;
+    sharingEnabledButton = widget.sharingEnabledButton == '0' ? 'Disable' : 'Enable';
   }
 
   @override 
@@ -169,13 +169,13 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                               }
 
                               final getAddPassword = AddPasswordSharing();
-                              getAddPassword.insertValuesParams(username: _custUsername, newAuth: addPasswordController.text);
+                              getAddPassword.insertValuesParams(username: custUsername, newAuth: addPasswordController.text);
 
-                              AlertForm.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
+                              CustomAlertDialog.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
 
                             } catch (err, st) {
                               Logger().e("Exception from _buildAddPassword {settings_page}", err, st);
-                              AlertForm.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
+                              CustomAlertDialog.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
                             }
 
                           },
@@ -216,11 +216,11 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
       await storage.write(key: "key0015",value: passcodeInput);
 
       if(!mounted) return;
-      AlertForm.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by re-signing to your account.", context);
+      CustomAlertDialog.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by re-signing to your account.", context);
 
     } catch (err, st) {
       Logger().e("Exception from _addPasscode {SettingsMenu}", err, st);
-      AlertForm.alertDialogTitle("An error occurred", "Please try again.", context);
+      CustomAlertDialog.alertDialogTitle("An error occurred", "Please try again.", context);
     }
 
   }
@@ -517,7 +517,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                     ),
                     child: Center(
                       child: Text(
-                        _custUsername.substring(0, 2),
+                        custUsername.substring(0, 2),
                         style: const TextStyle(
                           fontSize: 24,
                           color: ThemeColor.darkPurple,
@@ -534,7 +534,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _custUsername,
+                      custUsername,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -573,9 +573,9 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
       
             _buildInfoText("Account Information"),
       
-            _buildRow("Email",_custEmail),
-            _buildRow("Account Type",_accType),
-            _buildRow("Upload Limit",_uploadLimit.toString()),
+            _buildRow("Email",custEmail),
+            _buildRow("Account Type",accountType),
+            _buildRow("Upload Limit",uploadLimit.toString()),
             
             const SizedBox(height: 10),
       
@@ -609,17 +609,17 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
       
             _buildRowWithButtons(
               topText: "File sharing", 
-              bottomText: _sharingEnabledButton, 
+              bottomText: sharingEnabledButton, 
               onPressed: () async {
-                _sharingEnabledButton == 'Disable' 
-                ? await SharingOptions.disableSharing(_custUsername) 
-                : await SharingOptions.enableSharing(_custUsername);
+                sharingEnabledButton == 'Disable' 
+                ? await SharingOptions.disableSharing(custUsername) 
+                : await SharingOptions.enableSharing(custUsername);
       
                 setState(() {
-                  _sharingEnabledButton = _sharingEnabledButton == "Disable" ? "Enable" : "Disable";
+                  sharingEnabledButton = sharingEnabledButton == "Disable" ? "Enable" : "Disable";
                 });
 
-                final sharingStatus = _sharingEnabledButton == "Enable" ? "Disabled" : "Enabled";
+                final sharingStatus = sharingEnabledButton == "Enable" ? "Disabled" : "Enabled";
 
                 const fileSharingDisabledMsg = "You disabled your file sharing. No one can share a file to you.";
                 const fileSharingEnabledMsg = "You enabled file sharing. People can share a file to you.";
@@ -627,7 +627,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                 final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
                 
                 if(!mounted) return;
-                AlertForm.alertDialogTitle("Sharing $sharingStatus", conclusionSubMsg, context);
+                CustomAlertDialog.alertDialogTitle("Sharing $sharingStatus", conclusionSubMsg, context);
               }
             ),
       
@@ -690,7 +690,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
                 _clearAppCache();
-                AlertForm.alertDialogTitle("Cache Cleared","Flowstorage caches has been cleared.", context);
+                CustomAlertDialog.alertDialogTitle("Cache Cleared","Flowstorage caches has been cleared.", context);
               }
             ),
 

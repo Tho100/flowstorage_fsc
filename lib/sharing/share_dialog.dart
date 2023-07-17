@@ -13,7 +13,7 @@ import 'package:flowstorage_fsc/sharing/share_file.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flutter/material.dart';
 
@@ -169,16 +169,16 @@ class SharingDialog {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () async {
-
+                            
                             final shareToName = shareToController!.text;
 
                             if (shareToName.isEmpty) {
-                              AlertForm.alertDialog("Please enter the receiver username.", context);
+                              CustomAlertDialog.alertDialog("Please enter the receiver username.", context);
                               return;
                             }
                             
                             if (shareToName == Globals.custUsername) {
-                              AlertForm.alertDialog("You cannot share to yourself.", context);
+                              CustomAlertDialog.alertDialog("You cannot share to yourself.", context);
                               return;
                             }
 
@@ -190,19 +190,19 @@ class SharingDialog {
                             final encryptedFileName = EncryptionClass().Encrypt(fileName);
 
                             if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToName, Globals.custUsername)) {
-                              AlertForm.alertDialogTitle("Sharing Failed", "You've already shared this file.", context);
+                              CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context);
                               return;
                             }
 
                             if (await VerifySharing().unknownUser(shareToName)) {
-                              AlertForm.alertDialogTitle("Sharing Failed", "User `$shareToName` not found.", context);
+                              CustomAlertDialog.alertDialogTitle("Sharing Failed", "User `$shareToName` not found.", context);
                               return;
                             }
 
                             final getReceiverDisabled = await SharingOptions.retrieveDisabled(shareToName);
 
                             if(getReceiverDisabled == '1') {
-                              AlertForm.alertDialogTitle('Sharing Failed', 'User $shareToName disabled their file sharing.', context);
+                              CustomAlertDialog.alertDialogTitle('Sharing Failed', 'User $shareToName disabled their file sharing.', context);
                               return;
                             }
 

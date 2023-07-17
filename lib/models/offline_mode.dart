@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -86,7 +86,7 @@ class OfflineMode {
       final fileType = fileName.split('.').last;
 
       if(fileType == "pdf" || fileType == "docx" || fileType == "xlsx" || fileType == "xls" || fileType == "pptx" || fileType == "ptx") {
-        AlertForm.alertDialogTitle("Couldn't make this file offline.", "File type is not yet supported for offline.", context);
+        CustomAlertDialog.alertDialogTitle("Couldn't make this file offline.", "File type is not yet supported for offline.", context);
         return;
       }
 

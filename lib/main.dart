@@ -49,9 +49,9 @@ import 'package:flowstorage_fsc/helper/gallery_picker.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
-import 'package:flowstorage_fsc/ui_dialog/TitledAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/folder_query/delete_folder.dart';
 import 'package:flowstorage_fsc/folder_query/rename_folder.dart';
 import 'package:flowstorage_fsc/authentication/sign_up_page.dart';
@@ -848,7 +848,6 @@ class CakeHomeState extends State<Mainboard> {
 
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.imageByteValues.addAll(uniqueBytes);
-
     Globals.dateStoresValues.addAll(dates);
     Globals.setDateValues.addAll(dates);
 
@@ -867,7 +866,7 @@ class CakeHomeState extends State<Mainboard> {
 
     if(!offlineDirs.existsSync()) { 
       if(!mounted) return;
-      AlertForm.alertDialog("No offline file is available yet.", context);
+      CustomAlertDialog.alertDialog("No offline file is available yet.", context);
       return;
     }
 
@@ -1011,7 +1010,7 @@ class CakeHomeState extends State<Mainboard> {
 
     } catch (err, st) {
       logger.e('Exception from _buildDirectory {main}',err,st);
-      AlertForm.alertDialog('Failed to create directory.', context);
+      CustomAlertDialog.alertDialog('Failed to create directory.', context);
     }
   }
   
@@ -1043,8 +1042,8 @@ class CakeHomeState extends State<Mainboard> {
     }
     
     Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.remove(fileName) : null;
-    GlobalsData.homeImageData.clear();
-    GlobalsData.homeThumbnailData.clear();
+    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeImageData.clear() : null;
+    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeThumbnailData.clear() : null;
     
     _removeFileFromListView(fileName: fileName, isFromSelectAll: false, onTextChanged: onTextChanged);
 
@@ -1323,7 +1322,7 @@ class CakeHomeState extends State<Mainboard> {
       String newRenameValue = "$newItemValue.${fileName.split('.').last}";
 
       if (Globals.fileValues.contains(newRenameValue)) {
-        AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
+        CustomAlertDialog.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
       } else {
         await _renameFile(fileName, newRenameValue);
       }
@@ -1634,10 +1633,12 @@ class CakeHomeState extends State<Mainboard> {
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
 
     await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
-
     verifyTableName == GlobalsTable.homeImageTable ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
     verifyTableName == GlobalsTable.homeVideoTable ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
-    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.add(selectedFileName) : null;
+ 
+    if(Globals.fileOrigin == "homeFiles") {
+      GlobalsData.homeFilesNameData.clear();
+    }
 
     setState(() {
       Globals.imageValues.addAll(newImageValues);
@@ -2903,7 +2904,7 @@ class CakeHomeState extends State<Mainboard> {
                             }
 
                             if(Globals.fileValues.contains(getDirectoryTitle)) {
-                              AlertForm.alertDialog("Directory with this name already exists.",context);
+                              CustomAlertDialog.alertDialog("Directory with this name already exists.",context);
                               return;
                             }
 
@@ -3104,7 +3105,7 @@ class CakeHomeState extends State<Mainboard> {
                             if (newFolderName.isNotEmpty) {
                               _renameFolder(folderName, newFolderName);
                             } else {
-                              AlertForm.alertDialog('Folder name cannot be empty.', context);
+                              CustomAlertDialog.alertDialog('Folder name cannot be empty.', context);
                             }
                           }
 

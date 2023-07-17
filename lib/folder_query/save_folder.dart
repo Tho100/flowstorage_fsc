@@ -9,7 +9,7 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 
 class SaveFolder {

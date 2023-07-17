@@ -73,7 +73,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                 iconPausePlay.value
               ),
               onPressed: () async {
-                CakePreviewFileState.bottomBarVisible.value = false;
+                CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 buttonPlayPausePressed = !buttonPlayPausePressed;
                 iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
                 await _playVideo();
@@ -128,7 +128,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   @override
   void dispose() {
-    CakePreviewFileState.bottomBarVisible.value = true;
+    CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     videoPlayerController.dispose();
     super.dispose();
   }

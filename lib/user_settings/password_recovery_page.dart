@@ -1,6 +1,6 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/password_reset_page.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -178,13 +178,13 @@ class _ResetBackupState extends State<ResetBackup> {
 
       if(await _getRecov(await _getUsername(email)) != recovTokInput) {
         if(!mounted) return;
-        AlertForm.alertDialog("Invalid recovery key.", context);
+        CustomAlertDialog.alertDialog("Invalid recovery key.", context);
         return;
       }
 
       if(await _authIncorrect(await _getUsername(email), AuthModel().computeAuth(authenticationString))) {
         if(!mounted) return;
-        AlertForm.alertDialog("Entered PIN is incorrect.", context);
+        CustomAlertDialog.alertDialog("Entered PIN is incorrect.", context);
         return;
 
       } else {
@@ -200,7 +200,7 @@ class _ResetBackupState extends State<ResetBackup> {
       }
 
     } catch (exportBackupFailed) {
-      AlertForm.alertDialogTitle("An error occurred","Failed to export your recovery key. Please try again later",context);
+      CustomAlertDialog.alertDialogTitle("An error occurred","Failed to export your recovery key. Please try again later",context);
     }
   }
 

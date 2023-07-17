@@ -5,7 +5,7 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 
@@ -532,11 +532,11 @@ class _UpgradePage extends State<UpradePage> {
       CallNotify().customNotification(title: "Account Upgraded", subMesssage: "Thank you for subscribing to our service! You subscribed for $userChoosenPlan plan");
 
       if(!mounted) return;
-      AlertForm.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
+      CustomAlertDialog.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
 
     } else {
       if(!mounted) return;
-      AlertForm.alertDialogTitle("Payment failed", "No payment has been made.", context);
+      CustomAlertDialog.alertDialogTitle("Payment failed", "No payment has been made.", context);
     }
 
     returnedEmail.clear();

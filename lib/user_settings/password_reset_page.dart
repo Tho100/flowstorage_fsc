@@ -1,6 +1,6 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/material.dart';
@@ -156,7 +156,7 @@ class _ResetAuthenticationState extends State<ResetAuthentication> {
       }
       
       if(newAuth != currentAuth) {
-        AlertForm.alertDialog("Password does not match.",context);
+        CustomAlertDialog.alertDialog("Password does not match.",context);
         return;
       }
 
@@ -165,7 +165,7 @@ class _ResetAuthenticationState extends State<ResetAuthentication> {
       await _updateAuth(newAuth, getUsername);
 
       if(!mounted) return;
-      AlertForm.alertDialogTitle("Password Updated", "Password for ${widget.custEmail} has been updated. You may login into your account now", context);
+      CustomAlertDialog.alertDialogTitle("Password Updated", "Password for ${widget.custEmail} has been updated. You may login into your account now", context);
 
     } catch (err) {
       SnakeAlert.errorSnake("Failed to update your password.", context);

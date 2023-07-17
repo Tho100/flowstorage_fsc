@@ -1,7 +1,7 @@
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 
-class AlertForm {
+class CustomAlertDialog {
 
   static Future alertDialog(String messages, BuildContext context) {
     return showDialog(

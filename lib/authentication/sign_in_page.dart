@@ -5,7 +5,7 @@ import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flowstorage_fsc/widgets/main_text_field.dart';
 import 'package:flowstorage_fsc/data_classes/login_process.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'package:flutter/material.dart';
@@ -50,22 +50,22 @@ class CakeSignInPageState extends State<CakeSignInPage> {
     final custEmailInput = emailController.text.trim();
 
     if (!EmailValidator().validateEmail(custEmailInput)) {
-      AlertForm.alertDialogTitle("Sign In Failed","Email address is not valid.", context);
+      CustomAlertDialog.alertDialogTitle("Sign In Failed","Email address is not valid.", context);
       return;
     }
 
     if (custAuth1Input.isEmpty) {
-      AlertForm.alertDialogTitle("Sign In Failed","Please enter your PIN key.",context);
+      CustomAlertDialog.alertDialogTitle("Sign In Failed","Please enter your PIN key.",context);
       return;
     }
 
     if (custEmailInput.isEmpty) {
-      AlertForm.alertDialogTitle("Sign In Failed","Please enter your email address.",context);
+      CustomAlertDialog.alertDialogTitle("Sign In Failed","Please enter your email address.",context);
       return;
     }
 
     if (custAuth0Input.isEmpty) {
-      AlertForm.alertDialogTitle("Sign In Failed","Please enter your password.",context);              
+      CustomAlertDialog.alertDialogTitle("Sign In Failed","Please enter your password.",context);              
       return;
     }
 

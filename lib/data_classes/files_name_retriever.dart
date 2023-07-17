@@ -33,8 +33,6 @@ class NameGetter {
           nameSet.add(_encryptionClass.Decrypt(getNameValues));
         }
 
-        GlobalsData.homeFilesNameData.addAll(nameSet.toList());
-
         return nameSet.toList();
 
       } else {

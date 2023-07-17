@@ -7,7 +7,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -89,7 +89,7 @@ class _SharingPage extends State<SharingPage> {
       bodyBytes = base64.encode(file.readAsBytesSync());
 
     } else {
-      AlertForm.alertDialog("File type is unsupported.", context);
+      CustomAlertDialog.alertDialog("File type is unsupported.", context);
     }
   }
 
@@ -105,19 +105,19 @@ class _SharingPage extends State<SharingPage> {
       final encryptedFileName = EncryptionClass().Encrypt(fileName);
 
       if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, Globals.custUsername)) {
-        AlertForm.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
+        CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
         return;
       }
 
       if (await VerifySharing().unknownUser(shareToUsername)) {
-        AlertForm.alertDialogTitle("Sharing Failed", "User `$shareToUsername` not found.", context!);
+        CustomAlertDialog.alertDialogTitle("Sharing Failed", "User `$shareToUsername` not found.", context!);
         return;
       }
 
       final getReceiverDisabled = await SharingOptions.retrieveDisabled(shareToUsername);
 
       if(getReceiverDisabled == '1') {
-        AlertForm.alertDialogTitle('Sharing Failed', 'User $shareToUsername disabled their file sharing.', context!);
+        CustomAlertDialog.alertDialogTitle('Sharing Failed', 'User $shareToUsername disabled their file sharing.', context!);
         return;
       }
 
@@ -148,7 +148,7 @@ class _SharingPage extends State<SharingPage> {
       loadingDialog.stopLoading();
 
     } catch (failedShare) {
-      AlertForm.alertDialog("Failed to share this file.", context!);
+      CustomAlertDialog.alertDialog("Failed to share this file.", context!);
     }
   }
 

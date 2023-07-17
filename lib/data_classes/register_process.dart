@@ -4,7 +4,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flutter/material.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -31,7 +31,7 @@ class MysqlInformation {
     );
 
     if (verifyUsernameQue.rows.isNotEmpty) {
-      AlertForm.alertDialog("Username is taken.", context);
+      CustomAlertDialog.alertDialog("Username is taken.", context);
       return;
     }
 
@@ -41,17 +41,17 @@ class MysqlInformation {
     );
     
     if (verifyEmailQue.rows.isNotEmpty) {
-      AlertForm.alertDialog("Email already exists.", context);
+      CustomAlertDialog.alertDialog("Email already exists.", context);
       return;
     }
 
     if (userName!.length > 20) {
-      AlertForm.alertDialog("Username character length limit is 20.", context);
+      CustomAlertDialog.alertDialog("Username character length limit is 20.", context);
       return;
     }
 
     if (auth0!.length <= 5) {
-      AlertForm.alertDialog("Password length must be greater than 5.", context);
+      CustomAlertDialog.alertDialog("Password length must be greater than 5.", context);
       return;
     }
 

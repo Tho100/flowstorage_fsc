@@ -1,6 +1,6 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/material.dart';
@@ -176,12 +176,12 @@ class ChangePasswordState extends State<ChangePassword> {
 
       await _updateAuth(newAuth);
 
-      AlertForm.alertDialogTitle("Password updated.","Your pasword has been updated successfully.", context);
+      CustomAlertDialog.alertDialogTitle("Password updated.","Your pasword has been updated successfully.", context);
 
     } else if (authCase0) {
-      AlertForm.alertDialog("Password is incorrect.", context);
+      CustomAlertDialog.alertDialog("Password is incorrect.", context);
     } else {
-      AlertForm.alertDialog("PIN key is incorrect.", context);
+      CustomAlertDialog.alertDialog("PIN key is incorrect.", context);
     }
 
   }

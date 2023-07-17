@@ -4,8 +4,8 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/material.dart';
@@ -202,18 +202,18 @@ class ChangeUsername extends StatelessWidget {
       }
 
       if(newUsername == Globals.custUsername) {
-        AlertForm.alertDialog("The new entered username is your current username.", context);
+        CustomAlertDialog.alertDialog("The new entered username is your current username.", context);
         return;
       }
 
       if(await _verifyAuthentication(Globals.custUsername, AuthModel().computeAuth(authenticationString))) {
-        AlertForm.alertDialog("Password is incorrect.", context);
+        CustomAlertDialog.alertDialog("Password is incorrect.", context);
         return;
 
       } else {
 
         if(await _isUsernameTaken(newUsername)) {
-          AlertForm.alertDialog("Username is taken.", context);
+          CustomAlertDialog.alertDialog("Username is taken.", context);
           return;
         }
 
@@ -228,7 +228,7 @@ class ChangeUsername extends StatelessWidget {
       }
 
     } catch (usernameException) {
-      AlertForm.alertDialog("An error occurred while trying to update your username\nPlease try again later.",context);
+      CustomAlertDialog.alertDialog("An error occurred while trying to update your username\nPlease try again later.",context);
     }
   }
 

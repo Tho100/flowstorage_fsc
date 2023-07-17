@@ -6,7 +6,7 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/JustLoading.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -194,13 +194,13 @@ class MysqlLogin {
           NavigatePage.permanentPageMainboard(context);
 
         } else {
-          AlertForm.alertDialog("Password or PIN Key is incorrect.", context);
+          CustomAlertDialog.alertDialog("Password or PIN Key is incorrect.", context);
         }
       } else {
-        AlertForm.alertDialog("Account not found.", context);
+        CustomAlertDialog.alertDialog("Account not found.", context);
       }
     } catch (err, st) {
-      AlertForm.alertDialogTitle("Something is wrong...", "No internet connection.", context);
+      CustomAlertDialog.alertDialogTitle("Something is wrong...", "No internet connection.", context);
       logger.e("Exception from logParams {MYSQL_login}", err, st);
       
     } finally {

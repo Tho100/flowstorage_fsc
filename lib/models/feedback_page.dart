@@ -1,7 +1,7 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -90,7 +90,7 @@ class FeedBackPage extends StatelessWidget {
             sendFeedback(feedBackController.text);
             loading.stopLoading();
 
-            AlertForm.alertDialogTitle("Feedback sent", "Thank you ${Globals.custUsername} for your feedback! We really appreciate it.", context);
+            CustomAlertDialog.alertDialogTitle("Feedback sent", "Thank you ${Globals.custUsername} for your feedback! We really appreciate it.", context);
           }
         ),
 

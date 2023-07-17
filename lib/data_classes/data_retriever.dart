@@ -40,18 +40,18 @@ class LoginGetter {
     if (tableName == GlobalsTable.homeImageTable) {
 
       if(GlobalsData.homeImageData.isEmpty) {
-        return _getFileInfoParams(conn, username);
+        return getFileInfoParams(conn, username);
       } else {
         return GlobalsData.homeImageData;
       }
 
     } else {
-      return _getOtherTableParams(conn, username, tableName);
+      return getOtherTableParams(conn, username, tableName);
     }
 
   }
 
-  Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, String? username) async {
+  Future<List<Uint8List>> getFileInfoParams(MySQLConnectionPool conn, String? username) async {
 
     const query = 'SELECT CUST_FILE FROM ${GlobalsTable.homeImageTable} WHERE CUST_USERNAME = :username';
     final params = {'username': username};
@@ -74,7 +74,7 @@ class LoginGetter {
     return getByteValue;
   }
 
-  Future<List<Uint8List>> _getOtherTableParams(MySQLConnectionPool conn, String? username, String tableName) async {
+  Future<List<Uint8List>> getOtherTableParams(MySQLConnectionPool conn, String? username, String tableName) async {
 
     final getByteValue = <Uint8List>{};
 

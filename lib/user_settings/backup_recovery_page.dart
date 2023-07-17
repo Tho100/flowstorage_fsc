@@ -2,8 +2,8 @@ import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
-import 'package:flowstorage_fsc/ui_dialog/TitledAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/material.dart';
@@ -157,12 +157,12 @@ class BackupRecovery extends StatelessWidget {
       }
 
       if(await _incorrectAuth(Globals.custUsername, AuthModel().computeAuth(auth0),"CUST_PIN")) {
-        AlertForm.alertDialog("Entered PIN is incorrect.", context);
+        CustomAlertDialog.alertDialog("Entered PIN is incorrect.", context);
         return;
       }
 
       if(await _incorrectAuth(Globals.custUsername, AuthModel().computeAuth(auth1),"CUST_PASSWORD")) {
-        AlertForm.alertDialog("Password is incorrect.", context);
+        CustomAlertDialog.alertDialog("Password is incorrect.", context);
         return;
 
       } 
@@ -177,7 +177,7 @@ class BackupRecovery extends StatelessWidget {
       );
 
     } catch (err) {
-      AlertForm.alertDialog("Failed to backup your recovery key.",context);
+      CustomAlertDialog.alertDialog("Failed to backup your recovery key.",context);
     }
   }
 

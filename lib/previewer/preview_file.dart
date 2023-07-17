@@ -34,9 +34,9 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/extra_query/delete.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
-import 'package:flowstorage_fsc/ui_dialog/SnakeAlert.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
@@ -74,11 +74,10 @@ class CakePreviewFile extends StatefulWidget {
 
 class CakePreviewFileState extends State<CakePreviewFile> {
 
-  ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
-
-  final retrieveData = RetrieveData();
-
+/*  final retrieveData = RetrieveData();
   String _fileType = '';
+
+  ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
 
   final double _appBarHeight = 55.0;
   late String _currentTable;
@@ -90,25 +89,44 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final ValueNotifier<String> _fileResolution = ValueNotifier<String>('');
 
   final TextEditingController _textController = TextEditingController();
-  static ValueNotifier<bool> bottomBarVisible = ValueNotifier<bool>(true);
+  static ValueNotifier<bool> _bottomBarVisible = ValueNotifier<bool>(true);
 
-  final Set<String> filesWithCustomHeader = {GlobalsTable.homeTextTable,GlobalsTable.homeAudioTable,"ps_info_audio","ps_info_text"};
-  final Set<String> filesInfrontAppBar = {GlobalsTable.homeTextTable,GlobalsTable.homeExcelTable,GlobalsTable.homePdfTable,"ps_info_text","ps_info_excel","ps_info_pdf"};
+  final Set<String> _filesWithCustomHeader = {GlobalsTable.homeTextTable,GlobalsTable.homeAudioTable,"ps_info_audio","ps_info_text"};
+  final Set<String> _filesInfrontAppBar = {GlobalsTable.homeTextTable,GlobalsTable.homeExcelTable,GlobalsTable.homePdfTable,"ps_info_text","ps_info_excel","ps_info_pdf"};
+*/
+  final retrieveData = RetrieveData();
+  String fileType = '';
+
+  final double appBarHeight = 55.0;
+  late String currentTable;
+
+  final TextEditingController shareToController = TextEditingController();
+  final TextEditingController commentController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+
+  final ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
+  final ValueNotifier<String> fileSizeNotifier = ValueNotifier<String>('');
+  final ValueNotifier<String> fileResolutionNotifier = ValueNotifier<String>('');
+
+  static ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
+
+  final Set<String> filesWithCustomHeader = {GlobalsTable.homeTextTable, GlobalsTable.homeAudioTable, "ps_info_audio", "ps_info_text"};
+  final Set<String> filesInfrontAppBar = {GlobalsTable.homeTextTable, GlobalsTable.homeExcelTable, GlobalsTable.homePdfTable, "ps_info_text", "ps_info_excel", "ps_info_pdf"};
 
   @override
   void initState() {
     super.initState();
-    _fileType = widget.fileType;
-    _currentTable = ""; 
+    fileType = widget.fileType;
+    currentTable = ""; 
   }
 
   @override
   void dispose() {
-    _shareToController.dispose();
-    _commentController.dispose();
-    _textController.dispose();
-    _fileResolution.value = "";
-    _fileSize.value = "";
+    shareToController.dispose();
+    commentController.dispose();
+    textController.dispose();
+    fileResolutionNotifier.value = "";
+    fileSizeNotifier.value = "";
 
     super.dispose();
   }
@@ -209,7 +227,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       String newRenameValue = "$newItemValue.${fileName.split('.').last}";
 
       if (Globals.fileValues.contains(newRenameValue)) {
-        AlertForm.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
+        CustomAlertDialog.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
       } else {
         await _renameFile(fileName, newRenameValue);
       }
@@ -243,8 +261,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       'avi': () => const PreviewVideo(),
     };
 
-    if (previewMap.containsKey(_fileType)) {
-      previewWidget = previewMap[_fileType]!();
+    if (previewMap.containsKey(fileType)) {
+      previewWidget = previewMap[fileType]!();
     } else {
       previewWidget = FailedLoad.buildFailedLoad();
     }
@@ -253,7 +271,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Widget _buildHeaderTitle() {
-    return _currentTable == "file_info_expand" || _currentTable == "ps_info_text" ? Row(
+    return currentTable == "file_info_expand" || currentTable == "ps_info_text" ? Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -277,7 +295,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     return await retrieveData.retrieveDataParams(
       Globals.custUsername,
       widget.selectedFilename,
-      _currentTable,
+      currentTable,
       widget.originFrom
     );
   }
@@ -307,7 +325,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   Widget _buildFilePreview() {
     return GestureDetector(
       onTap: () {
-        bottomBarVisible.value = !bottomBarVisible.value;
+        bottomBarVisibleNotifier.value = !bottomBarVisibleNotifier.value;
       },
       child: _buildFileDataWidget(),
     );
@@ -323,7 +341,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       final base64Encoded = base64.encode(newValuesBytes!);
       await UpdateValues().insertValueParams(
-        tableName: _currentTable, 
+        tableName: currentTable, 
         filePath: Globals.selectedFileName, 
         userName: Globals.custUsername, 
         newValue: base64Encoded,
@@ -344,13 +362,14 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     try {
 
       await UpdateValues().insertValueParams(
-        tableName: _currentTable, 
+        tableName: currentTable, 
         filePath: Globals.selectedFileName, 
         userName: Globals.custUsername, 
         newValue: changesUpdate,
         columnName: "null",
       );
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "Changes saved.", icon: Icons.check,context: context);
 
     } catch (err) {
@@ -408,19 +427,19 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               );
             } else if (originFrom == "share") {
 
-              SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
+              SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController,commentController: commentController,context: context);
 
             } else if (originFrom == "save") {
               
-              final textValue = _textController.text;
+              final textValue = textController.text;
 
-              if(textValue.isNotEmpty && _currentTable == "file_info_expand") {
+              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeTextTable) {
                 
                 await _updateTextChanges(textValue,context);
                 return;
               } 
 
-              if(_currentTable == "file_info_excel") {
+              if(currentTable == GlobalsTable.homeExcelTable) {
                 final updatedValues = PreviewExcel.excelUpdatedBytes;
                 await _saveExcelChanges(updatedValues,context);
                 return;
@@ -461,8 +480,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       final uploaderUsername = 
       await UploaderName().getUploaderName(
-        tableName: Globals.fileTypesToTableNamesPs[_fileType]!,
-        fileValues: {_fileType}
+        tableName: Globals.fileTypesToTableNamesPs[fileType]!,
+        fileValues: {fileType}
       );
 
       returnedUploaderName = uploaderUsername;
@@ -557,7 +576,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
                 Visibility(
                   visible: true,
-                  child: _currentTable == "file_info_expand" || _currentTable == "file_info_excel" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
+                  child: currentTable == GlobalsTable.homeTextTable || currentTable == GlobalsTable.homeExcelTable ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
                 ),
     
                 _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
@@ -586,7 +605,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future<Uint8List> _callFileSize() async {
-    return await retrieveData.retrieveDataParams(Globals.custUsername, Globals.selectedFileName, _currentTable,widget.originFrom);
+    return await retrieveData.retrieveDataParams(Globals.custUsername, Globals.selectedFileName, currentTable, widget.originFrom);
   }
 
   Future<String> _getFileSize() async {
@@ -686,7 +705,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
                         const SizedBox(width: 8),
 
-                        _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" ? _fileResolution.value == '' ? FutureBuilder<String>(
+                        currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? fileResolutionNotifier.value == '' ? FutureBuilder<String>(
                           future: _returnImageSize(),
                           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                             if(snapshot.hasData) {
@@ -708,7 +727,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                           }
                         )
                         : ValueListenableBuilder<String>(
-                          valueListenable: _fileResolution,
+                          valueListenable: fileResolutionNotifier,
                           builder: (BuildContext context, String value, Widget? child) {
                             return Text(value,
                               style: const TextStyle(
@@ -748,7 +767,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
                         const SizedBox(width: 9),
 
-                        _fileSize.value == '' ? FutureBuilder<String>(
+                        fileSizeNotifier.value == '' ? FutureBuilder<String>(
                           future: _getFileSize(),
                           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                             if(snapshot.hasData) {
@@ -770,7 +789,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                           }
                         )
                         : ValueListenableBuilder<String>(
-                          valueListenable: _fileSize,
+                          valueListenable: fileSizeNotifier,
                           builder: (BuildContext context, String value, Widget? child) {
                             return Text(value,
                               style: const TextStyle(
@@ -812,7 +831,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       },
       onSharingPressed: () {
         Navigator.pop(context);
-        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: _shareToController,commentController: _commentController,context: context);
+        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
       }, 
       onAOPressed: () async {
 
@@ -831,7 +850,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         } else {
           fileData = await _callDataDownload();
         }
-
+        
+        if(!mounted) return;
         await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
 
         singleLoading.stopLoading();
@@ -851,11 +871,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     const audioTables = {GlobalsTable.homeAudioTable, "ps_info_audio"};
     const excelTables = {GlobalsTable.homeExcelTable, "ps_info_excel"};
 
-    if(textTables.contains(_currentTable)) {
-      return PreviewText(controller: _textController);
-    } else if (excelTables.contains(_currentTable)) {
+    if(textTables.contains(currentTable)) {
+      return PreviewText(controller: textController);
+    } else if (excelTables.contains(currentTable)) {
       return const PreviewExcel();
-    } else if (audioTables.contains(_currentTable)) {
+    } else if (audioTables.contains(currentTable)) {
       return const PreviewAudio();
     } else {
       return _buildFilePreview();
@@ -865,27 +885,27 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   @override
   Widget build(BuildContext context) {
 
-    _currentTable = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[_fileType]! : Globals.fileTypesToTableNames[_fileType]!;
+    currentTable = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType]! : Globals.fileTypesToTableNames[fileType]!;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: filesInfrontAppBar.contains(_currentTable) ? false : true,
+      extendBodyBehindAppBar: filesInfrontAppBar.contains(currentTable) ? false : true,
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(_appBarHeight),
+        preferredSize: Size.fromHeight(appBarHeight),
         child: ValueListenableBuilder<bool>(
-          valueListenable: bottomBarVisible,
+          valueListenable: bottomBarVisibleNotifier,
           builder: (BuildContext context, bool value, Widget? child) {
             return Visibility(
-              visible: _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" ? bottomBarVisible.value : true,
+              visible: currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? bottomBarVisibleNotifier.value : true,
               child: AppBar(
-              backgroundColor: filesInfrontAppBar.contains(_currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
+              backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
               actions: <Widget>[
                 Visibility(
-                  visible: _currentTable == GlobalsTable.homeTextTable || _currentTable == "ps_info_text",
+                  visible: currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text",
                   child: IconButton(
                     onPressed: () {
-                      final textValue = _textController.text;
+                      final textValue = textController.text;
                       Clipboard.setData(ClipboardData(text: textValue));
                       SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
                     },
@@ -906,7 +926,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               titleSpacing: 0,
               elevation: 0,
               centerTitle: false,
-              title: filesWithCustomHeader.contains(_currentTable)
+              title: filesWithCustomHeader.contains(currentTable)
                 ? const SizedBox()
                 : ValueListenableBuilder<String>(
                   valueListenable: appBarTitleNotifier,
@@ -928,7 +948,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               child: buildFileOnCondition(),
             ),
             ValueListenableBuilder<bool>(
-              valueListenable: bottomBarVisible, 
+              valueListenable: bottomBarVisibleNotifier, 
               builder: (BuildContext context, bool value, Widget? child) {
                 return Visibility(
                   visible: value,

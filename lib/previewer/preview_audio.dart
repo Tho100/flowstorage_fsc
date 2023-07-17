@@ -124,7 +124,7 @@ class PreviewAudioState extends State<PreviewAudio> {
               padding: EdgeInsets.zero,
               onPressed: () async {
           
-                CakePreviewFileState.bottomBarVisible.value = false;
+                CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 audioIsPlaying = !audioIsPlaying;
                 iconPausePlay.value = audioIsPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded;
           
@@ -227,7 +227,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   @override
   void dispose(){
-    CakePreviewFileState.bottomBarVisible.value = true;
+    CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     audioPlayerController.dispose();
     sliderValueController.close();
     super.dispose();

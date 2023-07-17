@@ -7,7 +7,7 @@ import 'package:flowstorage_fsc/widgets/main_text_field.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
-import 'package:flowstorage_fsc/ui_dialog/AlertForm.dart';
+import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/data_classes/register_process.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:intl/intl.dart';
@@ -72,7 +72,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
       );
 
     } catch (exceptionConnectionFsc) {
-      AlertForm.alertDialogTitle("Something is wrong...", "No internet connection.", context);
+      CustomAlertDialog.alertDialogTitle("Something is wrong...", "No internet connection.", context);
     }
     
   }
@@ -85,52 +85,52 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
     var custAuth1Input = auth1Controller.text;
 
     if(custEmailInput.isEmpty && custUsernameInput.isEmpty && custAuth0Input.isEmpty && custAuth1Input.isEmpty) {
-      AlertForm.alertDialog("Please fill all the required forms.",context);
+      CustomAlertDialog.alertDialog("Please fill all the required forms.",context);
       return;
     }
 
     if (custUsernameInput.contains(RegExp(r'[&%;?]'))) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Username cannot contain special characters.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Username cannot contain special characters.",context);
       return;
     }
 
     if (custAuth0Input.contains(RegExp(r'[?!]'))) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Password cannot contain special characters.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Password cannot contain special characters.",context);
       return;
     }
 
     if (custAuth0Input.length <= 5) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Password must contain more than 5 characters.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Password must contain more than 5 characters.",context);
       return;
     }
 
     if (custAuth1Input.length != 3) {
-      AlertForm.alertDialogTitle("Sign Up Failed","PIN Number must have 3 digits.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","PIN Number must have 3 digits.",context);
       return;
     }
 
     if (custAuth1Input.isEmpty) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Please add a PIN number to protect your account.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Please add a PIN number to protect your account.",context);
       return;
     }
 
     if (!EmailValidator().validateEmail(custEmailInput)) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Email address is not valid.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Email address is not valid.",context);
       return;
     }
 
     if (custUsernameInput.isEmpty) {
-      AlertForm.alertDialogTitle("Sign Up Failed","Please enter a username.",context);
+      CustomAlertDialog.alertDialogTitle("Sign Up Failed","Please enter a username.",context);
       return;
     }
 
     if (custAuth0Input.isEmpty) {
-      AlertForm.alertDialog("Please enter a password.",context);
+      CustomAlertDialog.alertDialog("Please enter a password.",context);
       return;
     }
 
     if (custEmailInput.isEmpty) {
-      AlertForm.alertDialog("Please enter your email.",context);
+      CustomAlertDialog.alertDialog("Please enter your email.",context);
       return;
     }
 
