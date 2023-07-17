@@ -126,9 +126,9 @@ class HomePage extends StatelessWidget {
           children: [
 
             const SizedBox(height: 55),
-            buildHeaderText("Built-in Previewer"),
+            buildHeaderText("Public Storage"),
             const SizedBox(height: 18),
-            buildSubText("Preview your PDF or document files without the need for extra software."),
+            buildSubText("Explore a vast collection of publicly shared files from around the world."),
           
           ],
         ),

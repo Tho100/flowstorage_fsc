@@ -844,7 +844,6 @@ class CakeHomeState extends State<Mainboard> {
     final uniqueFileNames = fileNames.toList();
     final uniqueBytes = bytes.toList();
 
-
     Globals.fromLogin = true;
 
     Globals.fileValues.addAll(uniqueFileNames);
@@ -3551,7 +3550,7 @@ class CakeHomeState extends State<Mainboard> {
           borderRadius: BorderRadius.circular(25),
           color: ThemeColor.mediumGrey,
         ),
-        height: 45,
+        height: 48,
         child: FractionallySizedBox(
           widthFactor: 0.94, 
           child: TextField(
@@ -3575,9 +3574,9 @@ class CakeHomeState extends State<Mainboard> {
                 borderSide: const BorderSide(color: ThemeColor.mediumGrey),
                 borderRadius: BorderRadius.circular(25.0),
               ),
-              hintText: 'Search your Flowstorage files',
-              hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200)),
-              prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 20),
+              hintText: 'Search in Flowstorage',
+              hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
+              prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
             ),
           ),
         ),

@@ -93,6 +93,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   static ValueNotifier<bool> bottomBarVisible = ValueNotifier<bool>(true);
 
   final Set<String> filesWithCustomHeader = {GlobalsTable.homeTextTable,GlobalsTable.homeAudioTable,"ps_info_audio","ps_info_text"};
+  final Set<String> filesInfrontAppBar = {GlobalsTable.homeTextTable,GlobalsTable.homeExcelTable,GlobalsTable.homePdfTable,"ps_info_text","ps_info_excel","ps_info_pdf"};
 
   @override
   void initState() {
@@ -279,40 +280,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       _currentTable,
       widget.originFrom
     );
-  }
-
-  Future<Uint8List> _callData() async {
-
-    try {
-
-      switch (_currentTable) {
-
-        case GlobalsTable.homeVideoTable:
-        case GlobalsTable.homeAudioTable:
-        case GlobalsTable.homeImageTable:
-        case "ps_info_video":
-        case "ps_info_image":
-
-          return Future.value(Uint8List.fromList([0]));
-        
-        default:
-
-          final uploaderUsername = Globals.fileOrigin == "psFiles" 
-          ? await UploaderName().getUploaderName(tableName: _currentTable,fileValues: Globals.textType)
-          : Globals.custUsername;
-        
-          return await Future(() => retrieveData.retrieveDataParams(
-            uploaderUsername,
-            widget.selectedFilename,
-            _currentTable,
-            widget.originFrom,
-          )
-        );
-      }
-    } catch (err, st) {
-      Logger().e("Exception from _callData {File Preview}", err, st);
-      return Future.value(Uint8List(0));
-    }
   }
 
   void _removeFileFromListView(String fileName) {
@@ -902,7 +869,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" || _currentTable == GlobalsTable.homeVideoTable || _currentTable == "ps_info_video" ? true : false,
+      extendBodyBehindAppBar: filesInfrontAppBar.contains(_currentTable) ? false : true,
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_appBarHeight),
@@ -912,7 +879,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
             return Visibility(
               visible: _currentTable == GlobalsTable.homeImageTable || _currentTable == "ps_info_image" ? bottomBarVisible.value : true,
               child: AppBar(
-              backgroundColor: _currentTable == GlobalsTable.homeImageTable || _currentTable == "file_info_vid" || _currentTable == "ps_info_video" ? const Color(0x44000000) : ThemeColor.darkBlack,
+              backgroundColor: filesInfrontAppBar.contains(_currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
               actions: <Widget>[
                 Visibility(
                   visible: _currentTable == GlobalsTable.homeTextTable || _currentTable == "ps_info_text",
