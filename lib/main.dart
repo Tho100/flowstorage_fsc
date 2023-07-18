@@ -1146,6 +1146,9 @@ class CakeHomeState extends State<Mainboard> {
         final decodeToBytes = base64.decode(imageBase64Encoded);
         final imageBytes = Uint8List.fromList(decodeToBytes);
         await OfflineMode().saveOfflineFile(fileName: imageName, fileData: imageBytes);
+        // Added this
+        Globals.filteredSearchedBytes.add(decodeToBytes);
+        Globals.imageByteValues.add(decodeToBytes);
 
       } else {
 
@@ -1425,6 +1428,8 @@ class CakeHomeState extends State<Mainboard> {
       }
 
       File? newFileToDisplay;
+
+      if (!mounted) return;
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       final selectedFileName = pickedVideo.name;
@@ -1526,7 +1531,9 @@ class CakeHomeState extends State<Mainboard> {
         final shortenText = ShortenText();
         final List<XFile>? pickedImages = await GalleryImagePicker.pickMultiImage();
 
+        if (!mounted) return; 
         final scaffoldMessenger = ScaffoldMessenger.of(context);
+
         int countSelectedFiles = pickedImages!.length;
 
         if (countSelectedFiles == 0) {
@@ -2105,32 +2112,34 @@ class CakeHomeState extends State<Mainboard> {
    
   }
 
- Widget _buildSidebarButtons({
-    required String title, 
-    required IconData icon, 
-    required VoidCallback onPressed
+  Widget _buildSidebarButtons({
+    required String title,
+    required IconData icon,
+    required VoidCallback onPressed,
   }) {
-    return InkWell(
-      onTap: onPressed,
-      splashColor: ThemeColor.secondaryWhite,
-      borderRadius: BorderRadius.circular(8),
-      child: Ink(
-        color: Colors.grey,
-        child: ListTile(
-          leading: Icon(
-            icon,
-            color: Colors.white,
-            size: 24,
-          ),
-          title: Text(
-            title,
-            style: GlobalsStyle.sidebarMenuButtonsStyle,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        splashColor: ThemeColor.secondaryWhite,
+        borderRadius: BorderRadius.circular(4),
+        child: Ink(
+          color: ThemeColor.darkBlack,
+          child: ListTile(
+            leading: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+            title: Text(
+              title,
+              style: GlobalsStyle.sidebarMenuButtonsStyle,
+            ),
           ),
         ),
       ),
     );
   }
-
 
   Widget _buildSidebarMenu() {
     return Drawer(
@@ -2217,7 +2226,7 @@ class CakeHomeState extends State<Mainboard> {
 
               const SizedBox(height: 15),
 
-              const Divider(color: ThemeColor.mediumGrey),
+              const Divider(color: ThemeColor.thirdWhite),
 
               Expanded(
                 child: ListView(
@@ -2225,7 +2234,7 @@ class CakeHomeState extends State<Mainboard> {
 
                     _buildSidebarButtons(
                       title: "Shared to me",
-                      icon: Icons.inbox_rounded,
+                      icon: Icons.inbox_outlined,
                       onPressed: () async {
 
                         Globals.fileOrigin = "sharedToMe";
@@ -2243,7 +2252,7 @@ class CakeHomeState extends State<Mainboard> {
 
                     _buildSidebarButtons(
                       title: "Backup recovery key",
-                      icon: Icons.key_rounded,
+                      icon: Icons.key_outlined,
                       onPressed: () {
                         NavigatePage.goToPageBackupRecovery(context);
                       }
@@ -2251,7 +2260,7 @@ class CakeHomeState extends State<Mainboard> {
 
                     _buildSidebarButtons(
                       title: "Offline",
-                      icon: Icons.wifi_off_rounded,
+                      icon: Icons.offline_bolt_outlined,
                       onPressed: () async {
                         Navigator.pop(context);
                         await _callOfflineData();
@@ -2335,7 +2344,6 @@ class CakeHomeState extends State<Mainboard> {
                   ),
                 ),
               ),
-
           ],
         ),
       ),
@@ -3990,7 +3998,7 @@ class CakeHomeState extends State<Mainboard> {
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
                 children: [
-                  Icon(Icons.download),
+                  Icon(Icons.download_rounded),
                   SizedBox(width: 10.0),
                   Text(
                     'Save to device',
@@ -4010,7 +4018,7 @@ class CakeHomeState extends State<Mainboard> {
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
                 child: const Row(
                   children: [
-                    Icon(Icons.wifi_off_rounded),
+                    Icon(Icons.offline_bolt_rounded),
                     SizedBox(width: 10.0),
                     Text(
                       'Make available offline',
@@ -4313,7 +4321,7 @@ class CakeHomeState extends State<Mainboard> {
               ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 25),
               style: const TextStyle(
                 color: ThemeColor.justWhite,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,

@@ -113,7 +113,7 @@ class BottomTrailing {
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
                 child: const Row(
                   children: [
-                    Icon(Icons.wifi_off_rounded),
+                    Icon(Icons.offline_bolt_rounded),
                     SizedBox(width: 10.0),
                     Text('Make available Offline',
                       style: GlobalsStyle.btnBottomDialogTextStyle
