@@ -1004,7 +1004,7 @@ class CakeHomeState extends State<Mainboard> {
 
       });
 
-      GlobalsData.homeFilesNameData.add(directoryName);
+      GlobalsData.homeFilesNameData.clear();
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 

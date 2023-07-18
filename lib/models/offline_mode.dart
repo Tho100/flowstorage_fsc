@@ -75,6 +75,26 @@ class OfflineMode {
      
   }
 
+  void saveOfflineTextFile({
+    required String inputValue, 
+    required String fileName, 
+    required bool isFromCreateTxt
+  }) async {
+
+    final String getFileName = isFromCreateTxt ? "${fileName.trim().replaceAll(".", "")}.txt" : fileName;
+    final toUtf8Bytes = utf8.encode(inputValue);
+
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
+
+    if (!offlineDirPath.existsSync()) {
+      offlineDirPath.createSync();
+    }
+
+    final setupFiles = File('${offlineDirPath.path}/$getFileName');
+    await setupFiles.writeAsBytes(toUtf8Bytes);
+  }
+
   Future<void> processSaveOfflineFile({
     required String fileName, 
     required Uint8List fileData,

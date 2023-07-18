@@ -74,26 +74,6 @@ class CakePreviewFile extends StatefulWidget {
 
 class CakePreviewFileState extends State<CakePreviewFile> {
 
-/*  final retrieveData = RetrieveData();
-  String _fileType = '';
-
-  ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
-
-  final double _appBarHeight = 55.0;
-  late String _currentTable;
-
-  final TextEditingController _shareToController = TextEditingController();
-  final TextEditingController _commentController = TextEditingController();
-
-  final ValueNotifier<String> _fileSize = ValueNotifier<String>('');  
-  final ValueNotifier<String> _fileResolution = ValueNotifier<String>('');
-
-  final TextEditingController _textController = TextEditingController();
-  static ValueNotifier<bool> _bottomBarVisible = ValueNotifier<bool>(true);
-
-  final Set<String> _filesWithCustomHeader = {GlobalsTable.homeTextTable,GlobalsTable.homeAudioTable,"ps_info_audio","ps_info_text"};
-  final Set<String> _filesInfrontAppBar = {GlobalsTable.homeTextTable,GlobalsTable.homeExcelTable,GlobalsTable.homePdfTable,"ps_info_text","ps_info_excel","ps_info_pdf"};
-*/
   final retrieveData = RetrieveData();
   String fileType = '';
 
@@ -348,6 +328,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         columnName: "null",
       );
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "Changes saved.", icon: Icons.check,context: context);
 
     } catch (err, st) { 
@@ -361,13 +342,26 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     try {
 
-      await UpdateValues().insertValueParams(
-        tableName: currentTable, 
-        filePath: Globals.selectedFileName, 
-        userName: Globals.custUsername, 
-        newValue: changesUpdate,
-        columnName: "null",
-      );
+
+      if(Globals.fileOrigin != "offlineFiles") {
+
+        await UpdateValues().insertValueParams(
+          tableName: currentTable, 
+          filePath: Globals.selectedFileName, 
+          userName: Globals.custUsername, 
+          newValue: changesUpdate,
+          columnName: "null",
+        );
+
+      } else {
+
+        OfflineMode().saveOfflineTextFile(
+          inputValue: changesUpdate, 
+          fileName: Globals.selectedFileName, 
+          isFromCreateTxt: false
+        );
+        
+      } 
 
       if(!mounted) return;
       SnakeAlert.okSnake(message: "Changes saved.", icon: Icons.check,context: context);
@@ -433,8 +427,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               
               final textValue = textController.text;
 
-              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeTextTable) {
-                
+              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text" && Globals.fileOrigin == "offlineFiles") {
+
                 await _updateTextChanges(textValue,context);
                 return;
               } 
@@ -576,7 +570,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
                 Visibility(
                   visible: true,
-                  child: currentTable == GlobalsTable.homeTextTable || currentTable == GlobalsTable.homeExcelTable ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
+                  child: currentTable == GlobalsTable.homeTextTable || currentTable == GlobalsTable.homeExcelTable || currentTable == "ps_info_text" && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
                 ),
     
                 _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),

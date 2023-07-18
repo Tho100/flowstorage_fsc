@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
@@ -10,13 +10,13 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 
 class CreateText extends StatefulWidget {
   const CreateText({super.key});
@@ -254,7 +254,12 @@ class _CreateText extends State<CreateText> {
 
       logger.e("Exception from _saveText {create_text}", err, st);
 
-      _saveFileAsOffline(inputValue);
+      OfflineMode().saveOfflineTextFile(
+        inputValue: inputValue,
+        fileName: fileNameController.text, 
+        isFromCreateTxt: true
+      );
+      
       SnakeAlert.okSnake(message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
 
       fileNameController.clear();
@@ -265,25 +270,6 @@ class _CreateText extends State<CreateText> {
 
     }
 
-  }
-
-  void _saveFileAsOffline(String inputValue) async {
-
-    final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
-
-    final toUtf8Bytes = utf8.encode(inputValue);
-
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirPath = Directory('${getDirApplication.path}/offline_files');
-
-    if(!offlineDirPath.existsSync()) {
-      offlineDirPath.createSync();
-      final setupFiles = File('${offlineDirPath.path}/$getFileName');
-      await setupFiles.writeAsBytes(toUtf8Bytes);
-    } else {
-      final setupFiles = File('${offlineDirPath.path}/$getFileName');
-      await setupFiles.writeAsBytes(toUtf8Bytes);
-    } 
   }
 
   Widget _buildTxt(BuildContext context) {
