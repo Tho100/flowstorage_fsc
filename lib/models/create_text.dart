@@ -212,26 +212,21 @@ class _CreateText extends State<CreateText> {
   Future<void> _saveText(String inputValue) async {
 
     try {
-    
-      if(inputValue.isEmpty) {
-        return;
-      }
 
       if (await _isFileExists(EncryptionClass().Encrypt("$inputValue.txt"))) {
-        if(!mounted) return;
+        if (!mounted) return;
         CustomAlertDialog.alertDialog("File with this name already exists.", context);
         return;
       }
 
       final toUtf8Bytes = utf8.encode(inputValue);
       final String bodyBytes = base64.encode(toUtf8Bytes);
-
       final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
 
       await _insertUserFile(
-        table: _tableToUploadTo(), 
-        filePath: getFileName, 
-        fileValue: bodyBytes
+        table: _tableToUploadTo(),
+        filePath: getFileName,
+        fileValue: bodyBytes,
       );
 
       setState(() {
@@ -242,35 +237,59 @@ class _CreateText extends State<CreateText> {
 
       Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.clear() : null;
 
-      await CallNotify().customNotification(title: "Text File Saved", subMesssage: ShortenText().cutText("$getFileName Has been saved"));
+      await CallNotify().customNotification(
+        title: "Text File Saved",
+        subMesssage: ShortenText().cutText("$getFileName Has been saved"),
+      );
 
-      if(!mounted) return;
-      SnakeAlert.okSnake(message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.", icon: Icons.check, context: context);
+      if (!mounted) return;
+
+      SnakeAlert.okSnake(
+        message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved.",
+        icon: Icons.check,
+        context: context,
+      );
+
       Navigator.pop(context);
-      
+
       fileNameController.clear();
 
     } catch (err, st) {
 
       logger.e("Exception from _saveText {create_text}", err, st);
 
+      final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
+
       OfflineMode().saveOfflineTextFile(
         inputValue: inputValue,
-        fileName: fileNameController.text, 
-        isFromCreateTxt: true
+        fileName: getFileName,
+        isFromCreateTxt: true,
       );
-      
-      SnakeAlert.okSnake(message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as offline file.", icon: Icons.check, context: context);
+
+      setState(() {
+        saveVisibility = false;
+        textFormEnabled = false;
+        _addTextFileToListView(fileName: getFileName);
+      });
+
+      await CallNotify().customNotification(
+        title: "Text File Saved",
+        subMesssage: ShortenText().cutText("${fileNameController.text} Has been saved"),
+      );
+
+      if (!mounted) return;
+
+      SnakeAlert.okSnake(
+        message: "`${fileNameController.text.replaceAll(".txt", "")}.txt` Has been saved as an offline file.",
+        icon: Icons.check,
+        context: context,
+      );
 
       fileNameController.clear();
-
       Navigator.pop(context);
-
-      return;
-
     }
-
   }
+
 
   Widget _buildTxt(BuildContext context) {
     return Padding(

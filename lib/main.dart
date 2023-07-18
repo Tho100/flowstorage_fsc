@@ -927,7 +927,7 @@ class CakeHomeState extends State<Mainboard> {
 
     _navHomeButtonVisibility(true);
     _navDirectoryButtonVisibility(false);
-    _floatingButtonVisiblity(false);
+    _floatingButtonVisiblity(true);
     
   }
 
@@ -1128,7 +1128,7 @@ class CakeHomeState extends State<Mainboard> {
 
       List<int> bytes = await _compressedByteImage(path: imagePath,quality: 56);
       
-      final imageBytes = base64.encode(bytes); 
+      final imageBase64Encoded = base64.encode(bytes); 
 
       if(Globals.fileValues.contains(imageName)) {
         if(!mounted) return;
@@ -1137,15 +1137,25 @@ class CakeHomeState extends State<Mainboard> {
       }
 
       if(Globals.fileOrigin == "psFiles") {
-        _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBytes);
+        
+        _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBase64Encoded);
         return;
+
+      } else if (Globals.fileOrigin == "offlineFiles") {
+
+        final decodeToBytes = base64.decode(imageBase64Encoded);
+        final imageBytes = Uint8List.fromList(decodeToBytes);
+        await OfflineMode().saveOfflineFile(fileName: imageName, fileData: imageBytes);
+
       } else {
+
         await _processUploadListView(
           filePathVal: imagePath, 
           selectedFileName: imageName, 
           tableName: GlobalsTable.homeImageTable, 
-          fileBase64Encoded: imageBytes
+          fileBase64Encoded: imageBase64Encoded
         );
+        
       }
 
       _addItemToListView(fileName: imageName);
@@ -3611,56 +3621,62 @@ class CakeHomeState extends State<Mainboard> {
               ],
             ),
     
-            ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  Navigator.pop(context);
-                  await _openDialogGallery();
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.photo),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Upload from Gallery',
-                    style: GlobalsStyle.btnBottomDialogTextStyle
-                  ),
-                ],
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                    Navigator.pop(context);
+                    await _openDialogGallery();
+                  } else {
+                    _upgradeDialog(
+                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                    );
+                  }
+                },
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.photo),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Upload from Gallery',
+                      style: GlobalsStyle.btnBottomDialogTextStyle
+                    ),
+                  ],
+                ),
               ),
             ),
               
-            ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  Navigator.pop(context);
-                  await _openDialogFile();
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.upload_file),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Upload Files',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                    Navigator.pop(context);
+                    await _openDialogFile();
+                  } else {
+                    _upgradeDialog(
+                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                    );
+                  }
+                },
+                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.upload_file),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Upload Files',
+                      style: GlobalsStyle.btnBottomDialogTextStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
 
             Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles"]),//!_setVisibility("dirFiles") || !_etVisibility("dirFiles"),//Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
+              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles","dirFiles","folderFiles"]),
               child: ElevatedButton(
               onPressed: () async {
 
@@ -3715,28 +3731,31 @@ class CakeHomeState extends State<Mainboard> {
             ),
           ),
 
-          ElevatedButton(
-            onPressed: () async {
-              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                Navigator.pop(context);
-                await _initializeCameraScanner();
-              } else {
-                _upgradeDialog(
-                  "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                );
-              }
-            },
-
-            style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-            child: const Row(
-              children: [
-                Icon(Icons.center_focus_strong_rounded),
-                SizedBox(width: 10.0),
-                Text(
-                  'Scan Document',
-                  style: GlobalsStyle.btnBottomDialogTextStyle,
-                ),
-              ],
+          Visibility(
+            visible: VisibilityChecker.setNotVisible("offlineFiles"),
+            child: ElevatedButton(
+              onPressed: () async {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                  Navigator.pop(context);
+                  await _initializeCameraScanner();
+                } else {
+                  _upgradeDialog(
+                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                  );
+                }
+              },
+          
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.center_focus_strong_rounded),
+                  SizedBox(width: 10.0),
+                  Text(
+                    'Scan Document',
+                    style: GlobalsStyle.btnBottomDialogTextStyle,
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -3770,7 +3789,7 @@ class CakeHomeState extends State<Mainboard> {
             ),
         
             Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles"]),//Globals.fileOrigin == "dirFiles" || Globals.fileOrigin == "folderFiles" || Globals.fileOrigin == "psFiles" ? false : true,
+              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles","offlineFiles"]),
               child: ElevatedButton(
               onPressed: () async {
                 final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);

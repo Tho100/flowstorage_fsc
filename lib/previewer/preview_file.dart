@@ -383,16 +383,24 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       
       loadingDialog.startLoading(title: "Downloading...", subText: fileName, context: context);
 
-      Uint8List getBytes = await _callDataDownload();
+      late Uint8List fileData;
+
+      if(Globals.imageType.contains(fileType)) {
+        fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(fileName)]!;
+
+      } else {
+        fileData = await _callDataDownload();
+      }
 
       await SimplifyDownload(
         fileName: fileName,
         currentTable: tableName!,
-        fileData: getBytes
+        fileData: fileData
       ).downloadFile();
     
       loadingDialog.stopLoading();
 
+      if(!mounted) return;
       SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been downloaded.",icon: Icons.check,context: context);
 
     } catch (err) {

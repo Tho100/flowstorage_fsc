@@ -81,7 +81,7 @@ class OfflineMode {
     required bool isFromCreateTxt
   }) async {
 
-    final String getFileName = isFromCreateTxt ? "${fileName.trim().replaceAll(".", "")}.txt" : fileName;
+    final String getFileName = fileName;
     final toUtf8Bytes = utf8.encode(inputValue);
 
     final getDirApplication = await getApplicationDocumentsDirectory();
