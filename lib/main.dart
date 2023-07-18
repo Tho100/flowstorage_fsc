@@ -865,9 +865,7 @@ class CakeHomeState extends State<Mainboard> {
     final offlineDirs = Directory('${getDirApplication.path}/offline_files');
 
     if(!offlineDirs.existsSync()) { 
-      if(!mounted) return;
-      CustomAlertDialog.alertDialog("No offline file is available yet.", context);
-      return;
+      offlineDirs.createSync();
     }
 
     Globals.fileOrigin = "offlineFiles";
@@ -1146,7 +1144,7 @@ class CakeHomeState extends State<Mainboard> {
         final decodeToBytes = base64.decode(imageBase64Encoded);
         final imageBytes = Uint8List.fromList(decodeToBytes);
         await OfflineMode().saveOfflineFile(fileName: imageName, fileData: imageBytes);
-        // Added this
+
         Globals.filteredSearchedBytes.add(decodeToBytes);
         Globals.imageByteValues.add(decodeToBytes);
 
