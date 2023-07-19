@@ -189,7 +189,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
 
       if (indexOldFileSearched != -1) {
-        
+
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
 
         if (!mounted) return;
@@ -632,9 +632,50 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     return imageResolution;
   }
 
-  Future _buildBottomInfo() {
+  Widget _buildFileInfoHeader(String headerText, String subHeader) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 120.0),
+      child: Row(
+    
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+    
+        children: [
+          Text(headerText,
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(ShortenText().cutText(subHeader, customLength: 30),
+            style: const TextStyle(
+              overflow: TextOverflow.ellipsis,
+              color: ThemeColor.secondaryWhite,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ]
+      ),
+    );
+  }
+
+  Future _buildBottomInfo() async {
 
     final mediaQuery = MediaQuery.of(context);
+    
+    late Future<String> imageResolutionFuture;
+    late Future<String> fileSizeFuture;
+
+    if (currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image") {
+      imageResolutionFuture = _returnImageSize();
+    } else {
+      imageResolutionFuture = Future.value('N/A');
+    }
+
+    fileSizeFuture = _getFileSize();
 
     return showModalBottomSheet(
       backgroundColor: const Color.fromARGB(255, 25, 25, 25),
@@ -642,173 +683,47 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: mediaQuery.viewInsets.bottom),
-            child: SizedBox(
-              height: 150,
-              child: Scaffold(
-                resizeToAvoidBottomInset: false,
-                backgroundColor: Colors.transparent,
-                body: Column(
-
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-
-                  children: [
-
-                    const SizedBox(height: 10),
-
-                    Container(
-                      width: 45,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(10),
-                      ),                      
+            bottom: mediaQuery.viewInsets.bottom,
+          ),
+          child: SizedBox(
+            height: 150,
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: Colors.transparent,
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  Container(
+                    width: 45,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    Row(
-
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        const Text('File Name',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(Globals.selectedFileName,
-                          style: const TextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            color: ThemeColor.secondaryWhite,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ]
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Row(
-
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        const Text('File Resolution',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? fileResolutionNotifier.value == '' ? FutureBuilder<String>(
-                          future: _returnImageSize(),
-                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                            if(snapshot.hasData) {
-                              return Text(snapshot.data!,
-                              style: const TextStyle(
-                                color: ThemeColor.secondaryWhite,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
-                              );
-                            } else {
-                              return const SizedBox(
-                                width: 10,
-                                height: 10,
-                                child: CircularProgressIndicator(color: ThemeColor.secondaryWhite)
-                              );
-                            }
-                          }
-                        )
-                        : ValueListenableBuilder<String>(
-                          valueListenable: fileResolutionNotifier,
-                          builder: (BuildContext context, String value, Widget? child) {
-                            return Text(value,
-                              style: const TextStyle(
-                              color: ThemeColor.secondaryWhite,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              ),
-                              textAlign: TextAlign.center,
-                            );
-                          },
-                        )
-                        : const Text('N/A',
-                            style: TextStyle(
-                                color: ThemeColor.secondaryWhite,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                ),
-                              )
-
-                      ]
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Row(
-
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        const Text('File Size',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        const SizedBox(width: 9),
-
-                        fileSizeNotifier.value == '' ? FutureBuilder<String>(
-                          future: _getFileSize(),
-                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                            if(snapshot.hasData) {
-                              return Text("${snapshot.data!}Mb",
-                              style: const TextStyle(
-                                color: ThemeColor.secondaryWhite,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
-                              );
-                            } else {
-                              return const SizedBox(
-                                width: 10,
-                                height: 10,
-                                child: CircularProgressIndicator(color: ThemeColor.secondaryWhite)
-                              );
-                            }
-                          }
-                        )
-                        : ValueListenableBuilder<String>(
-                          valueListenable: fileSizeNotifier,
-                          builder: (BuildContext context, String value, Widget? child) {
-                            return Text(value,
-                              style: const TextStyle(
-                              color: ThemeColor.secondaryWhite,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              ),
-                              textAlign: TextAlign.center,
-                            );
-                          },
-                        )
-                    ]
                   ),
-                ]
+                  const SizedBox(height: 20),
+                  _buildFileInfoHeader("File Name", Globals.selectedFileName),
+                  const SizedBox(height: 8),
+                  FutureBuilder<String>(
+                    future: imageResolutionFuture,
+                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      final String fileResolution = snapshot.data ?? 'N/A';
+
+                      return _buildFileInfoHeader("File Resolution", fileResolution);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  FutureBuilder<String>(
+                    future: fileSizeFuture,
+                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      final String fileSize = snapshot.data ?? 'N/A';
+
+                      return _buildFileInfoHeader("File Size", '$fileSize Mb');
+                    },
+                  ),
+                ],
               ),
             ),
           ),
