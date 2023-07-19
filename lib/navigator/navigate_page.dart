@@ -97,28 +97,43 @@ class NavigatePage {
 
   static void goToPageSettings(BuildContext context) async {
 
+    late String sharingDisabledStatus = "0";
+
     try {
 
-      String currentDisabledStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
+      sharingDisabledStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => 
-            CakeSettingsPage(
-            accType: Globals.accountType,
-            custEmail: Globals.custEmail,
-            custUsername: Globals.custUsername,
-            uploadLimit: AccountPlan.mapFilesUpload[Globals.accountType]!,
-            sharingEnabledButton: currentDisabledStatus,
-          ),
-        ),
-      );
+      _openSettingsPage(context: context, sharingDisabledStatus: sharingDisabledStatus);
 
     } catch (err, st) {
+
       SnakeAlert.errorSnake("No internet connection.", context);
       Logger().e("Exception on goToPageSettings (NavigatePage)", err, st);
+      
+      await Future.delayed(const Duration(milliseconds: 1800));
+
+      _openSettingsPage(context: context, sharingDisabledStatus: sharingDisabledStatus);
+
     }
+  }
+
+  static void _openSettingsPage({
+    required BuildContext context, 
+    required String sharingDisabledStatus
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => 
+          CakeSettingsPage(
+          accType: Globals.accountType,
+          custEmail: Globals.custEmail,
+          custUsername: Globals.custUsername,
+          uploadLimit: AccountPlan.mapFilesUpload[Globals.accountType]!,
+          sharingEnabledButton: sharingDisabledStatus,
+        ),
+      ),
+    );
   }
 
   static void goToPageBackupRecovery(BuildContext context) {
