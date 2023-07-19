@@ -2120,7 +2120,6 @@ class CakeHomeState extends State<Mainboard> {
       child: InkWell(
         onTap: onPressed,
         splashColor: ThemeColor.secondaryWhite,
-        borderRadius: BorderRadius.circular(4),
         child: Ink(
           color: ThemeColor.darkBlack,
           child: ListTile(

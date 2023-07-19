@@ -71,12 +71,17 @@ class PreviewAudioState extends State<PreviewAudio> {
       child: ValueListenableBuilder(
         valueListenable: iconPausePlay,
         builder: (BuildContext context, IconData value, Widget? child) {
-          return IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: () async {
-              // 
-            },
-            icon: const Icon(Icons.chevron_left, color: ThemeColor.secondaryWhite, size: 50),
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  // 
+                },
+                icon: const Icon(Icons.skip_previous, color: ThemeColor.justWhite, size: 50),
+              ),
+            ),
           );
         }
       ),
@@ -92,28 +97,35 @@ class PreviewAudioState extends State<PreviewAudio> {
       child: ValueListenableBuilder(
         valueListenable: iconPausePlay,
         builder: (BuildContext context, IconData value, Widget? child) {
-          return IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: () async {
-              // 
-            },
-            icon: const Icon(Icons.chevron_right, color: ThemeColor.secondaryWhite, size: 50),
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  //
+                },
+                icon: const Icon(Icons.skip_next, color: ThemeColor.justWhite, size: 50),
+              ),
+            ),
           );
         }
       ),
     );
 
+
   }
 
   Widget buildPlayPauseButton() {
     return SizedBox(
-      width: 80,
-      height: 80,
+      width: 72,
+      height: 72,
       child: ValueListenableBuilder(
         valueListenable: iconPausePlay,
         builder: (BuildContext context, IconData value, Widget? child) {
           return Container(
             decoration: BoxDecoration(
+              color: ThemeColor.justWhite,
               border: Border.all(
                 color: ThemeColor.justWhite,
                 width: 2.0,
@@ -126,12 +138,12 @@ class PreviewAudioState extends State<PreviewAudio> {
           
                 CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 audioIsPlaying = !audioIsPlaying;
-                iconPausePlay.value = audioIsPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded;
+                iconPausePlay.value = audioIsPlaying ? Icons.pause : Icons.play_arrow;
           
-                final byteAudio = await _retrieveAudio();
-                await _playAudio(byteAudio);
+                //final byteAudio = await _retrieveAudio();
+                //await _playAudio(byteAudio);
               },
-              icon: Icon(value, color: ThemeColor.secondaryWhite, size: 64),
+              icon: Icon(value, color: ThemeColor.mediumGrey, size: 50),
             ),
           );
         }
@@ -171,14 +183,34 @@ class PreviewAudioState extends State<PreviewAudio> {
   }
 
   Widget buildBody() {
+
+    final mediaQuery = MediaQuery.of(context).size;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
 
-          const Spacer(),
-
-          centeredMusicImage,
+          Padding(
+            padding: const EdgeInsets.only(top: 132.0),
+            child: SizedBox(
+              width: mediaQuery.width-140,
+              height: mediaQuery.height-540,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        ThemeColor.secondaryWhite,
+                        ThemeColor.darkPurple,
+                      ],
+                    ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
 
           const Spacer(),
 
@@ -194,9 +226,9 @@ class PreviewAudioState extends State<PreviewAudio> {
                 value: snapshot.data ?? 0.0,
                 min: 0,
                 max: 100,
-                thumbColor: ThemeColor.darkPurple,
-                inactiveColor: ThemeColor.darkGrey,
-                activeColor: ThemeColor.secondaryPurple,
+                thumbColor: ThemeColor.justWhite,
+                inactiveColor: ThemeColor.thirdWhite,
+                activeColor: ThemeColor.justWhite,
                 onChanged: (double value) {
                   sliderValueController.add(value);
                 }
@@ -223,6 +255,12 @@ class PreviewAudioState extends State<PreviewAudio> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    CakePreviewFileState.bottomBarVisibleNotifier.value = false;
   }
 
   @override

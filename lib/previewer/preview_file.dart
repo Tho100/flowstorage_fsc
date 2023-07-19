@@ -813,6 +813,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
+  void _copyAppBarTitle() {
+    Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
+    SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -821,13 +826,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: filesInfrontAppBar.contains(currentTable) ? false : true,
-      backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(appBarHeight),
         child: GestureDetector(
           onTap: () {
-            Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
-            SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+            _copyAppBarTitle();
           },
           child: ValueListenableBuilder<bool>(
             valueListenable: bottomBarVisibleNotifier,
@@ -871,7 +874,19 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       ),
 
       body: Container(
-        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          gradient: currentTable == "file_info_audi" || currentTable == "ps_info_audio"
+          ? const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                ThemeColor.secondaryPurple,
+                ThemeColor.darkPurple,
+              ],
+            )
+          : null,
+          color: currentTable == "file_info_audi" || currentTable == "ps_info_audio" ? null : ThemeColor.darkBlack,
+        ),
         child: Column(
           children: [
             _buildHeaderTitle(),
@@ -879,26 +894,21 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               child: buildFileOnCondition(),
             ),
             ValueListenableBuilder<bool>(
-              valueListenable: bottomBarVisibleNotifier, 
+              valueListenable: bottomBarVisibleNotifier,
               builder: (BuildContext context, bool value, Widget? child) {
                 return Visibility(
                   visible: value,
                   child: FutureBuilder<Widget>(
                     future: _buildBottomBar(context),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return snapshot.data!;
-                      } else {
-                        return Container();
-                      }
+                      return snapshot.hasData ? snapshot.data! : Container();
                     },
                   ),
                 );
-              }
+              },
             ),
           ],
         ),
-
       ),
     );
   }
