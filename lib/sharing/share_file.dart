@@ -60,7 +60,7 @@ class MySqlSharing {
     try {
 
       if (sendTo == Globals.custUsername) {
-        TitledDialog.startDialog('Sharing Failed',"You can't share to yourself.",context);
+        CustomFormDialog.startDialog('Sharing Failed',"You can't share to yourself.",context);
         return;
       }
 

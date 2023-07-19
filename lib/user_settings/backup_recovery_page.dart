@@ -170,7 +170,7 @@ class BackupRecovery extends StatelessWidget {
       final getBackupData = await _getBackup(Globals.custUsername);
       final saveBackup = await SaveApi().saveFile(fileName: "FlowstorageRECOVERYKEY.txt", fileData: getBackupData);
 
-      TitledDialog.startDialog(
+      CustomFormDialog.startDialog(
         "Recovery key has been backed up",
         "Location path: $saveBackup",
         context,

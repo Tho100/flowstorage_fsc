@@ -1130,7 +1130,7 @@ class CakeHomeState extends State<Mainboard> {
 
       if(Globals.fileValues.contains(imageName)) {
         if(!mounted) return;
-        TitledDialog.startDialog("Upload Failed", "$imageName already exists.",context);
+        CustomFormDialog.startDialog("Upload Failed", "$imageName already exists.",context);
         return;
       }
 
@@ -1302,7 +1302,7 @@ class CakeHomeState extends State<Mainboard> {
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
 
         if(!mounted) return;
-        SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
+        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `$newFileName`.",context: context);
       }
 
     } catch (err, st) {
@@ -1435,13 +1435,13 @@ class CakeHomeState extends State<Mainboard> {
 
       if (!Globals.videoType.contains(fileExtension)) {
         if(!mounted) return;
-        TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
+        CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
         return;
       }
 
       if (Globals.fileValues.contains(selectedFileName)) {
         if(!mounted) return;
-        TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
+        CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
         return;
       } 
 
@@ -1556,14 +1556,14 @@ class CakeHomeState extends State<Mainboard> {
 
           if (!Globals.imageType.contains(fileExtension)) {
             if(!mounted) return;
-            TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
+            CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
             if(!mounted) return;
-            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
+            CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             await NotificationApi.stopNotification(0);
             continue;
           } 
@@ -1731,14 +1731,14 @@ class CakeHomeState extends State<Mainboard> {
 
           if (!Globals.supportedFileTypes.contains(fileExtension)) {
             if(!mounted) return;
-            TitledDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
+            CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
             if(!mounted) return;
-            TitledDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
+            CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
@@ -1875,7 +1875,7 @@ class CakeHomeState extends State<Mainboard> {
 
       if (Globals.foldValues.contains(folderName)) {
         if(!mounted) return;
-        TitledDialog.startDialog("Upload Failed", "$folderName already exists.",context);
+        CustomFormDialog.startDialog("Upload Failed", "$folderName already exists.",context);
         return;
       }
 
@@ -1923,7 +1923,7 @@ class CakeHomeState extends State<Mainboard> {
     final files = Directory(folderPath).listSync().whereType<File>().toList();
 
     if(files.length == AccountPlan.mapFilesUpload[Globals.accountType]) {
-      TitledDialog.startDialog("Couldn't upload $folderName", "It looks like the number of files in this folder exceeded the number of file you can upload. Please upgrade your account plan.", context);
+      CustomFormDialog.startDialog("Couldn't upload $folderName", "It looks like the number of files in this folder exceeded the number of file you can upload. Please upgrade your account plan.", context);
       return;
     }
 
@@ -4217,7 +4217,7 @@ class CakeHomeState extends State<Mainboard> {
 
       return;
     } else {
-      TitledDialog.startDialog(
+      CustomFormDialog.startDialog(
         "Couldn't open ${Globals.selectedFileName}",
         "It looks like you're trying to open a file which is not supported by Flowstorage",
         context,

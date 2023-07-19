@@ -1,7 +1,7 @@
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 
-class TitledDialog {
+class CustomFormDialog {
 
   static Future startDialog(String headMessage,String subMessage, BuildContext context) {
     return showDialog(

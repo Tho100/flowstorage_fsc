@@ -190,7 +190,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       if (indexOldFileSearched != -1) {
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
-        SnakeAlert.okSnake(message: "`$oldFileName` Renamed to `$newFileName`.",context: context);
+        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `$newFileName`.",context: context);
       }
 
     } catch (err, st) {
