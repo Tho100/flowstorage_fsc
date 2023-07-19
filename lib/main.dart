@@ -30,6 +30,7 @@ import 'package:flutter_native_image/flutter_native_image.dart';
 
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -1662,32 +1663,6 @@ class CakeHomeState extends State<Mainboard> {
       Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
       newFileToDisplay != null ? fileToDisplay = newFileToDisplay : null;
     });
-  }
-
-  Future<void> _convertDocToPdf({
-    required String fileName, 
-    required String filePath,
-    required String base64Encoded
-  }) async {
-    
-    final getFileName = fileName.replaceFirst(".docx","");
-
-    final scannerPdf = ScannerPdf();
-
-    await scannerPdf.convertDocToPdf(docBase64: base64Encoded);
-    await scannerPdf.savePdf(fileName: getFileName,context: context);
-
-    final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/$getFileName.pdf');
-
-    final toBase64Encoded = base64.encode(file.readAsBytesSync());
-
-    final newFileToDisplay = await GetAssets().loadAssetsFile("doc0.png");
-    await _processUploadListView(filePathVal: file.path, selectedFileName: fileName, tableName: "file_info_word",fileBase64Encoded: toBase64Encoded,newFileToDisplay: newFileToDisplay);
-
-    _addItemToListView(fileName: "$getFileName.docx");
-
-    await file.delete();
   }
 
   Future<void> _openDialogFile() async {
@@ -4180,12 +4155,47 @@ class CakeHomeState extends State<Mainboard> {
   /// 
   /// </summary>
 
+  void _openFileInExternalApp(Uint8List bytes, String fileName) async {
+
+    try {
+
+      Directory tempDir = await getTemporaryDirectory();
+      String tempPath = tempDir.path;
+
+      File tempFile = File('$tempPath/$fileName');
+      
+      await tempFile.writeAsBytes(bytes, flush: true);
+
+      String filePath = tempFile.path;
+      final OpenResult result = await OpenFile.open(filePath);
+
+      if(result.type != ResultType.done) {
+
+        if(!mounted) return;
+        CustomFormDialog.startDialog(
+          "Couldn't open ${Globals.selectedFileName}",
+          "No default app to open this file found.",
+          context,
+        );
+
+      }
+
+    } catch (err, st) {
+      logger.e(err, st);
+    }
+
+  }
+
   Future<void> _navigateToPreviewFile(int index) async {
     
+    const Set<String> externalFileTypes = {"xlsx","xls","docx","doc","ptx","pptx"};
+
     Globals.selectedFileName = Globals.filteredSearchedFiles[index];
     fileExtension = Globals.selectedFileName.split('.').last;
 
-    if (Globals.supportedFileTypes.contains(fileExtension)) {
+    if (Globals.supportedFileTypes.contains(fileExtension) && 
+      !(externalFileTypes.contains(fileExtension))) {
+      
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -4199,6 +4209,7 @@ class CakeHomeState extends State<Mainboard> {
           ),
         ),
       );
+
     } else if (fileExtension == Globals.selectedFileName) {
       
       Globals.fileOrigin = "dirFiles";
@@ -4215,12 +4226,23 @@ class CakeHomeState extends State<Mainboard> {
       loadingDialog.stopLoading();
 
       return;
+
+    } else if (externalFileTypes.contains(fileExtension)) {
+
+      final fileTable = Globals.fileTypesToTableNames[fileExtension]!;
+      final fileData = await _callData(Globals.selectedFileName, fileTable);
+      _openFileInExternalApp(fileData, Globals.selectedFileName);
+
+      return;
+
     } else {
+
       CustomFormDialog.startDialog(
         "Couldn't open ${Globals.selectedFileName}",
         "It looks like you're trying to open a file which is not supported by Flowstorage",
         context,
       );
+
     }
   }
 

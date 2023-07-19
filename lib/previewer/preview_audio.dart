@@ -136,7 +136,6 @@ class PreviewAudioState extends State<PreviewAudio> {
               padding: EdgeInsets.zero,
               onPressed: () async {
           
-                CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 audioIsPlaying = !audioIsPlaying;
                 iconPausePlay.value = audioIsPlaying ? Icons.pause : Icons.play_arrow;
           
