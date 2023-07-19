@@ -802,6 +802,17 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     }
   }
 
+  Widget _buildCopyTextIconButton() {
+    return IconButton(
+      onPressed: () {
+        final textValue = textController.text;
+        Clipboard.setData(ClipboardData(text: textValue));
+        SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+      },
+      icon: const Icon(Icons.copy),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -813,52 +824,52 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       backgroundColor: ThemeColor.darkBlack,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(appBarHeight),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: bottomBarVisibleNotifier,
-          builder: (BuildContext context, bool value, Widget? child) {
-            return Visibility(
-              visible: currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? bottomBarVisibleNotifier.value : true,
-              child: AppBar(
-              backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
-              actions: <Widget>[
-                Visibility(
-                  visible: currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text",
-                  child: IconButton(
-                    onPressed: () {
-                      final textValue = textController.text;
-                      Clipboard.setData(ClipboardData(text: textValue));
-                      SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+        child: GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
+            SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+          },
+          child: ValueListenableBuilder<bool>(
+            valueListenable: bottomBarVisibleNotifier,
+            builder: (BuildContext context, bool value, Widget? child) {
+              return Visibility(
+                visible: currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? bottomBarVisibleNotifier.value : true,
+                child: AppBar(
+                  backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
+                  actions: <Widget>[
+                    Visibility(
+                      visible: currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text",
+                      child: _buildCopyTextIconButton(),
+                    ),
+                    IconButton(
+                      onPressed: _buildBottomInfo,
+                      icon: const Icon(Icons.info_outlined),
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        _callBottomTrailling();
+                      },
+                      icon: const Icon(Icons.more_vert_rounded),
+                    ),
+                  ],
+                  titleSpacing: 0,
+                  elevation: 0,
+                  centerTitle: false,
+                  title: filesWithCustomHeader.contains(currentTable)
+                  ? const SizedBox()
+                  : ValueListenableBuilder<String>(
+                    valueListenable: appBarTitleNotifier,
+                    builder: (BuildContext context, String value, Widget? child) {
+                      return Text(value, style: GlobalsStyle.appBarTextStyle);
                     },
-                    icon: const Icon(Icons.copy)
                   ),
                 ),
-                IconButton(
-                  onPressed: _buildBottomInfo,
-                  icon: const Icon(Icons.info_outlined),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    _callBottomTrailling();
-                  },
-                  icon: const Icon(Icons.more_vert_rounded),
-                ),
-              ],
-              titleSpacing: 0,
-              elevation: 0,
-              centerTitle: false,
-              title: filesWithCustomHeader.contains(currentTable)
-                ? const SizedBox()
-                : ValueListenableBuilder<String>(
-                  valueListenable: appBarTitleNotifier,
-                  builder: (BuildContext context, String value, Widget? child) {
-                    return Text(value,style: GlobalsStyle.appBarTextStyle);
-                  }
-                ),
-              ),
-            );
-          }
+              );
+            },
+          ),
         ),
       ),
+
       body: Container(
         alignment: Alignment.center,
         child: Column(
