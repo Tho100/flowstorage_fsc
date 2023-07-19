@@ -35,9 +35,9 @@ import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/extra_query/delete.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
@@ -189,7 +189,10 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
 
       if (indexOldFileSearched != -1) {
+        
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
+
+        if (!mounted) return;
         SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `$newFileName`.",context: context);
       }
 

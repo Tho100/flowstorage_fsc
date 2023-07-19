@@ -20,8 +20,8 @@ import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/MultipleText.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/SingleText.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
@@ -73,7 +73,7 @@ import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/rename.dart';
 
 import 'splash_screen.dart';
-import 'ui_dialog/loading/JustLoading.dart';
+import 'ui_dialog/loading/just_loading.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 void main() async {
@@ -4303,41 +4303,45 @@ class CakeHomeState extends State<Mainboard> {
         onTap: () async {
           await _navigateToPreviewFile(index);
         },
-        child: Column(
-          children: [
-           Container(
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-                child: Image.memory(imageBytes, fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 25),
-              style: const TextStyle(
-                color: ThemeColor.justWhite,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
-            Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
-              child: Text(
-                GlobalsData.psTagsValuesData[index],
-                style: TextStyle(
-                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+        child: IntrinsicHeight(
+          child: Column(
+            children: [
+             Expanded(
+               child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    child: Image.memory(imageBytes, fit: BoxFit.cover),
+                  ),
+                ),
+             ),
+              const SizedBox(height: 10),
+              Text(
+                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 25),
+                style: const TextStyle(
+                  color: ThemeColor.justWhite,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 5),
-          ],
+              const SizedBox(height: 2),
+              if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
+              Visibility(
+                visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
+                child: Text(
+                  GlobalsData.psTagsValuesData[index],
+                  style: TextStyle(
+                    color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 5),
+            ],
+          ),
         ),
       ),
     );
