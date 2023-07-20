@@ -339,6 +339,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
     }
 
     final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+    
     if(offlineDirs.existsSync()) {
       offlineDirs.delete(recursive: true);
     }

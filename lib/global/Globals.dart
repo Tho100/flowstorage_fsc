@@ -115,6 +115,9 @@ class Globals {
     'mp4': 'ps_info_video',
     'avi': 'ps_info_video',
     'mov': 'ps_info_video',
+    
+    'mp3' : fileInfoAudioTable,
+    'wav': fileInfoAudioTable
   };
 
   static const Set<String> supportedFileTypes = {

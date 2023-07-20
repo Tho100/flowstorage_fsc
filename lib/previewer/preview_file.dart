@@ -47,7 +47,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 
 class CakePreviewFile extends StatefulWidget {
 
@@ -135,10 +134,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       } else {
 
-        final getDirApplication = await getApplicationDocumentsDirectory();
-        final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+        final offlineDirPath = await OfflineMode().returnOfflinePath();
 
-        final file = File('${offlineDirs.path}/$fileName');
+        final file = File('${offlineDirPath.path}/$fileName');
         file.deleteSync();
       }
 

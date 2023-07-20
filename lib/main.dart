@@ -522,10 +522,8 @@ class CakeHomeState extends State<Mainboard> {
   
   Future<void> _deleteOfflineFilesSelectAll(String fileName) async {
 
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
-
-    final file = File('${offlineDirs.path}/$fileName');
+    final offlineDirPath = await OfflineMode().returnOfflinePath();
+    final file = File('${offlineDirPath.path}/$fileName');
     file.deleteSync();
 
   }
@@ -862,18 +860,17 @@ class CakeHomeState extends State<Mainboard> {
 
   Future<void> _callOfflineData() async {
 
-    final getDirApplication = await getApplicationDocumentsDirectory();
-    final offlineDirs = Directory('${getDirApplication.path}/offline_files');
+    final offlineDirPath = await OfflineMode().returnOfflinePath();
 
-    if(!offlineDirs.existsSync()) { 
-      offlineDirs.createSync();
+    if(!offlineDirPath.existsSync()) { 
+      offlineDirPath.createSync();
     }
 
     Globals.fileOrigin = "offlineFiles";
     appBarTitle.value = "Offline";
     _clearSelectAll(); 
 
-    final files = offlineDirs.listSync().whereType<File>().toList();
+    final files = offlineDirPath.listSync().whereType<File>().toList();
 
     List<String> fileValues = [];
     List<String> filteredSearchedFiles = [];
@@ -901,6 +898,11 @@ class CakeHomeState extends State<Mainboard> {
       } else if (Globals.textType.contains(fileType)) {
         
         imageBytes = await GetAssets().loadAssetsData("txt0.png");
+        actualFileSize = "Unknown";
+
+      } else if (Globals.audioType.contains(fileType)) {
+
+        imageBytes = await GetAssets().loadAssetsData("music0.png");
         actualFileSize = "Unknown";
 
       } else {
@@ -3461,43 +3463,18 @@ class CakeHomeState extends State<Mainboard> {
                       Text(
                         '  $value',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const Icon(Icons.arrow_drop_down,color: Colors.white),
+                      const Icon(Icons.expand_more,color: Colors.white),
                     ],
                   );
                 }
               ),
             ),
+
             const Spacer(),
-
-            ElevatedButton(
-              onPressed: () {
-                _buildFilterType();
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: ThemeColor.darkBlack,
-                minimumSize: Size.zero,
-                padding: const EdgeInsets.only(left: 10.0),
-              ).copyWith(
-                fixedSize: MaterialStateProperty.all<Size>(const Size(40, 40)),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(Icons.filter_list_outlined, size: 28),
-                ],
-              ),
-            ),
-
-            const Text(GlobalsStyle.dotSeperator,
-              style: TextStyle(
-                color: ThemeColor.thirdWhite,fontSize: 16
-              )
-            ),
 
             ElevatedButton(
               onPressed: () {
@@ -3506,10 +3483,6 @@ class CakeHomeState extends State<Mainboard> {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 backgroundColor: ThemeColor.darkBlack,
-                minimumSize: Size.zero,
-                padding: const EdgeInsets.only(left: 4.0),
-              ).copyWith(
-                fixedSize: MaterialStateProperty.all<Size>(const Size(40, 40)),
               ),
               child: Row(
                 children: [
@@ -3544,31 +3517,57 @@ class CakeHomeState extends State<Mainboard> {
         height: 48,
         child: FractionallySizedBox(
           widthFactor: 0.94, 
-          child: TextField(
-            onChanged: (value) {
-              if (value.isEmpty) {
-                searchBarFocusNode.unfocus();
-              }
-              _onTextChanged(value);
-            },
-            controller: searchBarController,
-            focusNode: searchBarFocusNode,
-            style: const TextStyle(
-              color: Color.fromARGB(230, 255, 255, 255)
-            ),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (value) {
+                    if (value.isEmpty) {
+                      searchBarFocusNode.unfocus();
+                    }
+                    _onTextChanged(value);
+                  },
+                  controller: searchBarController,
+                  focusNode: searchBarFocusNode,
+                  style: const TextStyle(
+                    color: Color.fromARGB(230, 255, 255, 255)
+                  ),
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: const BorderSide(
+                        color: ThemeColor.mediumGrey,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: ThemeColor.mediumGrey),
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                    hintText: 'Search in Flowstorage',
+                    hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
+                    prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
+                  ),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ThemeColor.mediumGrey),
-                borderRadius: BorderRadius.circular(25.0),
+              Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _buildFilterType();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.only(left: 4, right: 14),
+                  ).copyWith(
+                    fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
+                  ),
+                  child: const Icon(Icons.filter_list_outlined, size: 28),
+                ),
               ),
-              hintText: 'Search in Flowstorage',
-              hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
-              prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
-            ),
+            ],
           ),
         ),
       ),
@@ -4195,7 +4194,7 @@ class CakeHomeState extends State<Mainboard> {
 
     if (Globals.supportedFileTypes.contains(fileExtension) && 
       !(externalFileTypes.contains(fileExtension))) {
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(

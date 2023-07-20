@@ -11,10 +11,17 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 
 class OfflineMode {
+
   late Directory offlineDirs;
 
   OfflineMode() {
     initializeOfflineDirs();
+  }
+
+  Future<Directory> returnOfflinePath() async {
+    final getDirApplication = await getApplicationDocumentsDirectory();
+    offlineDirs = Directory('${getDirApplication.path}/offline_files');
+    return offlineDirs;
   }
 
   Future<void> initializeOfflineDirs() async {
@@ -103,12 +110,7 @@ class OfflineMode {
 
     try {
       
-      final fileType = fileName.split('.').last;
-
-      if(fileType == "pdf" || fileType == "docx" || fileType == "xlsx" || fileType == "xls" || fileType == "pptx" || fileType == "ptx") {
-        CustomAlertDialog.alertDialogTitle("Couldn't make this file offline.", "File type is not yet supported for offline.", context);
-        return;
-      }
+      //final fileType = fileName.split('.').last;
 
       await saveOfflineFile(fileName: fileName,fileData: fileData);
       

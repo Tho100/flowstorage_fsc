@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/players/ajbyte_source.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
-import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:logger/logger.dart';
 
 class PreviewAudio extends StatefulWidget {
   const PreviewAudio({super.key});
@@ -25,13 +28,41 @@ class PreviewAudioState extends State<PreviewAudio> {
   final AudioPlayer audioPlayerController = AudioPlayer();  
   final retrieveData = RetrieveData();
 
-  final centeredMusicImage = Image.asset('assets/nice/music0.png');
-
   bool audioIsPlaying = false;
 
-  Future<Uint8List> _retrieveAudio() async {
+  Future<Uint8List> _loadOfflineFile(String fileName) async {
+    
+    final offlineDirsPath = await OfflineMode().returnOfflinePath();
 
-    final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_audio" : "file_info_audi";
+    final file = File('${offlineDirsPath.path}/$fileName');
+
+    if (await file.exists()) {
+      return file.readAsBytes();
+    } else {
+      throw Exception('File not found');
+    }
+  }
+
+  Future<Uint8List> _retrieveAudioData() async {
+
+    try {
+      
+      if (Globals.fileOrigin != "offlineFiles") {
+
+        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_audio", tableNameHome: "file_info_audi", fileValues: Globals.audioType);
+        return fileData;
+
+      } else {
+        return await _loadOfflineFile(Globals.selectedFileName);
+      }
+
+      
+    } catch (err, st) {
+      Logger().e("Exception from _callData {PreviewText}", err, st);
+      return Future.value(Uint8List(0));
+    }
+
+    /*final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_audio" : "file_info_audi";
     final uploaderUsername = Globals.fileOrigin == "psFiles" 
     ? await UploaderName().getUploaderName(tableName: "ps_info_video",fileValues: Globals.videoType)
     : Globals.custUsername;
@@ -43,7 +74,7 @@ class PreviewAudioState extends State<PreviewAudio> {
       Globals.fileOrigin,
     );
 
-    return audioBytes;
+    return audioBytes;*/
 
   }
 
@@ -113,7 +144,6 @@ class PreviewAudioState extends State<PreviewAudio> {
       ),
     );
 
-
   }
 
   Widget buildPlayPauseButton() {
@@ -139,10 +169,10 @@ class PreviewAudioState extends State<PreviewAudio> {
                 audioIsPlaying = !audioIsPlaying;
                 iconPausePlay.value = audioIsPlaying ? Icons.pause : Icons.play_arrow;
           
-                //final byteAudio = await _retrieveAudio();
-                //await _playAudio(byteAudio);
+                final byteAudio = await _retrieveAudioData();
+                await _playAudio(byteAudio);
               },
-              icon: Icon(value, color: ThemeColor.mediumGrey, size: 50),
+              icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
             ),
           );
         }
@@ -160,20 +190,20 @@ class PreviewAudioState extends State<PreviewAudio> {
             Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
             style: const TextStyle(
               color: ThemeColor.justWhite,
-              fontSize: 28,
+              fontSize: 22,
               fontWeight: FontWeight.w600
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
           Text(
-            "By ${Globals.custUsername}",
+            Globals.custUsername,
             style: const TextStyle(
               color: ThemeColor.secondaryWhite,
               fontSize: 17,
               fontWeight: FontWeight.w500
             ),
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
