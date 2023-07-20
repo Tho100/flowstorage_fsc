@@ -375,6 +375,38 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     }
   }
 
+  Future<void> _makeAvailableOffline({
+    required String fileName
+  }) async {
+
+    final offlineMode = OfflineMode();
+    final singleLoading = SingleTextLoading();
+
+    late final Uint8List fileData;
+    final fileType = fileName.split('.').last;
+
+    const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
+
+    if(unsupportedOfflineModeTypes.contains(fileType)) {
+      CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
+      return;
+    } 
+
+    singleLoading.startLoading(title: "Preparing...", context: context);
+
+    if(Globals.imageType.contains(fileType)) {
+      fileData = Globals.filteredSearchedBytes[widget.tappedIndex]!;
+    } else {
+      fileData = await _callDataDownload();
+    }
+    
+    if(!mounted) return;
+    await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
+
+    singleLoading.stopLoading();
+
+  }
+
   Future<void> _callFileDownload({required String fileName}) async {
 
     try {
@@ -758,35 +790,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
       }, 
       onAOPressed: () async {
-
         Navigator.pop(context);
-
-        final offlineMode = OfflineMode();
-        final singleLoading = SingleTextLoading();
-  
-        late final Uint8List fileData;
-        final fileType = fileName.split('.').last;
-
-        const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
-
-        if(unsupportedOfflineModeTypes.contains(fileType)) {
-          CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
-          return;
-        } 
-
-        singleLoading.startLoading(title: "Preparing...", context: context);
-
-        if(Globals.imageType.contains(fileType)) {
-          fileData = Globals.filteredSearchedBytes[widget.tappedIndex]!;
-        } else {
-          fileData = await _callDataDownload();
-        }
-        
-        if(!mounted) return;
-        await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
-
-        singleLoading.stopLoading();
-
+        await _makeAvailableOffline(fileName: Globals.selectedFileName);
       }, 
       context: context
     );

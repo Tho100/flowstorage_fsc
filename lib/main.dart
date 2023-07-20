@@ -1151,6 +1151,42 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   }
 
+  Future<void> _makeAvailableOffline({
+    required String fileName
+  }) async {
+
+    final offlineMode = OfflineMode();
+    final singleLoading = SingleTextLoading();
+
+    final fileType = fileName.split('.').last;
+    final tableName = Globals.fileTypesToTableNames[fileType]!;
+
+    const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
+
+    if(unsupportedOfflineModeTypes.contains(fileType)) {
+      CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
+      return;
+    } 
+
+    late final Uint8List fileData;
+    final indexFile = Globals.fileValues.indexOf(fileName);
+
+    singleLoading.startLoading(title: "Preparing...", context: context);
+
+    if(Globals.imageType.contains(fileType)) {
+      fileData = Globals.filteredSearchedBytes[indexFile]!;
+    } else {
+      fileData = await _callData(fileName,tableName);
+    }
+    
+    if(!mounted) return;
+    await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
+
+    singleLoading.stopLoading();
+    _clearSelectAll();
+
+  }
+
   Future<void> _callFileDownload({required String fileName}) async {
 
     try {
@@ -2399,39 +2435,8 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
           _openSharingDialog(fileName);
         }, 
         onAOPressed: () async {
-
           Navigator.pop(context);
-  
-          final offlineMode = OfflineMode();
-          final singleLoading = SingleTextLoading();
-
-          final fileType = fileName.split('.').last;
-          final tableName = Globals.fileTypesToTableNames[fileType]!;
-
-          const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
-
-          if(unsupportedOfflineModeTypes.contains(fileType)) {
-            CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
-            return;
-          } 
-
-          late final Uint8List fileData;
-          final indexFile = Globals.fileValues.indexOf(fileName);
-
-          singleLoading.startLoading(title: "Preparing...", context: context);
-
-          if(Globals.imageType.contains(fileType)) {
-            fileData = Globals.filteredSearchedBytes[indexFile]!;
-          } else {
-            fileData = await _callData(fileName,tableName);
-          }
-          
-          if(!mounted) return;
-          await offlineMode.processSaveOfflineFile(fileName: fileName,fileData: fileData, context: context);
-
-          singleLoading.stopLoading();
-          _clearSelectAll();
-
+          await _makeAvailableOffline(fileName: fileName);
         }, 
         context: context
       );
