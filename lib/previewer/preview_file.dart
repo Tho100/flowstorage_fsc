@@ -35,6 +35,7 @@ import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/extra_query/delete.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
@@ -386,18 +387,23 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       late Uint8List fileData;
 
-      if(Globals.imageType.contains(fileType)) {
-        fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(fileName)]!;
+      if(Globals.fileOrigin != "offlineFiles") {
 
-      } else {
-        fileData = await _callDataDownload();
+        if(Globals.imageType.contains(fileType)) {
+          fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(fileName)]!;
+        } else {
+          fileData = await _callDataDownload();
+        }
+
+        await SimplifyDownload(
+          fileName: fileName,
+          currentTable: tableName!,
+          fileData: fileData
+        ).downloadFile();
+
+      } else {  
+        await OfflineMode().downloadFile(fileName);
       }
-
-      await SimplifyDownload(
-        fileName: fileName,
-        currentTable: tableName!,
-        fileData: fileData
-      ).downloadFile();
     
       loadingDialog.stopLoading();
 
@@ -760,6 +766,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   
         late final Uint8List fileData;
         final fileType = fileName.split('.').last;
+
+        const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
+
+        if(unsupportedOfflineModeTypes.contains(fileType)) {
+          CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
+          return;
+        } 
 
         singleLoading.startLoading(title: "Preparing...", context: context);
 

@@ -884,6 +884,11 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         imageBytes = await GetAssets().loadAssetsData("music0.png");
         actualFileSize = "Unknown";
 
+      } else if (fileType == "pdf") {
+
+        imageBytes = await GetAssets().loadAssetsData("pdf0.png");
+        actualFileSize = "Unknown";
+
       } else {
         continue;
       }
@@ -2402,6 +2407,13 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
           final fileType = fileName.split('.').last;
           final tableName = Globals.fileTypesToTableNames[fileType]!;
+
+          const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
+
+          if(unsupportedOfflineModeTypes.contains(fileType)) {
+            CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
+            return;
+          } 
 
           late final Uint8List fileData;
           final indexFile = Globals.fileValues.indexOf(fileName);

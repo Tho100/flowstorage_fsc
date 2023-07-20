@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +20,31 @@ class PreviewPdf extends StatefulWidget {
 
 class PreviewPdfState extends State<PreviewPdf> {
 
+  Future<Uint8List> _loadOfflineFile(String fileName) async {
+    
+    final offlineDirsPath = await OfflineMode().returnOfflinePath();
+
+    final file = File('${offlineDirsPath.path}/$fileName');
+
+    if (await file.exists()) {
+      return file.readAsBytes();
+    } else {
+      throw Exception('Failed to load offline file: File not found');
+    }
+  }
+
   Future<Uint8List> callPdfData() async {
 
     try {
       
-      final fileData = await CallPreviewData().call(tableNamePs: "ps_info_pdf", tableNameHome: "file_info_pdf", fileValues: {"pdf"});
-      return fileData;
+      if(Globals.fileOrigin != "offlineFiles") {
+
+        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_pdf", tableNameHome: "file_info_pdf", fileValues: {"pdf"});
+        return fileData;
+
+      } else {
+        return await _loadOfflineFile(Globals.selectedFileName);
+      }
 
     } catch (err, st) {
       Logger().e("Exception from _callData {PreviewText}", err, st);

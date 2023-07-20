@@ -54,11 +54,20 @@ class OfflineMode {
     final fileDataValue = file.readAsBytesSync();
     
     final fileType = fileName.split('.').last;
+
     if(Globals.imageType.contains(fileType)) {
+
       await ImageGallerySaver.saveImage(fileDataValue);
+
     } else if (Globals.textType.contains(fileType)) {
+
       final textData = utf8.decode(fileDataValue);
       SaveApi().saveFile(fileName: fileName, fileData: textData);
+
+    } else if (fileType == "pdf") {
+
+      SaveApi().saveFile(fileName: fileName, fileData: fileDataValue);
+      
     }
   }
 
