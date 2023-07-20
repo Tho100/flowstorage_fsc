@@ -139,16 +139,6 @@ class _SplashScreen extends State<SplashScreen> {
     return accountInfo;
   }
 
-  Future<int> _countRowTable(String tableName) async {
-
-    final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': Globals.custUsername};
-    final rowCount = await crud.count(query: query, params: params);
-
-    return rowCount;
-
-  }
-
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername, String savedCustEmail, String savedAccountType,BuildContext context) async {
 
     try {
@@ -157,7 +147,7 @@ class _SplashScreen extends State<SplashScreen> {
       Globals.custEmail = savedCustEmail;
       Globals.accountType = savedAccountType;
 
-      final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable);
+      final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
       final tablesToCheck = [
@@ -184,7 +174,7 @@ class _SplashScreen extends State<SplashScreen> {
       final dates = <String>[];
       final retrieveFolders = <String>{};
 
-      if (await _countRowTable(GlobalsTable.folderUploadTable) > 0) {
+      if (await crud.countUserTableRow(GlobalsTable.folderUploadTable) > 0) {
         retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
       }
 

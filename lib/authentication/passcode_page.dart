@@ -40,27 +40,14 @@ class PasscodePageState extends State<PasscodePage> {
   final dateGetterStartup = DateGetter();
   final crud = Crud();
 
-  Future<int> _countRowTable(String tableName,String username) async {
-    
-    final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': username};
-
-    final totalRow = await crud.count(
-      query: query, 
-      params: params
-    );
-
-    return totalRow;
-
-  }
-
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail, String savedAccountType ,BuildContext context) async {
 
     try {
 
       Globals.fileOrigin = "homeFiles";
+      Globals.custUsername = savedCustUsername;
 
-      final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, savedCustUsername);
+      final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
       final tablesToCheck = [
@@ -87,7 +74,7 @@ class PasscodePageState extends State<PasscodePage> {
       final dates = <String>[];
       final retrieveFolders = <String>{};
 
-      if (await _countRowTable(GlobalsTable.folderUploadTable, savedCustUsername) > 0) {
+      if (await crud.countUserTableRow(GlobalsTable.folderUploadTable) > 0) {
         retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
       }
 

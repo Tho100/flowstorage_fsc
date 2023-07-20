@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 
 class Crud {
 
@@ -54,11 +55,30 @@ class Crud {
   }) async {
 
     final conn = await SqlConnection.insertValueParams();
+    
     final results = await conn.execute(query!,params!);
 
     for(final row in results.rows) {
       return row.assoc()[returnedColumn]!;
     }
+  }
+
+  Future<int> countUserTableRow(String tableName) async {
+
+    final conn = await SqlConnection.insertValueParams();
+
+    final countRowQuery = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
+    final params = {'username': Globals.custUsername};
+
+    final results = await conn.execute(countRowQuery,params);
+
+    int totalRow = 0;
+    for(var row in results.rows) {
+      totalRow = row.typedColAt<int>(0)!;
+    }
+
+    return totalRow;
+
   }
 
 }

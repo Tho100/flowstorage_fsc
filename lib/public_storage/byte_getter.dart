@@ -70,7 +70,7 @@ class ByteGetterPs {
 
     final getByteValue = <Uint8List>{};
 
-    Future<void> retrieveValue(String iconName) async {
+    retrieveValue(String iconName) async {
 
       final retrieveCountQuery = 'SELECT COUNT(*) FROM $tableName';
       final countTotalRows = await conn.execute(retrieveCountQuery);

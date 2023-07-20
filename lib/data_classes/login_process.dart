@@ -41,20 +41,6 @@ class MysqlLogin {
 
   String custEmailInit = '';
 
-  Future<int> _countRowTable(String tableName,String username) async {
-
-    final query = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': username};
-    
-    final totalRow = await crud.count(
-      query: query, 
-      params: params
-    );
-
-    return totalRow;
-
-  }
-
   Future<void> _callData(MySQLConnectionPool conn,bool isChecked) async {
     
     final custUsernameList = await usernameGetterLogin.retrieveParams(custEmailInit);
@@ -66,7 +52,7 @@ class MysqlLogin {
     Globals.custEmail = custEmailInit;
     Globals.accountType = custTypeGetter;
 
-    final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, Globals.custUsername);
+    final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
 
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
@@ -107,7 +93,7 @@ class MysqlLogin {
     final uniqueFileNames = fileNames.toList();
     final uniqueBytes = bytes.toList();
 
-    if (await _countRowTable(GlobalsTable.folderUploadTable, custUsernameGetter) > 0) {
+    if (await crud.countUserTableRow(GlobalsTable.folderUploadTable) > 0) {
       retrieveFolders.addAll(await FolderRetrieve().retrieveParams(custUsernameGetter));
     }
 

@@ -781,25 +781,11 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   }
 
-  Future<int> _countRowTable(String tableName,String username) async {
-
-    final countQueryRow = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': username};
-
-    final int totalRowCount = await crud.count(
-      query: countQueryRow, 
-      params: params
-    );
-
-    return totalRowCount;
-
-  }
-
   Future<void> _refreshHomeFiles() async {
 
     final conn = await SqlConnection.insertValueParams();
 
-    final dirListCount = await _countRowTable(GlobalsTable.directoryInfoTable, Globals.custUsername);
+    final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
     final tablesToCheck = [
