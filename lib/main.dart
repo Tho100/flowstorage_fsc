@@ -3560,11 +3560,14 @@ class CakeHomeState extends State<Mainboard> {
                     elevation: 0,
                     backgroundColor: Colors.transparent,
                     minimumSize: Size.zero,
-                    padding: const EdgeInsets.only(left: 4, right: 14),
+                    padding: const EdgeInsets.only(left: 6, right: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25)
+                    ),
                   ).copyWith(
                     fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
                   ),
-                  child: const Icon(Icons.filter_list_outlined, size: 28),
+                  child: const Icon(Icons.filter_list_outlined, size: 25),
                 ),
               ),
             ],

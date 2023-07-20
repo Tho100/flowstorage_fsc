@@ -10,7 +10,7 @@
         android:label="Flowstorage"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        >
+        android:allowBackup="false">
 
         <provider
             android:name="androidx.core.content.FileProvider"

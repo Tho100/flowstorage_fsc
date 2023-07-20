@@ -239,7 +239,7 @@ class _UpgradePage extends State<UpradePage> {
                 const SizedBox(height: 15),
                 _buildHeader("express"),
                 const SizedBox(height: 25),
-                _buildPriceTag("5"),
+                _buildPriceTag("8"),
                 const SizedBox(height: 35),
                 _buildSecondHeader("Upload up to 1000 files!"),
 

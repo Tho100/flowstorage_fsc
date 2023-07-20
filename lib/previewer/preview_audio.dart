@@ -62,20 +62,6 @@ class PreviewAudioState extends State<PreviewAudio> {
       return Future.value(Uint8List(0));
     }
 
-    /*final tableName = Globals.fileOrigin == "psFiles" ? "ps_info_audio" : "file_info_audi";
-    final uploaderUsername = Globals.fileOrigin == "psFiles" 
-    ? await UploaderName().getUploaderName(tableName: "ps_info_video",fileValues: Globals.videoType)
-    : Globals.custUsername;
-
-    final audioBytes = await retrieveData.retrieveDataParams(
-      uploaderUsername,
-      Globals.selectedFileName,
-      tableName,
-      Globals.fileOrigin,
-    );
-
-    return audioBytes;*/
-
   }
 
   Future<void> _playAudio(Uint8List byteAudio) async {
@@ -190,8 +176,8 @@ class PreviewAudioState extends State<PreviewAudio> {
             Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
             style: const TextStyle(
               color: ThemeColor.justWhite,
-              fontSize: 22,
-              fontWeight: FontWeight.w600
+              fontSize: 24,
+              fontWeight: FontWeight.w700
             ),
             textAlign: TextAlign.center,
           ),
@@ -200,7 +186,7 @@ class PreviewAudioState extends State<PreviewAudio> {
             Globals.custUsername,
             style: const TextStyle(
               color: ThemeColor.secondaryWhite,
-              fontSize: 17,
+              fontSize: 18,
               fontWeight: FontWeight.w500
             ),
             textAlign: TextAlign.center,
@@ -221,10 +207,10 @@ class PreviewAudioState extends State<PreviewAudio> {
         children: [
 
           Padding(
-            padding: const EdgeInsets.only(top: 132.0),
+            padding: const EdgeInsets.only(top: 172.0),
             child: SizedBox(
-              width: mediaQuery.width-140,
-              height: mediaQuery.height-540,
+              width: mediaQuery.width-90,
+              height: mediaQuery.height-570,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(

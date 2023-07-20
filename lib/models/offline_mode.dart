@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
-import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -110,8 +109,6 @@ class OfflineMode {
 
     try {
       
-      //final fileType = fileName.split('.').last;
-
       await saveOfflineFile(fileName: fileName,fileData: fileData);
       
       SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Now available offline.",icon: Icons.check,context: context);

@@ -62,6 +62,7 @@ class InsertData {
       case 'ps_info_image':
       case 'ps_info_excel':
       case 'ps_info_ptx':
+      case 'ps_info_audio':
       case 'ps_info_word':
       case 'ps_info_exe':
       case 'ps_info_pdf':
