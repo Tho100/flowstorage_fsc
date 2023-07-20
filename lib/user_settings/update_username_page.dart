@@ -179,6 +179,17 @@ class ChangeUsername extends StatelessWidget {
       );
     }
 
+    for(final tables in GlobalsTable.tableNamesPs) {
+
+      final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
+      final params = {'newname': newUsername,'oldname': Globals.custUsername};
+
+      await Crud().update(
+        query: updateNameQuery, 
+        params: params
+      );
+    }
+
     const updateNameQuery = "UPDATE cust_sharing SET CUST_FROM = :newname WHERE CUST_FROM = :oldname";
     final params = {'newname': newUsername,'oldname': Globals.custUsername};
 
@@ -217,7 +228,7 @@ class ChangeUsername extends StatelessWidget {
           return;
         }
 
-        await Future(() => _updateUsername(newUsername));
+        await _updateUsername(newUsername);
 
         Globals.custUsername = newUsername;
 
