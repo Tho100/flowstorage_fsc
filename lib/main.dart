@@ -139,6 +139,7 @@ class CakeHomeState extends State<Mainboard> {
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
+Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
   List<String> checkedItemsName = [];
@@ -173,7 +174,6 @@ class CakeHomeState extends State<Mainboard> {
 
   void _clearGlobalData() {
     Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedBytes.clear();
@@ -413,11 +413,9 @@ class CakeHomeState extends State<Mainboard> {
       Globals.setDateValues.clear();
       Globals.filteredSearchedFiles.clear();
       Globals.filteredSearchedBytes.clear();
-      Globals.dateStoresValues.clear();
       for (var item in itemList) {
         Globals.filteredSearchedFiles.add(item['file_name']);
         Globals.filteredSearchedBytes.add(item['image_byte']);
-        Globals.dateStoresValues.add(_formatDateTime(item['upload_date']));
         Globals.setDateValues.add(_formatDateTime(item['upload_date']));
       }
     });
@@ -670,7 +668,6 @@ class CakeHomeState extends State<Mainboard> {
     });
   }
 
-
   Future<int> _getUsageProgressBar() async {
 
     try {
@@ -723,7 +720,6 @@ class CakeHomeState extends State<Mainboard> {
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
 
     Globals.fileValues.clear();
-    Globals.dateStoresValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedBytes.clear();
@@ -732,7 +728,6 @@ class CakeHomeState extends State<Mainboard> {
     Globals.imageByteValues.clear();
 
     Globals.fileValues.addAll(nameList);
-    Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
@@ -847,7 +842,6 @@ class CakeHomeState extends State<Mainboard> {
 
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.imageByteValues.addAll(uniqueBytes);
-    Globals.dateStoresValues.addAll(dates);
     Globals.setDateValues.addAll(dates);
 
     _navHomeButtonVisibility(false);
@@ -874,7 +868,6 @@ class CakeHomeState extends State<Mainboard> {
 
     List<String> fileValues = [];
     List<String> filteredSearchedFiles = [];
-    List<String> dateStoresValues = [];
     List<String> setDateValues = [];
     List<Uint8List> imageByteValues = [];
     List<Uint8List> filteredSearchedBytes = [];
@@ -911,7 +904,6 @@ class CakeHomeState extends State<Mainboard> {
 
       fileValues.add(fileName);
       filteredSearchedFiles.add(fileName);
-      dateStoresValues.add(actualFileSize);
       setDateValues.add(actualFileSize);
       imageByteValues.add(imageBytes);
       filteredSearchedBytes.add(imageBytes);
@@ -920,7 +912,6 @@ class CakeHomeState extends State<Mainboard> {
     setState(() {
       Globals.fileValues = fileValues;
       Globals.filteredSearchedFiles = filteredSearchedFiles;
-      Globals.dateStoresValues = dateStoresValues;
       Globals.setDateValues = setDateValues;
       Globals.imageByteValues = imageByteValues;
       Globals.filteredSearchedBytes = filteredSearchedBytes;
@@ -975,7 +966,6 @@ class CakeHomeState extends State<Mainboard> {
     _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
-    Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
@@ -1062,7 +1052,6 @@ class CakeHomeState extends State<Mainboard> {
     _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
-    Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
@@ -1096,7 +1085,6 @@ class CakeHomeState extends State<Mainboard> {
     _clearGlobalData();
 
     Globals.fileValues.addAll(nameList);
-    Globals.dateStoresValues.addAll(dateList);
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
@@ -4248,7 +4236,7 @@ class CakeHomeState extends State<Mainboard> {
     }
   }
 
-  Widget _buildListView() {
+Widget _buildListView() {
 
     const double itemExtentValue = 58;
 
@@ -4300,9 +4288,7 @@ class CakeHomeState extends State<Mainboard> {
                 ),
               ),
               subtitle: Text(
-                isFromUpload == true
-                  ? Globals.setDateValues[index]
-                  : Globals.dateStoresValues[index],
+                Globals.setDateValues[index],
                 style: TextStyle(
                   color: Globals.fileOrigin != "psFiles" ? ThemeColor.secondaryWhite : GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
                   fontSize: 12.8,

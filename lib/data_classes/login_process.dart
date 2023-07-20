@@ -115,7 +115,6 @@ class MysqlLogin {
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.foldValues.addAll(retrieveFolders);
     Globals.imageByteValues.addAll(uniqueBytes);
-    Globals.dateStoresValues.addAll(dates);
     Globals.setDateValues.addAll(dates);
 
     if (isChecked) {

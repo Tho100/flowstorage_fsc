@@ -68,7 +68,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
     Globals.foldValues.clear();
-    Globals.dateStoresValues.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.filteredSearchedBytes.clear();

@@ -157,6 +157,7 @@ class PreviewAudioState extends State<PreviewAudio> {
           
                 final byteAudio = await _retrieveAudioData();
                 await _playAudio(byteAudio);
+                
               },
               icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
             ),
@@ -164,7 +165,6 @@ class PreviewAudioState extends State<PreviewAudio> {
         }
       ),
     );
-
   }
 
   Widget buildHeader() {

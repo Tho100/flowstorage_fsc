@@ -66,6 +66,7 @@ class InsertData {
       case 'ps_info_word':
       case 'ps_info_exe':
       case 'ps_info_pdf':
+      case 'ps_info_apk':
 
         await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
         break;

@@ -108,7 +108,6 @@ class PasscodePageState extends State<PasscodePage> {
 
       Globals.fileValues.addAll(uniqueFileNames);
       Globals.foldValues.addAll(retrieveFolders);
-      Globals.dateStoresValues.addAll(dates);
       Globals.imageByteValues.addAll(uniqueBytes);
       Globals.setDateValues.addAll(dates);
 

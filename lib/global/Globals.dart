@@ -28,7 +28,6 @@ class Globals {
   static List<String> fileValues = [];
   static List<File> imageValues = [];
   static List<String> foldValues = [];
-  static List<String> dateStoresValues = [];
 
   static List<Uint8List?> imageByteValues = <Uint8List?>[];
   static List<String> setDateValues = <String>[];
