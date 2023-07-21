@@ -1674,7 +1674,13 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
     final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
 
-    await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
+    if(Globals.fileOrigin != "offlineFiles") {
+      await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
+    } else {
+      final fileByteData = base64.decode(fileBase64Encoded);
+      await OfflineMode().processSaveOfflineFile(fileName: selectedFileName, fileData: fileByteData, context: context);
+    }
+
     verifyTableName == GlobalsTable.homeImageTable ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
     verifyTableName == GlobalsTable.homeVideoTable ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
  
@@ -1697,8 +1703,12 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
         final shortenText = ShortenText();
 
+        const List<String> nonOfflineFileTypes = [...Globals.imageType,...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+        const List<String> offlineFileTypes = [...Globals.imageType,...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+
         final resultPicker = await FilePicker.platform.pickFiles(
-          type: FileType.any,
+          type: FileType.custom,
+          allowedExtensions: Globals.fileOrigin == "offlineFiles" ? offlineFileTypes : nonOfflineFileTypes,
           allowMultiple: Globals.fileOrigin == "psFiles" ? false : true
         );
 
@@ -3629,33 +3639,31 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
                 ),
               ),
             ),
-              
-            Visibility(
-              visible: VisibilityChecker.setNotVisible("offlineFiles"),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                    Navigator.pop(context);
-                    await _openDialogFile();
-                  } else {
-                    _upgradeDialog(
-                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                    );
-                  }
-                },
-                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.upload_file),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'Upload Files',
-                      style: GlobalsStyle.btnBottomDialogTextStyle,
-                    ),
-                  ],
-                ),
+
+            ElevatedButton(
+              onPressed: () async {
+                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                  Navigator.pop(context);
+                  await _openDialogFile();
+                } else {
+                  _upgradeDialog(
+                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                  );
+                }
+              },
+              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
+              child: const Row(
+                children: [
+                  Icon(Icons.upload_file),
+                  SizedBox(width: 10.0),
+                  Text(
+                    'Upload Files',
+                    style: GlobalsStyle.btnBottomDialogTextStyle,
+                  ),
+                ],
               ),
             ),
+          
 
             Visibility(
               visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles","dirFiles","folderFiles"]),

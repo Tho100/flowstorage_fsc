@@ -23,6 +23,8 @@ class PreviewAudio extends StatefulWidget {
 class PreviewAudioState extends State<PreviewAudio> {
 
   final StreamController<double> sliderValueController = StreamController<double>();
+  final ValueNotifier<double> audioPositionNotifier = ValueNotifier<double>(0.0);
+
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
 
   final AudioPlayer audioPlayerController = AudioPlayer();  
@@ -78,6 +80,15 @@ class PreviewAudioState extends State<PreviewAudio> {
     await audioPlayerController.setAudioSource(MyJABytesSource(byteAudio,audioContentType!));
     
     audioPlayerController.play();
+
+    print("HELo");
+
+    Timer.periodic(const Duration(milliseconds: 220), (timer) {
+      if (audioPlayerController.playing) {
+        audioPositionNotifier.value = audioPlayerController.position.inSeconds.toDouble();
+      }
+    });
+
   }
 
   Widget buildSkipPrevious() {
@@ -169,41 +180,70 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   Widget buildHeader() {
 
-    return Center(
-      child: Column(
-        children: [
-          Text(
-            Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
-            style: const TextStyle(
-              color: ThemeColor.justWhite,
-              fontSize: 24,
-              fontWeight: FontWeight.w700
-            ),
-            textAlign: TextAlign.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
+          style: const TextStyle(
+            color: ThemeColor.justWhite,
+            fontSize: 24,
+            fontWeight: FontWeight.w700
           ),
-          const SizedBox(height: 10),
-          Text(
-            Globals.custUsername,
-            style: const TextStyle(
-              color: ThemeColor.secondaryWhite,
-              fontSize: 18,
-              fontWeight: FontWeight.w500
-            ),
-            textAlign: TextAlign.center,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          Globals.custUsername,
+          style: const TextStyle(
+            color: ThemeColor.secondaryWhite,
+            fontSize: 19,
+            fontWeight: FontWeight.w500
           ),
-        ],
-      ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
 
+  }
+
+  StreamBuilder buildSlider() {
+    return StreamBuilder<double>(
+      stream: sliderValueController.stream,
+      initialData: 0.0,
+      builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+        return ValueListenableBuilder<double>(
+          valueListenable: audioPositionNotifier,
+          builder: (context, audioPosition, _) {
+            return SliderTheme(
+              data: const SliderThemeData(
+                thumbShape: RoundSliderThumbShape(
+                  enabledThumbRadius: 6.0
+                )
+              ),
+              child: Slider(value: audioPosition,
+                min: 0,
+                max: audioPlayerController.duration?.inSeconds.toDouble() ?? 100,
+                thumbColor: ThemeColor.justWhite,
+                inactiveColor: ThemeColor.thirdWhite,
+                activeColor: ThemeColor.justWhite,
+                onChanged: (double value) {
+                  sliderValueController.add(value);
+                  audioPlayerController.seek(Duration(seconds: value.toInt()));
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget buildBody() {
 
     final mediaQuery = MediaQuery.of(context).size;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
         children: [
 
           Padding(
@@ -231,25 +271,9 @@ class PreviewAudioState extends State<PreviewAudio> {
 
           buildHeader(),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          StreamBuilder<double>(
-            stream: sliderValueController.stream,
-            initialData: 0.0,
-            builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
-              return Slider(
-                value: snapshot.data ?? 0.0,
-                min: 0,
-                max: 100,
-                thumbColor: ThemeColor.justWhite,
-                inactiveColor: ThemeColor.thirdWhite,
-                activeColor: ThemeColor.justWhite,
-                onChanged: (double value) {
-                  sliderValueController.add(value);
-                }
-              );
-            },
-          ),
+          buildSlider(),
 
           const SizedBox(height: 10),
 
@@ -268,7 +292,7 @@ class PreviewAudioState extends State<PreviewAudio> {
           const SizedBox(height: 48),
 
         ],
-      ),
+      
     );
   }
 
