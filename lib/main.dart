@@ -1668,7 +1668,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
     final List<File> newFilteredSearchedImage = [];
     final List<Uint8List> newImageByteValues = [];
     final List<Uint8List> newFilteredSearchedBytes = [];
-
+    
     tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
     tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
 
@@ -1676,6 +1676,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
     if(Globals.fileOrigin != "offlineFiles") {
       await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
+
     } else {
       final fileByteData = base64.decode(fileBase64Encoded);
       await OfflineMode().processSaveOfflineFile(fileName: selectedFileName, fileData: fileByteData, context: context);
@@ -1704,7 +1705,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         final shortenText = ShortenText();
 
         const List<String> nonOfflineFileTypes = [...Globals.imageType,...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
-        const List<String> offlineFileTypes = [...Globals.imageType,...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+        const List<String> offlineFileTypes = [...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
 
         final resultPicker = await FilePicker.platform.pickFiles(
           type: FileType.custom,
