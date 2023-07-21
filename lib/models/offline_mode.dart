@@ -45,32 +45,6 @@ class OfflineMode {
     await file.rename(newPath);
   }
 
-
-  Future<void> downloadFile(String fileName) async {
-
-    await init();
-
-    final file = File('${offlineDirs.path}/$fileName');
-    final fileDataValue = file.readAsBytesSync();
-    
-    final fileType = fileName.split('.').last;
-
-    if(Globals.imageType.contains(fileType)) {
-
-      await ImageGallerySaver.saveImage(fileDataValue);
-
-    } else if (Globals.textType.contains(fileType)) {
-
-      final textData = utf8.decode(fileDataValue);
-      SaveApi().saveFile(fileName: fileName, fileData: textData);
-
-    } else if (fileType == "pdf") {
-
-      SaveApi().saveFile(fileName: fileName, fileData: fileDataValue);
-      
-    }
-  }
-
   Future<void> saveOfflineFile({
     required String fileName, 
     required Uint8List fileData
@@ -108,6 +82,38 @@ class OfflineMode {
 
     final setupFiles = File('${offlineDirPath.path}/$getFileName');
     await setupFiles.writeAsBytes(toUtf8Bytes);
+  }
+
+  Future<void> downloadFile(String fileName) async {
+
+    await init();    
+
+    const Set<String> generalNonTextFileType = {
+      "pdf",
+      ...Globals.audioType,
+      ...Globals.excelType,
+      ...Globals.wordType
+    };
+
+    final file = File('${offlineDirs.path}/$fileName');
+    final fileDataValue = file.readAsBytesSync();
+    
+    final fileType = fileName.split('.').last;
+
+    if(Globals.imageType.contains(fileType)) {
+
+      await ImageGallerySaver.saveImage(fileDataValue);
+
+    } else if (Globals.textType.contains(fileType)) {
+
+      final textData = utf8.decode(fileDataValue);
+      SaveApi().saveFile(fileName: fileName, fileData: textData);
+
+    } else if (generalNonTextFileType.contains(fileType)) {
+
+      SaveApi().saveFile(fileName: fileName, fileData: fileDataValue);
+      
+    } 
   }
 
   Future<void> processSaveOfflineFile({

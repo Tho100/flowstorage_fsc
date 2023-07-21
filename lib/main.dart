@@ -866,6 +866,10 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
       Uint8List imageBytes;
       String actualFileSize = '';
 
+      if(!(Globals.imageType.contains(fileType))) {
+        actualFileSize = "Unknown";
+      }
+
       if (Globals.imageType.contains(fileType)) {
 
         imageBytes = await file.readAsBytes();
@@ -877,17 +881,22 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
       } else if (Globals.textType.contains(fileType)) {
         
         imageBytes = await GetAssets().loadAssetsData("txt0.png");
-        actualFileSize = "Unknown";
 
       } else if (Globals.audioType.contains(fileType)) {
 
         imageBytes = await GetAssets().loadAssetsData("music0.png");
-        actualFileSize = "Unknown";
 
       } else if (fileType == "pdf") {
 
         imageBytes = await GetAssets().loadAssetsData("pdf0.png");
-        actualFileSize = "Unknown";
+
+      } else if (Globals.wordType.contains(fileType)) {
+
+        imageBytes = await GetAssets().loadAssetsData("doc0.png");
+
+      } else if (Globals.excelType.contains(fileType)) {
+
+        imageBytes = await GetAssets().loadAssetsData("exl0.png");
 
       } else {
         continue;

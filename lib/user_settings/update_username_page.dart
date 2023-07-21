@@ -166,9 +166,9 @@ class ChangeUsername extends StatelessWidget {
     
   }
 
-  Future<void> _updateUsername(String newUsername) async {
+  Future<void> _updateUsername({required String newUsername}) async {
 
-    for(final tables in GlobalsTable.tableNames) {
+    for(final tables in GlobalsTable.tableNamesPs) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
       final params = {'newname': newUsername,'oldname': Globals.custUsername};
@@ -179,7 +179,7 @@ class ChangeUsername extends StatelessWidget {
       );
     }
 
-    for(final tables in GlobalsTable.tableNamesPs) {
+    for(final tables in GlobalsTable.tableNames) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
       final params = {'newname': newUsername,'oldname': Globals.custUsername};
@@ -228,7 +228,7 @@ class ChangeUsername extends StatelessWidget {
           return;
         }
 
-        await _updateUsername(newUsername);
+        await _updateUsername(newUsername: newUsername);
 
         Globals.custUsername = newUsername;
 
