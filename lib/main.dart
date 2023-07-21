@@ -1689,13 +1689,14 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
       GlobalsData.homeFilesNameData.clear();
     }
 
-    setState(() {
-      Globals.imageValues.addAll(newImageValues);
-      Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
-      Globals.imageByteValues.addAll(newImageByteValues);
-      Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
-      newFileToDisplay != null ? fileToDisplay = newFileToDisplay : null;
-    });
+    setState(() {});
+    
+    Globals.imageValues.addAll(newImageValues);
+    Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
+    Globals.imageByteValues.addAll(newImageByteValues);
+    Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
+    newFileToDisplay != null ? fileToDisplay = newFileToDisplay : null;
+    
   }
 
   Future<void> _openDialogFile() async {

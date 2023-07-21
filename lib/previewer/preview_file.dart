@@ -812,6 +812,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else if (excelTables.contains(currentTable)) {
       return const PreviewExcel();
     } else if (audioTables.contains(currentTable)) {
+      bottomBarVisibleNotifier.value = false;
       return const PreviewAudio();
     } else {
       return _buildFilePreview();

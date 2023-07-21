@@ -28,9 +28,13 @@ class PreviewAudioState extends State<PreviewAudio> {
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
 
   final AudioPlayer audioPlayerController = AudioPlayer();  
+
   final retrieveData = RetrieveData();
 
+  bool isPressedPlayedOnFirstTry = false;
   bool audioIsPlaying = false;
+
+  late Uint8List? byteAudio;
 
   Future<Uint8List> _loadOfflineFile(String fileName) async {
     
@@ -65,146 +69,44 @@ class PreviewAudioState extends State<PreviewAudio> {
     }
 
   }
-
+  
   Future<void> _playAudio(Uint8List byteAudio) async {
 
-    final fileType = Globals.selectedFileName.split('.').last;
-    String? audioContentType;
+    if (audioPlayerController.playing) {
+      audioPlayerController.pause(); 
+      iconPausePlay.value = Icons.play_arrow_rounded; 
+    } else {
 
-    if(fileType == "wav") {
-      audioContentType = 'audio/wav';
-    } else if (fileType == "mp3") {
-      audioContentType = 'audio/mpeg';
-    }
+      final fileType = Globals.selectedFileName.split('.').last;
+      String? audioContentType;
 
-    await audioPlayerController.setAudioSource(MyJABytesSource(byteAudio,audioContentType!));
-    
-    audioPlayerController.play();
-
-    print("HELo");
-
-    Timer.periodic(const Duration(milliseconds: 220), (timer) {
-      if (audioPlayerController.playing) {
-        audioPositionNotifier.value = audioPlayerController.position.inSeconds.toDouble();
+      if (fileType == "wav") {
+        audioContentType = 'audio/wav';
+      } else if (fileType == "mp3") {
+        audioContentType = 'audio/mpeg';
       }
-    });
 
-  }
+      if (audioPlayerController.duration == null) {
+        await audioPlayerController.setAudioSource(MyJABytesSource(byteAudio, audioContentType!));
+      }
 
-  Widget buildSkipPrevious() {
+      audioPlayerController.play();
 
-    return SizedBox(
-      width: 100,
-      height: 100,
-      child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
-        builder: (BuildContext context, IconData value, Widget? child) {
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () async {
-                  // 
-                },
-                icon: const Icon(Icons.skip_previous, color: ThemeColor.justWhite, size: 50),
-              ),
-            ),
-          );
+      iconPausePlay.value = Icons.pause;
+
+      Timer.periodic(const Duration(milliseconds: 50), (timer) {
+        if (audioPlayerController.playing) {
+          audioPositionNotifier.value = audioPlayerController.position.inSeconds.toDouble();
         }
-      ),
-    );
+      });
 
-  }
-
-  Widget buildSkipNext() {
-
-    return SizedBox(
-      width: 100,
-      height: 100,
-      child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
-        builder: (BuildContext context, IconData value, Widget? child) {
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () async {
-                  //
-                },
-                icon: const Icon(Icons.skip_next, color: ThemeColor.justWhite, size: 50),
-              ),
-            ),
-          );
+      audioPlayerController.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          iconPausePlay.value = Icons.replay;
         }
-      ),
-    );
+      });
 
-  }
-
-  Widget buildPlayPauseButton() {
-    return SizedBox(
-      width: 72,
-      height: 72,
-      child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
-        builder: (BuildContext context, IconData value, Widget? child) {
-          return Container(
-            decoration: BoxDecoration(
-              color: ThemeColor.justWhite,
-              border: Border.all(
-                color: ThemeColor.justWhite,
-                width: 2.0,
-              ),
-              borderRadius: BorderRadius.circular(65)
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-          
-                audioIsPlaying = !audioIsPlaying;
-                iconPausePlay.value = audioIsPlaying ? Icons.pause : Icons.play_arrow;
-          
-                final byteAudio = await _retrieveAudioData();
-                await _playAudio(byteAudio);
-                
-              },
-              icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
-            ),
-          );
-        }
-      ),
-    );
-  }
-
-  Widget buildHeader() {
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
-          style: const TextStyle(
-            color: ThemeColor.justWhite,
-            fontSize: 24,
-            fontWeight: FontWeight.w700
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          Globals.custUsername,
-          style: const TextStyle(
-            color: ThemeColor.secondaryWhite,
-            fontSize: 19,
-            fontWeight: FontWeight.w500
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-
+    }
   }
 
   StreamBuilder buildSlider() {
@@ -236,6 +138,122 @@ class PreviewAudioState extends State<PreviewAudio> {
           },
         );
       },
+    );
+  }
+
+  Widget buildPlayPauseButton() {
+  return SizedBox(
+    width: 72,
+    height: 72,
+    child: ValueListenableBuilder(
+      valueListenable: iconPausePlay,
+      builder: (BuildContext context, IconData value, Widget? child) {
+        return Container(
+          decoration: BoxDecoration(
+            color: ThemeColor.justWhite,
+            border: Border.all(
+              color: ThemeColor.justWhite,
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(65),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () async {
+              if(value == Icons.replay) {
+                await audioPlayerController.seek(Duration.zero);
+                audioPlayerController.play();
+                iconPausePlay.value = Icons.pause;
+              } else {
+                byteAudio = await _retrieveAudioData();
+                await _playAudio(byteAudio!);
+              }
+            },
+            icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+
+  Widget buildSkipPrevious() {
+
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: ValueListenableBuilder(
+        valueListenable: iconPausePlay,
+        builder: (BuildContext context, IconData value, Widget? child) {
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  // 
+                },
+                icon: const Icon(Icons.skip_previous, color: ThemeColor.justWhite, size: 50),
+              ),
+            ),
+          );
+        }
+      ),
+    );
+  }
+
+  Widget buildSkipNext() {
+
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: ValueListenableBuilder(
+        valueListenable: iconPausePlay,
+        builder: (BuildContext context, IconData value, Widget? child) {
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  //
+                },
+                icon: const Icon(Icons.skip_next, color: ThemeColor.justWhite, size: 50),
+              ),
+            ),
+          );
+        }
+      ),
+    );
+
+  }
+
+  Widget buildHeader() {
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
+          style: const TextStyle(
+            color: ThemeColor.justWhite,
+            fontSize: 24,
+            fontWeight: FontWeight.w700
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          Globals.custUsername,
+          style: const TextStyle(
+            color: ThemeColor.secondaryWhite,
+            fontSize: 19,
+            fontWeight: FontWeight.w500
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
@@ -299,7 +317,6 @@ class PreviewAudioState extends State<PreviewAudio> {
   @override
   void initState() {
     super.initState();
-    CakePreviewFileState.bottomBarVisibleNotifier.value = false;
   }
 
   @override
