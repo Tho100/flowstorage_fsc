@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
@@ -48,7 +49,12 @@ class PreviewTextState extends State<PreviewText> {
       
       if (Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_text", tableNameHome: "file_info_expand", fileValues: Globals.textType);
+        final fileData = await CallPreviewData().callDataAsync(
+          tableNamePs: GlobalsTable.psText, 
+          tableNameHome: GlobalsTable.homeText, 
+          fileValues: Globals.textType
+        );
+
         return fileData;
 
       } else {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
@@ -46,13 +47,17 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   }
 
-  Future<void> _playVideoAsync() async {
+  Future<void> _playVideoDataAsync() async {
     
     setState(() {});
     
     videoIsLoading = true;
 
-    final videoBytes = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_video", tableNameHome: "file_info_vid", fileValues: Globals.videoType);
+    final videoBytes = await CallPreviewData().callDataAsync(
+      tableNamePs: GlobalsTable.psVideo, 
+      tableNameHome: GlobalsTable.homeVideo, 
+      fileValues: Globals.videoType
+    );
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
     await _initializeVideoPlayer(videoUrl);
@@ -76,7 +81,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                 CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 buttonPlayPausePressed = !buttonPlayPausePressed;
                 iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
-                await _playVideoAsync();
+                await _playVideoDataAsync();
               },
             );
           }

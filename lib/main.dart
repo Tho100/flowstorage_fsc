@@ -113,7 +113,7 @@ class Mainboard extends StatefulWidget {
   State<Mainboard> createState() => CakeHomeState();
 
 }
-  
+
 class CakeHomeState extends State<Mainboard> { 
 
   final GlobalKey<ScaffoldState> sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
@@ -139,7 +139,6 @@ class CakeHomeState extends State<Mainboard> {
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
-Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
   List<String> checkedItemsName = [];
@@ -166,6 +165,89 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   final crud = Crud();
   final logger = Logger();
+
+  Future<void> _insertUserFile({
+    required String table,
+    required String filePath,
+    required dynamic fileValue,
+    dynamic vidThumbnail,
+  }) async {
+
+    List<Future<void>> isolatedFileFutures = [];
+
+    isolatedFileFutures.add(insertData.insertValueParams(
+      tableName: table,
+      filePath: filePath,
+      userName: Globals.custUsername,
+      fileVal: fileValue,
+      vidThumb: vidThumbnail,
+    ));
+
+    await Future.wait(isolatedFileFutures);
+  }
+
+ /// <summary>
+  /// 
+  /// Open file dialog for user to select files to upload
+  /// and start retrieving it's file information
+  /// File name, data in bytes, etc
+  /// 
+  /// </summary>
+  
+  Future<void> _processUploadListView({
+    required String filePathVal,
+    required String selectedFileName,
+    required String tableName,
+    required String fileBase64Encoded,
+    File? newFileToDisplay,
+    dynamic thumbnailBytes,
+  }) async {
+
+    final List<File> newImageValues = [];
+    final List<File> newFilteredSearchedImage = [];
+    final List<Uint8List> newImageByteValues = [];
+    final List<Uint8List> newFilteredSearchedBytes = [];
+
+    final isHomeImageOrPsImage = tableName == GlobalsTable.homeImage || tableName == GlobalsTable.psImage;
+    final fileToDisplay = newFileToDisplay;
+
+    if (isHomeImageOrPsImage) {
+      newImageByteValues.add(File(filePathVal).readAsBytesSync());
+      newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync());
+    } else {
+      newImageByteValues.add(fileToDisplay!.readAsBytesSync());
+      newFilteredSearchedBytes.add(fileToDisplay.readAsBytesSync());
+    }
+
+    final verifyTableName = Globals.fileOrigin == "dirFiles" ? GlobalsTable.directoryUploadTable : tableName;
+
+    if (Globals.fileOrigin != "offlineFiles") {
+      await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded, vidThumbnail: thumbnailBytes);
+    } else {
+      final fileByteData = base64.decode(fileBase64Encoded);
+      await OfflineMode().processSaveOfflineFile(fileName: selectedFileName, fileData: fileByteData, context: context);
+    }
+
+    final homeImageData = GlobalsData.homeImageData;
+    final homeThumbnailData = GlobalsData.homeThumbnailData;
+
+    if (verifyTableName == GlobalsTable.homeImage) {
+      homeImageData.addAll(newFilteredSearchedBytes);
+    } else if (verifyTableName == GlobalsTable.homeVideo) {
+      homeThumbnailData.add(thumbnailBytes);
+    }
+
+    if (Globals.fileOrigin == "homeFiles") {
+      GlobalsData.homeFilesNameData.clear();
+    }
+
+    setState(() {});
+
+    Globals.imageValues.addAll(newImageValues);
+    Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
+    Globals.imageByteValues.addAll(newImageByteValues);
+    Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
+  }
 
   String _getCurrentPageName() {
     final getPageName = appBarTitle.value == "" ? "homeFiles" : appBarTitle.value;
@@ -207,7 +289,9 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         );
 
         await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
+
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
+
         GlobalsData.psTagsValuesData.add(Globals.psTagValue);
 
         scaffoldMessenger.hideCurrentSnackBar();
@@ -489,7 +573,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
       final newFileToDisplay = await GetAssets().loadAssetsFile("pdf0.png");
 
       if(Globals.fileOrigin == "psFiles") {
-        _openPsCommentDialog(filePathVal: file.path, fileName: "$generateFileName.pdf",tableName: "ps_info_pdf", base64Encoded: toBase64Encoded, newFileToDisplay: newFileToDisplay);
+        _openPsCommentDialog(filePathVal: file.path, fileName: "$generateFileName.pdf",tableName: GlobalsTable.psImage, base64Encoded: toBase64Encoded, newFileToDisplay: newFileToDisplay);
         return;
       } else {
         await _processUploadListView(filePathVal: file.path,selectedFileName: "$generateFileName.pdf",tableName: "file_info_pdf", fileBase64Encoded: toBase64Encoded,newFileToDisplay: newFileToDisplay);
@@ -789,10 +873,10 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
     final tablesToCheck = [
-      GlobalsTable.homeImageTable, GlobalsTable.homeTextTable, 
-      GlobalsTable.homePdfTable, GlobalsTable.homeExcelTable, 
-      GlobalsTable.homeVideoTable, GlobalsTable.homeAudioTable,
-      GlobalsTable.homePtxTable, GlobalsTable.homeWordTable,
+      GlobalsTable.homeImage, GlobalsTable.homeText, 
+      GlobalsTable.homePdf, GlobalsTable.homeExcel, 
+      GlobalsTable.homeVideo, GlobalsTable.homeAudio,
+      GlobalsTable.homePtx, GlobalsTable.homeWord,
        ...dirLists
     ];
 
@@ -1144,7 +1228,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         await _processUploadListView(
           filePathVal: imagePath, 
           selectedFileName: imageName, 
-          tableName: GlobalsTable.homeImageTable, 
+          tableName: GlobalsTable.homeImage, 
           fileBase64Encoded: imageBase64Encoded
         );
         
@@ -1411,32 +1495,6 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
   /// <summary>
   /// 
-  /// Convert asset file from path to File
-  /// 
-  /// </summary>
-
-  Future<void> _insertUserFile({
-    required String table,
-    required String filePath,
-    required dynamic fileValue,
-    dynamic vidThumbnail,
-  }) async {
-
-    List<Future<void>> isolatedFileFutures = [];
-
-    isolatedFileFutures.add(insertData.insertValueParams(
-      tableName: table,
-      filePath: filePath,
-      userName: Globals.custUsername,
-      fileVal: fileValue,
-      vidThumb: vidThumbnail,
-    ));
-
-    await Future.wait(isolatedFileFutures);
-  }
-
-  /// <summary>
-  /// 
   /// Open user gallery (Video)
   /// 
   /// </summary>
@@ -1509,16 +1567,14 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
         if(verifyOrigin == "psFiles") {
-
-          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_video", base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: GlobalsTable.psVideo, base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
           return;
-
         } else {
 
           await _processUploadListView(
             filePathVal: filePathVal,
             selectedFileName: selectedFileName,
-            tableName: GlobalsTable.homeVideoTable,
+            tableName: GlobalsTable.homeVideo,
             fileBase64Encoded: bodyBytes,
             newFileToDisplay: newFileToDisplay,
             thumbnailBytes: thumbnailBytes
@@ -1611,10 +1667,10 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
             final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
             if(verifyOrigin == "psFiles") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: "ps_info_image", base64Encoded: bodyBytes);
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: GlobalsTable.psImage, base64Encoded: bodyBytes);
               return;
             } else {
-              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: bodyBytes);
+              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName, tableName: GlobalsTable.homeImage, fileBase64Encoded: bodyBytes);
             }
 
         }
@@ -1645,58 +1701,6 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
       logger.e('Exception from _openGalleryImage {main}',err,st);
       SnakeAlert.errorSnake("Upload failed.",context);
     }
-  }
-
-  /// <summary>
-  /// 
-  /// Open file dialog for user to select files to upload
-  /// and start retrieving it's file information
-  /// File name, data in bytes, etc
-  /// 
-  /// </summary>
-  
-  Future<void> _processUploadListView({
-    required String filePathVal, 
-    required String selectedFileName, 
-    required String tableName,
-    required String fileBase64Encoded, 
-    File? newFileToDisplay,
-    dynamic thumbnailBytes
-  }) async {
-
-    final List<File> newImageValues = [];
-    final List<File> newFilteredSearchedImage = [];
-    final List<Uint8List> newImageByteValues = [];
-    final List<Uint8List> newFilteredSearchedBytes = [];
-    
-    tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newImageByteValues.add(File(filePathVal).readAsBytesSync()) : newImageByteValues.add(newFileToDisplay!.readAsBytesSync());
-    tableName == GlobalsTable.homeImageTable || tableName == "ps_info_image" ? newFilteredSearchedBytes.add(File(filePathVal).readAsBytesSync()) : newFilteredSearchedBytes.add(newFileToDisplay!.readAsBytesSync());
-
-    final verifyTableName = Globals.fileOrigin == "dirFiles" ? "upload_info_directory" : tableName;
-
-    if(Globals.fileOrigin != "offlineFiles") {
-      await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded,vidThumbnail: thumbnailBytes);
-
-    } else {
-      final fileByteData = base64.decode(fileBase64Encoded);
-      await OfflineMode().processSaveOfflineFile(fileName: selectedFileName, fileData: fileByteData, context: context);
-    }
-
-    verifyTableName == GlobalsTable.homeImageTable ? GlobalsData.homeImageData.addAll(newFilteredSearchedBytes) : null;
-    verifyTableName == GlobalsTable.homeVideoTable ? GlobalsData.homeThumbnailData.add(thumbnailBytes) : null;
- 
-    if(Globals.fileOrigin == "homeFiles") {
-      GlobalsData.homeFilesNameData.clear();
-    }
-
-    setState(() {});
-    
-    Globals.imageValues.addAll(newImageValues);
-    Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
-    Globals.imageByteValues.addAll(newImageByteValues);
-    Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
-    newFileToDisplay != null ? fileToDisplay = newFileToDisplay : null;
-    
   }
 
   Future<void> _openDialogFile() async {
@@ -1782,11 +1786,11 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
             String compressedImageBase64Encoded = base64.encode(bytes);
 
             if(verifyOrigin == "psFiles") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: "ps_info_image", base64Encoded: compressedImageBase64Encoded);
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: GlobalsTable.psImage, base64Encoded: compressedImageBase64Encoded);
               return;
             }
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: GlobalsTable.homeImageTable,fileBase64Encoded: compressedImageBase64Encoded);
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName, tableName: GlobalsTable.homeImage, fileBase64Encoded: compressedImageBase64Encoded);
 
           } else if (Globals.videoType.contains(fileExtension)) {
 
@@ -3616,7 +3620,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
             ),
     
             Visibility(
-              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles"]),
               child: ElevatedButton(
                 onPressed: () async {
                   if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {

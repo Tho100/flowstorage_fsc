@@ -30,11 +30,13 @@ class SharingPage extends StatefulWidget {
 
 class _SharingPage extends State<SharingPage> {
 
-  File? fileToShare;  
+  File? selectedFilePath;  
 
-  late String bodyBytes = "";
+  late String fileBase64Encoded = "";
   late String fileName = "";
   late List<int> videoThumbnail = [];
+
+  final ValueNotifier<bool> previewerIsVisible = ValueNotifier<bool>(false);
 
   final selectedFileController = TextEditingController(text: 'Please select a file');
   final shareToController = TextEditingController();
@@ -50,17 +52,20 @@ class _SharingPage extends State<SharingPage> {
 
     final file = File(result.files.single.path!);
     final fileName = path.basename(file.path);
-    final extension = path.extension(fileName).toLowerCase();
+    final extension = fileName.split('.').last;
 
-    fileToShare = file;
+    selectedFilePath = file;
     selectedFileController.text = fileName;
-    bodyBytes = '';
+    fileBase64Encoded = '';
 
-    final supportedExtensions = Globals.supportedFileTypes.map((fileType) => '.$fileType').toList();
+    final supportedExtensions = Globals.supportedFileTypes.contains(extension);
 
-    if (supportedExtensions.contains(extension)) {
+    if (supportedExtensions) {
 
-      if (extension == '.mp4' || extension == '.mov' || extension == '.wmv') {
+      previewerIsVisible.value = false;
+      videoThumbnail = [];
+
+      if (Globals.videoType.contains(extension)) {
 
         final thumbnailBytes = await VideoThumbnail.thumbnailData(
           video: file.path,
@@ -69,9 +74,15 @@ class _SharingPage extends State<SharingPage> {
         );
 
         videoThumbnail = thumbnailBytes!;
+        fileBase64Encoded = base64.encode(file.readAsBytesSync());
+
+        previewerIsVisible.value = true;
+
+        return;
+
       }
 
-      if(extension == '.png' || extension == '.jpeg'  || extension == '.jpg' || extension == '.webp') {
+      if(Globals.imageType.contains(extension)) {
 
         File compressedImage = await FlutterNativeImage.compressImage(
           file.path,
@@ -79,16 +90,20 @@ class _SharingPage extends State<SharingPage> {
         );
 
         setState(() {
-          bodyBytes = base64.encode(compressedImage.readAsBytesSync());
+          fileBase64Encoded = base64.encode(compressedImage.readAsBytesSync());
         });
 
+        previewerIsVisible.value = true;
 
         return;
-      }
 
-      bodyBytes = base64.encode(file.readAsBytesSync());
+      }        
+
+      previewerIsVisible.value = false;
+      fileBase64Encoded = base64.encode(file.readAsBytesSync());
 
     } else {
+      if(!mounted) return;
       CustomAlertDialog.alertDialog("File type is unsupported.", context);
     }
   }
@@ -121,7 +136,7 @@ class _SharingPage extends State<SharingPage> {
         return;
       }
 
-      final fileData = EncryptionClass().Encrypt(bodyBytes);
+      final fileData = EncryptionClass().Encrypt(fileBase64Encoded);
 
       final getSharingAuth = await SharingOptions.retrievePassword(shareToUsername);
 
@@ -130,12 +145,14 @@ class _SharingPage extends State<SharingPage> {
         return;
       }
 
-      final mySqlSharing = MySqlSharing();
+      final shareFileData = ShareFileData();
       final loadingDialog = MultipleTextLoading();
 
       loadingDialog.startLoading(title: "Sharing...", subText: "Sharing to $shareToUsername", context: context!);
 
-      await mySqlSharing.insertValuesParams(
+      if(!mounted) return;
+
+      await shareFileData.insertValuesParams(
         sendTo: shareToUsername, 
         fileName: encryptedFileName, 
         comment: shareToComment,
@@ -154,126 +171,154 @@ class _SharingPage extends State<SharingPage> {
 
   Widget _buildBody() {
     return Column(
-        children: [
+      children: [
 
-          const Padding(
-            padding: EdgeInsets.only(left: 28),
-            child: HeaderText(title: "File Sharing", subTitle: "Share a file to anyone"),
-          ),
-          
-          const SizedBox(height: 35),
+        const Padding(
+          padding: EdgeInsets.only(left: 28),
+          child: HeaderText(title: "File Sharing", subTitle: "Share a file to anyone"),
+        ),
+        
+        const SizedBox(height: 35),
 
-          _buildTextField(shareToController, "Enter receiver username", false,0.0,true),
+        _buildTextField(
+          controller: shareToController, 
+          headerText: "Enter receiver username", 
+          fromComment: false, 
+          customHeight: 0.0,
+          customWidth: 0.9,
+          enabled: true
+        ),
 
-          const SizedBox(height: 18),
+        const SizedBox(height: 10),
 
-          _buildTextField(selectedFileController, selectedFileController.text, false,0.0,false),
+        Padding(
+          padding: const EdgeInsets.only(left: 25.0),
+          child: Row(
+            children: [
 
-          const SizedBox(height: 10.0),
-
-          SizedBox(
-            height: 55,
-            width: MediaQuery.of(context).size.width-45,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: ThemeColor.darkBlack,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                )
+              _buildTextField(
+                controller: selectedFileController, 
+                headerText: selectedFileController.text, 
+                fromComment: false,
+                customHeight: 0.0,
+                customWidth: 0.6,
+                enabled: false
               ),
-              onPressed: () async {
-                await _openDialogFile();
-              },
-              child: const Text(
-                "Select file",
-                style: TextStyle(
-                  color: ThemeColor.darkPurple,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+
+              const SizedBox(width: 10),
+
+              MainButton(text: "Select File", onPressed: _openDialogFile, minusWidth: 350),
+
+            ],
           ),
-     
+        ),
 
-          const SizedBox(height: 25),
+        const SizedBox(height: 10.0),
 
-          _buildTextField(commentController, "Enter a comment", false,55.0,true),
-
-          const SizedBox(height: 25),
-
-          MainButton(
-            text: "Share", 
-            onPressed: () async {
-              if(shareToController.text.isNotEmpty) {
-                if(selectedFileController.text.isNotEmpty) {
-                  await _startSharing(context);
-                }
-              }
-            },
-          ),
+        _buildTextField(
+          controller: commentController, 
+          headerText: "Enter a comment", 
+          fromComment: true,
+          customHeight: 25.0, 
+          customWidth: 0.9,
+          enabled: true
+        ),
 
         const SizedBox(height: 15),
 
-        _buildPreviewer(bodyBytes), 
+        MainButton(
+          text: "Share", 
+          onPressed: () async {
+            if(shareToController.text.isNotEmpty) {
+              if(selectedFileController.text.isNotEmpty) {
+                await _startSharing(context);
+              }
+            }
+          },
+        ),
+
+        const SizedBox(height: 25),
+
+        _buildPreviewer(fileBase64Encoded), 
       
       ],
     );       
   }
 
   Widget _buildPreviewer(String encodedValues) {
-    return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const Text(
-              'Preview',
-              style: TextStyle(
-                color: Colors.white60,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 165,
-              width: 185,
-              child: Visibility(
-                visible: encodedValues.isNotEmpty,
-                replacement: Container(),
-                child: Builder(
-                  builder: (context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: previewerIsVisible,
+      builder: (BuildContext context, bool value, Widget? child) {
+        return Visibility(
+          visible: value,
+          child: Center(
+            child: Column(
+              children: [
 
-                    try {
-
-                      if(videoThumbnail.isNotEmpty) {
-                        return Image.memory(Uint8List.fromList(videoThumbnail));
-                      } else {
-                        return Image.memory(base64Decode(encodedValues));
-                      }
-
-                    } catch (err) {
-                      return Container();
-                    }
-
-                  }
+                const Text(
+                  'Preview',
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+
+                const SizedBox(height: 8),
+
+                const Divider(color: ThemeColor.thirdWhite),
+
+                const SizedBox(height: 5),
+
+                Container(
+                  height: 220,
+                  width: 220,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16)
+                  ),
+                  child: InteractiveViewer(
+                    scaleEnabled: true,
+                    panEnabled: true,
+                    child: Builder(
+                      builder: (context) {
+                        if (videoThumbnail.isNotEmpty) {
+                          return Image.memory(Uint8List.fromList(videoThumbnail));
+                        } else {
+                          return Image.memory(
+                            base64Decode(encodedValues),
+                            fit: BoxFit.fitWidth,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
-  Widget _buildTextField(TextEditingController? controller,String headerText,bool fromComment,double commentHeight,bool enabled) {
+  Widget _buildTextField({
+    required TextEditingController? controller,
+    required String headerText,
+    required bool fromComment,
+    required double customWidth,
+    required double customHeight,
+    required bool enabled
+  }) {
+
+    final mediaQueryWidth = MediaQuery.of(context).size.width;
+
     return Center(
       child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: mediaQueryWidth * customWidth,
         child: TextFormField(
           style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
           enabled: enabled,
-          maxLines: commentHeight != 0 ? 5 : 1,
+          maxLines: customHeight != 0 ? 5 : 1,
           controller: controller,
           decoration: GlobalsStyle.setupTextFieldDecoration(headerText),
         ),

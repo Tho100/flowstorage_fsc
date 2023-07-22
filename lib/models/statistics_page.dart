@@ -54,12 +54,12 @@ class StatsPage extends State<StatisticsPage> {
       });
 
       final futuresFile = [
-        _countUpload(GlobalsTable.homeImageTable),
-        _countUpload(GlobalsTable.homeAudioTable),
-        _countUpload(GlobalsTable.homePdfTable),
-        _countUpload(GlobalsTable.homeVideoTable),
-        _countUpload(GlobalsTable.homeTextTable),
-        _countUpload(GlobalsTable.homePtxTable),
+        _countUpload(GlobalsTable.homeImage),
+        _countUpload(GlobalsTable.homeAudio),
+        _countUpload(GlobalsTable.homePdf),
+        _countUpload(GlobalsTable.homeVideo),
+        _countUpload(GlobalsTable.homeText),
+        _countUpload(GlobalsTable.homePtx),
       ];
 
       final uploadCategoryList = await Future.wait(futuresFile);
@@ -95,9 +95,9 @@ class StatsPage extends State<StatisticsPage> {
 
       accountCreationDate = await _accountCreationDate();
 
-      final document0 = await _countUpload(GlobalsTable.homePdfTable);
-      final document1 = await _countUpload(GlobalsTable.homeExcelTable);
-      final document2 = await _countUpload(GlobalsTable.homeWordTable);
+      final document0 = await _countUpload(GlobalsTable.homePdf);
+      final document1 = await _countUpload(GlobalsTable.homeExcel);
+      final document2 = await _countUpload(GlobalsTable.homeWord);
 
       setState(() {
         data = [

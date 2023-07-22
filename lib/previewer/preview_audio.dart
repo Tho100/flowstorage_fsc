@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -55,7 +56,12 @@ class PreviewAudioState extends State<PreviewAudio> {
       
       if (Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_audio", tableNameHome: "file_info_audi", fileValues: Globals.audioType);
+        final fileData = await CallPreviewData().callDataAsync(
+          tableNamePs: GlobalsTable.psAudio, 
+          tableNameHome: GlobalsTable.homeAudio, 
+          fileValues: Globals.audioType
+        );
+        
         return fileData;
 
       } else {

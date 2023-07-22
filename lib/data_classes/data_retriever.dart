@@ -25,19 +25,19 @@ class DataRetriever {
   final thumbnailGetter = ThumbnailGetter();
 
   final tableNameToAssetsImage = {
-    GlobalsTable.homeTextTable: "txt0.png",
-    GlobalsTable.homePdfTable: "pdf0.png",
-    GlobalsTable.homeAudioTable: "music0.png",
-    GlobalsTable.homeExcelTable: "exl0.png",
-    GlobalsTable.homePtxTable: "ptx0.png",
-    GlobalsTable.homeWordTable: "doc0.png",
-    GlobalsTable.homeExeTable: "exe0.png",
-    GlobalsTable.homeApkTable: "apk0.png"
+    GlobalsTable.homeText: "txt0.png",
+    GlobalsTable.homePdf: "pdf0.png",
+    GlobalsTable.homeAudio: "music0.png",
+    GlobalsTable.homeExcel: "exl0.png",
+    GlobalsTable.homePtx: "ptx0.png",
+    GlobalsTable.homeWord: "doc0.png",
+    GlobalsTable.homeExe: "exe0.png",
+    GlobalsTable.homeApk: "apk0.png"
   };
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String? username, String tableName) async {
 
-    if (tableName == GlobalsTable.homeImageTable) {
+    if (tableName == GlobalsTable.homeImage) {
 
       if(GlobalsData.homeImageData.isEmpty) {
         return getFileInfoParams(conn, username);
@@ -53,7 +53,7 @@ class DataRetriever {
 
   Future<List<Uint8List>> getFileInfoParams(MySQLConnectionPool conn, String? username) async {
 
-    const query = 'SELECT CUST_FILE FROM ${GlobalsTable.homeImageTable} WHERE CUST_USERNAME = :username';
+    const query = 'SELECT CUST_FILE FROM ${GlobalsTable.homeImage} WHERE CUST_USERNAME = :username';
     final params = {'username': username};
     final executeRetrieval = await conn.execute(query, params);
     final getByteValue = <Uint8List>[];
@@ -87,7 +87,7 @@ class DataRetriever {
       getByteValue.addAll(loadPdfImg);
     }
 
-    if (tableName == GlobalsTable.homeVideoTable) {
+    if (tableName == GlobalsTable.homeVideo) {
 
       if(GlobalsData.homeThumbnailData.isEmpty) {
         

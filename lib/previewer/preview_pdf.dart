@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -39,7 +40,12 @@ class PreviewPdfState extends State<PreviewPdf> {
       
       if(Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_pdf", tableNameHome: "file_info_pdf", fileValues: {"pdf"});
+        final fileData = await CallPreviewData().callDataAsync(
+          tableNamePs: GlobalsTable.psPdf, 
+          tableNameHome: GlobalsTable.homePdf, 
+          fileValues: {"pdf"}
+        );
+
         return fileData;
 
       } else {

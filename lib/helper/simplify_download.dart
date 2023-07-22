@@ -54,18 +54,18 @@ class SimplifyDownload {
 
     try {
 
-      const generalFilesTableName = {"file_info_expand","ps_info_text","file_info_vid","ps_info_video"};
+      const generalFilesTableName = {GlobalsTable.homeText,GlobalsTable.psText,GlobalsTable.homeVideo,GlobalsTable.psVideo};
 
-      if(currentTableValue == GlobalsTable.homeImageTable || currentTableValue == "ps_info_image") {
+      if(currentTableValue == GlobalsTable.homeImage || currentTableValue == GlobalsTable.psImage) {
 
         await ImageGallerySaver.saveImage(fileDataValue!);
 
-      } else if (currentTableValue == GlobalsTable.homeTextTable || currentTableValue == "ps_info_text") {
+      } else if (currentTableValue == GlobalsTable.homeText || currentTableValue == GlobalsTable.psText) {
 
         String textFileContent = utf8.decode(fileDataValue!);
         await SaveApi().saveFile(fileName: fileNameValue!,fileData: textFileContent);
         
-      } else if (currentTableValue == GlobalsTable.homeVideoTable || currentTableValue == "ps_info_video") { 
+      } else if (currentTableValue == GlobalsTable.homeVideo || currentTableValue == GlobalsTable.psVideo) { 
 
         await _videoGallerySaver(fileDataValue!);
 

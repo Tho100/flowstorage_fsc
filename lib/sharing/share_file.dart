@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
-class MySqlSharing {
+class ShareFileData {
 
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
   final Crud _crud = Crud();

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
@@ -32,7 +33,7 @@ class PreviewExcelState extends State<PreviewExcel> {
 
     try {
 
-      final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_excel", tableNameHome: "file_info_excel", fileValues: Globals.excelType);
+      final fileData = await CallPreviewData().callDataAsync(tableNamePs: GlobalsTable.psExcel, tableNameHome: GlobalsTable.homeExcel, fileValues: Globals.excelType);
       return fileData;
       
     } catch (err, st) {

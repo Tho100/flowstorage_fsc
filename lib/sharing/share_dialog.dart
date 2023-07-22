@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 class SharingDialog {
 
   final retrieveData = RetrieveData();
-  final mySqlSharing = MySqlSharing();
+  final shareFileData = ShareFileData();
 
   Future<void> _shareFileToOther({
     required String shareToName, 
@@ -32,7 +32,7 @@ class SharingDialog {
     BuildContext? context,
     }) async {
 
-      await mySqlSharing.insertValuesParams(
+      await shareFileData.insertValuesParams(
       sendTo: shareToName, 
       fileName: encryptedFileName, 
       comment: shareToComment,

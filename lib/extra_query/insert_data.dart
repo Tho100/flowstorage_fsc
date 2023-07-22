@@ -38,19 +38,19 @@ class InsertData {
 
     switch (tableName) {
 
-      case GlobalsTable.homeImageTable:
-      case GlobalsTable.homeTextTable:
-      case GlobalsTable.homePdfTable:
-      case GlobalsTable.homePtxTable:
-      case GlobalsTable.homeAudioTable:
-      case GlobalsTable.homeExcelTable:
-      case GlobalsTable.homeWordTable:
-      case GlobalsTable.homeExeTable:
+      case GlobalsTable.homeImage:
+      case GlobalsTable.homeText:
+      case GlobalsTable.homePdf:
+      case GlobalsTable.homePtx:
+      case GlobalsTable.homeAudio:
+      case GlobalsTable.homeExcel:
+      case GlobalsTable.homeWord:
+      case GlobalsTable.homeExe:
 
         await insertFileInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal);
         break;
 
-      case GlobalsTable.homeVideoTable:
+      case GlobalsTable.homeVideo:
         await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 
@@ -58,20 +58,19 @@ class InsertData {
         await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
         break;
 
-      case 'ps_info_text':
-      case 'ps_info_image':
-      case 'ps_info_excel':
-      case 'ps_info_ptx':
-      case 'ps_info_audio':
-      case 'ps_info_word':
-      case 'ps_info_exe':
-      case 'ps_info_pdf':
-      case 'ps_info_apk':
+      case GlobalsTable.psText:
+      case GlobalsTable.psImage:
+      case GlobalsTable.psExe:
+      case GlobalsTable.psExcel:
+      case GlobalsTable.psPdf:
+      case GlobalsTable.psWord:
+      case GlobalsTable.psAudio:
+      case GlobalsTable.psApk:
 
         await insertFileInfoPs(conn, tableName, encryptedFilePath, userName, encryptedFileVal);
         break;
 
-      case 'ps_info_video':
+      case GlobalsTable.psVideo:
         await insertVideoInfoPs(conn,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 

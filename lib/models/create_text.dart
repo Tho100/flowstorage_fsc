@@ -180,13 +180,13 @@ class _CreateText extends State<CreateText> {
     late String tableToUploadTo = "";
 
     if(Globals.fileOrigin == "homeFiles") {
-      tableToUploadTo = GlobalsTable.homeTextTable;
+      tableToUploadTo = GlobalsTable.homeText;
     } else if (Globals.fileOrigin == "dirFiles") {
-      tableToUploadTo = "upload_info_directory";
+      tableToUploadTo = GlobalsTable.directoryUploadTable;
     } else if (Globals.fileOrigin == "foldFiles") {
-      tableToUploadTo = "folder_upload_info";
+      tableToUploadTo = GlobalsTable.folderUploadTable;
     } else if (Globals.fileOrigin == "psFiles") {
-      tableToUploadTo = "ps_info_text";
+      tableToUploadTo = GlobalsTable.psText;
     }
 
     return tableToUploadTo;

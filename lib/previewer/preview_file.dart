@@ -90,8 +90,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   static ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
-  final Set<String> filesWithCustomHeader = {GlobalsTable.homeTextTable, GlobalsTable.homeAudioTable, "ps_info_audio", "ps_info_text"};
-  final Set<String> filesInfrontAppBar = {GlobalsTable.homeTextTable, GlobalsTable.homeExcelTable, GlobalsTable.homePdfTable, "ps_info_text", "ps_info_excel", "ps_info_pdf"};
+  final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, "ps_info_audio", "ps_info_text"};
+  final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homeExcel, GlobalsTable.homePdf, "ps_info_text", "ps_info_excel", "ps_info_pdf"};
 
   @override
   void initState() {
@@ -253,7 +253,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Widget _buildHeaderTitle() {
-    return currentTable == "file_info_expand" || currentTable == "ps_info_text" ? Row(
+    return currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText ? Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -474,13 +474,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               
               final textValue = textController.text;
 
-              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text" && Globals.fileOrigin == "offlineFiles") {
+              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles") {
 
                 await _updateTextChanges(textValue,context);
                 return;
               } 
 
-              if(currentTable == GlobalsTable.homeExcelTable) {
+              if(currentTable == GlobalsTable.homeExcel) {
                 final updatedValues = PreviewExcel.excelUpdatedBytes;
                 await _saveExcelChanges(updatedValues,context);
                 return;
@@ -617,7 +617,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
                 Visibility(
                   visible: true,
-                  child: currentTable == GlobalsTable.homeTextTable || currentTable == GlobalsTable.homeExcelTable || currentTable == "ps_info_text" && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
+                  child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.homeExcel || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
                 ),
     
                 _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
@@ -705,7 +705,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     late Future<String> imageResolutionFuture;
     late Future<String> fileSizeFuture;
 
-    if (currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image") {
+    if (currentTable == GlobalsTable.homeImage || currentTable == GlobalsTable.psImage) {
       imageResolutionFuture = _returnImageSize();
     } else {
       imageResolutionFuture = Future.value('N/A');
@@ -801,11 +801,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     appBarTitleNotifier.value = Globals.selectedFileName;
   }
 
-  Widget buildFileOnCondition() {
+  Widget _buildFileOnCondition() {
     
-    const textTables = {GlobalsTable.homeTextTable, "ps_info_text"};
-    const audioTables = {GlobalsTable.homeAudioTable, "ps_info_audio"};
-    const excelTables = {GlobalsTable.homeExcelTable, "ps_info_excel"};
+    const textTables = {GlobalsTable.homeText, GlobalsTable.psText};
+    const audioTables = {GlobalsTable.homeAudio, GlobalsTable.psAudio};
+    const excelTables = {GlobalsTable.homeExcel, GlobalsTable.psExcel};
 
     if(textTables.contains(currentTable)) {
       return PreviewText(controller: textController);
@@ -853,12 +853,12 @@ class CakePreviewFileState extends State<CakePreviewFile> {
             valueListenable: bottomBarVisibleNotifier,
             builder: (BuildContext context, bool value, Widget? child) {
               return Visibility(
-                visible: currentTable == GlobalsTable.homeImageTable || currentTable == "ps_info_image" ? bottomBarVisibleNotifier.value : true,
+                visible: currentTable == GlobalsTable.homeImage || currentTable == GlobalsTable.psImage ? bottomBarVisibleNotifier.value : true,
                 child: AppBar(
                   backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
                   actions: <Widget>[
                     Visibility(
-                      visible: currentTable == GlobalsTable.homeTextTable || currentTable == "ps_info_text",
+                      visible: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText,
                       child: _buildCopyTextIconButton(),
                     ),
                     IconButton(
@@ -892,7 +892,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       body: Container(
         decoration: BoxDecoration(
-          gradient: currentTable == "file_info_audi" || currentTable == "ps_info_audio"
+          gradient: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio
           ? const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -902,13 +902,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               ],
             )
           : null,
-          color: currentTable == "file_info_audi" || currentTable == "ps_info_audio" ? null : ThemeColor.darkBlack,
+          color: currentTable == "file_info_audi" || currentTable == GlobalsTable.psAudio ? null : ThemeColor.darkBlack,
         ),
         child: Column(
           children: [
             _buildHeaderTitle(),
             Expanded(
-              child: buildFileOnCondition(),
+              child: _buildFileOnCondition(),
             ),
             ValueListenableBuilder<bool>(
               valueListenable: bottomBarVisibleNotifier,

@@ -55,10 +55,10 @@ class SignInUser {
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
     final tablesToCheck = [
-      GlobalsTable.homeImageTable, GlobalsTable.homeTextTable, 
-      GlobalsTable.homePdfTable, GlobalsTable.homeExcelTable, 
-      GlobalsTable.homeVideoTable, GlobalsTable.homeAudioTable,
-      GlobalsTable.homePtxTable, GlobalsTable.homeWordTable,
+      GlobalsTable.homeImage, GlobalsTable.homeText, 
+      GlobalsTable.homePdf, GlobalsTable.homeExcel, 
+      GlobalsTable.homeVideo, GlobalsTable.homeAudio,
+      GlobalsTable.homePtx, GlobalsTable.homeWord,
        ...dirLists
     ];
 
