@@ -33,13 +33,13 @@ class PreviewPdfState extends State<PreviewPdf> {
     }
   }
 
-  Future<Uint8List> callPdfData() async {
+  Future<Uint8List> _callPDFDataAsync() async {
 
     try {
       
       if(Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_pdf", tableNameHome: "file_info_pdf", fileValues: {"pdf"});
+        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_pdf", tableNameHome: "file_info_pdf", fileValues: {"pdf"});
         return fileData;
 
       } else {
@@ -56,7 +56,7 @@ class PreviewPdfState extends State<PreviewPdf> {
   Widget build(BuildContext context) {
     return Center(
       child: FutureBuilder<Uint8List>(
-        future: callPdfData(),
+        future: _callPDFDataAsync(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return SfPdfViewer.memory(

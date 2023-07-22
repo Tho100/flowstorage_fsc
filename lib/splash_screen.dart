@@ -5,7 +5,6 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/navigator/navigate_page.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
-import 'package:flowstorage_fsc/data_classes/email_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
@@ -33,9 +32,8 @@ class _SplashScreen extends State<SplashScreen> {
 
   final logger = Logger();
 
-  final emailGetterStartup = EmailGetter();
   final nameGetterStartup = NameGetter();
-  final loginGetterStartup = LoginGetter();
+  final dataGetterStartup = DataRetriever();
   final dateGetterStartup = DateGetter();
   final crud = Crud();
   
@@ -160,7 +158,7 @@ class _SplashScreen extends State<SplashScreen> {
 
       final futures = tablesToCheck.map((table) async {
         final fileNames = await nameGetterStartup.retrieveParams(conn,savedCustUsername, table);
-        final bytes = await loginGetterStartup.getLeadingParams(conn,savedCustUsername, table);
+        final bytes = await dataGetterStartup.getLeadingParams(conn,savedCustUsername, table);
         final dates = table == GlobalsTable.directoryInfoTable
             ? List.generate(1, (_) => "Directory")
             : await dateGetterStartup.getDateParams(savedCustUsername, table);

@@ -60,7 +60,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
       var valueCase0 = AuthModel().computeAuth(auth0);
       var valueCase1 = AuthModel().computeAuth(auth1);
       
-      final informationCon = MysqlInformation();
+      final informationCon = RegisterUser();
       
       await informationCon.insertParams(
         userName: username,

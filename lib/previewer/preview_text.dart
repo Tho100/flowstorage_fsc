@@ -42,13 +42,13 @@ class PreviewTextState extends State<PreviewText> {
     }
   }
 
-  Future<Uint8List> _callData() async {
+  Future<Uint8List> _callTextDataAsync() async {
 
     try {
       
       if (Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_text", tableNameHome: "file_info_expand", fileValues: Globals.textType);
+        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_text", tableNameHome: "file_info_expand", fileValues: Globals.textType);
         return fileData;
 
       } else {
@@ -65,7 +65,7 @@ class PreviewTextState extends State<PreviewText> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List>(
-      future: _callData(),
+      future: _callTextDataAsync(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {        
           widget.controller.text = utf8.decode(snapshot.data!);

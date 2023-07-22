@@ -49,13 +49,13 @@ class PreviewAudioState extends State<PreviewAudio> {
     }
   }
 
-  Future<Uint8List> _retrieveAudioData() async {
+  Future<Uint8List> _callAudioDataAsync() async {
 
     try {
       
       if (Globals.fileOrigin != "offlineFiles") {
 
-        final fileData = await CallPreviewData().call(tableNamePs: "ps_info_audio", tableNameHome: "file_info_audi", fileValues: Globals.audioType);
+        final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_audio", tableNameHome: "file_info_audi", fileValues: Globals.audioType);
         return fileData;
 
       } else {
@@ -70,7 +70,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   }
   
-  Future<void> _playAudio(Uint8List byteAudio) async {
+  Future<void> _playOrPauseAudioAsync(Uint8List byteAudio) async {
 
     if (audioPlayerController.playing) {
       audioPlayerController.pause(); 
@@ -165,8 +165,8 @@ class PreviewAudioState extends State<PreviewAudio> {
                 audioPlayerController.play();
                 iconPausePlay.value = Icons.pause;
               } else {
-                byteAudio = await _retrieveAudioData();
-                await _playAudio(byteAudio!);
+                byteAudio = await _callAudioDataAsync();
+                await _playOrPauseAudioAsync(byteAudio!);
               }
             },
             icon: Icon(value, color: ThemeColor.darkPurple, size: 50),

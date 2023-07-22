@@ -38,7 +38,7 @@ class CakeSignInPageState extends State<CakeSignInPage> {
     Globals.fromLogin = true;
     loginContext = context;
 
-    final loginSetup = MysqlLogin();
+    final loginSetup = SignInUser();
     await loginSetup.logParams(email, auth0, auth1, isChecked, context);
 
   }

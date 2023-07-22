@@ -9,7 +9,7 @@ class CallPreviewData {
   final retrieveData = RetrieveData();
   final uploaderName = UploaderName();
 
-  Future<Uint8List> call({
+  Future<Uint8List> callDataAsync({
     required String tableNamePs, 
     required String tableNameHome, 
     required Set<dynamic> fileValues

@@ -16,7 +16,7 @@ import 'package:mysql_client/mysql_client.dart';
 /// 
 /// </summary>
 
-class LoginGetter {
+class DataRetriever {
 
   int countDirCurr = 0;
 

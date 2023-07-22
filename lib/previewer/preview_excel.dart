@@ -28,11 +28,11 @@ class PreviewExcelState extends State<PreviewExcel> {
   final Map<int, Map<int, String>> _editedValues = {}; 
   final List<List<TextEditingController>> _excelControllers = [];
   
-  Future<Uint8List> _callData() async {
+  Future<Uint8List> _callExcelDataAsync() async {
 
     try {
 
-      final fileData = await CallPreviewData().call(tableNamePs: "ps_info_excel", tableNameHome: "file_info_excel", fileValues: Globals.excelType);
+      final fileData = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_excel", tableNameHome: "file_info_excel", fileValues: Globals.excelType);
       return fileData;
       
     } catch (err, st) {
@@ -62,7 +62,7 @@ class PreviewExcelState extends State<PreviewExcel> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List?>(
-      future: _callData(),
+      future: _callExcelDataAsync(),
       builder: (BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
         if (snapshot.hasData) {
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flowstorage_fsc/data_classes/user_data_retriever.dart';
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
@@ -17,9 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 
-import 'package:flowstorage_fsc/data_classes/username_getter.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
-import 'package:flowstorage_fsc/data_classes/email_getter.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 
 /// <summary>
@@ -28,13 +27,12 @@ import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 /// 
 /// </summary>
 
-class MysqlLogin {
+class SignInUser {
 
-  final usernameGetterLogin = UsernameGetter();
-  final emailGetterLogin = EmailGetter();
   final nameGetterLogin = NameGetter();
-  final loginGetterLogin = LoginGetter();
+  final loginGetterLogin = DataRetriever();
   final dateGetterLogin = DateGetter();
+  final userDataRetriever = UserDataRetriever();
   
   final crud = Crud();
   final logger = Logger();
@@ -43,7 +41,7 @@ class MysqlLogin {
 
   Future<void> _callData(MySQLConnectionPool conn,bool isChecked) async {
     
-    final custUsernameList = await usernameGetterLogin.retrieveParams(custEmailInit);
+    final custUsernameList = await userDataRetriever.retrieveAccountTypeAndUsername(email: custEmailInit);
     final custUsernameGetter = custUsernameList[0]!;
     final custTypeGetter = custUsernameList[1]!;
 
@@ -153,7 +151,7 @@ class MysqlLogin {
 
     try {
 
-      final custUsername = await getCustUsername(email, conn);
+      final custUsername = await userDataRetriever.retrieveUsername(email: email, conn: conn);
 
       if (custUsername.isNotEmpty) {
 
@@ -191,18 +189,6 @@ class MysqlLogin {
     } finally {
       await conn.close();
     }
-  }
-
-  Future<String> getCustUsername(String? email, conn) async {
-    var getCase0 = await conn.execute(
-        "SELECT CUST_USERNAME FROM information WHERE CUST_EMAIL = :email",
-        {"email": email});
-
-    for (var usernameIterates in getCase0.rows) {
-      return usernameIterates.assoc()['CUST_USERNAME']!;
-    }
-
-    return '';
   }
 
   Future<String> getCustPassword(String custUsername, conn) async {

@@ -159,7 +159,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
   String fileExtension = '';
 
   final fileNameGetterHome = NameGetter();
-  final loginGetterHome = LoginGetter();
+  final dataGetterHome = DataRetriever();
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
   final insertData = InsertData();
@@ -798,7 +798,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
 
     final futures = tablesToCheck.map((table) async {
       final fileNames = await fileNameGetterHome.retrieveParams(conn,Globals.custUsername, table);
-      final bytes = await loginGetterHome.getLeadingParams(conn,Globals.custUsername, table);
+      final bytes = await dataGetterHome.getLeadingParams(conn,Globals.custUsername, table);
       final dates = table == GlobalsTable.directoryInfoTable
           ? List.generate(1,(_) => "Directory")
           : await dateGetterHome.getDateParams(Globals.custUsername, table);
@@ -1329,7 +1329,7 @@ Map<int, Image?> imageMap = {}; // New map to store index-image pairs
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
 
         if(!mounted) return;
-        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `$newFileName`.",context: context);
+        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `${ShortenText().cutText(newFileName)}`.",context: context);
       }
 
     } catch (err, st) {

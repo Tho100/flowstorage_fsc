@@ -192,7 +192,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         _updateRenameFile(newFileName,indexOldFile,indexOldFileSearched);
 
         if (!mounted) return;
-        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `$newFileName`.",context: context);
+        SnakeAlert.okSnake(message: "`${ShortenText().cutText(oldFileName)}` Renamed to `${ShortenText().cutText(newFileName)}`.",context: context);
       }
 
     } catch (err, st) {
@@ -680,7 +680,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           Text(headerText,
             style: const TextStyle(
               color: Colors.white38,
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
           const SizedBox(width: 8),
@@ -688,7 +688,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
             style: const TextStyle(
               overflow: TextOverflow.ellipsis,
               color: ThemeColor.secondaryWhite,
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,

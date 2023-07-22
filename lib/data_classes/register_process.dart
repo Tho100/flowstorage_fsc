@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
 
-class MysqlInformation {
+class RegisterUser {
 
   Future<void> insertParams({
     required String? userName, 

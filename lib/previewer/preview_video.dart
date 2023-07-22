@@ -46,13 +46,13 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   }
 
-  Future<void> _playVideo() async {
+  Future<void> _playVideoAsync() async {
     
     setState(() {});
     
     videoIsLoading = true;
 
-    final videoBytes = await CallPreviewData().call(tableNamePs: "ps_info_video", tableNameHome: "file_info_vid", fileValues: Globals.videoType);
+    final videoBytes = await CallPreviewData().callDataAsync(tableNamePs: "ps_info_video", tableNameHome: "file_info_vid", fileValues: Globals.videoType);
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
     await _initializeVideoPlayer(videoUrl);
@@ -76,7 +76,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                 CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 buttonPlayPausePressed = !buttonPlayPausePressed;
                 iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
-                await _playVideo();
+                await _playVideoAsync();
               },
             );
           }

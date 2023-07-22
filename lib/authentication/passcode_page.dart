@@ -36,8 +36,9 @@ class PasscodePageState extends State<PasscodePage> {
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
 
   final fileNameGetterStartup = NameGetter();
-  final loginGetterStartup = LoginGetter();
+  final dataGetterStartup = DataRetriever();
   final dateGetterStartup = DateGetter();
+
   final crud = Crud();
 
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail, String savedAccountType ,BuildContext context) async {
@@ -60,7 +61,7 @@ class PasscodePageState extends State<PasscodePage> {
 
       final futures = tablesToCheck.map((table) async {
         final fileNames = await fileNameGetterStartup.retrieveParams(conn,savedCustUsername, table);
-        final bytes = await loginGetterStartup.getLeadingParams(conn,savedCustUsername, table);
+        final bytes = await dataGetterStartup.getLeadingParams(conn,savedCustUsername, table);
         final dates = table == GlobalsTable.directoryInfoTable
             ? List.generate(1, (_) => "Directory")
             : await dateGetterStartup.getDateParams(savedCustUsername, table);
