@@ -26,7 +26,7 @@ class PreviewVideoState extends State<PreviewVideo> {
   bool buttonPlayPausePressed = false;
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
-  bool isVideoEnded = false;
+  bool videoIsEnded = false;
 
   final Duration endThreshold = const Duration(milliseconds: 200);
 
@@ -35,6 +35,8 @@ class PreviewVideoState extends State<PreviewVideo> {
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
   late Size? videoSize;
+
+  late Uint8List videoBytes = Uint8List(0);
 
   Future<void> initializeVideoPlayer(String videoUrl) async {
 
@@ -56,14 +58,15 @@ class PreviewVideoState extends State<PreviewVideo> {
   Future<void> playVideoDataAsync() async {
     
     setState(() {});
-    
-    videoIsLoading = true;
 
-    final videoBytes = await CallPreviewData().callDataAsync(
-      tableNamePs: GlobalsTable.psVideo, 
-      tableNameHome: GlobalsTable.homeVideo, 
-      fileValues: Globals.videoType
-    );
+    if(videoBytes.isEmpty) {
+      videoIsLoading = true;
+      videoBytes = await CallPreviewData().callDataAsync(
+        tableNamePs: GlobalsTable.psVideo, 
+        tableNameHome: GlobalsTable.homeVideo, 
+        fileValues: Globals.videoType
+      );
+    } 
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
     await initializeVideoPlayer(videoUrl);
@@ -98,13 +101,16 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   Widget buildLoadingVideo() {
     return Positioned.fill(
-      child: Center(child: LoadingFile.buildLoading()),
+      child: Center(
+        child: LoadingFile.buildLoading()
+      ),
     );
   }
 
   Widget buildVideo() {
     return GestureDetector(
       onTap: () {
+
         videoIsTapped = !videoIsTapped;
         if(videoIsTapped) {
           CakePreviewFileState.bottomBarVisibleNotifier.value = true;
@@ -113,6 +119,7 @@ class PreviewVideoState extends State<PreviewVideo> {
           CakePreviewFileState.bottomBarVisibleNotifier.value = false;
           videoPlayerController.play();
         }
+
       },
       child: Center(
         child: Padding(
@@ -146,9 +153,9 @@ class PreviewVideoState extends State<PreviewVideo> {
     final position = videoPlayerController.value.position;
     final duration = videoPlayerController.value.duration;
     
-    if (!isVideoEnded &&videoPlayerController.value.isInitialized &&
+    if (!videoIsEnded &&videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
-      isVideoEnded = true;
+      videoIsEnded = true;
       CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     }
   }

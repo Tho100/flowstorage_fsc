@@ -217,7 +217,6 @@ class PreviewAudioState extends State<PreviewAudio> {
         }
       ),
     );
-
   }
 
   Widget buildHeader() {

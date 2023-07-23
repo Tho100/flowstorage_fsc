@@ -12,7 +12,7 @@ class SaveApi {
     required dynamic fileData,
   }) async {
 
-    late String filePath;
+    late String filePath = "";
     
     String? result = await FilePicker.platform.getDirectoryPath();
 
