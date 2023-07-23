@@ -25,10 +25,10 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreen();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreen extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> {
 
   final logger = Logger();
 

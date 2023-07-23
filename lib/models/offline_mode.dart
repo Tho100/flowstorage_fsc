@@ -116,6 +116,19 @@ class OfflineMode {
     } 
   }
 
+  Future<Uint8List> loadOfflineFileByte(String fileName) async {
+    
+    final offlineDirsPath = await OfflineMode().returnOfflinePath();
+
+    final file = File('${offlineDirsPath.path}/$fileName');
+
+    if (await file.exists()) {
+      return file.readAsBytes();
+    } else {
+      throw Exception('File not found');
+    }
+  }
+
   Future<void> processSaveOfflineFile({
     required String fileName, 
     required Uint8List fileData,

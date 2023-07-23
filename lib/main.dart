@@ -1083,6 +1083,9 @@ class CakeHomeState extends State<Mainboard> {
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 
+      if (!mounted) return;
+      SnakeAlert.okSnake(message: "Directory $directoryName has been created.", icon: Icons.check, context: context);
+
     } catch (err, st) {
       logger.e('Exception from _buildDirectory {main}',err,st);
       CustomAlertDialog.alertDialog('Failed to create directory.', context);
@@ -3791,7 +3794,12 @@ class CakeHomeState extends State<Mainboard> {
                 final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
                 if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+
+                    if(!mounted) return;
+                    Navigator.pop(context);
+
                     _buildCreateDirectoryDialog();
+                    
                   } else {
                     _upgradeDialog("Upgrade your account to upload more directory.");
                   }
@@ -4245,8 +4253,16 @@ class CakeHomeState extends State<Mainboard> {
 
     } else if (externalFileTypes.contains(fileExtension)) {
 
+      late Uint8List fileData;
+
       final fileTable = Globals.fileTypesToTableNames[fileExtension]!;
-      final fileData = await _callData(Globals.selectedFileName, fileTable);
+
+      if(Globals.fileOrigin != "offlineFiles") {
+        fileData = await _callData(Globals.selectedFileName, fileTable);
+      } else {
+        fileData = await OfflineMode().loadOfflineFileByte(Globals.selectedFileName);
+      }
+
       _openFileInExternalApp(fileData, Globals.selectedFileName);
 
       return;
@@ -4262,7 +4278,7 @@ class CakeHomeState extends State<Mainboard> {
     }
   }
 
-Widget _buildListView() {
+  Widget _buildListView() {
 
     const double itemExtentValue = 58;
 

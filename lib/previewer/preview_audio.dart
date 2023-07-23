@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
@@ -37,19 +36,6 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   late Uint8List? byteAudio;
 
-  Future<Uint8List> _loadOfflineFile(String fileName) async {
-    
-    final offlineDirsPath = await OfflineMode().returnOfflinePath();
-
-    final file = File('${offlineDirsPath.path}/$fileName');
-
-    if (await file.exists()) {
-      return file.readAsBytes();
-    } else {
-      throw Exception('File not found');
-    }
-  }
-
   Future<Uint8List> _callAudioDataAsync() async {
 
     try {
@@ -65,7 +51,7 @@ class PreviewAudioState extends State<PreviewAudio> {
         return fileData;
 
       } else {
-        return await _loadOfflineFile(Globals.selectedFileName);
+        return await OfflineMode().loadOfflineFileByte(Globals.selectedFileName);
       }
 
       
@@ -148,41 +134,40 @@ class PreviewAudioState extends State<PreviewAudio> {
   }
 
   Widget buildPlayPauseButton() {
-  return SizedBox(
-    width: 72,
-    height: 72,
-    child: ValueListenableBuilder(
-      valueListenable: iconPausePlay,
-      builder: (BuildContext context, IconData value, Widget? child) {
-        return Container(
-          decoration: BoxDecoration(
-            color: ThemeColor.justWhite,
-            border: Border.all(
+    return SizedBox(
+      width: 72,
+      height: 72,
+      child: ValueListenableBuilder(
+        valueListenable: iconPausePlay,
+        builder: (BuildContext context, IconData value, Widget? child) {
+          return Container(
+            decoration: BoxDecoration(
               color: ThemeColor.justWhite,
-              width: 2.0,
+              border: Border.all(
+                color: ThemeColor.justWhite,
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.circular(65),
             ),
-            borderRadius: BorderRadius.circular(65),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: () async {
-              if(value == Icons.replay) {
-                await audioPlayerController.seek(Duration.zero);
-                audioPlayerController.play();
-                iconPausePlay.value = Icons.pause;
-              } else {
-                byteAudio = await _callAudioDataAsync();
-                await _playOrPauseAudioAsync(byteAudio!);
-              }
-            },
-            icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
-          ),
-        );
-      },
-    ),
-  );
-}
-
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () async {
+                if(value == Icons.replay) {
+                  await audioPlayerController.seek(Duration.zero);
+                  audioPlayerController.play();
+                  iconPausePlay.value = Icons.pause;
+                } else {
+                  byteAudio = await _callAudioDataAsync();
+                  await _playOrPauseAudioAsync(byteAudio!);
+                }
+              },
+              icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget buildSkipPrevious() {
 

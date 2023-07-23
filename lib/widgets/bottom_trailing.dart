@@ -107,7 +107,7 @@ class BottomTrailing {
             ),
 
             Visibility(
-              visible: VisibilityChecker.setNotVisible("offlineFiles"),
+              visible: VisibilityChecker.setNotVisible("offlineFiles") && fileName.split('.').last != fileName,
               child: ElevatedButton(
                 onPressed: onAOPressed,
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
@@ -123,7 +123,10 @@ class BottomTrailing {
               ),
             ),
 
-            const Divider(color: ThemeColor.thirdWhite),
+            Visibility(
+              visible: fileName.split('.').last != fileName,
+              child: const Divider(color: ThemeColor.thirdWhite)
+            ),
 
             ElevatedButton(
               onPressed: onDownloadPressed,

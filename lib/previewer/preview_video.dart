@@ -26,12 +26,17 @@ class PreviewVideoState extends State<PreviewVideo> {
   bool buttonPlayPausePressed = false;
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
+  bool isVideoEnded = false;
+
+  final Duration endThreshold = const Duration(milliseconds: 200);
+
+  bool videoIsTapped = false;
 
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
   late Size? videoSize;
 
-  Future<void> _initializeVideoPlayer(String videoUrl) async {
+  Future<void> initializeVideoPlayer(String videoUrl) async {
 
     videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
@@ -44,10 +49,11 @@ class PreviewVideoState extends State<PreviewVideo> {
     videoIsLoading = false;
 
     videoSize = videoPlayerController.value.size;
+    videoPlayerController.addListener(videoPlayerListener);
 
   }
 
-  Future<void> _playVideoDataAsync() async {
+  Future<void> playVideoDataAsync() async {
     
     setState(() {});
     
@@ -60,7 +66,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
-    await _initializeVideoPlayer(videoUrl);
+    await initializeVideoPlayer(videoUrl);
 
   }
 
@@ -81,7 +87,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                 CakePreviewFileState.bottomBarVisibleNotifier.value = false;
                 buttonPlayPausePressed = !buttonPlayPausePressed;
                 iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
-                await _playVideoDataAsync();
+                await playVideoDataAsync();
               },
             );
           }
@@ -97,15 +103,27 @@ class PreviewVideoState extends State<PreviewVideo> {
   }
 
   Widget buildVideo() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: SizedBox(
-            width: videoSize!.width,
-            height: videoSize!.height,
-            child: VideoPlayer(videoPlayerController),
+    return GestureDetector(
+      onTap: () {
+        videoIsTapped = !videoIsTapped;
+        if(videoIsTapped) {
+          CakePreviewFileState.bottomBarVisibleNotifier.value = true;
+          videoPlayerController.pause();
+        } else {
+          CakePreviewFileState.bottomBarVisibleNotifier.value = false;
+          videoPlayerController.play();
+        }
+      },
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: SizedBox(
+              width: videoSize!.width,
+              height: videoSize!.height,
+              child: VideoPlayer(videoPlayerController),
+            ),
           ),
         ),
       ),
@@ -123,17 +141,31 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
   }
 
+  void videoPlayerListener() {
+
+    final position = videoPlayerController.value.position;
+    final duration = videoPlayerController.value.duration;
+    
+    if (!isVideoEnded &&videoPlayerController.value.isInitialized &&
+        !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
+      isVideoEnded = true;
+      CakePreviewFileState.bottomBarVisibleNotifier.value = true;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     indexThumbnail = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
     videoThumbailByte = Globals.filteredSearchedBytes[indexThumbnail]!;
     videoPlayerController = VideoPlayerController.networkUrl(Uri());
+    playVideoDataAsync();
   }
 
   @override
   void dispose() {
     CakePreviewFileState.bottomBarVisibleNotifier.value = true;
+    videoPlayerController.removeListener(videoPlayerListener);
     videoPlayerController.dispose();
     super.dispose();
   }
@@ -145,7 +177,6 @@ class PreviewVideoState extends State<PreviewVideo> {
       child: Stack(
         children: [
           buildThumbnail(videoIsPlaying),
-          buildPlayPauseButton(),
           if(videoIsLoading) buildLoadingVideo(),
           if(videoIsPlaying) buildVideo()
         ],

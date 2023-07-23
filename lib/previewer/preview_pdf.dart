@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/global/global_table.dart';
@@ -21,19 +20,6 @@ class PreviewPdf extends StatefulWidget {
 
 class PreviewPdfState extends State<PreviewPdf> {
 
-  Future<Uint8List> _loadOfflineFile(String fileName) async {
-    
-    final offlineDirsPath = await OfflineMode().returnOfflinePath();
-
-    final file = File('${offlineDirsPath.path}/$fileName');
-
-    if (await file.exists()) {
-      return file.readAsBytes();
-    } else {
-      throw Exception('Failed to load offline file: File not found');
-    }
-  }
-
   Future<Uint8List> _callPDFDataAsync() async {
 
     try {
@@ -49,7 +35,7 @@ class PreviewPdfState extends State<PreviewPdf> {
         return fileData;
 
       } else {
-        return await _loadOfflineFile(Globals.selectedFileName);
+        return await OfflineMode().loadOfflineFileByte(Globals.selectedFileName);
       }
 
     } catch (err, st) {
