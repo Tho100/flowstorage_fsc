@@ -122,7 +122,7 @@ class _SharingPage extends State<SharingPage> {
       if (!mounted) return;
       CustomFormDialog.startDialog(fileName, "File type is not supported.", context);
     }
-    
+
   }
 
   Future<void> _startSharing(BuildContext? context) async {
@@ -221,7 +221,7 @@ class _SharingPage extends State<SharingPage> {
 
         const SizedBox(height: 15.0),
 
-        MainButton(text: "Select File", onPressed: _openDialogFile, minusWidth: 50),
+        MainButton(text: "Select File", onPressed: _openDialogFile),
 
         const SizedBox(height: 35),
 
@@ -362,15 +362,24 @@ class _SharingPage extends State<SharingPage> {
         actions: [
           TextButton(
             onPressed: () async {
-              if(shareToController.text.isNotEmpty) {
-                if(selectedFileName.isNotEmpty) {
-                  await _startSharing(context);
-                } else {
-                  CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please select a file.", context);
-                }
-              } else {
+
+              if(shareToController.text.isEmpty) {
                 CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please enter receiver username.", context);
+                return;
               }
+
+              if(selectedFileName.isEmpty) {
+                CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please select a file.", context);
+                return;
+              }
+
+              if(shareToController.text == Globals.custUsername) {
+                CustomAlertDialog.alertDialogTitle("Sharing Failed", "You can't share to yourself.", context);
+                return;
+              }
+
+              await _startSharing(context);
+
             },
             child: const Text("Share",
               style: TextStyle(
