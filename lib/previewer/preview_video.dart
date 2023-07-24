@@ -22,14 +22,12 @@ class PreviewVideoState extends State<PreviewVideo> {
   late VideoPlayerController videoPlayerController;
 
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.pause_rounded);
+  final ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
+  final Duration endThreshold = const Duration(milliseconds: 200);
   
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
   bool videoIsEnded = false;
-
-  final Duration endThreshold = const Duration(milliseconds: 200);
-
-  ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
   bool buttonPlayPausePressed = false;
 
   late int indexThumbnail; 
@@ -103,7 +101,8 @@ class PreviewVideoState extends State<PreviewVideo> {
               
               if (buttonPlayPausePressed) {
                 videoPlayerController.pause();
-              } else {
+              } else {                
+                iconPausePlay.value = Icons.pause_rounded;
                 videoPlayerController.play();
               }
           
@@ -184,7 +183,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     final position = videoPlayerController.value.position;
     final duration = videoPlayerController.value.duration;
     
-    if (!videoIsEnded &&videoPlayerController.value.isInitialized &&
+    if (videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
       videoIsEnded = true;
       videoIsTapped.value = true;
