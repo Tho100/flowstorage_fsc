@@ -21,16 +21,16 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
-
-  bool buttonPlayPausePressed = false;
+  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.pause_rounded);
+  
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
   bool videoIsEnded = false;
 
   final Duration endThreshold = const Duration(milliseconds: 200);
 
-  bool videoIsTapped = false;
+  ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
+  bool buttonPlayPausePressed = false;
 
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
@@ -52,6 +52,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     videoSize = videoPlayerController.value.size;
     videoPlayerController.addListener(videoPlayerListener);
+    CakePreviewFileState.bottomBarVisibleNotifier.value = false;
 
   }
 
@@ -74,26 +75,51 @@ class PreviewVideoState extends State<PreviewVideo> {
   }
 
   Widget buildPlayPauseButton() {
-    return Positioned.fill(
-      child: Align(
-        alignment: Alignment.center,
-        child: ValueListenableBuilder(
-          valueListenable: iconPausePlay,
-          builder: (BuildContext context, IconData value, Widget? child) {
-            return IconButton(
-              color: ThemeColor.justWhite,
-              iconSize: 64,
-              icon: Icon(
-                iconPausePlay.value
-              ),
-              onPressed: () async {
-                CakePreviewFileState.bottomBarVisibleNotifier.value = false;
-                buttonPlayPausePressed = !buttonPlayPausePressed;
-                iconPausePlay.value = buttonPlayPausePressed == true ? Icons.pause_rounded : Icons.play_arrow_rounded;
-                await playVideoDataAsync();
-              },
-            );
-          }
+    return Center(
+      child: SizedBox(
+        width: 72,
+        height: 72,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.5),
+            border: Border.all(
+              color: Colors.transparent,
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(65),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+
+              buttonPlayPausePressed = !buttonPlayPausePressed;
+
+              if(iconPausePlay.value == Icons.replay) {
+                iconPausePlay.value = Icons.pause_rounded;
+                videoPlayerController.play();
+              } else {
+                iconPausePlay.value = buttonPlayPausePressed ? Icons.play_arrow_rounded : Icons.pause_rounded;
+              }
+              
+              if (buttonPlayPausePressed) {
+                videoPlayerController.pause();
+              } else {
+                videoPlayerController.play();
+              }
+
+            },
+            icon: ValueListenableBuilder(
+              valueListenable: iconPausePlay,
+              builder: (BuildContext context, IconData value, Widget? child) {
+                return Icon(
+                  value,
+                  size: 50,
+                  color: ThemeColor.secondaryWhite,
+                );
+              }
+            ),
+
+          ),
         ),
       ),
     );
@@ -110,26 +136,31 @@ class PreviewVideoState extends State<PreviewVideo> {
   Widget buildVideo() {
     return GestureDetector(
       onTap: () {
-
-        videoIsTapped = !videoIsTapped;
-        if(videoIsTapped) {
-          CakePreviewFileState.bottomBarVisibleNotifier.value = true;
-          videoPlayerController.pause();
-        } else {
-          CakePreviewFileState.bottomBarVisibleNotifier.value = false;
-          videoPlayerController.play();
-        }
-
+        videoIsTapped.value = !videoIsTapped.value;
+        CakePreviewFileState.bottomBarVisibleNotifier.value = !CakePreviewFileState.bottomBarVisibleNotifier.value;
       },
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
+          padding: const EdgeInsets.only(top: 25.0),
           child: FittedBox(
             fit: BoxFit.contain,
             child: SizedBox(
               width: videoSize!.width,
               height: videoSize!.height,
-              child: VideoPlayer(videoPlayerController),
+              child: Stack(
+                children: [
+                  VideoPlayer(videoPlayerController),
+                  ValueListenableBuilder(
+                    valueListenable: videoIsTapped,
+                    builder: (BuildContext context, bool value, Widget? child) {
+                      return Visibility(
+                        visible: value,
+                        child: buildPlayPauseButton()
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -156,6 +187,8 @@ class PreviewVideoState extends State<PreviewVideo> {
     if (!videoIsEnded &&videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
       videoIsEnded = true;
+      videoIsTapped.value = true;
+      iconPausePlay.value = Icons.replay;
       CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     }
   }

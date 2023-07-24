@@ -38,7 +38,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   late Uint8List byteAudio;
 
-  Future<Uint8List> _callAudioDataAsync() async {
+  Future<Uint8List> callAudioDataAsync() async {
 
     try {
       
@@ -64,10 +64,10 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   }
   
-  Future<void> _playOrPauseAudioAsync() async {
+  Future<void> playOrPauseAudioAsync() async {
 
     if(byteAudio.isEmpty) {
-      byteAudio = await _callAudioDataAsync();
+      byteAudio = await callAudioDataAsync();
     }
 
     if (audioPlayerController.playing) {
@@ -216,8 +216,8 @@ class PreviewAudioState extends State<PreviewAudio> {
                   audioPlayerController.play();
                   iconPausePlay.value = Icons.pause;
                 } else {
-                  byteAudio = await _callAudioDataAsync();
-                  await _playOrPauseAudioAsync();
+                  byteAudio = await callAudioDataAsync();
+                  await playOrPauseAudioAsync();
                 }
               },
               icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
@@ -367,7 +367,7 @@ class PreviewAudioState extends State<PreviewAudio> {
   void initState() {
     super.initState();
     byteAudio = Uint8List(0);
-    _playOrPauseAudioAsync();
+    playOrPauseAudioAsync();
   }
 
   @override
