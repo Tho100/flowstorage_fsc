@@ -77,8 +77,8 @@ class PreviewVideoState extends State<PreviewVideo> {
   Widget buildPlayPauseButton() {
     return Center(
       child: SizedBox(
-        width: 72,
-        height: 72,
+        width: 92,
+        height: 92,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.grey.withOpacity(0.5),
@@ -91,9 +91,9 @@ class PreviewVideoState extends State<PreviewVideo> {
           child: IconButton(
             padding: EdgeInsets.zero,
             onPressed: () {
-
+          
               buttonPlayPausePressed = !buttonPlayPausePressed;
-
+          
               if(iconPausePlay.value == Icons.replay) {
                 iconPausePlay.value = Icons.pause_rounded;
                 videoPlayerController.play();
@@ -106,21 +106,21 @@ class PreviewVideoState extends State<PreviewVideo> {
               } else {
                 videoPlayerController.play();
               }
-
+          
             },
             icon: ValueListenableBuilder(
               valueListenable: iconPausePlay,
               builder: (BuildContext context, IconData value, Widget? child) {
                 return Icon(
                   value,
-                  size: 50,
+                  size: 72,
                   color: ThemeColor.secondaryWhite,
                 );
               }
             ),
-
+          
           ),
-        ),
+        ),   
       ),
     );
   }
