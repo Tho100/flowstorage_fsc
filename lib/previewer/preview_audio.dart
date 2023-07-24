@@ -26,15 +26,17 @@ class PreviewAudioState extends State<PreviewAudio> {
   final ValueNotifier<double> audioPositionNotifier = ValueNotifier<double>(0.0);
 
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
-
   final AudioPlayer audioPlayerController = AudioPlayer();  
 
   final retrieveData = RetrieveData();
 
+  String audioDuration = "0:00";
+  ValueNotifier<String> currentAudioDuration = ValueNotifier<String>("0:00");
+
   bool isPressedPlayedOnFirstTry = false;
   bool audioIsPlaying = false;
 
-  late Uint8List? byteAudio;
+  late Uint8List byteAudio;
 
   Future<Uint8List> _callAudioDataAsync() async {
 
@@ -62,7 +64,11 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   }
   
-  Future<void> _playOrPauseAudioAsync(Uint8List byteAudio) async {
+  Future<void> _playOrPauseAudioAsync() async {
+
+    if(byteAudio.isEmpty) {
+      byteAudio = await _callAudioDataAsync();
+    }
 
     if (audioPlayerController.playing) {
       audioPlayerController.pause(); 
@@ -80,6 +86,9 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       if (audioPlayerController.duration == null) {
         await audioPlayerController.setAudioSource(MyJABytesSource(byteAudio, audioContentType!));
+        Duration duration = audioPlayerController.duration!;
+        String formattedDuration = getDurationString(duration);
+        audioDuration = formattedDuration;
       }
 
       audioPlayerController.play();
@@ -88,6 +97,9 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
         if (audioPlayerController.playing) {
+          Duration currentPosition = audioPlayerController.position;
+          String formattedPosition = getDurationString(currentPosition);
+          currentAudioDuration.value = formattedPosition;
           audioPositionNotifier.value = audioPlayerController.position.inSeconds.toDouble();
         }
       });
@@ -101,6 +113,19 @@ class PreviewAudioState extends State<PreviewAudio> {
     }
   }
 
+  String getDurationString(Duration duration) {
+
+    String twoDigits(int n) {
+      if (n >= 10) return "$n";
+      return "0$n";
+    }
+
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
   StreamBuilder buildSlider() {
     return StreamBuilder<double>(
       stream: sliderValueController.stream,
@@ -109,23 +134,57 @@ class PreviewAudioState extends State<PreviewAudio> {
         return ValueListenableBuilder<double>(
           valueListenable: audioPositionNotifier,
           builder: (context, audioPosition, _) {
-            return SliderTheme(
-              data: const SliderThemeData(
-                thumbShape: RoundSliderThumbShape(
-                  enabledThumbRadius: 6.0
-                )
-              ),
-              child: Slider(value: audioPosition,
-                min: 0,
-                max: audioPlayerController.duration?.inSeconds.toDouble() ?? 100,
-                thumbColor: ThemeColor.justWhite,
-                inactiveColor: ThemeColor.thirdWhite,
-                activeColor: ThemeColor.justWhite,
-                onChanged: (double value) {
-                  sliderValueController.add(value);
-                  audioPlayerController.seek(Duration(seconds: value.toInt()));
-                },
-              ),
+            return Column(
+              children: [
+                SliderTheme(
+                  data: const SliderThemeData(
+                    thumbShape: RoundSliderThumbShape(
+                      enabledThumbRadius: 6.0
+                    )
+                  ),
+                  child: Slider(value: audioPosition,
+                    min: 0,
+                    max: audioPlayerController.duration?.inSeconds.toDouble() ?? 100,
+                    thumbColor: ThemeColor.justWhite,
+                    inactiveColor: ThemeColor.thirdWhite,
+                    activeColor: ThemeColor.justWhite,
+                    onChanged: (double value) {
+                      sliderValueController.add(value);
+                      audioPlayerController.seek(Duration(seconds: value.toInt()));
+                    },
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 26.0, right: 26.0),
+                  child: Row(
+                    children: [
+                      ValueListenableBuilder<String>(
+                        valueListenable: currentAudioDuration,
+                        builder: (BuildContext context, String value, Widget? child) {
+                          return Text(
+                            value,
+                            style: const TextStyle(
+                              color: ThemeColor.secondaryWhite,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16
+                            ),
+                          );
+                        }
+                      ),
+                      const Spacer(),
+                      Text(
+                        audioDuration,
+                        style: const TextStyle(
+                          color: ThemeColor.secondaryWhite,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16
+                        ),
+                      ),
+                    ]
+                  ),
+                ),
+              ],
             );
           },
         );
@@ -158,7 +217,7 @@ class PreviewAudioState extends State<PreviewAudio> {
                   iconPausePlay.value = Icons.pause;
                 } else {
                   byteAudio = await _callAudioDataAsync();
-                  await _playOrPauseAudioAsync(byteAudio!);
+                  await _playOrPauseAudioAsync();
                 }
               },
               icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
@@ -185,7 +244,7 @@ class PreviewAudioState extends State<PreviewAudio> {
                 onPressed: () async {
                   // 
                 },
-                icon: const Icon(Icons.skip_previous, color: ThemeColor.justWhite, size: 50),
+                icon: const Icon(Icons.replay_5_outlined, color: ThemeColor.justWhite, size: 50),
               ),
             ),
           );
@@ -210,7 +269,7 @@ class PreviewAudioState extends State<PreviewAudio> {
                 onPressed: () async {
                   //
                 },
-                icon: const Icon(Icons.skip_next, color: ThemeColor.justWhite, size: 50),
+                icon: const Icon(Icons.forward_5_outlined, color: ThemeColor.justWhite, size: 50),
               ),
             ),
           );
@@ -307,6 +366,8 @@ class PreviewAudioState extends State<PreviewAudio> {
   @override
   void initState() {
     super.initState();
+    byteAudio = Uint8List(0);
+    _playOrPauseAudioAsync();
   }
 
   @override

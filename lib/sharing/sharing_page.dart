@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
@@ -191,7 +192,7 @@ class _SharingPage extends State<SharingPage> {
 
         const SizedBox(height: 10),
 
-        MainButton(text: "Select File", onPressed: _openDialogFile, minusHeight: 800),
+        MainButton(text: "Select File", onPressed: _openDialogFile, minusHeight: 800, minusWidth: 50),
 
         const SizedBox(height: 20.0),
 
@@ -215,6 +216,7 @@ class _SharingPage extends State<SharingPage> {
               }
             }
           },
+          minusWidth: 50,
         ),
 
         const SizedBox(height: 25),
@@ -237,7 +239,9 @@ class _SharingPage extends State<SharingPage> {
 
                 Row(
                   children: [
-                    const SizedBox(width: 10),
+
+                    const SizedBox(width: 20),
+
                     const Text(
                       'Preview',
                       style: TextStyle(
@@ -259,7 +263,7 @@ class _SharingPage extends State<SharingPage> {
                     const SizedBox(width: 4),
 
                     Text(
-                      selectedFileController.text,
+                      ShortenText().cutText(selectedFileController.text, customLength: 50),
                       style: const TextStyle(
                         color: Colors.white60,
                         fontWeight: FontWeight.w500,
@@ -274,12 +278,9 @@ class _SharingPage extends State<SharingPage> {
 
                 const SizedBox(height: 5),
 
-                Container(
+                SizedBox(
                   height: 220,
                   width: 220,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16)
-                  ),
                   child: InteractiveViewer(
                     scaleEnabled: true,
                     panEnabled: true,
