@@ -191,29 +191,9 @@ class _SharingPage extends State<SharingPage> {
 
         const SizedBox(height: 10),
 
-        Padding(
-          padding: const EdgeInsets.only(left: 25.0),
-          child: Row(
-            children: [
+        MainButton(text: "Select File", onPressed: _openDialogFile, minusHeight: 800),
 
-              _buildTextField(
-                controller: selectedFileController, 
-                headerText: selectedFileController.text, 
-                fromComment: false,
-                customHeight: 0.0,
-                customWidth: 0.6,
-                enabled: false
-              ),
-
-              const SizedBox(width: 10),
-
-              MainButton(text: "Select File", onPressed: _openDialogFile, minusWidth: 350),
-
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 10.0),
+        const SizedBox(height: 20.0),
 
         _buildTextField(
           controller: commentController, 
@@ -255,12 +235,37 @@ class _SharingPage extends State<SharingPage> {
             child: Column(
               children: [
 
-                const Text(
-                  'Preview',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Preview',
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(width: 4),
+
+                    const Text(
+                      GlobalsStyle.dotSeperator,
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(width: 4),
+
+                    Text(
+                      selectedFileController.text,
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 8),

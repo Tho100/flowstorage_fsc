@@ -6,19 +6,24 @@ class MainButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final int? minusWidth;
+  final int? minusHeight;
 
   const MainButton({
     super.key, 
     required this.text,
     required this.onPressed,
     this.minusWidth,
+    this.minusHeight
   });
 
   @override 
   Widget build(BuildContext context) {
+
+    final mediaQuerySize = MediaQuery.of(context).size;
+
     return SizedBox(
-      height: 60,
-      width: minusWidth != null ? MediaQuery.of(context).size.width-minusWidth! : MediaQuery.of(context).size.width-45,
+      height: minusHeight != null ? mediaQuerySize.height-minusHeight! : 60,
+      width: minusWidth != null ? mediaQuerySize.width-minusWidth! : MediaQuery.of(context).size.width-45,
       child: ElevatedButton(
         style: GlobalsStyle.btnMainStyle,
         onPressed: onPressed,
