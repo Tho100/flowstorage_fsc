@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -33,18 +34,36 @@ class _SharingPage extends State<SharingPage> {
 
   File? selectedFilePath;  
 
+  String fileExtensionToType = "";
+
   late String fileBase64Encoded = "";
-  late String fileName = "";
+  late String selectedFileName = "";
   late List<int> videoThumbnail = [];
 
   final ValueNotifier<bool> previewerIsVisible = ValueNotifier<bool>(false);
 
-  final selectedFileController = TextEditingController(text: 'Please select a file');
   final shareToController = TextEditingController();
   final commentController = TextEditingController(text: '');
 
+  final Map<String,String> mapFileType = {
+    "mp3": "Audio File",
+    "wav": "Audio File",
+    "xls": "Document File",
+    "xlsx": "Document File",
+    "doc": "Document File",
+    "docx": "Document File",
+    "pdf": "Document File",
+    "txt": "Text File",
+    "csv": "Text File",
+    "sql": "Text File",
+    "md": "Text File",
+    "exe": "Executable File",
+    "ptx": "Presentation File",
+    "pptx": "Presentation File"
+  };    
+
   Future<void> _openDialogFile() async {
-    
+
     final result = await FilePicker.platform.pickFiles();
 
     if (result == null) {
@@ -55,14 +74,15 @@ class _SharingPage extends State<SharingPage> {
     final fileName = path.basename(file.path);
     final extension = fileName.split('.').last;
 
+    selectedFileName = fileName;
     selectedFilePath = file;
-    selectedFileController.text = fileName;
     fileBase64Encoded = '';
 
     final supportedExtensions = Globals.supportedFileTypes.contains(extension);
 
     if (supportedExtensions) {
 
+      fileExtensionToType = "";
       previewerIsVisible.value = false;
       videoThumbnail = [];
 
@@ -76,16 +96,11 @@ class _SharingPage extends State<SharingPage> {
 
         videoThumbnail = thumbnailBytes!;
         fileBase64Encoded = base64.encode(file.readAsBytesSync());
-
         previewerIsVisible.value = true;
 
-        return;
+      } else if (Globals.imageType.contains(extension)) {
 
-      }
-
-      if(Globals.imageType.contains(extension)) {
-
-        File compressedImage = await FlutterNativeImage.compressImage(
+        final compressedImage = await FlutterNativeImage.compressImage(
           file.path,
           quality: 84,
         );
@@ -96,29 +111,32 @@ class _SharingPage extends State<SharingPage> {
 
         previewerIsVisible.value = true;
 
-        return;
+      } else {
 
-      }        
-
-      previewerIsVisible.value = false;
-      fileBase64Encoded = base64.encode(file.readAsBytesSync());
-
+        fileExtensionToType = mapFileType[extension]!;
+        previewerIsVisible.value = true;
+        fileBase64Encoded = base64.encode(file.readAsBytesSync());
+        
+      }
     } else {
-      if(!mounted) return;
-      CustomAlertDialog.alertDialog("File type is unsupported.", context);
+      if (!mounted) return;
+      CustomFormDialog.startDialog(fileName, "File type is not supported.", context);
     }
+    
   }
 
   Future<void> _startSharing(BuildContext? context) async {
 
     final shareToComment = commentController.text.isEmpty ? '' : EncryptionClass().Encrypt(commentController.text);
     final shareToUsername = shareToController.text;
-    final fileName = selectedFileController.text;
+    final fileName = selectedFileName;
     final fileExtension = fileName.substring(fileName.length - 4);
 
     try {
 
       final encryptedFileName = EncryptionClass().Encrypt(fileName);
+
+      print(encryptedFileName);
 
       if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, Globals.custUsername)) {
         CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
@@ -190,11 +208,7 @@ class _SharingPage extends State<SharingPage> {
           enabled: true
         ),
 
-        const SizedBox(height: 10),
-
-        MainButton(text: "Select File", onPressed: _openDialogFile, minusHeight: 800, minusWidth: 50),
-
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 15),
 
         _buildTextField(
           controller: commentController, 
@@ -205,21 +219,11 @@ class _SharingPage extends State<SharingPage> {
           enabled: true
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 15.0),
 
-        MainButton(
-          text: "Share", 
-          onPressed: () async {
-            if(shareToController.text.isNotEmpty) {
-              if(selectedFileController.text.isNotEmpty) {
-                await _startSharing(context);
-              }
-            }
-          },
-          minusWidth: 50,
-        ),
+        MainButton(text: "Select File", onPressed: _openDialogFile, minusWidth: 50),
 
-        const SizedBox(height: 25),
+        const SizedBox(height: 35),
 
         _buildPreviewer(fileBase64Encoded), 
       
@@ -240,11 +244,11 @@ class _SharingPage extends State<SharingPage> {
                 Row(
                   children: [
 
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 28),
 
-                    const Text(
-                      'Preview',
-                      style: TextStyle(
+                    Text(
+                      fileExtensionToType != "" ? fileExtensionToType : "Preview",
+                      style: const TextStyle(
                         color: Colors.white60,
                         fontWeight: FontWeight.w500,
                       ),
@@ -263,9 +267,9 @@ class _SharingPage extends State<SharingPage> {
                     const SizedBox(width: 4),
 
                     Text(
-                      ShortenText().cutText(selectedFileController.text, customLength: 50),
+                      ShortenText().cutText(selectedFileName, customLength: 48),
                       style: const TextStyle(
-                        color: Colors.white60,
+                        color: ThemeColor.secondaryWhite,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -274,36 +278,44 @@ class _SharingPage extends State<SharingPage> {
 
                 const SizedBox(height: 8),
 
-                const Divider(color: ThemeColor.thirdWhite),
+                const Divider(color: ThemeColor.lightGrey),
 
-                const SizedBox(height: 5),
+                const SizedBox(height: 12),
 
-                SizedBox(
-                  height: 220,
-                  width: 220,
-                  child: InteractiveViewer(
-                    scaleEnabled: true,
-                    panEnabled: true,
-                    child: Builder(
-                      builder: (context) {
-                        if (videoThumbnail.isNotEmpty) {
-                          return Image.memory(Uint8List.fromList(videoThumbnail));
-                        } else {
-                          return Image.memory(
-                            base64Decode(encodedValues),
-                            fit: BoxFit.fitWidth,
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ),
+                if (fileExtensionToType == "") 
+                _buildPreviewThumbnailFile(encodedValues)
                 
               ],
             ),
           ),
         );
       }
+    );
+  }
+
+  Widget _buildPreviewThumbnailFile(String encodedValues) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        height: 265,
+        width: 240,
+        child: InteractiveViewer(
+          scaleEnabled: true,
+          panEnabled: true,
+          child: Builder(
+            builder: (context) {
+              if (videoThumbnail.isNotEmpty) {
+                return Image.memory(Uint8List.fromList(videoThumbnail));
+              } else {
+                return Image.memory(
+                  base64Decode(encodedValues),
+                  fit: BoxFit.fitWidth,
+                );
+              }
+            },
+          ),
+        ),
+      ),
     );
   }
 
@@ -334,7 +346,6 @@ class _SharingPage extends State<SharingPage> {
 
   @override
   void dispose() {
-    selectedFileController.dispose();
     shareToController.dispose();
     commentController.dispose();
     super.dispose();
@@ -348,6 +359,28 @@ class _SharingPage extends State<SharingPage> {
       appBar: AppBar(
         backgroundColor: ThemeColor.darkBlack,
         elevation: 0,
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if(shareToController.text.isNotEmpty) {
+                if(selectedFileName.isNotEmpty) {
+                  await _startSharing(context);
+                } else {
+                  CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please select a file.", context);
+                }
+              } else {
+                CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please enter receiver username.", context);
+              }
+            },
+            child: const Text("Share",
+              style: TextStyle(
+                color: ThemeColor.darkPurple,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
       body: _buildBody(),
     );

@@ -2243,7 +2243,7 @@ class CakeHomeState extends State<Mainboard> {
 
               const SizedBox(height: 15),
 
-              const Divider(color: ThemeColor.thirdWhite),
+              const Divider(color: ThemeColor.lightGrey),
 
               Expanded(
                 child: ListView(
