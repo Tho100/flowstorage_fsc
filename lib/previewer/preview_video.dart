@@ -36,6 +36,9 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late Uint8List videoBytes = Uint8List(0);
 
+  ValueNotifier<String> videoDurationNotifier = ValueNotifier<String>("0:00");
+  ValueNotifier<String> currentVideoDurationNotifier = ValueNotifier<String>("0:00");
+
   Future<void> initializeVideoPlayer(String videoUrl, {bool autoPlay = false}) async {
 
     videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
@@ -53,6 +56,8 @@ class PreviewVideoState extends State<PreviewVideo> {
     videoIsLoading = false;
 
     videoSize = videoPlayerController.value.size;
+    videoDurationNotifier.value = getDurationString(videoPlayerController.value.duration);
+
     videoIsTapped.value = true;
     videoPlayerController.addListener(videoPlayerListener);
 
@@ -75,54 +80,99 @@ class PreviewVideoState extends State<PreviewVideo> {
     await initializeVideoPlayer(videoUrl, autoPlay: false);
   }
 
+  Widget buildDurationText(ValueNotifier<String> notifier) {
+    return Container(
+      decoration: BoxDecoration(
+          color: ThemeColor.darkBlack.withOpacity(0.5),
+          border: Border.all(
+            color: Colors.transparent,
+            width: 8.0,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ValueListenableBuilder(
+          valueListenable: notifier,
+          builder: (BuildContext context, String value, Widget? child) {
+            return Text(
+              value,
+              style: const TextStyle(
+                color: ThemeColor.secondaryWhite,
+                fontWeight: FontWeight.w600,
+                fontSize: 18
+              ),
+              textAlign: TextAlign.center,
+            );
+          }
+        ),
+      );
+  }
+
   Widget buildPlayPauseButton() {
-    return Center(
-      child: SizedBox(
-        width: 92,
-        height: 92,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.5),
-            border: Border.all(
-              color: Colors.transparent,
-              width: 2.0,
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildDurationText(currentVideoDurationNotifier),
+                const SizedBox(width: 18),
+                SizedBox(
+                  height: 92,
+                  width: 92,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.5),
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(65),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                    
+                        buttonPlayPausePressed = !buttonPlayPausePressed;
+                    
+                        if(iconPausePlay.value == Icons.replay) {
+                          iconPausePlay.value = Icons.pause_rounded;
+                          videoPlayerController.play();
+                        } else {
+                          iconPausePlay.value = buttonPlayPausePressed ? Icons.play_arrow_rounded : Icons.pause_rounded;
+                        }
+                        
+                        if (buttonPlayPausePressed) {
+                          videoPlayerController.pause();
+                        } else {                
+                          iconPausePlay.value = Icons.pause_rounded;
+                          videoPlayerController.play();
+                        }
+                    
+                      },
+                      icon: ValueListenableBuilder(
+                        valueListenable: iconPausePlay,
+                        builder: (BuildContext context, IconData value, Widget? child) {
+                          return Icon(
+                            value,
+                            size: 72,
+                            color: ThemeColor.secondaryWhite,
+                          );
+                        }
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 18),
+                buildDurationText(videoDurationNotifier),
+              ],
             ),
-            borderRadius: BorderRadius.circular(65),
           ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: () {
-          
-              buttonPlayPausePressed = !buttonPlayPausePressed;
-          
-              if(iconPausePlay.value == Icons.replay) {
-                iconPausePlay.value = Icons.pause_rounded;
-                videoPlayerController.play();
-              } else {
-                iconPausePlay.value = buttonPlayPausePressed ? Icons.play_arrow_rounded : Icons.pause_rounded;
-              }
-              
-              if (buttonPlayPausePressed) {
-                videoPlayerController.pause();
-              } else {                
-                iconPausePlay.value = Icons.pause_rounded;
-                videoPlayerController.play();
-              }
-          
-            },
-            icon: ValueListenableBuilder(
-              valueListenable: iconPausePlay,
-              builder: (BuildContext context, IconData value, Widget? child) {
-                return Icon(
-                  value,
-                  size: 72,
-                  color: ThemeColor.secondaryWhite,
-                );
-              }
-            ),
-          
-          ),
-        ),   
+        ],
       ),
     );
   }
@@ -181,11 +231,27 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
   }
 
+  String getDurationString(Duration duration) {
+
+    String twoDigits(int n) {
+      if (n >= 10) return "$n";
+      return "0$n";
+    }
+
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
   void videoPlayerListener() {
 
     final position = videoPlayerController.value.position;
     final duration = videoPlayerController.value.duration;
-    
+
+    String currentDuration = getDurationString(position);
+    currentVideoDurationNotifier.value = currentDuration;
+
     if (videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
       videoIsEnded = true;
