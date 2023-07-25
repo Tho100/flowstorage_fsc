@@ -21,14 +21,14 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.pause_rounded);
+  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
   final ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
   final Duration endThreshold = const Duration(milliseconds: 200);
   
   bool videoIsPlaying = false;
   bool videoIsLoading = false;
   bool videoIsEnded = false;
-  bool buttonPlayPausePressed = false;
+  bool buttonPlayPausePressed = true;
 
   late int indexThumbnail; 
   late Uint8List videoThumbailByte; 
@@ -36,12 +36,16 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late Uint8List videoBytes = Uint8List(0);
 
-  Future<void> initializeVideoPlayer(String videoUrl) async {
+  Future<void> initializeVideoPlayer(String videoUrl, {bool autoPlay = false}) async {
 
     videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
-    await videoPlayerController.initialize();
-    videoPlayerController.play();
+    if (autoPlay) {
+      await videoPlayerController.initialize();
+      videoPlayerController.play();
+    } else {
+      await videoPlayerController.initialize();
+    }
 
     setState(() {});
 
@@ -49,8 +53,8 @@ class PreviewVideoState extends State<PreviewVideo> {
     videoIsLoading = false;
 
     videoSize = videoPlayerController.value.size;
+    videoIsTapped.value = true;
     videoPlayerController.addListener(videoPlayerListener);
-    CakePreviewFileState.bottomBarVisibleNotifier.value = false;
 
   }
 
@@ -58,7 +62,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     
     setState(() {});
 
-    if(videoBytes.isEmpty) {
+    if (videoBytes.isEmpty) {
       videoIsLoading = true;
       videoBytes = await CallPreviewData().callDataAsync(
         tableNamePs: GlobalsTable.psVideo, 
@@ -68,8 +72,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     } 
 
     final videoUrl = "data:video/mp4;base64,${base64Encode(videoBytes)}";
-    await initializeVideoPlayer(videoUrl);
-
+    await initializeVideoPlayer(videoUrl, autoPlay: false);
   }
 
   Widget buildPlayPauseButton() {
@@ -150,13 +153,13 @@ class PreviewVideoState extends State<PreviewVideo> {
                 children: [
                   VideoPlayer(videoPlayerController),
                   ValueListenableBuilder(
-                    valueListenable: videoIsTapped,
+                    valueListenable: videoIsTapped, 
                     builder: (BuildContext context, bool value, Widget? child) {
                       return Visibility(
-                        visible: value,
+                        visible: value && videoBytes.isNotEmpty,
                         child: buildPlayPauseButton()
                       );
-                    },
+                    }
                   ),
                 ],
               ),
