@@ -136,6 +136,10 @@ class CakeHomeState extends State<Mainboard> {
   ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
   ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
+
+  ValueNotifier<bool> selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
+  ValueNotifier<IconData> selectAllItemsIconNotifier = ValueNotifier<IconData>(Icons.check_box_outline_blank);
+
   ValueNotifier<IconData> ascendingDescendingIconNotifier = ValueNotifier<IconData>(Icons.expand_more);
 
   bool editAllIsPressed = false;
@@ -409,19 +413,38 @@ class CakeHomeState extends State<Mainboard> {
         late final Uint8List fileData;
 
         final fileType = checkedItemsName[i].split('.').last;
-        final tableName = Globals.fileTypesToTableNames[fileType]!;
 
-        if(Globals.imageType.contains(fileType)) {
-          fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(checkedItemsName[i])]!;
+        if(fileType != checkedItemsName[i]) {
+
+          final tableName = Globals.fileTypesToTableNames[fileType]!;
+
+          if(Globals.imageType.contains(fileType)) {
+            fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(checkedItemsName[i])]!;
+          } else {
+            fileData = await _callData(checkedItemsName[i],tableName);
+          }
+
+          await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
+
         } else {
-          fileData = await _callData(checkedItemsName[i],tableName);
+
+          fileData = Uint8List(0);
+
+          selectAllItemsIsPressedNotifier.value = false;
+          singleLoading.stopLoading();
+          _clearSelectAll();
+          
+          CustomAlertDialog.alertDialogTitle("An error occurred", "Directory is not available for Offline Mode.", context);
+
+          return;
         }
 
-        await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
       }
 
       singleLoading.stopLoading();
       _clearSelectAll();
+
+      selectAllItemsIsPressedNotifier.value = false;
 
       if(!mounted) return;
       SnakeAlert.okSnake(message: "$count item(s) now available offline.",icon: Icons.check,context: context);
@@ -3955,13 +3978,39 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   Widget _buildSelectAll() {
-    return IconButton(
-      icon: editAllIsPressed ? const Icon(Icons.check) : const Icon(Icons.check_box_outlined,size: 26),
-      onPressed: () {
-        checkedItemsName.clear();
-        _editAllOnPressed();
-      },
+    return Row(
+      children: [
+        IconButton(
+          icon: editAllIsPressed ? const Icon(Icons.check) : const Icon(Icons.check_box_outlined,size: 26),
+          onPressed: () {
+            checkedItemsName.clear();
+            selectAllItemsIconNotifier.value = Icons.check_box_outline_blank;
+            editAllIsPressed ? selectAllItemsIsPressedNotifier.value = false : selectAllItemsIsPressedNotifier.value = true;
+            _editAllOnPressed();
+          },
+        ),
+        Visibility(
+          visible: selectAllItemsIsPressedNotifier.value,
+          child: IconButton(
+            icon: Icon(selectAllItemsIconNotifier.value, size: 26),
+            onPressed: _onSelectAllItemsPressed,
+          ),
+        ),
+      ],
     );
+  }
+
+  void _onSelectAllItemsPressed() {
+    checkedItemsName.clear();
+    for (int i = 0; i < Globals.filteredSearchedFiles.length; i++) {
+      final itemsName = Globals.filteredSearchedFiles[i];
+      if(itemsName.split('.').last != itemsName) {
+        _buildCheckboxItem(i);
+        _updateCheckboxState(i, true);
+      }
+    }
+    checkedItemsName.addAll(Globals.filteredSearchedFiles);
+    selectAllItemsIsPressedNotifier.value = !selectAllItemsIsPressedNotifier.value;
   }
 
   Future _buildBottomSelectedItems() {
@@ -4034,7 +4083,7 @@ class CakeHomeState extends State<Mainboard> {
                 ),
               ),
             ),
-
+          
             ElevatedButton(
               onPressed: () async {
 
@@ -4385,9 +4434,11 @@ class CakeHomeState extends State<Mainboard> {
                 ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
                 style: const TextStyle(
                   color: ThemeColor.justWhite,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                maxLines: 1,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 2),

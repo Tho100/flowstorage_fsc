@@ -271,6 +271,7 @@ class _SharingPage extends State<SharingPage> {
                       style: const TextStyle(
                         color: ThemeColor.secondaryWhite,
                         fontWeight: FontWeight.w500,
+                        overflow: TextOverflow.ellipsis
                       ),
                     ),
                   ],

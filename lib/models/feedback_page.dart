@@ -73,7 +73,7 @@ class FeedBackPage extends StatelessWidget {
         
         const Padding(
           padding: EdgeInsets.only(left: 28),
-          child: HeaderText(title: "Feedback", subTitle: "We kindly request your feedback and features idea to \nimprove Flowstorage experience."),
+          child: HeaderText(title: "Feedback", subTitle: "We kindly request your feedback and features \nidea to improve Flowstorage experience."),
         ),
         
         const SizedBox(height: 35),        
