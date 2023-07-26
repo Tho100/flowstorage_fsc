@@ -2,7 +2,7 @@
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flutter/material.dart';

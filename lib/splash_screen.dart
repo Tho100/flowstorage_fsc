@@ -3,7 +3,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
@@ -149,11 +149,11 @@ class _SplashScreenState extends State<SplashScreen> {
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
       final tablesToCheck = [
+        ...dirLists,
         GlobalsTable.homeImage, GlobalsTable.homeText, 
         GlobalsTable.homePdf, GlobalsTable.homeExcel, 
         GlobalsTable.homeVideo, GlobalsTable.homeAudio,
         GlobalsTable.homePtx, GlobalsTable.homeWord,
-       ...dirLists
       ];
 
       final futures = tablesToCheck.map((table) async {

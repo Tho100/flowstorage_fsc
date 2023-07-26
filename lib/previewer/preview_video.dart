@@ -111,11 +111,11 @@ class PreviewVideoState extends State<PreviewVideo> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -136,14 +136,16 @@ class PreviewVideoState extends State<PreviewVideo> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       onPressed: () {
-                    
+                        
                         buttonPlayPausePressed = !buttonPlayPausePressed;
-                    
+
                         if(iconPausePlay.value == Icons.replay) {
                           iconPausePlay.value = Icons.pause_rounded;
                           videoPlayerController.play();
                         } else {
-                          iconPausePlay.value = buttonPlayPausePressed ? Icons.play_arrow_rounded : Icons.pause_rounded;
+                          iconPausePlay.value = buttonPlayPausePressed 
+                          ? Icons.play_arrow_rounded 
+                          : Icons.pause_rounded;
                         }
                         
                         if (buttonPlayPausePressed) {
@@ -152,6 +154,8 @@ class PreviewVideoState extends State<PreviewVideo> {
                           iconPausePlay.value = Icons.pause_rounded;
                           videoPlayerController.play();
                         }
+
+                        Future.delayed(const Duration(milliseconds: 0), videoPlayerListener);
                     
                       },
                       icon: ValueListenableBuilder(
@@ -254,9 +258,9 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     if (videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
+      iconPausePlay.value = Icons.replay;
       videoIsEnded = true;
       videoIsTapped.value = true;
-      iconPausePlay.value = Icons.replay;
       CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     }
   }

@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flutter/material.dart';
 
 class UserDataRetriever {

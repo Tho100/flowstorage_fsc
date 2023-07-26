@@ -27,9 +27,9 @@ class GlobalsTable {
   static const psExe = "ps_info_exe";
 
   static final Set<String> tableNames = {
-    homeImage, homeText,homeExe,homePdf,
-    homeVideo,homeExcel, homePtx, homeAudio,homeWord,
-    "file_info_directory","upload_info_directory"
+    directoryInfoTable, homeImage, homeText, homeExe, homePdf,
+    homeVideo,homeExcel, homePtx, homeAudio, homeWord,
+    directoryUploadTable
   };
 
   static const Set<String> tableNamesPs = {

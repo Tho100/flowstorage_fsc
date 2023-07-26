@@ -18,7 +18,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/previewer/preview_audio.dart';
 import 'package:flowstorage_fsc/previewer/preview_excel.dart';
 import 'package:flowstorage_fsc/previewer/preview_image.dart';
@@ -830,6 +830,18 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
+  Widget _buildCommentIconButtonAudio() {
+    return IconButton(
+      onPressed: () {
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => CommentPage(fileName: widget.selectedFilename)),
+        );
+      },
+      icon: const Icon(Icons.comment),
+    );
+  }
+
   void _copyAppBarTitle() {
     Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
     SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
@@ -860,6 +872,10 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                     Visibility(
                       visible: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText,
                       child: _buildCopyTextIconButton(),
+                    ),
+                    Visibility(
+                      visible: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio,
+                      child: _buildCommentIconButtonAudio(),
                     ),
                     IconButton(
                       onPressed: _buildBottomInfo,
@@ -902,7 +918,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               ],
             )
           : null,
-          color: currentTable == "file_info_audi" || currentTable == GlobalsTable.psAudio ? null : ThemeColor.darkBlack,
+          color: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio ? null : ThemeColor.darkBlack,
         ),
         child: Column(
           children: [

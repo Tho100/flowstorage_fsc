@@ -6,7 +6,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:logger/logger.dart';
@@ -55,11 +55,11 @@ class SignInUser {
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
     final tablesToCheck = [
+      ...dirLists,
       GlobalsTable.homeImage, GlobalsTable.homeText, 
       GlobalsTable.homePdf, GlobalsTable.homeExcel, 
       GlobalsTable.homeVideo, GlobalsTable.homeAudio,
       GlobalsTable.homePtx, GlobalsTable.homeWord,
-       ...dirLists
     ];
 
     final futures = tablesToCheck.map((table) async {

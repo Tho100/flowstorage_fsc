@@ -1,6 +1,6 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flowstorage_fsc/widgets/main_text_field.dart';

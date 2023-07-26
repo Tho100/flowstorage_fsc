@@ -1,6 +1,6 @@
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';

@@ -49,7 +49,7 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/helper/gallery_picker.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
-import 'package:flowstorage_fsc/navigator/navigate_page.dart';
+import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
