@@ -136,6 +136,7 @@ class CakeHomeState extends State<Mainboard> {
   ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
   ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
   ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
+  ValueNotifier<IconData> ascendingDescendingIconNotifier = ValueNotifier<IconData>(Icons.expand_more);
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
@@ -467,12 +468,14 @@ class CakeHomeState extends State<Mainboard> {
 
   void _sortUploadDate() {
     isAscendingUploadDate = !isAscendingUploadDate;
+    ascendingDescendingIconNotifier.value = isAscendingUploadDate ? Icons.expand_less : Icons.expand_more;
     sortingText.value = "Upload Date";
     _processUploadDateSorting();
   }
 
   void _sortItemName() {
     isAscendingItemName = !isAscendingItemName;
+    ascendingDescendingIconNotifier.value = isAscendingItemName ? Icons.expand_less : Icons.expand_more;
     sortingText.value = "Item Name";
     _processfileNameSorting();
   }
@@ -873,11 +876,11 @@ class CakeHomeState extends State<Mainboard> {
     final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
     final tablesToCheck = [
+      ...dirLists,
       GlobalsTable.homeImage, GlobalsTable.homeText, 
       GlobalsTable.homePdf, GlobalsTable.homeExcel, 
       GlobalsTable.homeVideo, GlobalsTable.homeAudio,
       GlobalsTable.homePtx, GlobalsTable.homeWord,
-       ...dirLists
     ];
 
     final futures = tablesToCheck.map((table) async {
@@ -1030,6 +1033,7 @@ class CakeHomeState extends State<Mainboard> {
     _onTextChanged('');
     searchBarController.text = '';
     sortingText.value = "Default";
+    ascendingDescendingIconNotifier.value = Icons.expand_more;
 
     if(Globals.fileValues.isEmpty) {
       if(!mounted) return;
@@ -2711,22 +2715,22 @@ class CakeHomeState extends State<Mainboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      "Sort By",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(15.0),
+                  child: Text(
+                    "Sort By",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
               
             ElevatedButton(
               onPressed: () {
@@ -2768,6 +2772,7 @@ class CakeHomeState extends State<Mainboard> {
                 sortingText.value = "Default";
                 isAscendingItemName = false;
                 isAscendingUploadDate = false;
+                ascendingDescendingIconNotifier.value = Icons.expand_more;
 
                 await _refreshListView();
                 if(!mounted) return;
@@ -3486,7 +3491,12 @@ class CakeHomeState extends State<Mainboard> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const Icon(Icons.expand_more,color: Colors.white),
+                      ValueListenableBuilder(
+                        valueListenable: ascendingDescendingIconNotifier, 
+                        builder: (BuildContext context, IconData value, Widget? child) {
+                          return Icon(value, color: Colors.white);
+                        }
+                      ),
                     ],
                   );
                 }
@@ -4346,7 +4356,7 @@ class CakeHomeState extends State<Mainboard> {
   Widget _buildStaggeredItems(int index) {
     Uint8List imageBytes = Globals.filteredSearchedBytes[index]!;
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.all(2.0),
       child: GestureDetector(
         onLongPress: () {
           _callBottomTrailling(index);
@@ -4359,18 +4369,20 @@ class CakeHomeState extends State<Mainboard> {
             children: [
              Expanded(
                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.transparent,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    child: Image.memory(imageBytes, fit: BoxFit.cover),
-                  ),
+                width: 86,
+                height: 86,
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
                 ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  child: Image.memory(imageBytes, fit: BoxFit.cover),
+                ),
+              ),
              ),
               const SizedBox(height: 10),
               Text(
-                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 25),
+                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
                 style: const TextStyle(
                   color: ThemeColor.justWhite,
                   fontSize: 14,
@@ -4390,7 +4402,7 @@ class CakeHomeState extends State<Mainboard> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 2),
             ],
           ),
         ),
@@ -4402,12 +4414,13 @@ class CakeHomeState extends State<Mainboard> {
     return Padding(
       padding: const EdgeInsets.only(top: 12.0,left: 8.0, right: 8.0, bottom: 8.0),
       child: StaggeredGridView.countBuilder(
-        crossAxisCount: 2,
+        crossAxisCount: 4,
+        shrinkWrap: true,
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) => _buildStaggeredItems(index),
         staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
-        mainAxisSpacing: 4.0,
-        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 6.5,
+        crossAxisSpacing: 6.5,
       ),
     );
   }
