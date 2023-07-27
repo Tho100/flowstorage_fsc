@@ -351,7 +351,15 @@ class PreviewAudioState extends State<PreviewAudio> {
     );
   }
 
- void forwardingImplementation(String value) {
+  void forwardingImplementation(String value) {
+
+    if(currentAudioDuration.value == audioDuration && value != "negative") {
+      return;
+    }
+
+    if(currentAudioDuration.value == audioDuration && value == "negative") {
+      iconPausePlay.value = Icons.pause;
+    }
 
     double currentPosition = audioPlayerController.position.inSeconds.toDouble();
     double newPosition =

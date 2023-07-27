@@ -3528,7 +3528,7 @@ class CakeHomeState extends State<Mainboard> {
                   ValueListenableBuilder<bool>(
                     valueListenable: staggeredListViewSelected,
                     builder: (BuildContext context, bool value, Widget? child) {
-                      return value == false ? const Icon(Icons.space_dashboard_outlined,size: 25) : const Icon(Icons.format_list_bulleted_outlined,size: 28);
+                      return value == false ? const Icon(Icons.grid_view,size: 23) : const Icon(Icons.format_list_bulleted_outlined,size: 25);
                     }
                   ),
                 ],
@@ -4328,7 +4328,7 @@ class CakeHomeState extends State<Mainboard> {
   Widget _buildListView() {
 
     const double itemExtentValue = 58.0;
-    const double bottomExtraSpacesHeight = 80.0;
+    const double bottomExtraSpacesHeight = 89.0;
 
     return RawScrollbar(
       radius: const Radius.circular(38),

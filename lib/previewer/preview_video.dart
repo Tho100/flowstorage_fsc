@@ -21,7 +21,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
+  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow);
   final ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
   final Duration endThreshold = const Duration(milliseconds: 200);
   
@@ -83,28 +83,28 @@ class PreviewVideoState extends State<PreviewVideo> {
   Widget buildDurationText(ValueNotifier<String> notifier) {
     return Container(
       decoration: BoxDecoration(
-          color: ThemeColor.darkBlack.withOpacity(0.5),
-          border: Border.all(
-            color: Colors.transparent,
-            width: 8.0,
-          ),
-          borderRadius: BorderRadius.circular(20),
+        color: ThemeColor.darkBlack.withOpacity(0.5),
+        border: Border.all(
+          color: Colors.transparent,
+          width: 8.0,
         ),
-        child: ValueListenableBuilder(
-          valueListenable: notifier,
-          builder: (BuildContext context, String value, Widget? child) {
-            return Text(
-              value,
-              style: const TextStyle(
-                color: ThemeColor.secondaryWhite,
-                fontWeight: FontWeight.w600,
-                fontSize: 18
-              ),
-              textAlign: TextAlign.center,
-            );
-          }
-        ),
-      );
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: ValueListenableBuilder(
+        valueListenable: notifier,
+        builder: (BuildContext context, String value, Widget? child) {
+          return Text(
+            value,
+            style: const TextStyle(
+              color: ThemeColor.secondaryWhite,
+              fontWeight: FontWeight.w600,
+              fontSize: 16
+            ),
+            textAlign: TextAlign.center,
+          );
+        }
+      ),
+    );
   }
 
   Widget buildPlayPauseButton() {
@@ -122,11 +122,11 @@ class PreviewVideoState extends State<PreviewVideo> {
                 buildDurationText(currentVideoDurationNotifier),
                 const SizedBox(width: 18),
                 SizedBox(
-                  height: 92,
-                  width: 92,
+                  height: 72,
+                  width: 72,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.5),
+                      color: ThemeColor.lightGrey.withOpacity(0.5),
                       border: Border.all(
                         color: Colors.transparent,
                         width: 2.0,
@@ -140,18 +140,18 @@ class PreviewVideoState extends State<PreviewVideo> {
                         buttonPlayPausePressed = !buttonPlayPausePressed;
 
                         if(iconPausePlay.value == Icons.replay) {
-                          iconPausePlay.value = Icons.pause_rounded;
+                          iconPausePlay.value = Icons.pause;
                           videoPlayerController.play();
                         } else {
                           iconPausePlay.value = buttonPlayPausePressed 
-                          ? Icons.play_arrow_rounded 
-                          : Icons.pause_rounded;
+                          ? Icons.play_arrow
+                          : Icons.pause;
                         }
                         
                         if (buttonPlayPausePressed) {
                           videoPlayerController.pause();
                         } else {                
-                          iconPausePlay.value = Icons.pause_rounded;
+                          iconPausePlay.value = Icons.pause;
                           videoPlayerController.play();
                         }
 
@@ -163,7 +163,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                         builder: (BuildContext context, IconData value, Widget? child) {
                           return Icon(
                             value,
-                            size: 72,
+                            size: 52,
                             color: ThemeColor.secondaryWhite,
                           );
                         }
@@ -181,45 +181,52 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
   }
 
-  Widget buildLoadingVideo() {
-    return Positioned.fill(
-      child: Center(
-        child: LoadingFile.buildLoading()
-      ),
-    );
-  }
-
-  Widget buildVideo() {
-    return GestureDetector(
-      onTap: () {
-        videoIsTapped.value = !videoIsTapped.value;
-        CakePreviewFileState.bottomBarVisibleNotifier.value = !CakePreviewFileState.bottomBarVisibleNotifier.value;
-      },
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 25.0),
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: SizedBox(
-              width: videoSize!.width,
-              height: videoSize!.height,
-              child: Stack(
-                children: [
-                  VideoPlayer(videoPlayerController),
-                  ValueListenableBuilder(
-                    valueListenable: videoIsTapped, 
-                    builder: (BuildContext context, bool value, Widget? child) {
-                      return Visibility(
-                        visible: value && videoBytes.isNotEmpty,
-                        child: buildPlayPauseButton()
-                      );
-                    }
-                  ),
-                ],
+  Widget buildVideoWithButtonsOutside() {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            videoIsTapped.value = !videoIsTapped.value;
+            CakePreviewFileState.bottomBarVisibleNotifier.value =
+                !CakePreviewFileState.bottomBarVisibleNotifier.value;
+          },
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: SizedBox(
+                  width: videoSize!.width,
+                  height: videoSize!.height,
+                  child: VideoPlayer(videoPlayerController),
+                ),
               ),
             ),
           ),
         ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 25.0),
+            child: ValueListenableBuilder(
+              valueListenable: videoIsTapped,
+              builder: (BuildContext context, bool value, Widget? child) {
+                return Visibility(
+                  visible: value && videoBytes.isNotEmpty,
+                  child: buildPlayPauseButton(),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildLoadingVideo() {
+    return Positioned.fill(
+      child: Center(
+        child: LoadingFile.buildLoading()
       ),
     );
   }
@@ -284,13 +291,12 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: Stack(
         children: [
           buildThumbnail(videoIsPlaying),
           if(videoIsLoading) buildLoadingVideo(),
-          if(videoIsPlaying) buildVideo()
+          if(videoIsPlaying) buildVideoWithButtonsOutside()
         ],
       ),
     );
