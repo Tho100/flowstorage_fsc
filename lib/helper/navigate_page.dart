@@ -110,7 +110,7 @@ class NavigatePage {
       SnakeAlert.errorSnake("No internet connection.", context);
       Logger().e("Exception on goToPageSettings (NavigatePage)", err, st);
       
-      await Future.delayed(const Duration(milliseconds: 1800));
+      await Future.delayed(const Duration(milliseconds: 1300));
 
       _openSettingsPage(context: context, sharingDisabledStatus: sharingDisabledStatus);
 

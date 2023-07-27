@@ -346,6 +346,7 @@ class CakeHomeState extends State<Mainboard> {
       itemIsChecked = false;
       editAllIsPressed = false;
     });
+    selectAllItemsIsPressedNotifier.value = false;
     checkedItemsName.clear();
   }
 
@@ -414,7 +415,7 @@ class CakeHomeState extends State<Mainboard> {
 
         final fileType = checkedItemsName[i].split('.').last;
 
-        if(fileType != checkedItemsName[i]) {
+        if(Globals.supportedFileTypes.contains(fileType)) {
 
           final tableName = Globals.fileTypesToTableNames[fileType]!;
 
@@ -426,29 +427,17 @@ class CakeHomeState extends State<Mainboard> {
 
           await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
 
-        } else {
-
-          fileData = Uint8List(0);
-
-          selectAllItemsIsPressedNotifier.value = false;
-          singleLoading.stopLoading();
-          _clearSelectAll();
-          
-          CustomAlertDialog.alertDialogTitle("An error occurred", "Directory is not available for Offline Mode.", context);
-
-          return;
-        }
+        } 
 
       }
 
       singleLoading.stopLoading();
-      _clearSelectAll();
-
-      selectAllItemsIsPressedNotifier.value = false;
 
       if(!mounted) return;
-      SnakeAlert.okSnake(message: "$count item(s) now available offline.",icon: Icons.check,context: context);
-      
+      SnakeAlert.okSnake(message: "${appBarTitle.value} now available offline.",icon: Icons.check,context: context);
+
+      _clearSelectAll();
+
     } catch (err) {
       SnakeAlert.errorSnake("An error occurred.",context);
     }
@@ -681,6 +670,7 @@ class CakeHomeState extends State<Mainboard> {
       await Future.delayed(const Duration(milliseconds: 855));
 
       _removeFileFromListView(fileName: checkedItemsName[i],isFromSelectAll: true, onTextChanged: _onTextChanged);
+
     }
 
     _clearSelectAll();
@@ -693,9 +683,6 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
       await _deleteAllSelectedItems(count: count);
-
-      if(!mounted) return;
-      SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
 
     } catch (err, st) {
       logger.e('Exception from _processDeletingAllItems {main}',err,st);
@@ -3963,6 +3950,7 @@ class CakeHomeState extends State<Mainboard> {
                 loadingDialog.stopLoading();
 
                 if(!mounted) return;
+                SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
                 Navigator.pop(context);
 
               },
@@ -4293,7 +4281,7 @@ class CakeHomeState extends State<Mainboard> {
         ),
       );
 
-    } else if (fileExtension == Globals.selectedFileName) {
+    } else if (fileExtension == Globals.selectedFileName && !Globals.supportedFileTypes.contains(fileExtension)) {
       
       Globals.fileOrigin = "dirFiles";
       Globals.directoryTitleValue = Globals.selectedFileName;
@@ -4339,66 +4327,74 @@ class CakeHomeState extends State<Mainboard> {
 
   Widget _buildListView() {
 
-    const double itemExtentValue = 58;
+    const double itemExtentValue = 58.0;
+    const double bottomExtraSpacesHeight = 80.0;
 
-    return ListView.builder(
-      itemExtent: itemExtentValue,
-      itemCount: Globals.filteredSearchedFiles.length,
-      itemBuilder: (BuildContext context, int index) {
-        
-        final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
-        final setLeadingImageSearched = Globals.fromLogin == false &&
-                Globals.filteredSearchedImage.length > index
-            ? Image.file(Globals.filteredSearchedImage[index])
-            : Globals.filteredSearchedBytes.length > index
-                ? Image.memory(Globals.filteredSearchedBytes[index]!)
-                : null;
-
-        return InkWell(
-          onLongPress: () {
-            _callBottomTrailling(index);
-          },
-          onTap: () async {
-            await _navigateToPreviewFile(index);
-          },
-          child: Ink(
-            color: ThemeColor.darkBlack,
-            child: ListTile(
-              leading: setLeadingImageSearched != null
-                ? Image(
-                    image: setLeadingImageSearched.image,
-                    fit: BoxFit.cover,
-                    height: 31,
-                    width: 31,
-                  )
-                : const SizedBox(),
-              trailing: GestureDetector(
-                onTap: () {
-                  _callBottomTrailling(index);
-                },
-                child: editAllIsPressed
-                  ? _buildCheckboxItem(index)
-                  : const Icon(Icons.more_vert, color: Colors.white),
-              ),
-              title: Text(
-                fileTitleSearchedValue,
-                style: const TextStyle(
-                  color: ThemeColor.justWhite,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: 16,
+    return RawScrollbar(
+      radius: const Radius.circular(38),
+      thumbColor: ThemeColor.lightGrey,
+      minThumbLength: 5,
+      thickness: 3,
+      child: ListView.builder(
+        padding: const EdgeInsets.only(bottom: bottomExtraSpacesHeight),
+        itemExtent: itemExtentValue,
+        itemCount: Globals.filteredSearchedFiles.length,
+        itemBuilder: (BuildContext context, int index) {
+          
+          final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
+          final setLeadingImageSearched = Globals.fromLogin == false &&
+                  Globals.filteredSearchedImage.length > index
+              ? Image.file(Globals.filteredSearchedImage[index])
+              : Globals.filteredSearchedBytes.length > index
+                  ? Image.memory(Globals.filteredSearchedBytes[index]!)
+                  : null;
+    
+          return InkWell(
+            onLongPress: () {
+              _callBottomTrailling(index);
+            },
+            onTap: () async {
+              await _navigateToPreviewFile(index);
+            },
+            child: Ink(
+              color: ThemeColor.darkBlack,
+              child: ListTile(
+                leading: setLeadingImageSearched != null
+                  ? Image(
+                      image: setLeadingImageSearched.image,
+                      fit: BoxFit.cover,
+                      height: 31,
+                      width: 31,
+                    )
+                  : const SizedBox(),
+                trailing: GestureDetector(
+                  onTap: () {
+                    _callBottomTrailling(index);
+                  },
+                  child: editAllIsPressed
+                    ? _buildCheckboxItem(index)
+                    : const Icon(Icons.more_vert, color: Colors.white),
                 ),
-              ),
-              subtitle: Text(
-                Globals.setDateValues[index],
-                style: TextStyle(
-                  color: Globals.fileOrigin != "psFiles" ? ThemeColor.secondaryWhite : GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-                  fontSize: 12.8,
+                title: Text(
+                  fileTitleSearchedValue,
+                  style: const TextStyle(
+                    color: ThemeColor.justWhite,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  Globals.setDateValues[index],
+                  style: TextStyle(
+                    color: Globals.fileOrigin != "psFiles" ? ThemeColor.secondaryWhite : GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                    fontSize: 12.8,
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -4478,7 +4474,7 @@ class CakeHomeState extends State<Mainboard> {
 
   Widget _buildHomeBody(BuildContext context) {
 
-    final double mediaHeight = MediaQuery.of(context).size.height - 325;
+    final double mediaHeight = MediaQuery.of(context).size.height - 310;
 
     return RefreshIndicator(
       color: ThemeColor.darkPurple,

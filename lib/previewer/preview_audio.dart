@@ -228,53 +228,41 @@ class PreviewAudioState extends State<PreviewAudio> {
     );
   }
 
-  Widget buildSkipPrevious() {
-
+  Widget buildFastBackward() {
     return SizedBox(
       width: 100,
       height: 100,
-      child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
-        builder: (BuildContext context, IconData value, Widget? child) {
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () async {
-                  // 
-                },
-                icon: const Icon(Icons.replay_5_outlined, color: ThemeColor.justWhite, size: 50),
-              ),
-            ),
-          );
-        }
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () async {
+              forwardingImplementation("negative");
+            },
+            icon: const Icon(Icons.replay_5_outlined, color: ThemeColor.justWhite, size: 50),
+          ),
+        ),
       ),
     );
   }
 
-  Widget buildSkipNext() {
-
+  Widget buildFastForward() {
     return SizedBox(
       width: 100,
       height: 100,
-      child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
-        builder: (BuildContext context, IconData value, Widget? child) {
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () async {
-                  //
-                },
-                icon: const Icon(Icons.forward_5_outlined, color: ThemeColor.justWhite, size: 50),
-              ),
-            ),
-          );
-        }
-      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              forwardingImplementation("positive");
+            },
+            icon: const Icon(Icons.forward_5_outlined, color: ThemeColor.justWhite, size: 50),
+          ),
+        ),
+      )
     );
   }
 
@@ -349,9 +337,9 @@ class PreviewAudioState extends State<PreviewAudio> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-              buildSkipPrevious(),
+              buildFastBackward(),
               buildPlayPauseButton(),
-              buildSkipNext()
+              buildFastForward()
 
             ],
           ),
@@ -362,6 +350,23 @@ class PreviewAudioState extends State<PreviewAudio> {
       
     );
   }
+
+ void forwardingImplementation(String value) {
+
+    double currentPosition = audioPlayerController.position.inSeconds.toDouble();
+    double newPosition =
+        value == "positive" 
+        ? currentPosition + 5 
+        : currentPosition - 5;
+
+    double maxDuration = audioPlayerController.duration?.inSeconds.toDouble() ?? 0;
+
+    newPosition = newPosition.clamp(0.0, maxDuration);
+
+    audioPositionNotifier.value = newPosition;
+    audioPlayerController.seek(Duration(seconds: newPosition.toInt()));
+  }
+
 
   @override
   void initState() {
