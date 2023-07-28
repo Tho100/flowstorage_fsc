@@ -632,6 +632,9 @@ class CakeHomeState extends State<Mainboard> {
 
       if(Globals.fileOrigin == "homeFiles") {
 
+        GlobalsData.homeImageData.clear();
+        GlobalsData.homeThumbnailData.clear();
+
         final fileType = checkedItemsName[i].split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType];
 
@@ -679,6 +682,9 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
       await _deleteAllSelectedItems(count: count);
+
+      if(!mounted) return;
+      SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
 
     } catch (err, st) {
       logger.e('Exception from _processDeletingAllItems {main}',err,st);
@@ -1554,7 +1560,9 @@ class CakeHomeState extends State<Mainboard> {
           return;
         }
 
+        if(!mounted) return;
         final scaffoldMessenger = ScaffoldMessenger.of(context);
+
         int countSelectedFiles = resultPicker.files.length;
 
         if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
@@ -3758,14 +3766,15 @@ class CakeHomeState extends State<Mainboard> {
               ),
               onPressed: () async {
 
+                final countSelectedItems = checkedList.where((item) => item == true).length;
+
                 final loadingDialog = SingleTextLoading();
 
                 loadingDialog.startLoading(title: "Deleting...",context: context);
-                await _processDeletingAllItems(count: count);
+                await _processDeletingAllItems(count: countSelectedItems);
                 loadingDialog.stopLoading();
 
                 if(!mounted) return;
-                SnakeAlert.okSnake(message: "$count item(s) has been deleted.", icon: Icons.check, context: context);
                 Navigator.pop(context);
 
               },
@@ -3986,7 +3995,13 @@ class CakeHomeState extends State<Mainboard> {
           title: Text(setupTitle,
             style: GlobalsStyle.greetingAppBarTextStyle,
           ),
-          actions: [_buildSelectAll(),_buildMoreOptionsOnSelect()],
+          actions: [
+            Visibility(
+              visible: VisibilityChecker.setNotVisible("psFiles"),
+              child: _buildSelectAll()
+            ),
+            _buildMoreOptionsOnSelect()
+          ],
           leading: IconButton(
             icon: const Icon(Icons.menu,size: 28),
             onPressed: () {
@@ -4058,6 +4073,7 @@ class CakeHomeState extends State<Mainboard> {
       if(result.type != ResultType.done) {
 
         if(!mounted) return;
+        
         CustomFormDialog.startDialog(
           "Couldn't open ${Globals.selectedFileName}",
           "No default app to open this file found.",
