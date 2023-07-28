@@ -83,7 +83,7 @@ class PreviewVideoState extends State<PreviewVideo> {
   Widget buildDurationText(ValueNotifier<String> notifier) {
     return Container(
       decoration: BoxDecoration(
-        color: ThemeColor.darkBlack.withOpacity(0.5),
+        color: ThemeColor.lightGrey.withOpacity(0.5),
         border: Border.all(
           color: Colors.transparent,
           width: 8.0,

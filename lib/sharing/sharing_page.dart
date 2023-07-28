@@ -136,8 +136,6 @@ class _SharingPage extends State<SharingPage> {
 
       final encryptedFileName = EncryptionClass().Encrypt(fileName);
 
-      print(encryptedFileName);
-
       if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, Globals.custUsername)) {
         CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
         return;

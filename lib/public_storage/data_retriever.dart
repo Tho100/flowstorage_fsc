@@ -30,6 +30,7 @@ class PublicStorageDataRetriever {
       };
     }).toList();
 
+
     final results = await Future.wait(futures);
 
     for (final result in results) {

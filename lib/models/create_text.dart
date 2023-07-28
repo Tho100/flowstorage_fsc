@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -233,8 +232,6 @@ class _CreateText extends State<CreateText> {
         textFormEnabled = false;
         _addTextFileToListView(fileName: getFileName);
       });
-
-      Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.clear() : null;
 
       await CallNotify().customNotification(
         title: "Text File Saved",

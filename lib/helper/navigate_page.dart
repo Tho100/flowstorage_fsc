@@ -97,13 +97,13 @@ class NavigatePage {
 
   static void goToPageSettings(BuildContext context) async {
 
-    late String sharingDisabledStatus = "0";
-
     try {
 
-      sharingDisabledStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
-
-      _openSettingsPage(context: context, sharingDisabledStatus: sharingDisabledStatus);
+      if(Globals.userSharingStatus == "null") {
+        Globals.userSharingStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
+      }
+    
+      _openSettingsPage(context: context, sharingDisabledStatus: Globals.userSharingStatus);
 
     } catch (err, st) {
 
@@ -112,7 +112,7 @@ class NavigatePage {
       
       await Future.delayed(const Duration(milliseconds: 1300));
 
-      _openSettingsPage(context: context, sharingDisabledStatus: sharingDisabledStatus);
+      _openSettingsPage(context: context, sharingDisabledStatus: "0");
 
     }
   }

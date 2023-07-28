@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/api/save_api.dart';
-import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/data_classes/data_caller.dart';
 import 'package:flowstorage_fsc/directory/save_directory.dart';
 import 'package:flowstorage_fsc/folder_query/save_folder.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
@@ -18,7 +18,6 @@ import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
-import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
@@ -40,10 +39,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
-import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
 import 'package:flowstorage_fsc/directory/count_directory.dart';
 import 'package:flowstorage_fsc/directory/delete_directory.dart';
-import 'package:flowstorage_fsc/directory/directory_data.dart';
 import 'package:flowstorage_fsc/directory/rename_directory.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/helper/gallery_picker.dart';
@@ -56,7 +53,6 @@ import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/folder_query/delete_folder.dart';
 import 'package:flowstorage_fsc/folder_query/rename_folder.dart';
 import 'package:flowstorage_fsc/authentication/sign_up_page.dart';
-import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
@@ -74,7 +70,6 @@ import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/rename.dart';
 
 import 'splash_screen.dart';
-import 'ui_dialog/loading/just_loading.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 void main() async {
@@ -167,6 +162,7 @@ class CakeHomeState extends State<Mainboard> {
   final dateGetterHome = DateGetter();
   final retrieveData = RetrieveData();
   final insertData = InsertData();
+  final dataCaller = DataCaller();
 
   final crud = Crud();
   final logger = Logger();
@@ -240,10 +236,10 @@ class CakeHomeState extends State<Mainboard> {
       homeImageData.addAll(newFilteredSearchedBytes);
     } else if (verifyTableName == GlobalsTable.homeVideo) {
       homeThumbnailData.add(thumbnailBytes);
-    }
-
-    if (Globals.fileOrigin == "homeFiles") {
-      GlobalsData.homeFilesNameData.clear();
+    } else if (verifyTableName == GlobalsTable.psImage) {
+      GlobalsData.psImageData.addAll(newFilteredSearchedBytes);
+    } else if (verifyTableName == GlobalsTable.psVideo) {
+      GlobalsData.psThumbnailData.add(thumbnailBytes);
     }
 
     setState(() {});
@@ -807,32 +803,6 @@ class CakeHomeState extends State<Mainboard> {
     return await retrieveData.retrieveDataParams(Globals.custUsername, selectedFilename, tableName,Globals.fileOrigin);
   }
 
-  Future<void> _callFolderData(String folderTitle) async {
-
-    final sharingDataReceiver = FolderDataReceiver();
-    final dataList = await sharingDataReceiver.retrieveParams(Globals.custUsername,folderTitle);
-
-    final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
-    final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
-
-    Globals.fileValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
-
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
-
-    _onTextChanged('');
-    searchBarController.text = '';
-    _navHomeButtonVisibility(true);
-  }
-
   Future<void> _deleteFolder(String folderName) async {
     
     try {
@@ -878,146 +848,74 @@ class CakeHomeState extends State<Mainboard> {
 
   }
 
-  Future<void> _refreshHomeFiles() async {
-
-    final conn = await SqlConnection.insertValueParams();
-
-    final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
-    final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
-
-    final tablesToCheck = [
-      ...dirLists,
-      GlobalsTable.homeImage, GlobalsTable.homeText, 
-      GlobalsTable.homePdf, GlobalsTable.homeExcel, 
-      GlobalsTable.homeVideo, GlobalsTable.homeAudio,
-      GlobalsTable.homePtx, GlobalsTable.homeWord,
-    ];
-
-    final futures = tablesToCheck.map((table) async {
-      final fileNames = await fileNameGetterHome.retrieveParams(conn,Globals.custUsername, table);
-      final bytes = await dataGetterHome.getLeadingParams(conn,Globals.custUsername, table);
-      final dates = table == GlobalsTable.directoryInfoTable
-          ? List.generate(1,(_) => "Directory")
-          : await dateGetterHome.getDateParams(Globals.custUsername, table);
-      return [fileNames, bytes, dates];
-    }).toList();
-
-    final results = await Future.wait(futures);
-
-    final fileNames = <String>{};
-    final bytes = <Uint8List>[];
-    final dates = <String>[];
-
-    for (final result in results) {
-      final fileNamesForTable = result[0] as List<String>;
-      final bytesForTable = result[1] as List<Uint8List>;
-      final datesForTable = result[2] as List<String>;
-
-      fileNames.addAll(fileNamesForTable);
-      bytes.addAll(bytesForTable);
-      dates.addAll(datesForTable);
-    }
-
-    final uniqueFileNames = fileNames.toList();
-    final uniqueBytes = bytes.toList();
-
-    Globals.fromLogin = true;
-
-    Globals.fileValues.addAll(uniqueFileNames);
-    Globals.imageByteValues.addAll(uniqueBytes);
-    Globals.setDateValues.addAll(dates);
-
+  Future<void> _callHomeData() async {
+    await dataCaller.homeData();
     _navHomeButtonVisibility(false);
-
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-
   }
 
   Future<void> _callOfflineData() async {
 
-    final offlineDirPath = await OfflineMode().returnOfflinePath();
+    await dataCaller.offlineData();
+    setState(() {});
 
-    if(!offlineDirPath.existsSync()) { 
-      offlineDirPath.createSync();
-    }
-
-    Globals.fileOrigin = "offlineFiles";
     appBarTitle.value = "Offline";
     _clearSelectAll(); 
-
-    final files = offlineDirPath.listSync().whereType<File>().toList();
-
-    List<String> fileValues = [];
-    List<String> filteredSearchedFiles = [];
-    List<String> setDateValues = [];
-    List<Uint8List> imageByteValues = [];
-    List<Uint8List> filteredSearchedBytes = [];
-
-    for (var file in files) {
-
-      String fileName = path.basename(file.path);
-      String? fileType = fileName.split('.').last;
-
-      Uint8List imageBytes;
-      String actualFileSize = '';
-
-      if(!(Globals.imageType.contains(fileType))) {
-        actualFileSize = "Unknown";
-      }
-
-      if (Globals.imageType.contains(fileType)) {
-
-        imageBytes = await file.readAsBytes();
-
-        int fileSize = imageBytes.length;
-        double fileSizeMB = fileSize / (1024 * 1024);
-        actualFileSize = "${fileSizeMB.toStringAsFixed(2)}Mb";
-
-      } else if (Globals.textType.contains(fileType)) {
-        
-        imageBytes = await GetAssets().loadAssetsData("txt0.png");
-
-      } else if (Globals.audioType.contains(fileType)) {
-
-        imageBytes = await GetAssets().loadAssetsData("music0.png");
-
-      } else if (fileType == "pdf") {
-
-        imageBytes = await GetAssets().loadAssetsData("pdf0.png");
-
-      } else if (Globals.wordType.contains(fileType)) {
-
-        imageBytes = await GetAssets().loadAssetsData("doc0.png");
-
-      } else if (Globals.excelType.contains(fileType)) {
-
-        imageBytes = await GetAssets().loadAssetsData("exl0.png");
-
-      } else {
-        continue;
-      }
-
-      fileValues.add(fileName);
-      filteredSearchedFiles.add(fileName);
-      setDateValues.add(actualFileSize);
-      imageByteValues.add(imageBytes);
-      filteredSearchedBytes.add(imageBytes);
-    }
-
-    setState(() {
-      Globals.fileValues = fileValues;
-      Globals.filteredSearchedFiles = filteredSearchedFiles;
-      Globals.setDateValues = setDateValues;
-      Globals.imageByteValues = imageByteValues;
-      Globals.filteredSearchedBytes = filteredSearchedBytes;
-    });
 
     _navHomeButtonVisibility(true);
     _navDirectoryButtonVisibility(false);
     _floatingButtonVisiblity(true);
+ 
+  }
+
+  Future<void> _callDirectoryData() async {
+
+    _clearGlobalData();
+
+    await dataCaller.directoryData(directoryName: appBarTitle.value);
+
+    _onTextChanged('');
+    searchBarController.text = '';
+    _navHomeButtonVisibility(true);
+
+  }
+
+  Future<void> _callSharingData(String originFrom) async {
+
+    _clearGlobalData();
+
+    await dataCaller.sharingData(originFrom);
+
+    _onTextChanged('');
+    _navHomeButtonVisibility(true);
+
+  }
+
+  Future<void> _callPublicStorageData() async {
+
+    _clearGlobalData();
+
+    await dataCaller.publicStorageData(context: context);
+
+    appBarTitle.value = "Public Storage";
+
+    _onTextChanged('');
+    searchBarController.text = '';
+
+    _navHomeButtonVisibility(true);
+    _navDirectoryButtonVisibility(false);
     
+  }
+
+  Future<void> _callFolderData(String folderTitle) async {
+
+    _clearGlobalData();
+
+    await dataCaller.folderData(folderName: folderTitle);
+
+    _onTextChanged('');
+    searchBarController.text = '';
+    _navHomeButtonVisibility(true);
+
   }
 
   Future<void> _refreshListView() async {
@@ -1025,7 +923,7 @@ class CakeHomeState extends State<Mainboard> {
     _clearGlobalData();
 
     if(Globals.fileOrigin == "homeFiles") {
-      await _refreshHomeFiles();
+      await _callHomeData();
     } else if (Globals.fileOrigin == "sharedFiles") {
       await _callSharingData("sharedFiles");
     } else if (Globals.fileOrigin == "sharedToMe") {
@@ -1052,28 +950,6 @@ class CakeHomeState extends State<Mainboard> {
 
   }
 
-  Future<void> _callDirectoryData() async {
-
-    final directoryDataReceiver = DirectoryDataReceiver();
-    final dataList = await directoryDataReceiver.retrieveParams(dirName: appBarTitle.value);
-
-    final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
-    final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
-    
-    _clearGlobalData();
-
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
-
-    _onTextChanged('');
-    searchBarController.text = '';
-    _navHomeButtonVisibility(true);
-    Globals.fileOrigin = "dirFiles";
-
-  }
-
   Future<void> _buildDirectory(String directoryName) async {
 
     try {
@@ -1093,7 +969,6 @@ class CakeHomeState extends State<Mainboard> {
 
       });
 
-      GlobalsData.homeFilesNameData.clear();
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 
@@ -1133,71 +1008,11 @@ class CakeHomeState extends State<Mainboard> {
       await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[extension]!);
     }
     
-    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.remove(fileName) : null;
     Globals.fileOrigin == "homeFiles" ? GlobalsData.homeImageData.clear() : null;
     Globals.fileOrigin == "homeFiles" ? GlobalsData.homeThumbnailData.clear() : null;
     
     _removeFileFromListView(fileName: fileName, isFromSelectAll: false, onTextChanged: onTextChanged);
 
-  }
-
-  Future<void> _callSharingData(String originFrom) async {
-
-    final sharingDataReceiver = SharingDataReceiver();
-    final dataList = await sharingDataReceiver.retrieveParams(Globals.custUsername,originFrom);
-
-    final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
-    final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
-
-    _clearGlobalData();
-
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
-
-    _onTextChanged('');
-    searchBarController.text = '';
-    _navHomeButtonVisibility(true);
-  }
-
-  Future<void> _callPublicStorageData() async {
-
-    final justLoading = JustLoading();
-
-    _navDirectoryButtonVisibility(false);
-
-    justLoading.startLoading(context: context);
-
-    GlobalsData.psTagsValuesData.clear();
-
-    final psDataRetriever = PublicStorageDataRetriever();
-    final dataList = await psDataRetriever.retrieveParams();
-
-    final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
-    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
-    final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
-
-    final getTagsValue = dateList.
-      map((tags) => tags.split(' ').last).toList();
-
-    GlobalsData.psTagsValuesData.addAll(getTagsValue);
-
-    _clearGlobalData();
-
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
-
-    Globals.fileOrigin = "psFiles";
-    
-    _onTextChanged('');
-    searchBarController.text = '';
-    _navHomeButtonVisibility(true);
-    appBarTitle.value = "Public Storage";
-
-    justLoading.stopLoading();
-    
   }
 
   // TODO: Open the user camera and 
@@ -4481,7 +4296,6 @@ class CakeHomeState extends State<Mainboard> {
       onRefresh: () async {
 
         if(Globals.fileOrigin == "homeFiles") {
-          GlobalsData.homeFilesNameData.clear();
           GlobalsData.homeImageData.clear();
           GlobalsData.homeThumbnailData.clear();
         }

@@ -7,9 +7,9 @@ class NameGetterPs {
 
   Future<List<String>> retrieveParams(MySQLConnectionPool conn, String tableName) async {
 
-    final query = 'SELECT CUST_FILE_PATH FROM $tableName';
-
     try {   
+
+      final query = 'SELECT CUST_FILE_PATH FROM $tableName';
 
       final retrieveNames = await conn.execute(query);
       final nameSet = <String>{};
@@ -19,7 +19,7 @@ class NameGetterPs {
         nameSet.add(_encryptionClass.Decrypt(getNameValues));
       }
 
-      return nameSet.toList();
+      return nameSet.toList();  
 
     } catch (failedLoadNames) {
       return <String>[];

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/public_storage/thumbnail_getter.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -39,7 +40,11 @@ class ByteGetterPs {
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
-      return _getFileInfoParams(conn);
+      if(GlobalsData.psImageData.isEmpty) {
+        return _getFileInfoParams(conn);
+      } else {
+        return GlobalsData.psImageData;
+      }
     } else {
       return _getOtherTableParams(conn, tableName);
     }
@@ -62,6 +67,8 @@ class ByteGetterPs {
 
       getByteValue.add(bufferedFileBytes);
     }
+    
+    GlobalsData.psImageData.addAll(getByteValue);
 
     return getByteValue;
   }
@@ -87,8 +94,16 @@ class ByteGetterPs {
 
     if (tableName == _fileInfoVidTable) {
 
-      final thumbnailBytes = await thumbnailGetter.retrieveParams();
-      getByteValue.addAll(thumbnailBytes);
+      if(GlobalsData.psThumbnailData.isEmpty) {
+
+        final thumbnailBytes = await thumbnailGetter.retrieveParams();
+
+        GlobalsData.psThumbnailData.addAll(thumbnailBytes);
+        getByteValue.addAll(thumbnailBytes);
+
+      } else {
+        getByteValue.addAll(GlobalsData.psThumbnailData);
+      }
 
     } else {
 

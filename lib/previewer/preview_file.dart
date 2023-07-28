@@ -129,7 +129,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         final encryptVals = EncryptionClass().Encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
-        Globals.fileOrigin == "homeFiles" ? GlobalsData.homeFilesNameData.remove(fileName) : null;
         GlobalsData.homeImageData.clear();
         GlobalsData.homeThumbnailData.clear();
 
@@ -143,7 +142,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       if(!mounted) return;
 
-      SnakeAlert.okSnake(message: "`$fileName` Has been deleted",context: context);
+      SnakeAlert.okSnake(message: "${ShortenText().cutText(fileName)} Has been deleted",context: context);
       NavigatePage.permanentPageMainboard(context);
 
     } catch (err, st) {

@@ -19,7 +19,7 @@ class ThumbnailGetterPs {
     }
 
     return thumbnailBytesList;
-  
+
   }
 
 }
