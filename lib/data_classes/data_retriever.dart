@@ -102,8 +102,16 @@ class DataRetriever {
 
     } else if (tableName == GlobalsTable.directoryInfoTable) {
 
-      final images = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
-      getByteValue.addAll(images);
+      if(GlobalsData.directoryImageData.isEmpty) {
+
+        final dirImage = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
+        getByteValue.addAll(dirImage);
+
+        GlobalsData.directoryImageData.addAll(dirImage);
+
+      } else {
+        getByteValue.addAll(GlobalsData.directoryImageData);
+      }
 
     } else {
 

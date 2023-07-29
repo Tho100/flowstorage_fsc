@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,7 @@ class FolderDataReceiver {
 
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
-  final now = DateTime.now();
+  final dateNow = DateTime.now();
 
   Future<String> retrieveFiles({
     required MySQLConnectionPool conn, 
@@ -95,19 +96,17 @@ class FolderDataReceiver {
         final dateValue = row.assoc()['UPLOAD_DATE']!;
         final dateValueWithDashes = dateValue.replaceAll('/', '-');
         final dateComponents = dateValueWithDashes.split('-');
-
+        
         final date = DateTime(int.parse(dateComponents[2]), int.parse(dateComponents[1]), int.parse(dateComponents[0]));
-        final now = DateTime.now();
-        final difference = now.difference(date).inDays;
-
-        final formattedDate = DateFormat('MM/dd/yyyy').format(date);
+        final difference = dateNow.difference(date).inDays;
+        final formattedDate = DateFormat('MMM d yyyy').format(date);
 
         final buffer = ByteData.view(fileBytes.buffer);
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
 
         final data = {
           'name': decryptedFileNames,
-          'date': '$difference days ago, $formattedDate',
+          'date': '$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate',
           'file_data': bufferedFileBytes,
         };
         dataSet.add(data);

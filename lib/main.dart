@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/data_classes/data_caller.dart';
-import 'package:flowstorage_fsc/directory/save_directory.dart';
+import 'package:flowstorage_fsc/directory_query/save_directory.dart';
 import 'package:flowstorage_fsc/folder_query/save_folder.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
@@ -39,9 +39,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
-import 'package:flowstorage_fsc/directory/count_directory.dart';
-import 'package:flowstorage_fsc/directory/delete_directory.dart';
-import 'package:flowstorage_fsc/directory/rename_directory.dart';
+import 'package:flowstorage_fsc/directory_query/count_directory.dart';
+import 'package:flowstorage_fsc/directory_query/delete_directory.dart';
+import 'package:flowstorage_fsc/directory_query/rename_directory.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/helper/gallery_picker.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
@@ -60,7 +60,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 
 import 'package:flowstorage_fsc/folder_query/create_folder.dart';
-import 'package:flowstorage_fsc/directory/create_directory.dart';
+import 'package:flowstorage_fsc/directory_query/create_directory.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
 import 'package:flowstorage_fsc/extra_query/delete.dart';
@@ -975,6 +975,7 @@ class CakeHomeState extends State<Mainboard> {
 
       });
 
+      GlobalsData.directoryImageData.clear();
       Globals.filteredSearchedFiles.add(directoryName);
       Globals.fileValues.add(directoryName);
 
@@ -994,6 +995,8 @@ class CakeHomeState extends State<Mainboard> {
 
       await DeleteDirectory.deleteDirectory(directoryName: directoryName);
     
+      GlobalsData.directoryImageData.clear();
+
       if(!mounted) return;
       SnakeAlert.okSnake(message: "Directory `$directoryName` has been deleted.",context: context);
 

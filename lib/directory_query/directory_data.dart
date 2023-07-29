@@ -101,10 +101,9 @@ class DirectoryDataReceiver {
         
         final date = DateTime(int.parse(dateComponents[2]), int.parse(dateComponents[1]), int.parse(dateComponents[0]));
         final difference = dateNow.difference(date).inDays;
-
         final formattedDate = DateFormat('MMM d yyyy').format(date);
+        
         final buffer = ByteData.view(fileBytes.buffer);
-
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);
 
         final data = {
@@ -112,7 +111,9 @@ class DirectoryDataReceiver {
           'date': '$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate',
           'file_data': bufferedFileBytes,
         };
+
         dataSet.add(data);
+
       }
 
       return dataSet;

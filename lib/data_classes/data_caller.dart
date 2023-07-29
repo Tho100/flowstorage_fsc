@@ -4,7 +4,7 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
-import 'package:flowstorage_fsc/directory/directory_data.dart';
+import 'package:flowstorage_fsc/directory_query/directory_data.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
@@ -232,13 +232,13 @@ class DataCaller {
     final dateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
 
-    Globals.fileValues.clear();
+    /*Globals.fileValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedBytes.clear();
     Globals.filteredSearchedImage.clear();
     Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    Globals.imageByteValues.clear();*/
 
     Globals.fileValues.addAll(nameList);
     Globals.setDateValues.addAll(dateList);

@@ -507,39 +507,45 @@ class _UpgradePage extends State<UpradePage> {
 
   Future<void> validatePayment() async {
 
-    singleLoading.startLoading(title: "Validating...",context: context);
+    try {
 
-    final returnedEmail = await StripeCustomers.getCustomersEmails();
+      singleLoading.startLoading(title: "Validating...",context: context);
 
-    singleLoading.stopLoading();
-
-    if(returnedEmail.contains(Globals.custEmail)) {
-      
-      if(!mounted) return;
-      singleLoading.startLoading(title: "Upgrading...", context: context);
-
-      final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
-    
-      await updateUserAccountPlan(returnedId);
-      await StripeCustomers.deleteEmailByEmail(Globals.custEmail);
-
-      Globals.accountType = userChoosenPlan;      
-
-      await updateLocallyStoredAccountType(userChoosenPlan);
+      final returnedEmail = await StripeCustomers.getCustomersEmails();
 
       singleLoading.stopLoading();
 
-      CallNotify().customNotification(title: "Account Upgraded", subMesssage: "Thank you for subscribing to our service! You subscribed for $userChoosenPlan plan");
+      if(returnedEmail.contains(Globals.custEmail)) {
+        
+        if(!mounted) return;
+        singleLoading.startLoading(title: "Upgrading...", context: context);
 
-      if(!mounted) return;
-      CustomAlertDialog.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
+        final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
+      
+        await updateUserAccountPlan(returnedId);
+        await StripeCustomers.deleteEmailByEmail(Globals.custEmail);
 
-    } else {
-      if(!mounted) return;
-      CustomAlertDialog.alertDialogTitle("Payment failed", "No payment has been made.", context);
+        Globals.accountType = userChoosenPlan;      
+
+        await updateLocallyStoredAccountType(userChoosenPlan);
+
+        singleLoading.stopLoading();
+
+        CallNotify().customNotification(title: "Account Upgraded", subMesssage: "Thank you for subscribing to our service! You subscribed for $userChoosenPlan plan");
+
+        if(!mounted) return;
+        CustomAlertDialog.alertDialogTitle("Account Upgraded","You've subscribed to Flowstorage $userChoosenPlan account plan.",context);
+
+      } else {
+        if(!mounted) return;
+        CustomAlertDialog.alertDialogTitle("Payment failed", "No payment has been made.", context);
+      }
+
+      returnedEmail.clear();
+
+    } catch (err) {
+      singleLoading.stopLoading();
     }
-
-    returnedEmail.clear();
     
   }
 

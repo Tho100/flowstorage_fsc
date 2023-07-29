@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -621,8 +622,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
                 final sharingStatus = sharingEnabledButton == "Enable" ? "Disabled" : "Enabled";
 
-                const fileSharingDisabledMsg = "You disabled your file sharing. No one can share a file to you.";
-                const fileSharingEnabledMsg = "You enabled file sharing. People can share a file to you.";
+                const fileSharingDisabledMsg = "File sharing disabled. No one can share a file to you.";
+                const fileSharingEnabledMsg = "File sharing enabled. People can share a file to you.";
 
                 final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
                 
@@ -689,8 +690,18 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "Clear cache", 
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
+
                 _clearAppCache();
-                CustomAlertDialog.alertDialogTitle("Cache Cleared","Flowstorage caches has been cleared.", context);
+
+                Fluttertoast.showToast(
+                  msg: "Cache cleared",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: ThemeColor.lightGrey.withOpacity(0.5),
+                  textColor: Colors.white,
+                  fontSize: 16.0
+                );
               }
             ),
 
