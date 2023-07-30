@@ -25,10 +25,10 @@ class PreviewAudioState extends State<PreviewAudio> {
   final StreamController<double> sliderValueController = StreamController<double>();
 
   final ValueNotifier<double> audioPositionNotifier = ValueNotifier<double>(0.0);
-  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
+  final ValueNotifier<IconData> iconPausePlayNotifier = ValueNotifier<IconData>(Icons.play_arrow_rounded);
 
   final ValueNotifier<Color> keepPlayingIconColorNotifier = ValueNotifier<Color>(ThemeColor.thirdWhite);
-  ValueNotifier<bool> isKeepPlayingEnabled = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isKeepPlayingEnabledNotifier = ValueNotifier<bool>(false);
 
   final AudioPlayer audioPlayerController = AudioPlayer();  
   final RetrieveData retrieveData = RetrieveData();
@@ -75,7 +75,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
     if (audioPlayerController.playing) {
       audioPlayerController.pause(); 
-      iconPausePlay.value = Icons.play_arrow_rounded; 
+      iconPausePlayNotifier.value = Icons.play_arrow_rounded; 
     } else {
 
       final fileType = Globals.selectedFileName.split('.').last;
@@ -96,7 +96,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       audioPlayerController.play();
 
-      iconPausePlay.value = Icons.pause_rounded;
+      iconPausePlayNotifier.value = Icons.pause_rounded;
 
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
         if (audioPlayerController.playing) {
@@ -109,11 +109,11 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       audioPlayerController.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
-          iconPausePlay.value = Icons.replay_rounded;
-          if(isKeepPlayingEnabled.value == true) {
+          iconPausePlayNotifier.value = Icons.replay_rounded;
+          if(isKeepPlayingEnabledNotifier.value == true) {
             audioPlayerController.seek(Duration.zero);
             audioPlayerController.play();
-            iconPausePlay.value = Icons.pause_rounded;
+            iconPausePlayNotifier.value = Icons.pause_rounded;
           }
         }
       });
@@ -205,7 +205,7 @@ class PreviewAudioState extends State<PreviewAudio> {
       width: 72,
       height: 72,
       child: ValueListenableBuilder(
-        valueListenable: iconPausePlay,
+        valueListenable: iconPausePlayNotifier,
         builder: (BuildContext context, IconData value, Widget? child) {
           return Container(
             decoration: BoxDecoration(
@@ -222,7 +222,7 @@ class PreviewAudioState extends State<PreviewAudio> {
                 if(value == Icons.replay_rounded) {
                   await audioPlayerController.seek(Duration.zero);
                   audioPlayerController.play();
-                  iconPausePlay.value = Icons.pause_rounded;
+                  iconPausePlayNotifier.value = Icons.pause_rounded;
                 } else {
                   byteAudio = await callAudioDataAsync();
                   await playOrPauseAudioAsync();
@@ -282,15 +282,12 @@ class PreviewAudioState extends State<PreviewAudio> {
         color: Colors.transparent,
         child: InkWell(
           child: ValueListenableBuilder(
-            valueListenable: isKeepPlayingEnabled,
+            valueListenable: isKeepPlayingEnabledNotifier,
             builder: (BuildContext context, bool value, Widget? child) {
               return IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () {
-                  isKeepPlayingEnabled.value = !isKeepPlayingEnabled.value;
-                  if(isKeepPlayingEnabled.value == true) {
-
-                  }
+                  isKeepPlayingEnabledNotifier.value = !isKeepPlayingEnabledNotifier.value;
                 },
                 icon: Icon(Icons.autorenew_rounded, size: 35, color: value ? ThemeColor.justWhite : ThemeColor.thirdWhite),
               );
@@ -399,7 +396,7 @@ class PreviewAudioState extends State<PreviewAudio> {
     }
 
     if(currentAudioDuration.value == audioDuration && value == "negative") {
-      iconPausePlay.value = Icons.pause;
+      iconPausePlayNotifier.value = Icons.pause;
     }
 
     double currentPosition = audioPlayerController.position.inSeconds.toDouble();

@@ -12,6 +12,7 @@ import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/helper/image_compressor.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
@@ -25,7 +26,6 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
 
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -569,7 +569,7 @@ class CakeHomeState extends State<Mainboard> {
 
       for(var images in imagePath!) {
 
-        File compressedDocImage = await _processImageCompression(path: images,quality: 65); 
+        File compressedDocImage = await CompressImageHelper.processImageCompression(path: images,quality: 65); 
         await scannerPdf.convertImageToPdf(imagePath: compressedDocImage);
         
       }
@@ -1033,7 +1033,7 @@ class CakeHomeState extends State<Mainboard> {
 
     try {
 
-      final takenPhoto = await GalleryImagePicker.pickerImage(source: ImageSource.camera);
+      final takenPhoto = await GalleryPickerHelper.pickerImage(source: ImageSource.camera);
 
       if (takenPhoto == null) {
         return;
@@ -1042,7 +1042,7 @@ class CakeHomeState extends State<Mainboard> {
       final imageName = takenPhoto.name;
       final imagePath = takenPhoto.path;
 
-      List<int> bytes = await _compressedByteImage(path: imagePath,quality: 56);
+      List<int> bytes = await CompressImageHelper.compressedByteImage(path: imagePath,quality: 56);
       
       final imageBase64Encoded = base64.encode(bytes); 
 
@@ -1168,31 +1168,6 @@ class CakeHomeState extends State<Mainboard> {
     } catch (err) {
       SnakeAlert.errorSnake("Failed to download ${ShortenText().cutText(fileName)}",context);
     }
-
-  }
-
-  Future<File> _processImageCompression({
-    required String path, 
-    required int quality
-    }) async {
-
-    final compressedFile = await FlutterNativeImage.compressImage(
-      path,
-      quality: quality,
-    );
-    
-    return Future.value(compressedFile);
-  }
-
-  Future<List<int>> _compressedByteImage({
-    required String path,
-    required int quality,
-  }) async {
-
-    File? compressedFile = await _processImageCompression(path: path, quality: quality);
-
-    List<int> bytes = await compressedFile.readAsBytes();
-    return bytes;
 
   }
 
@@ -1347,7 +1322,7 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
       final shortenText = ShortenText();
-      final XFile? pickedVideo = await GalleryImagePicker.pickerVideo(source: ImageSource.gallery);
+      final XFile? pickedVideo = await GalleryPickerHelper.pickerVideo(source: ImageSource.gallery);
 
       if (pickedVideo == null) {
         return;
@@ -1453,7 +1428,7 @@ class CakeHomeState extends State<Mainboard> {
     try {
 
         final shortenText = ShortenText();
-        final List<XFile>? pickedImages = await GalleryImagePicker.pickMultiImage();
+        final List<XFile>? pickedImages = await GalleryPickerHelper.pickMultiImage();
 
         if (!mounted) return; 
         final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -1502,7 +1477,7 @@ class CakeHomeState extends State<Mainboard> {
 
           final filePathVal = pickedFile.path.toString();
 
-          List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
+          List<int> bytes = await CompressImageHelper.compressedByteImage(path: filePathVal,quality: 85);
           String bodyBytes = base64.encode(bytes);
 
           if (Globals.imageType.contains(fileExtension)) {
@@ -1627,7 +1602,7 @@ class CakeHomeState extends State<Mainboard> {
 
           if (Globals.imageType.contains(fileExtension)) {
 
-            List<int> bytes = await _compressedByteImage(path: filePathVal,quality: 85);
+            List<int> bytes = await CompressImageHelper.compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
             if(verifyOrigin == "psFiles") {
@@ -1801,7 +1776,7 @@ class CakeHomeState extends State<Mainboard> {
 
       } else if (Globals.imageType.contains(getExtension)) {
 
-        final compressedImage = await _compressedByteImage(
+        final compressedImage = await CompressImageHelper.compressedByteImage(
           path: folderFile.path,
           quality: 85,
         );

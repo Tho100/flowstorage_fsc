@@ -1,6 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 
-class GalleryImagePicker {
+class GalleryPickerHelper {
 
   static final imagePicker = ImagePicker();
 
