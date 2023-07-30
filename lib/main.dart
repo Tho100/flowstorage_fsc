@@ -2261,15 +2261,6 @@ class CakeHomeState extends State<Mainboard> {
       },
     );
   }
-  
-  /// <summary>
-  /// 
-  /// Build bottom share file menu that has 
-  /// textifled and buttons on it for user to send
-  /// 
-  /// </summary>
-
-  
 
   /// <summary>
   /// 
@@ -4170,9 +4161,9 @@ class CakeHomeState extends State<Mainboard> {
 
     return RawScrollbar(
       radius: const Radius.circular(38),
-      thumbColor: ThemeColor.lightGrey,
-      minThumbLength: 5,
-      thickness: 3,
+      thumbColor: ThemeColor.darkWhite,
+      minThumbLength: 2,
+      thickness: 2,
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: bottomExtraSpacesHeight),
         itemExtent: itemExtentValue,

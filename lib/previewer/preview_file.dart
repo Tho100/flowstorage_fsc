@@ -846,7 +846,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                 visible: currentTable == GlobalsTable.homeImage || currentTable == GlobalsTable.psImage ? bottomBarVisibleNotifier.value : true,
                 child: AppBar(
                   backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
-                  actions: <Widget>[
+                  actions: <Widget>[ 
                     Visibility(
                       visible: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText,
                       child: _buildCopyTextIconButton(),

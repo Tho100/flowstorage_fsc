@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class BottomTrailing {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8.0, bottom: 12.0, top: 12.0),
                     child: Text(
-                      fileName.length > 50 ? "${fileName.substring(0,50)}..." : fileName,
+                      ShortenText().cutText(fileName, customLength: 50),
                       style: const TextStyle(
                         color: ThemeColor.justWhite,
                         fontSize: 15,

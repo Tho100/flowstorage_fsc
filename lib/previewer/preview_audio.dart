@@ -23,12 +23,15 @@ class PreviewAudio extends StatefulWidget {
 class PreviewAudioState extends State<PreviewAudio> {
 
   final StreamController<double> sliderValueController = StreamController<double>();
+
   final ValueNotifier<double> audioPositionNotifier = ValueNotifier<double>(0.0);
-
   final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow_rounded);
-  final AudioPlayer audioPlayerController = AudioPlayer();  
 
-  final retrieveData = RetrieveData();
+  final ValueNotifier<Color> keepPlayingIconColorNotifier = ValueNotifier<Color>(ThemeColor.thirdWhite);
+  ValueNotifier<bool> isKeepPlayingEnabled = ValueNotifier<bool>(false);
+
+  final AudioPlayer audioPlayerController = AudioPlayer();  
+  final RetrieveData retrieveData = RetrieveData();
 
   String audioDuration = "0:00";
   ValueNotifier<String> currentAudioDuration = ValueNotifier<String>("0:00");
@@ -93,7 +96,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       audioPlayerController.play();
 
-      iconPausePlay.value = Icons.pause;
+      iconPausePlay.value = Icons.pause_rounded;
 
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
         if (audioPlayerController.playing) {
@@ -106,7 +109,12 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       audioPlayerController.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
-          iconPausePlay.value = Icons.replay;
+          iconPausePlay.value = Icons.replay_rounded;
+          if(isKeepPlayingEnabled.value == true) {
+            audioPlayerController.seek(Duration.zero);
+            audioPlayerController.play();
+            iconPausePlay.value = Icons.pause_rounded;
+          }
         }
       });
 
@@ -211,10 +219,10 @@ class PreviewAudioState extends State<PreviewAudio> {
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () async {
-                if(value == Icons.replay) {
+                if(value == Icons.replay_rounded) {
                   await audioPlayerController.seek(Duration.zero);
                   audioPlayerController.play();
-                  iconPausePlay.value = Icons.pause;
+                  iconPausePlay.value = Icons.pause_rounded;
                 } else {
                   byteAudio = await callAudioDataAsync();
                   await playOrPauseAudioAsync();
@@ -240,7 +248,7 @@ class PreviewAudioState extends State<PreviewAudio> {
             onPressed: () async {
               forwardingImplementation("negative");
             },
-            icon: const Icon(Icons.replay_5_outlined, color: ThemeColor.justWhite, size: 50),
+            icon: const Icon(Icons.replay_5_rounded, color: ThemeColor.justWhite, size: 50),
           ),
         ),
       ),
@@ -259,10 +267,37 @@ class PreviewAudioState extends State<PreviewAudio> {
             onPressed: () {
               forwardingImplementation("positive");
             },
-            icon: const Icon(Icons.forward_5_outlined, color: ThemeColor.justWhite, size: 50),
+            icon: const Icon(Icons.forward_5_rounded, color: ThemeColor.justWhite, size: 50),
           ),
         ),
       )
+    );
+  }
+
+  Widget buildKeepPlaying() {
+    return SizedBox(
+      width: 45,
+      height: 45,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          child: ValueListenableBuilder(
+            valueListenable: isKeepPlayingEnabled,
+            builder: (BuildContext context, bool value, Widget? child) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  isKeepPlayingEnabled.value = !isKeepPlayingEnabled.value;
+                  if(isKeepPlayingEnabled.value == true) {
+
+                  }
+                },
+                icon: Icon(Icons.autorenew_rounded, size: 35, color: value ? ThemeColor.justWhite : ThemeColor.thirdWhite),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 
@@ -337,9 +372,15 @@ class PreviewAudioState extends State<PreviewAudio> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
+              const SizedBox(width: 68),
+
               buildFastBackward(),
               buildPlayPauseButton(),
-              buildFastForward()
+              buildFastForward(),
+
+              const SizedBox(width: 25),
+
+              buildKeepPlaying(),
 
             ],
           ),
