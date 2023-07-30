@@ -550,7 +550,9 @@ class CakeHomeState extends State<Mainboard> {
   void _addItemToListView({required String fileName}) {
     isFromUpload = true;
     setState(() {
-      Globals.setDateValues.add("Just now");
+      Globals.fileOrigin == "psFiles" 
+      ? Globals.setDateValues.add("") 
+      : Globals.setDateValues.add("Just now");
       Globals.fileValues.add(fileName);
       Globals.filteredSearchedFiles.add(fileName);
     });
@@ -4161,6 +4163,9 @@ class CakeHomeState extends State<Mainboard> {
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) {
           
+          String originalText = Globals.setDateValues[index];
+          String cleanedText = originalText.split(' ').sublist(0, originalText.split(' ').length - 1).join(' ');
+
           final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
           final setLeadingImageSearched = Globals.fromLogin == false &&
                   Globals.filteredSearchedImage.length > index
@@ -4203,11 +4208,30 @@ class CakeHomeState extends State<Mainboard> {
                     fontSize: 16,
                   ),
                 ),
-                subtitle: Text(
-                  Globals.setDateValues[index],
-                  style: TextStyle(
-                    color: Globals.fileOrigin != "psFiles" ? ThemeColor.secondaryWhite : GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-                    fontSize: 12.8,
+                subtitle: RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+
+                      TextSpan(
+                        text: Globals.fileOrigin == "psFiles" ? cleanedText : Globals.setDateValues[index],
+                        style: const TextStyle(
+                          color: ThemeColor.secondaryWhite,
+                          fontSize: 12.8,
+                        ),
+                      ),
+
+                      if(Globals.fileOrigin == "psFiles") 
+                      
+                      TextSpan(
+                        text: " ${GlobalsData.psTagsValuesData[index]}",
+                        style: TextStyle(
+                          color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                          fontSize: 12.8,
+                        ),
+                    
+                      ),
+                    ],
                   ),
                 ),
               ),
