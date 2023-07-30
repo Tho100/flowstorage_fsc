@@ -111,6 +111,16 @@ class Mainboard extends StatefulWidget {
 
 class CakeHomeState extends State<Mainboard> { 
 
+  final fileNameGetterHome = NameGetter();
+  final dataGetterHome = DataRetriever();
+  final dateGetterHome = DateGetter();
+  final retrieveData = RetrieveData();
+  final insertData = InsertData();
+  final dataCaller = DataCaller();
+
+  final crud = Crud();
+  final logger = Logger();
+
   final GlobalKey<ScaffoldState> sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
 
   final searchBarFocusNode = FocusNode();
@@ -124,27 +134,26 @@ class CakeHomeState extends State<Mainboard> {
   final shareController = TextEditingController();
   final commentController = TextEditingController();
 
-  ValueNotifier<String> appBarTitle  = ValueNotifier<String>('');
-  ValueNotifier<String> sortingText  = ValueNotifier<String>('Default');
+  final ValueNotifier<String> appBarTitle  = ValueNotifier<String>('');
+  final ValueNotifier<String> sortingText  = ValueNotifier<String>('Default');
 
-  ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
-  ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
-  ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
-  ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
 
-  ValueNotifier<bool> selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
-  ValueNotifier<IconData> selectAllItemsIconNotifier = ValueNotifier<IconData>(Icons.check_box_outline_blank);
+  final ValueNotifier<bool> selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<IconData> selectAllItemsIconNotifier = ValueNotifier<IconData>(Icons.check_box_outline_blank);
 
-  ValueNotifier<IconData> ascendingDescendingIconNotifier = ValueNotifier<IconData>(Icons.expand_more);
+  final ValueNotifier<IconData> ascendingDescendingIconNotifier = ValueNotifier<IconData>(Icons.expand_more);
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
 
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
-  List<String> checkedItemsName = [];
+  Set<String> checkedItemsName = {};
 
   bool isFromUpload = false;
-  File? fileToDisplay;
 
   dynamic leadingImageSearchedValue;
   dynamic fileTitleSearchedValue;
@@ -155,17 +164,6 @@ class CakeHomeState extends State<Mainboard> {
   bool isImageBottomTrailingVisible = false;
 
   Timer? debounceSearchingTimer;
-  String fileExtension = '';
-
-  final fileNameGetterHome = NameGetter();
-  final dataGetterHome = DataRetriever();
-  final dateGetterHome = DateGetter();
-  final retrieveData = RetrieveData();
-  final insertData = InsertData();
-  final dataCaller = DataCaller();
-
-  final crud = Crud();
-  final logger = Logger();
 
   Future<void> _insertUserFile({
     required String table,
@@ -371,17 +369,17 @@ class CakeHomeState extends State<Mainboard> {
 
         late Uint8List getBytes;
 
-        final fileType = checkedItemsName[i].split('.').last;
+        final fileType = checkedItemsName.elementAt(i).split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType];
 
         if(Globals.imageType.contains(fileType)) {
-          final fileIndex = Globals.filteredSearchedFiles.indexOf(checkedItemsName[i]);
+          final fileIndex = Globals.filteredSearchedFiles.indexOf(checkedItemsName.elementAt(i));
           getBytes = Globals.filteredSearchedBytes.elementAt(fileIndex)!;
         } else {
-          getBytes = await _callData(checkedItemsName[i],tableName!);
+          getBytes = await _callData(checkedItemsName.elementAt(i),tableName!);
         }
 
-        await SaveApi().saveMultipleFiles(directoryPath: directoryPath, fileName: checkedItemsName[i], fileData: getBytes);
+        await SaveApi().saveMultipleFiles(directoryPath: directoryPath, fileName: checkedItemsName.elementAt(i), fileData: getBytes);
 
       }
 
@@ -409,19 +407,19 @@ class CakeHomeState extends State<Mainboard> {
         
         late final Uint8List fileData;
 
-        final fileType = checkedItemsName[i].split('.').last;
+        final fileType = checkedItemsName.elementAt(i).split('.').last;
 
         if(Globals.supportedFileTypes.contains(fileType)) {
 
           final tableName = Globals.fileTypesToTableNames[fileType]!;
 
           if(Globals.imageType.contains(fileType)) {
-            fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(checkedItemsName[i])]!;
+            fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(checkedItemsName.elementAt(i))]!;
           } else {
-            fileData = await _callData(checkedItemsName[i],tableName);
+            fileData = await _callData(checkedItemsName.elementAt(i),tableName);
           }
 
-          await offlineMode.saveOfflineFile(fileName: checkedItemsName[i],fileData: fileData);
+          await offlineMode.saveOfflineFile(fileName: checkedItemsName.elementAt(i),fileData: fileData);
 
         } 
 
@@ -632,45 +630,47 @@ class CakeHomeState extends State<Mainboard> {
 
     for(int i=0; i<count; i++) {
 
+      final encryptedFileNames = EncryptionClass().Encrypt(checkedItemsName.elementAt(i));
+
       if(Globals.fileOrigin == "homeFiles") {
 
         GlobalsData.homeImageData.clear();
         GlobalsData.homeThumbnailData.clear();
 
-        final fileType = checkedItemsName[i].split('.').last;
+        final fileType = checkedItemsName.elementAt(i).split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType];
 
         query = "DELETE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(checkedItemsName[i])};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
 
       } else if (Globals.fileOrigin == "dirFiles") {
 
         query = "DELETE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
-        params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(checkedItemsName[i]),'dirname': EncryptionClass().Encrypt(Globals.directoryTitleValue)};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'dirname': EncryptionClass().Encrypt(Globals.directoryTitleValue)};
 
       } else if (Globals.fileOrigin == "folderFiles") {
         
         query = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
-        params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(checkedItemsName[i]),'foldname': EncryptionClass().Encrypt(Globals.folderTitleValue)};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'foldname': EncryptionClass().Encrypt(Globals.folderTitleValue)};
 
       } else if (Globals.fileOrigin == "sharedToMe") {
       
         query = "DELETE FROM CUST_SHARING WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(checkedItemsName[i])};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
 
       } else if (Globals.fileOrigin == "sharedFiles") {
         query = "DELETE FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(checkedItemsName[i])};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
       } else if (Globals.fileOrigin == "offlineFiles") {
         query = "";
         params = {};
-        _deleteOfflineFilesSelectAll(checkedItemsName[i]);
+        _deleteOfflineFilesSelectAll(checkedItemsName.elementAt(i));
       }
 
       Globals.fileOrigin != "offlineFiles" ? await crud.delete(query: query, params: params) : null;
       await Future.delayed(const Duration(milliseconds: 855));
 
-      _removeFileFromListView(fileName: checkedItemsName[i],isFromSelectAll: true, onTextChanged: _onTextChanged);
+      _removeFileFromListView(fileName: checkedItemsName.elementAt(i),isFromSelectAll: true, onTextChanged: _onTextChanged);
 
     }
 
@@ -1359,7 +1359,7 @@ class CakeHomeState extends State<Mainboard> {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       final selectedFileName = pickedVideo.name;
-      fileExtension = selectedFileName.split('.').last;
+      final fileExtension = selectedFileName.split('.').last;
 
       if (!Globals.videoType.contains(fileExtension)) {
         if(!mounted) return;
@@ -1478,7 +1478,7 @@ class CakeHomeState extends State<Mainboard> {
         for (final pickedFile in pickedImages) {
 
           final selectedFileName = pickedFile.name;
-          fileExtension = selectedFileName.split('.').last;
+          final fileExtension = selectedFileName.split('.').last;
 
           if (!Globals.imageType.contains(fileExtension)) {
             if(!mounted) return;
@@ -1589,7 +1589,7 @@ class CakeHomeState extends State<Mainboard> {
         for (final pickedFile in resultPicker.files) {
 
           final selectedFileName = pickedFile.name;
-          fileExtension = selectedFileName.split('.').last;
+          final fileExtension = selectedFileName.split('.').last;
 
           if (!Globals.supportedFileTypes.contains(fileExtension)) {
             if(!mounted) return;
@@ -4100,7 +4100,7 @@ class CakeHomeState extends State<Mainboard> {
     const Set<String> externalFileTypes = {"xlsx","xls","docx","doc","ptx","pptx"};
 
     Globals.selectedFileName = Globals.filteredSearchedFiles[index];
-    fileExtension = Globals.selectedFileName.split('.').last;
+    final fileExtension = Globals.selectedFileName.split('.').last;
 
     if (Globals.supportedFileTypes.contains(fileExtension) && 
       !(externalFileTypes.contains(fileExtension))) {
