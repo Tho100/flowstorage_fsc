@@ -7,7 +7,6 @@
 /// </summary>
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/extra_query/rename.dart';
@@ -20,7 +19,6 @@ import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/previewer/preview_audio.dart';
-import 'package:flowstorage_fsc/previewer/preview_excel.dart';
 import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
@@ -90,8 +88,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   static ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
-  final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, "ps_info_audio", "ps_info_text"};
-  final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homeExcel, GlobalsTable.homePdf, "ps_info_text", "ps_info_excel", "ps_info_pdf"};
+  final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, GlobalsTable.psAudio, GlobalsTable.psText};
+  final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homePdf, GlobalsTable.psText, GlobalsTable.psPdf};
 
   @override
   void initState() {
@@ -312,33 +310,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
-  Future<void> _saveExcelChanges(List<int>? newValuesBytes, BuildContext context) async {
-
-    try {
-
-      /*String jsonString = jsonEncode(await _getExcelDataSources());
-      List<int> byteList = utf8.encode(jsonString);
-      Uint8List byteData = Uint8List.fromList(byteList);*/
-
-      final base64Encoded = base64.encode(newValuesBytes!);
-      await UpdateValues().insertValueParams(
-        tableName: currentTable, 
-        filePath: Globals.selectedFileName, 
-        userName: Globals.custUsername, 
-        newValue: base64Encoded,
-        columnName: "null",
-      );
-
-      if(!mounted) return;
-      SnakeAlert.okSnake(message: "Changes saved.", icon: Icons.check,context: context);
-
-    } catch (err, st) { 
-      Logger().e("Exception from _saveExcelChanges {PreviewFile}", err, st);
-      SnakeAlert.errorSnake("Failed to save changes.",context);
-
-    }
-  }
-
   Future<void> _updateTextChanges(String changesUpdate,BuildContext context) async {
 
     try {
@@ -479,11 +450,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                 return;
               } 
 
-              if(currentTable == GlobalsTable.homeExcel) {
-                final updatedValues = PreviewExcel.excelUpdatedBytes;
-                await _saveExcelChanges(updatedValues,context);
-                return;
-              }
             }
           },
           style: ElevatedButton.styleFrom(
@@ -616,7 +582,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
                 Visibility(
                   visible: true,
-                  child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.homeExcel || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
+                  child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
                 ),
     
                 _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
@@ -804,12 +770,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
     const textTables = {GlobalsTable.homeText, GlobalsTable.psText};
     const audioTables = {GlobalsTable.homeAudio, GlobalsTable.psAudio};
-    const excelTables = {GlobalsTable.homeExcel, GlobalsTable.psExcel};
 
     if(textTables.contains(currentTable)) {
       return PreviewText(controller: textController);
-    } else if (excelTables.contains(currentTable)) {
-      return const PreviewExcel();
     } else if (audioTables.contains(currentTable)) {
       bottomBarVisibleNotifier.value = false;
       return const PreviewAudio();
@@ -838,6 +801,22 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         );
       },
       icon: const Icon(Icons.comment),
+    );
+  }
+
+  BoxDecoration _buildBackgroundDecoration() {
+    return BoxDecoration(
+      gradient: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio
+      ? const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            ThemeColor.secondaryPurple,
+            ThemeColor.darkPurple,
+          ],
+        )
+      : null,
+      color: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio ? null : ThemeColor.darkBlack,
     );
   }
 
@@ -906,19 +885,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       ),
 
       body: Container(
-        decoration: BoxDecoration(
-          gradient: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio
-          ? const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ThemeColor.secondaryPurple,
-                ThemeColor.darkPurple,
-              ],
-            )
-          : null,
-          color: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio ? null : ThemeColor.darkBlack,
-        ),
+        decoration: _buildBackgroundDecoration(),
         child: Column(
           children: [
             _buildHeaderTitle(),

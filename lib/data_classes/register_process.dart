@@ -32,6 +32,7 @@ class RegisterUser {
 
     if (verifyUsernameQue.rows.isNotEmpty) {
       if(context.mounted) {
+        Navigator.pop(context);
         CustomAlertDialog.alertDialog("Username is taken.", context);
       }
       return;
@@ -44,6 +45,7 @@ class RegisterUser {
     
     if (verifyEmailQue.rows.isNotEmpty) {
       if(context.mounted) {
+        Navigator.pop(context);
         CustomAlertDialog.alertDialog("Email already exists.", context);
       }
       return;
@@ -51,6 +53,7 @@ class RegisterUser {
 
     if (userName!.length > 20) {
       if(context.mounted) {
+        Navigator.pop(context);
         CustomAlertDialog.alertDialog("Username character length limit is 20.", context);
       }
       return;
@@ -58,6 +61,7 @@ class RegisterUser {
 
     if (auth0!.length <= 5) {
       if(context.mounted) {
+        Navigator.pop(context);
         CustomAlertDialog.alertDialog("Password length must be greater than 5.", context);
       }
       return;
