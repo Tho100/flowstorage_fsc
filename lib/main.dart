@@ -1525,6 +1525,10 @@ class CakeHomeState extends State<Mainboard> {
 
     try {
 
+        late String? fileBase64;
+        late File? newFileToDisplayPath;
+
+        final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
         final shortenText = ShortenText();
 
         const List<String> nonOfflineFileTypes = [...Globals.imageType,...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
@@ -1559,8 +1563,6 @@ class CakeHomeState extends State<Mainboard> {
           );
         }
 
-        File? newFileToDisplay;
-
         for (final pickedFile in resultPicker.files) {
 
           final selectedFileName = pickedFile.name;
@@ -1591,10 +1593,6 @@ class CakeHomeState extends State<Mainboard> {
           }
 
           final filePathVal = pickedFile.path.toString();
-
-          String? fileBase64;
-
-          final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
           if (!(Globals.imageType.contains(fileExtension))) {
             fileBase64 = base64.encode(File(filePathVal).readAsBytesSync());
@@ -1634,32 +1632,37 @@ class CakeHomeState extends State<Mainboard> {
 
             await thumbnailFile.copy(thumbnailPath);
 
-            newFileToDisplay = thumbnailFile;
+            newFileToDisplayPath = thumbnailFile;
 
             if(verifyOrigin == "psFiles") {
-              
+
               _openPsCommentDialog(
                 filePathVal: filePathVal, fileName: selectedFileName, 
                 tableName: GlobalsTable.psVideo, base64Encoded: fileBase64!,
-                newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes
+                newFileToDisplay: newFileToDisplayPath, thumbnail: thumbnailBytes
               );
 
               return;
+
             }
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName, tableName: GlobalsTable.homeImage, fileBase64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnailBytes);
+            await _processUploadListView(
+              filePathVal: filePathVal, selectedFileName: selectedFileName, 
+              tableName: GlobalsTable.homeVideo, fileBase64Encoded: fileBase64!, 
+              newFileToDisplay: newFileToDisplayPath, thumbnailBytes: thumbnailBytes
+            );
 
           } else {
 
             final getFileTable = Globals.fileOrigin == "homeFiles" ? Globals.fileTypesToTableNames[fileExtension]! : Globals.fileTypesToTableNamesPs[fileExtension]!;
-            newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
+            newFileToDisplayPath = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
 
             if(verifyOrigin == "psFiles") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: getFileTable, base64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay);
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: getFileTable, base64Encoded: fileBase64!,newFileToDisplay: newFileToDisplayPath);
               return;
             }
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay);
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: fileBase64!,newFileToDisplay: newFileToDisplayPath);
           }
 
           _addItemToListView(fileName: selectedFileName);
