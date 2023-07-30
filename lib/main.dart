@@ -1592,12 +1592,12 @@ class CakeHomeState extends State<Mainboard> {
 
           final filePathVal = pickedFile.path.toString();
 
-          String? bodyBytes;
+          String? fileBase64;
 
           final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
           if (!(Globals.imageType.contains(fileExtension))) {
-            bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
+            fileBase64 = base64.encode(File(filePathVal).readAsBytesSync());
           }
 
           if (Globals.imageType.contains(fileExtension)) {
@@ -1623,6 +1623,7 @@ class CakeHomeState extends State<Mainboard> {
             String tempThumbnailPath = '${tempDir.path}/$setupThumbnailName';
 
             File thumbnailFile = File(tempThumbnailPath);
+
             final thumbnailBytes = await VideoThumbnail.thumbnailData(
               video: filePathVal,
               imageFormat: ImageFormat.JPEG,
@@ -1635,7 +1636,18 @@ class CakeHomeState extends State<Mainboard> {
 
             newFileToDisplay = thumbnailFile;
 
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: "file_info_vid",fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay,thumbnailBytes: thumbnailBytes);
+            if(verifyOrigin == "psFiles") {
+              
+              _openPsCommentDialog(
+                filePathVal: filePathVal, fileName: selectedFileName, 
+                tableName: GlobalsTable.psVideo, base64Encoded: fileBase64!,
+                newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes
+              );
+
+              return;
+            }
+
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName, tableName: GlobalsTable.homeImage, fileBase64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnailBytes);
 
           } else {
 
@@ -1643,10 +1655,11 @@ class CakeHomeState extends State<Mainboard> {
             newFileToDisplay = await GetAssets().loadAssetsFile(Globals.fileTypeToAssets[fileExtension]!);
 
             if(verifyOrigin == "psFiles") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: getFileTable, base64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
+              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: getFileTable, base64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay);
               return;
             }
-            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: bodyBytes!,newFileToDisplay: newFileToDisplay);
+
+            await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName,tableName: getFileTable,fileBase64Encoded: fileBase64!,newFileToDisplay: newFileToDisplay);
           }
 
           _addItemToListView(fileName: selectedFileName);
@@ -4002,10 +4015,10 @@ class CakeHomeState extends State<Mainboard> {
             Visibility(
               visible: Globals.fileValues.isEmpty,
               child: SizedBox(
-                height: MediaQuery.of(context).size.height-325,
+                height: MediaQuery.of(context).size.height-355,
                 child: const Center(
                   child: Text(
-                    "It's empty here..",
+                    "It's empty here...",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(248, 94, 93, 93),
