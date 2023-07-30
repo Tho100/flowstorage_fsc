@@ -612,6 +612,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "File sharing", 
               bottomText: sharingEnabledButton, 
               onPressed: () async {
+                
                 sharingEnabledButton == 'Disable' 
                 ? await SharingOptions.disableSharing(custUsername) 
                 : await SharingOptions.enableSharing(custUsername);
@@ -624,6 +625,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
                 const fileSharingDisabledMsg = "File sharing disabled. No one can share a file to you.";
                 const fileSharingEnabledMsg = "File sharing enabled. People can share a file to you.";
+
+                Globals.userSharingStatus = sharingEnabledButton == "Enable" ? "1" : "0";
 
                 final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
                 

@@ -429,8 +429,10 @@ class CakeHomeState extends State<Mainboard> {
 
       singleLoading.stopLoading();
 
+      final countSelectedItems = checkedList.where((item) => item == true).length;
+
       if(!mounted) return;
-      SnakeAlert.okSnake(message: "${appBarTitle.value} now available offline.",icon: Icons.check,context: context);
+      SnakeAlert.okSnake(message: "$countSelectedItems Item(s) now available offline.",icon: Icons.check,context: context);
 
       _clearSelectAll();
 
@@ -3774,7 +3776,9 @@ class CakeHomeState extends State<Mainboard> {
                 final loadingDialog = SingleTextLoading();
 
                 loadingDialog.startLoading(title: "Deleting...",context: context);
+                
                 await _processDeletingAllItems(count: countSelectedItems);
+
                 loadingDialog.stopLoading();
 
                 if(!mounted) return;

@@ -169,21 +169,38 @@ class SignInUser {
           
           final justLoading = JustLoading();
 
-          justLoading.startLoading(context: context);
+          if(context.mounted) {
+            justLoading.startLoading(context: context);
+          }
+
           await _callData(conn,isChecked);
 
           justLoading.stopLoading();
           
-          NavigatePage.permanentPageMainboard(context);
+          if(context.mounted) {
+            NavigatePage.permanentPageMainboard(context);
+          }
 
         } else {
-          CustomAlertDialog.alertDialog("Password or PIN Key is incorrect.", context);
+          
+          if(context.mounted) {
+            CustomAlertDialog.alertDialog("Password or PIN Key is incorrect.", context);
+          }
+
         }
       } else {
-        CustomAlertDialog.alertDialog("Account not found.", context);
+
+        if(context.mounted) {
+          CustomAlertDialog.alertDialog("Account not found.", context);
+        }
+
       }
     } catch (err, st) {
-      CustomAlertDialog.alertDialogTitle("Something is wrong...", "No internet connection.", context);
+
+      if(context.mounted) {
+        CustomAlertDialog.alertDialogTitle("Something is wrong...", "No internet connection.", context);
+      }
+
       logger.e("Exception from logParams {MYSQL_login}", err, st);
       
     } finally {

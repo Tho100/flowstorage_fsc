@@ -79,12 +79,14 @@ class DataRetriever {
     final getByteValue = <Uint8List>{};
 
     Future<void> retrieveValue(String iconName) async {
+
       final retrieveCountQuery = 'SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username';
       final params = {'username': Globals.custUsername};
       final countTotalRows = await crud.count(query: retrieveCountQuery, params: params);
 
-      final loadPdfImg = await Future.wait(List.generate(countTotalRows, (_) => GetAssets().loadAssetsData(iconName)));
-      getByteValue.addAll(loadPdfImg);
+      final loadAssetImage = await Future.wait(List.generate(countTotalRows, (_) => GetAssets().loadAssetsData(iconName)));
+      getByteValue.addAll(loadAssetImage);
+
     }
 
     if (tableName == GlobalsTable.homeVideo) {

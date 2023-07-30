@@ -31,7 +31,9 @@ class RegisterUser {
     );
 
     if (verifyUsernameQue.rows.isNotEmpty) {
-      CustomAlertDialog.alertDialog("Username is taken.", context);
+      if(context.mounted) {
+        CustomAlertDialog.alertDialog("Username is taken.", context);
+      }
       return;
     }
 
@@ -41,21 +43,29 @@ class RegisterUser {
     );
     
     if (verifyEmailQue.rows.isNotEmpty) {
-      CustomAlertDialog.alertDialog("Email already exists.", context);
+      if(context.mounted) {
+        CustomAlertDialog.alertDialog("Email already exists.", context);
+      }
       return;
     }
 
     if (userName!.length > 20) {
-      CustomAlertDialog.alertDialog("Username character length limit is 20.", context);
+      if(context.mounted) {
+        CustomAlertDialog.alertDialog("Username character length limit is 20.", context);
+      }
       return;
     }
 
     if (auth0!.length <= 5) {
-      CustomAlertDialog.alertDialog("Password length must be greater than 5.", context);
+      if(context.mounted) {
+        CustomAlertDialog.alertDialog("Password length must be greater than 5.", context);
+      }
       return;
     }
 
-    await insertUserInfo(userName, auth0, createdDate!, email!, auth1!,context);
+    if(context.mounted) {
+      await insertUserInfo(userName, auth0, createdDate!, email!, auth1!,context);
+    }
 
     const List<String> insertExtraInfoQuery = [
       "INSERT INTO cust_type(CUST_USERNAME,CUST_EMAIL,ACC_TYPE) VALUES (:username,:email,:type)",
@@ -81,7 +91,7 @@ class RegisterUser {
     }
 
     NavigatePage.permanentPageMainboard(context);
-
+    
     auth0 = null;
     userName = null;
     email = null;

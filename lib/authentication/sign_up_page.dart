@@ -1,6 +1,7 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flowstorage_fsc/widgets/main_text_field.dart';
@@ -21,7 +22,7 @@ class CakeSignUpPage extends StatefulWidget {
 
 class CakeSignUpPageState extends State<CakeSignUpPage> {
 
-  final dateToStr = DateFormat('yyyy/MM/dd').format(DateTime.now());
+  final dateNow = DateFormat('yyyy/MM/dd').format(DateTime.now());
 
   bool _visiblePasswordSignUp = false;
 
@@ -37,10 +38,6 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
 
   @override
   void dispose() {
-    usernameController.dispose();
-    auth0Controller.dispose();
-    emailController.dispose();
-    auth1Controller.dispose();
     usernameController.clear();
     auth0Controller.clear();
     emailController.clear();
@@ -67,7 +64,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
         auth0: valueCase0,
         email: email,
         auth1: valueCase1,
-        createdDate: dateToStr,
+        createdDate: dateNow,
         context: context
       );
 
@@ -148,12 +145,18 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
 
     Globals.fromLogin = true;
     
+    final singleTextLoading = SingleTextLoading();
+
+    singleTextLoading.startLoading(
+      title: "Creating account...", context: context);
+
     await insertUserRegistrationInformation(
       username: custUsernameInput, 
       email: custEmailInput, 
       auth0: custAuth0Input, 
       auth1: custAuth1Input
     );
+
   }
 
   @override

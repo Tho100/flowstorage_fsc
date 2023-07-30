@@ -20,6 +20,7 @@ class DateGetter {
 
   Future<List<String>> getDateParams(String? username, String? tableName) async {
     
+
     final conn = await SqlConnection.insertValueParams();
 
     final selectUploadDate =
@@ -29,6 +30,7 @@ class DateGetter {
     final retrieveUploadDate = await conn.execute(selectUploadDate, params);
 
     final storeDateValues = <String>[];
+
     for (final res in retrieveUploadDate.rows) {
 
       final dateValue = res.assoc()['UPLOAD_DATE']!;
@@ -43,6 +45,7 @@ class DateGetter {
       storeDateValues.add('$difference days ago ${GlobalsStyle.dotSeperator} $formattedDate');
 
     }
+
     
     return storeDateValues;
 

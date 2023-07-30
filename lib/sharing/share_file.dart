@@ -14,11 +14,11 @@ class ShareFileData {
   final Crud _crud = Crud();
 
   Future<void> startSharing({
-    required String? sendTo,
+    required String? receiverUsername,
     required String? fileName,
     required String? comment,
     required dynamic fileValue,
-    required String? fileExt,
+    required String? fileType,
     dynamic thumbnail,
   }) async {
     try {
@@ -27,15 +27,15 @@ class ShareFileData {
 
       const insertSharingData =
       'INSERT INTO cust_sharing(CUST_TO, CUST_FROM, CUST_FILE_PATH, CUST_FILE, UPLOAD_DATE, FILE_EXT, CUST_THUMB, CUST_COMMENT) '
-      'VALUES (:to, :from, :filename, :fileval, :date, :ext, :thumbnail, :comment)';
+      'VALUES (:to, :from, :filename, :fileval, :date, :type, :thumbnail, :comment)';
 
       final params = {
-        'to': sendTo!,
+        'to': receiverUsername!,
         'from': Globals.custUsername,
         'fileval': fileValue!,
         'filename': fileName!,
         'date': uploadDate,
-        'ext': fileExt!,
+        'type': fileType!,
         'thumbnail': thumbnail ?? '',
         'comment': comment ?? '',
       };
@@ -65,11 +65,11 @@ class ShareFileData {
       }
 
       await startSharing(
-        sendTo: sendTo,
+        receiverUsername: sendTo,
         fileName: fileName,
         comment: comment,
         fileValue: fileData,
-        fileExt: fileType,
+        fileType: fileType,
         thumbnail: thumbnail,
       );
 
