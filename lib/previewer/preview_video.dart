@@ -107,7 +107,55 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
   }
 
-  Widget buildPlayPauseButton() {
+  Widget buildSkipForward() {
+    return SizedBox(
+      height: 55,
+      width: 55,
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.lightGrey.withOpacity(0.5),
+          border: Border.all(
+            color: Colors.transparent,
+            width: 2.0,
+          ),
+          borderRadius: BorderRadius.circular(65),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            forwardingImplementation("positive");
+          },
+          icon: const Icon(Icons.forward_5_rounded, color: ThemeColor.secondaryWhite, size: 40),
+        ),
+      ),
+    );
+  }
+
+  Widget buildSkipPrevious() {
+    return SizedBox(
+      height: 55,
+      width: 55,
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColor.lightGrey.withOpacity(0.5),
+          border: Border.all(
+            color: Colors.transparent,
+            width: 2.0,
+          ),
+          borderRadius: BorderRadius.circular(65),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            forwardingImplementation("negative");
+          },
+          icon: const Icon(Icons.replay_5_rounded, color: ThemeColor.secondaryWhite, size: 40),
+        ),
+      ),
+    );
+  }
+
+  Widget buildButtons() {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Column(
@@ -120,6 +168,8 @@ class PreviewVideoState extends State<PreviewVideo> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildDurationText(currentVideoDurationNotifier),
+                const SizedBox(width: 25),
+                buildSkipPrevious(),
                 const SizedBox(width: 18),
                 SizedBox(
                   height: 72,
@@ -172,6 +222,8 @@ class PreviewVideoState extends State<PreviewVideo> {
                   ),
                 ),
                 const SizedBox(width: 18),
+                buildSkipForward(),
+                const SizedBox(width: 25),
                 buildDurationText(videoDurationNotifier),
               ],
             ),
@@ -213,7 +265,7 @@ class PreviewVideoState extends State<PreviewVideo> {
               builder: (BuildContext context, bool value, Widget? child) {
                 return Visibility(
                   visible: value && videoBytes.isNotEmpty,
-                  child: buildPlayPauseButton(),
+                  child: buildButtons(),
                 );
               },
             ),
@@ -240,6 +292,24 @@ class PreviewVideoState extends State<PreviewVideo> {
         fit: BoxFit.contain,
       ),
     );
+  }
+
+  void forwardingImplementation(String value) {
+
+    final position = videoPlayerController.value.position;
+    final duration = videoPlayerController.value.duration;
+
+    final newPosition = 
+    value == "positive" 
+    ? position + const Duration(seconds: 5) 
+    : position - const Duration(seconds: 5);
+
+    if (newPosition <= duration) {
+      videoPlayerController.seekTo(newPosition);
+    } else {
+      iconPausePlay.value = Icons.pause;
+      videoPlayerController.play();
+    }
   }
 
   String getDurationString(Duration duration) {
