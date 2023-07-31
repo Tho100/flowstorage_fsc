@@ -12,7 +12,7 @@ import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
-import 'package:flowstorage_fsc/helper/image_compressor.dart';
+import 'package:flowstorage_fsc/api/compressor_api.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
@@ -571,7 +571,7 @@ class CakeHomeState extends State<Mainboard> {
 
       for(var images in imagePath!) {
 
-        File compressedDocImage = await CompressImageHelper.processImageCompression(path: images,quality: 65); 
+        File compressedDocImage = await CompressorApi.processImageCompression(path: images,quality: 65); 
         await scannerPdf.convertImageToPdf(imagePath: compressedDocImage);
         
       }
@@ -1044,7 +1044,7 @@ class CakeHomeState extends State<Mainboard> {
       final imageName = takenPhoto.name;
       final imagePath = takenPhoto.path;
 
-      List<int> bytes = await CompressImageHelper.compressedByteImage(path: imagePath,quality: 56);
+      List<int> bytes = await CompressorApi.compressedByteImage(path: imagePath,quality: 56);
       
       final imageBase64Encoded = base64.encode(bytes); 
 
@@ -1318,7 +1318,7 @@ class CakeHomeState extends State<Mainboard> {
   /// Open user gallery (Video)
   /// 
   /// </summary>
-  
+
   Future<void> _openGalleryVideo() async {
     
     try {
@@ -1356,10 +1356,8 @@ class CakeHomeState extends State<Mainboard> {
       ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
       : null;
   
-      final filePathVal = pickedVideo.path.toString(); 
-
-      String bodyBytes;
-      bodyBytes = base64.encode(File(filePathVal).readAsBytesSync());
+      final videoFilePath = pickedVideo.path.toString(); 
+      final videoBase64Encoded = base64.encode(File(videoFilePath).readAsBytesSync());
 
       if (Globals.videoType.contains(fileExtension)) {
 
@@ -1373,7 +1371,7 @@ class CakeHomeState extends State<Mainboard> {
 
         File thumbnailFile = File(tempThumbnailPath);
         final thumbnailBytes = await VideoThumbnail.thumbnailData(
-          video: filePathVal,
+          video: videoFilePath,
           imageFormat: ImageFormat.JPEG,
           quality: 40,
         );
@@ -1387,15 +1385,20 @@ class CakeHomeState extends State<Mainboard> {
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
         if(verifyOrigin == "psFiles") {
-          _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName,tableName: GlobalsTable.psVideo, base64Encoded: bodyBytes, newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+
+          _openPsCommentDialog(filePathVal: videoFilePath, fileName: selectedFileName,
+          tableName: GlobalsTable.psVideo, base64Encoded: videoBase64Encoded, 
+          newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+
           return;
+
         } else {
 
           await _processUploadListView(
-            filePathVal: filePathVal,
+            filePathVal: videoFilePath,
             selectedFileName: selectedFileName,
             tableName: GlobalsTable.homeVideo,
-            fileBase64Encoded: bodyBytes,
+            fileBase64Encoded: videoBase64Encoded,
             newFileToDisplay: newFileToDisplay,
             thumbnailBytes: thumbnailBytes
           );
@@ -1479,7 +1482,7 @@ class CakeHomeState extends State<Mainboard> {
 
           final filePathVal = pickedFile.path.toString();
 
-          List<int> bytes = await CompressImageHelper.compressedByteImage(path: filePathVal,quality: 85);
+          List<int> bytes = await CompressorApi.compressedByteImage(path: filePathVal,quality: 85);
           String bodyBytes = base64.encode(bytes);
 
           if (Globals.imageType.contains(fileExtension)) {
@@ -1533,7 +1536,7 @@ class CakeHomeState extends State<Mainboard> {
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
         final shortenText = ShortenText();
 
-        const List<String> nonOfflineFileTypes = [...Globals.imageType,...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+        const List<String> nonOfflineFileTypes = [...Globals.imageType, ...Globals.audioType, ...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
         const List<String> offlineFileTypes = [...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
 
         final resultPicker = await FilePicker.platform.pickFiles(
@@ -1602,7 +1605,7 @@ class CakeHomeState extends State<Mainboard> {
 
           if (Globals.imageType.contains(fileExtension)) {
 
-            List<int> bytes = await CompressImageHelper.compressedByteImage(path: filePathVal,quality: 85);
+            List<int> bytes = await CompressorApi.compressedByteImage(path: filePathVal,quality: 85);
             String compressedImageBase64Encoded = base64.encode(bytes);
 
             if(verifyOrigin == "psFiles") {
@@ -1794,7 +1797,7 @@ class CakeHomeState extends State<Mainboard> {
 
       } else if (Globals.imageType.contains(getExtension)) {
 
-        final compressedImage = await CompressImageHelper.compressedByteImage(
+        final compressedImage = await CompressorApi.compressedByteImage(
           path: folderFile.path,
           quality: 85,
         );

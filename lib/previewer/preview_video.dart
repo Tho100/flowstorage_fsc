@@ -109,8 +109,8 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   Widget buildSkipForward() {
     return SizedBox(
-      height: 55,
-      width: 55,
+      height: 45,
+      width: 45,
       child: Container(
         decoration: BoxDecoration(
           color: ThemeColor.lightGrey.withOpacity(0.5),
@@ -125,7 +125,7 @@ class PreviewVideoState extends State<PreviewVideo> {
           onPressed: () {
             forwardingImplementation("positive");
           },
-          icon: const Icon(Icons.forward_5_rounded, color: ThemeColor.secondaryWhite, size: 40),
+          icon: const Icon(Icons.forward_5_rounded, color: ThemeColor.secondaryWhite, size: 35),
         ),
       ),
     );
@@ -133,8 +133,8 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   Widget buildSkipPrevious() {
     return SizedBox(
-      height: 55,
-      width: 55,
+      height: 45,
+      width: 45,
       child: Container(
         decoration: BoxDecoration(
           color: ThemeColor.lightGrey.withOpacity(0.5),
@@ -149,7 +149,7 @@ class PreviewVideoState extends State<PreviewVideo> {
           onPressed: () {
             forwardingImplementation("negative");
           },
-          icon: const Icon(Icons.replay_5_rounded, color: ThemeColor.secondaryWhite, size: 40),
+          icon: const Icon(Icons.replay_5_rounded, color: ThemeColor.secondaryWhite, size: 35),
         ),
       ),
     );
@@ -168,12 +168,12 @@ class PreviewVideoState extends State<PreviewVideo> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildDurationText(currentVideoDurationNotifier),
-                const SizedBox(width: 25),
+                const SizedBox(width: 35),
                 buildSkipPrevious(),
                 const SizedBox(width: 18),
                 SizedBox(
-                  height: 72,
-                  width: 72,
+                  height: 63,
+                  width: 63,
                   child: Container(
                     decoration: BoxDecoration(
                       color: ThemeColor.lightGrey.withOpacity(0.5),
@@ -213,7 +213,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                         builder: (BuildContext context, IconData value, Widget? child) {
                           return Icon(
                             value,
-                            size: 52,
+                            size: 48,
                             color: ThemeColor.secondaryWhite,
                           );
                         }
@@ -223,7 +223,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                 ),
                 const SizedBox(width: 18),
                 buildSkipForward(),
-                const SizedBox(width: 25),
+                const SizedBox(width: 35),
                 buildDurationText(videoDurationNotifier),
               ],
             ),

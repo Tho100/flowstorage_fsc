@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_native_image/flutter_native_image.dart';
 
-class CompressImageHelper {
+class CompressorApi {
 
   static Future<File> processImageCompression({
     required String path, 
@@ -28,5 +28,5 @@ class CompressImageHelper {
     return bytes;
 
   }
-
+  
 }

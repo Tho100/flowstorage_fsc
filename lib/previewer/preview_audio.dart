@@ -369,14 +369,11 @@ class PreviewAudioState extends State<PreviewAudio> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-              const SizedBox(width: 68),
+              const SizedBox(width: 42),
 
               buildFastBackward(),
               buildPlayPauseButton(),
               buildFastForward(),
-
-              const SizedBox(width: 25),
-
               buildKeepPlaying(),
 
             ],

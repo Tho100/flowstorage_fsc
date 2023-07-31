@@ -76,22 +76,23 @@ class PreviewTextState extends State<PreviewText> {
         if (snapshot.hasData) {        
           widget.controller.text = utf8.decode(snapshot.data!);
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(14.0),
             child: TextFormField(controller: widget.controller,
             keyboardType: TextInputType.multiline,
-                maxLines: null,
-                style: GoogleFonts.roboto(
-                  color: const Color.fromARGB(255, 214, 213, 213),
-                  fontWeight: FontWeight.w500,
+              maxLines: null,
+              style: GoogleFonts.roboto(
+                color: const Color.fromARGB(255, 220, 220, 220),
+                fontWeight: FontWeight.w500,
+                fontSize: 17,
+              ),
+              decoration: const InputDecoration(
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
                 ),
-                decoration: const InputDecoration(
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent),
-                  ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
                 ),
+              ),
             ),
           );
         } else if (snapshot.hasError) {
