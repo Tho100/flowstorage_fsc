@@ -97,7 +97,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 55),
             buildHeaderText("Flow Your Files Anywhere"),
             const SizedBox(height: 18),
-            buildSubText("Store your files on Flowstorage and access them on your phone or desktop with ease."),
+            buildSubText("Store your files on Flowstorage and access them effortlessly across all your devices"),
         
           ],
         ),
@@ -112,7 +112,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 55),
             buildHeaderText("Sharing Made Easy"),
             const SizedBox(height: 18),
-            buildSubText("Easily share your photo and video memories to your friends or anyone."),
+            buildSubText("Easily share your photo and video memories to your friends or anyone"),
           
           ],
         ),
@@ -128,7 +128,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 55),
             buildHeaderText("Public Storage"),
             const SizedBox(height: 18),
-            buildSubText("Explore a vast collection of publicly shared files from around the world."),
+            buildSubText("Explore a vast collection of publicly shared files from around the world"),
           
           ],
         ),
@@ -144,7 +144,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 55),
             buildHeaderText("Privacy Is Our Priority"),
             const SizedBox(height: 18),
-            buildSubText("We ensure that your files information and personal data are securely stored in our server."),
+            buildSubText("We ensure that your files information and personal data are securely stored in our server"),
           
           ],
         ),
