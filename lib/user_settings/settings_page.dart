@@ -63,7 +63,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
   void _clearUserRecords() {
 
-    Globals.fromLogin = false;
     Globals.fileValues.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
@@ -71,7 +70,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
     Globals.setDateValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
 
   }
 

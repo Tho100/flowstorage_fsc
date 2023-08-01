@@ -201,7 +201,6 @@ class _CreateText extends State<CreateText> {
     Globals.filteredSearchedFiles.add(fileName);
     
     Globals.imageValues.add(txtImageFile);
-    Globals.filteredSearchedImage.add(txtImageFile);
     Globals.imageByteValues.add(txtImageData);
     Globals.filteredSearchedBytes.add(txtImageData);
     

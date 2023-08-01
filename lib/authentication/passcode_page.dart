@@ -92,8 +92,6 @@ class PasscodePageState extends State<PasscodePage> {
       final uniqueFileNames = fileNames.toList();
       final uniqueBytes = bytes.toList();
 
-      Globals.fromLogin = true;
-
       Globals.fileValues.addAll(uniqueFileNames);
       Globals.foldValues.addAll(retrieveFolders);
       Globals.imageByteValues.addAll(uniqueBytes);

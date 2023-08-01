@@ -151,15 +151,12 @@ class DataCaller {
     final uniqueFileNames = fileNames.toList();
     final uniqueBytes = bytes.toList();
 
-    Globals.fromLogin = true;
-
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.imageByteValues.addAll(uniqueBytes);
     Globals.setDateValues.addAll(dates);
 
     Globals.filteredSearchedFiles.clear();
     Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
 
   }
 
@@ -231,14 +228,6 @@ class DataCaller {
     final nameList = dataList.map((data) => data['name'] as String).toList();
     final dateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
-
-    /*Globals.fileValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();*/
 
     Globals.fileValues.addAll(nameList);
     Globals.setDateValues.addAll(dateList);

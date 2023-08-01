@@ -243,7 +243,6 @@ class CakeHomeState extends State<Mainboard> {
     setState(() {});
 
     Globals.imageValues.addAll(newImageValues);
-    Globals.filteredSearchedImage.addAll(newFilteredSearchedImage);
     Globals.imageByteValues.addAll(newImageByteValues);
     Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
   }
@@ -258,7 +257,6 @@ class CakeHomeState extends State<Mainboard> {
     Globals.filteredSearchedFiles.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
   }
@@ -312,7 +310,7 @@ class CakeHomeState extends State<Mainboard> {
   void _openDeleteDialog(String fileName) {
     DeleteDialog().buildDeleteDialog( 
       fileName: fileName, 
-      onDeletePressed:() async => await _deleteFile(fileName, Globals.fileValues, Globals.filteredSearchedFiles, Globals.imageByteValues, Globals.imageValues, Globals.fromLogin, _onTextChanged),
+      onDeletePressed:() async => await _deleteFile(fileName, Globals.fileValues, Globals.filteredSearchedFiles, Globals.imageByteValues, Globals.imageValues, _onTextChanged),
       context: context
     );
   }
@@ -752,18 +750,15 @@ class CakeHomeState extends State<Mainboard> {
 
       setState(() {
         Globals.filteredSearchedFiles = filteredFiles;
-        Globals.filteredSearchedImage = filteredImageValues;
         Globals.filteredSearchedBytes = filteredByteValues;
 
         if (filteredFiles.isNotEmpty) {
           final index = Globals.fileValues.indexOf(filteredFiles.first);
-          leadingImageSearchedValue = Globals.fromLogin == false &&
-                  filteredImageValues.isNotEmpty &&
-                  filteredImageValues.length > index
-              ? Image.file(filteredImageValues[index])
-              : filteredByteValues.isNotEmpty && filteredByteValues.length > index
-                  ? Image.memory(filteredByteValues[index]!)
-                  : null;
+          leadingImageSearchedValue = 
+            filteredByteValues.isNotEmpty && filteredByteValues.length > index
+            ? Image.memory(filteredByteValues[index]!)
+            : null;
+
         } else {
           leadingImageSearchedValue = null;
         }
@@ -972,7 +967,6 @@ class CakeHomeState extends State<Mainboard> {
 
         isFromUpload = true;
         Globals.setDateValues.add("Directory");
-        Globals.filteredSearchedImage.add(directoryImage);
         Globals.imageByteValues.add(directoryImage.readAsBytesSync());
         Globals.filteredSearchedBytes.add(directoryImage.readAsBytesSync());
         Globals.imageValues.add(directoryImage);
@@ -1011,7 +1005,7 @@ class CakeHomeState extends State<Mainboard> {
 
   }
 
-  Future<void> _deleteFile(String fileName, List<String> fileValues, List<String> filteredSearchedFiles, List<Uint8List?> imageByteValues, List<File> imageValues, bool isFromLogin, Function onTextChanged) async {
+  Future<void> _deleteFile(String fileName, List<String> fileValues, List<String> filteredSearchedFiles, List<Uint8List?> imageByteValues, List<File> imageValues, Function onTextChanged) async {
 
     String extension = fileName.split('.').last;
 
@@ -1183,7 +1177,6 @@ class CakeHomeState extends State<Mainboard> {
 
     isFromSelectAll == true 
     ? setState(() {
-      Globals.fromLogin = true;
       if (indexOfFile >= 0 && indexOfFile < Globals.fileValues.length) {
         Globals.fileValues.removeAt(indexOfFile);
         Globals.filteredSearchedFiles.removeAt(indexOfFile);
@@ -1195,7 +1188,6 @@ class CakeHomeState extends State<Mainboard> {
     }) 
     
     : setState(() {
-      Globals.fromLogin = true;
       if (indexOfFile >= 0 && indexOfFile < Globals.fileValues.length) {
         Globals.fileValues.removeAt(indexOfFile);
         Globals.filteredSearchedFiles.removeAt(indexOfFile);
@@ -4158,16 +4150,14 @@ class CakeHomeState extends State<Mainboard> {
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) {
           
-          String originalText = Globals.setDateValues[index];
-          String cleanedText = originalText.split(' ').sublist(0, originalText.split(' ').length - 1).join(' ');
+          String originalDateValues = Globals.setDateValues[index];
+          String psFilesCategoryTags = originalDateValues.split(' ').sublist(0, originalDateValues.split(' ').length - 1).join(' ');
 
           final fileTitleSearchedValue = Globals.filteredSearchedFiles[index];
-          final setLeadingImageSearched = Globals.fromLogin == false &&
-                  Globals.filteredSearchedImage.length > index
-              ? Image.file(Globals.filteredSearchedImage[index])
-              : Globals.filteredSearchedBytes.length > index
-                  ? Image.memory(Globals.filteredSearchedBytes[index]!)
-                  : null;
+          final setLeadingImage = 
+          Globals.filteredSearchedBytes.isNotEmpty 
+          ? Image.memory(Globals.filteredSearchedBytes[index]!) 
+          : null;
     
           return InkWell(
             onLongPress: () {
@@ -4179,9 +4169,9 @@ class CakeHomeState extends State<Mainboard> {
             child: Ink(
               color: ThemeColor.darkBlack,
               child: ListTile(
-                leading: setLeadingImageSearched != null
+                leading: setLeadingImage != null
                   ? Image(
-                      image: setLeadingImageSearched.image,
+                      image: setLeadingImage.image,
                       fit: BoxFit.cover,
                       height: 31,
                       width: 31,
@@ -4209,7 +4199,7 @@ class CakeHomeState extends State<Mainboard> {
                     children: [
 
                       TextSpan(
-                        text: Globals.fileOrigin == "psFiles" ? cleanedText : Globals.setDateValues[index],
+                        text: Globals.fileOrigin == "psFiles" ? psFilesCategoryTags : Globals.setDateValues[index],
                         style: const TextStyle(
                           color: ThemeColor.secondaryWhite,
                           fontSize: 12.8,
@@ -4222,6 +4212,7 @@ class CakeHomeState extends State<Mainboard> {
                         text: " ${GlobalsData.psTagsValuesData[index]}",
                         style: TextStyle(
                           color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                          fontWeight: FontWeight.w500,
                           fontSize: 12.8,
                         ),
                     

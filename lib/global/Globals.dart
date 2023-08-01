@@ -25,8 +25,6 @@ class Globals {
   static String directoryTitleValue = '';
   static String selectedFileName = '';
 
-  static bool fromLogin = false;
-
   static List<String> fileValues = [];
   static List<File> imageValues = [];
   static List<String> foldValues = [];
@@ -35,7 +33,6 @@ class Globals {
   static List<String> setDateValues = <String>[];
 
   static List<String> filteredSearchedFiles = <String>[];
-  static List<File> filteredSearchedImage = <File>[];
   static List<Uint8List?> filteredSearchedBytes = <Uint8List?>[];
 
   static const String fileInfoTable = 'file_info';

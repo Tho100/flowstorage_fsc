@@ -95,7 +95,6 @@ class SignInUser {
       retrieveFolders.addAll(await FolderRetrieve().retrieveParams(custUsernameGetter));
     }
 
-    Globals.fromLogin = true;
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.foldValues.addAll(retrieveFolders);
     Globals.imageByteValues.addAll(uniqueBytes);

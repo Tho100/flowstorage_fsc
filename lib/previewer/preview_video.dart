@@ -213,7 +213,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                         builder: (BuildContext context, IconData value, Widget? child) {
                           return Icon(
                             value,
-                            size: 48,
+                            size: 40,
                             color: ThemeColor.secondaryWhite,
                           );
                         }

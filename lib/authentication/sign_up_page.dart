@@ -135,15 +135,12 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
     Globals.imageValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.filteredSearchedBytes.clear();
-    Globals.filteredSearchedImage.clear();              
     Globals.imageByteValues.clear();
     
     Globals.custUsername = custUsernameInput;
     Globals.custEmail = custEmailInput;
     Globals.fileOrigin = "homeFiles";
     Globals.accountType = "Basic";
-
-    Globals.fromLogin = true;
     
     final singleTextLoading = SingleTextLoading();
 

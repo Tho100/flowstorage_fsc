@@ -35,7 +35,6 @@ class CakeSignInPageState extends State<CakeSignInPage> {
     required String auth1
   }) async {
 
-    Globals.fromLogin = true;
     loginContext = context;
 
     final loginSetup = SignInUser();

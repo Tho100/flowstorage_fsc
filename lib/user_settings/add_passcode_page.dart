@@ -48,6 +48,18 @@ class AddPasscodePageState extends State<AddPasscodePage> {
       controller.clear();
     }
 
+    await Future.delayed(const Duration(milliseconds: 420));
+
+    if(!mounted) return;
+    NavigatePage.permanentPageMainboard(context);
+
+  }
+
+  void cancelPassCode() {
+    for (var controller in controllers) { 
+      controller.clear();
+    }
+    NavigatePage.permanentPageMainboard(context);
   }
 
   void processInput() async {
@@ -56,28 +68,14 @@ class AddPasscodePageState extends State<AddPasscodePage> {
 
       if(!mounted) return;
       CustomAlertDialog.alertDialogCustomOnPressed(
-
         messages: "Confrim passcode?", 
         oPressedEvent: () async { 
-
           await addPassCode();
-          await Future.delayed(const Duration(milliseconds: 420));
-
-          if(!mounted) return;
-          NavigatePage.permanentPageMainboard(context);
-
           return;
-
         }, 
         onCancelPressed: () {
-
-          for (var controller in controllers) { 
-            controller.clear();
-          }
-          NavigatePage.permanentPageMainboard(context);
-
+          cancelPassCode();
           return;
-
         },
         context: context
       );

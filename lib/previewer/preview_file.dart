@@ -287,7 +287,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       int indexOfFile = Globals.filteredSearchedFiles.indexOf(fileName);
 
       setState(() {
-        Globals.fromLogin = true;
         if (indexOfFile >= 0 && indexOfFile < Globals.fileValues.length) {
           Globals.fileValues.removeAt(indexOfFile);
           Globals.filteredSearchedFiles.removeAt(indexOfFile);
