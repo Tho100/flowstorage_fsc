@@ -120,7 +120,7 @@ class GlobalsStyle {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(
           width: 2.0,
-          color: Color.fromARGB(255, 6, 102, 226),
+          color: Colors.transparent//Color.fromARGB(255, 6, 102, 226),
         ),
       ),
     );

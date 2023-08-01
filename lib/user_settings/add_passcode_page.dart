@@ -24,6 +24,8 @@ class AddPasscodePageState extends State<AddPasscodePage> {
   final List<TextEditingController> controllers = List.generate(4, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
 
+  int currentActiveField = 0;
+
   Future<void> addPassCode() async {
 
     const storage = FlutterSecureStorage();
@@ -47,8 +49,6 @@ class AddPasscodePageState extends State<AddPasscodePage> {
     for (var controller in controllers) { 
       controller.clear();
     }
-
-    await Future.delayed(const Duration(milliseconds: 420));
 
     if(!mounted) return;
     NavigatePage.permanentPageMainboard(context);
@@ -108,20 +108,29 @@ class AddPasscodePageState extends State<AddPasscodePage> {
                   fontSize: 25,
                   fontWeight: FontWeight.w600
                 ),
-                autofocus: true,
+                obscureText: true,
+                autofocus: false,
                 controller: controllers[index],
                 focusNode: focusNodes[index],
+                readOnly: true,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
                 textAlign: TextAlign.center,
                 decoration: GlobalsStyle.setupTextFieldDecoration(""),
                 onChanged: (value) {
-                  if(value.isNotEmpty) {
-                    if(index < 3) {
-                      FocusScope.of(context).requestFocus(focusNodes[index+1]);
+                  if (value.isNotEmpty) {
+                    if (index < 3) {
+                      FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+                      currentActiveField = index + 1;
                     } else {
                       processInput();
                       focusNodes[index].unfocus();
+                    }
+                  } else {
+                    controllers[index].clear();
+                    if (index > 0) {
+                      FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+                      currentActiveField = index - 1;
                     }
                   }
                 },
@@ -130,8 +139,133 @@ class AddPasscodePageState extends State<AddPasscodePage> {
           ),
         ),
 
+        const Spacer(),
+
+        const SizedBox(height: 185),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            buildButtons("1", ""),
+            buildButtons("2", "ABC"),
+            buildButtons("3", "DEF"),
+          ],
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            buildButtons("4", "HIJ"),
+            buildButtons("5", "KLM"),
+            buildButtons("6", "NOP"),
+          ],
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            buildButtons("7", "QRS"),
+            buildButtons("8", "TUV"),
+            buildButtons("9", "XYZ"),
+          ],
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 118),
+            buildButtons("0", "*"),
+            buildEraseButton(),
+            const SizedBox(width: 35),
+          ],
+        ),
+
+        const Spacer(),
+
       ],
     );
+  }
+
+  Widget buildEraseButton() {
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: IconButton(
+        style: IconButton.styleFrom(
+          shape: const CircleBorder(),
+        ),
+        padding: EdgeInsets.zero,
+        onPressed: () {
+          updateBackSpace();
+        },
+        icon: const Icon(Icons.backspace_rounded, size: 30, color: ThemeColor.justWhite),
+      ),
+    );
+  }
+
+  Widget buildButtons(String input, String bottomInput) {
+    return SizedBox(
+      width: 82,
+      height: 82,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          backgroundColor: ThemeColor.darkBlack,
+          elevation: 0,
+          padding: EdgeInsets.zero
+        ),
+        onPressed: () {
+          setState(() {
+            updateCurrentFieldText(input);
+          });
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              input,
+              style: const TextStyle(
+                color: ThemeColor.justWhite,
+                fontSize: 34,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              bottomInput,
+              style: const TextStyle(
+                color: ThemeColor.thirdWhite,
+                fontWeight: FontWeight.w600,
+                fontSize: 17,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void updateBackSpace() {
+    controllers[currentActiveField].clear();
+    if (currentActiveField > 0) {
+      FocusScope.of(context).requestFocus(focusNodes[currentActiveField - 1]);
+      currentActiveField--;
+    }
+  }
+
+  void updateCurrentFieldText(String text) {
+    controllers[currentActiveField].text = text;
+    if (currentActiveField < 3) {
+      FocusScope.of(context).requestFocus(focusNodes[currentActiveField + 1]);
+      currentActiveField++;
+    } else {
+      processInput();
+      focusNodes[currentActiveField].unfocus();
+    }
   }
 
   @override 

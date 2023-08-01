@@ -203,7 +203,6 @@ class CakeHomeState extends State<Mainboard> {
   }) async {
 
     final List<File> newImageValues = [];
-    final List<File> newFilteredSearchedImage = [];
     final List<Uint8List> newImageByteValues = [];
     final List<Uint8List> newFilteredSearchedBytes = [];
 
