@@ -75,18 +75,17 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final retrieveData = RetrieveData();
   String fileType = '';
 
-  final double appBarHeight = 55.0;
   late String currentTable;
 
   final TextEditingController shareToController = TextEditingController();
   final TextEditingController commentController = TextEditingController();
   final TextEditingController textController = TextEditingController();
 
+  static final ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
+
   final ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
   final ValueNotifier<String> fileSizeNotifier = ValueNotifier<String>('');
   final ValueNotifier<String> fileResolutionNotifier = ValueNotifier<String>('');
-
-  static ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
   final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, GlobalsTable.psAudio, GlobalsTable.psText};
   final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homePdf, GlobalsTable.psText, GlobalsTable.psPdf};
@@ -95,7 +94,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   void initState() {
     super.initState();
     fileType = widget.fileType;
-    currentTable = ""; 
+    currentTable = Globals.fileOrigin != "homeFiles" 
+    ? Globals.fileTypesToTableNamesPs[fileType]! 
+    : Globals.fileTypesToTableNames[fileType]!;
   }
 
   @override
@@ -827,14 +828,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   @override
   Widget build(BuildContext context) {
-
-    currentTable = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType]! : Globals.fileTypesToTableNames[fileType]!;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: filesInfrontAppBar.contains(currentTable) ? false : true,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(appBarHeight),
+        preferredSize: const Size.fromHeight(55.0),
         child: GestureDetector(
           onTap: () {
             _copyAppBarTitle();

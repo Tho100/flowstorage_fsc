@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
@@ -9,7 +10,6 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -44,7 +44,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   late String sharingEnabledButton;
 
   final TextEditingController addPasswordController = TextEditingController();
-  final TextEditingController addPasscodeController = TextEditingController();
   
   @override
   void initState() {
@@ -186,131 +185,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Confirm'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-              const SizedBox(height: 15),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _addPasscode() async {
-
-    try {
-
-      if(addPasscodeController.text.isEmpty) {
-        return;
-      }
-
-      final passcodeInput = addPasscodeController.text;
-
-      const storage = FlutterSecureStorage();
-      await storage.write(key: "key0015",value: passcodeInput);
-
-      if(!mounted) return;
-      CustomAlertDialog.alertDialogTitle("Passcode Added", "You have set a passcode that will be required each time you open the app.\n\nYou can remove the passcode by re-signing to your account.", context);
-
-    } catch (err, st) {
-      Logger().e("Exception from _addPasscode {SettingsMenu}", err, st);
-      CustomAlertDialog.alertDialogTitle("An error occurred", "Please try again.", context);
-    }
-
-  }
-
-  Future _buildAddPasscodeDialog() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: ThemeColor.darkBlack,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(18.0),
-                    child: Text(
-                      "Passcode",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
-                  ),
-                  child: TextFormField(
-                    style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
-                    enabled: true,
-                    keyboardType: TextInputType.number,
-                    maxLength: 4,
-                    controller: addPasscodeController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter passcode (4 Digits)")
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            addPasscodeController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Close'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if(addPasscodeController.text.length == 4) {
-                              _addPasscode();
-                            }
-                          },
-                          style: GlobalsStyle.btnMainStyle,
                           child: const Text('Confirm'),
                         ),
                       ),
@@ -655,7 +529,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "Add Passcode", 
               bottomText: "Require to enter passcode before allowing to open Flowstorage", 
               onPressed: () async {
-                _buildAddPasscodeDialog();
+                NavigatePage.goToAddPasscodePage(context);
               }
             ),
 
@@ -693,18 +567,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "Clear cache", 
               bottomText: "Clear Flowstorage cache", 
               onPressed: () {
-
                 _clearAppCache();
-
-                Fluttertoast.showToast(
-                  msg: "Cache cleared",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: ThemeColor.lightGrey.withOpacity(0.5),
-                  textColor: Colors.white,
-                  fontSize: 16.0
-                );
+                CallToast.call(message: "Cache cleared.");
               }
             ),
 

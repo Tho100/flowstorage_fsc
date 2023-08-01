@@ -2106,14 +2106,6 @@ class CakeHomeState extends State<Mainboard> {
                     ),
 
                     _buildSidebarButtons(
-                      title: "Backup recovery key",
-                      icon: Icons.key_outlined,
-                      onPressed: () {
-                        NavigatePage.goToPageBackupRecovery(context);
-                      }
-                    ),
-
-                    _buildSidebarButtons(
                       title: "Offline",
                       icon: Icons.offline_bolt_outlined,
                       onPressed: () async {

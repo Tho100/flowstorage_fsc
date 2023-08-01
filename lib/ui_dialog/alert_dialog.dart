@@ -59,4 +59,43 @@ class CustomAlertDialog {
     );
   }
 
+  static Future alertDialogCustomOnPressed({
+    required String messages, 
+    required VoidCallback oPressedEvent, 
+    required VoidCallback onCancelPressed,
+    required BuildContext context
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ThemeColor.darkGrey,
+          content: Text(messages,
+            style: const TextStyle(
+              color: Colors.white
+            )),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onCancelPressed,
+              child: const Text('Cancel',
+                style: TextStyle(
+                  color: ThemeColor.secondaryWhite
+                )
+              ),
+            ),
+            TextButton(
+              onPressed: oPressedEvent,
+              child: const Text('Confirm',
+                style: TextStyle(
+                  color: ThemeColor.darkPurple
+                )
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

@@ -52,11 +52,11 @@ class PasscodePageState extends State<PasscodePage> {
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
 
       final tablesToCheck = [
+        ...dirLists,
         GlobalsTable.homeImage, GlobalsTable.homeText, 
         GlobalsTable.homePdf, GlobalsTable.homeExcel, 
         GlobalsTable.homeVideo, GlobalsTable.homeAudio,
-        GlobalsTable.homePtx, GlobalsTable.homeWord,
-        ...dirLists
+        GlobalsTable.homePtx, GlobalsTable.homeWord
       ];
 
       final futures = tablesToCheck.map((table) async {
