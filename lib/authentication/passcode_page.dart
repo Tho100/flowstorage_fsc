@@ -12,7 +12,6 @@ import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
-import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 
 import 'package:flutter/material.dart';
@@ -166,57 +165,72 @@ class PasscodePageState extends State<PasscodePage> {
 
   Widget buildPassCode() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
 
-        const Padding(
-          padding: EdgeInsets.only(left: 28.0),
-          child: HeaderText(title: "Passcode", subTitle: "Enter your passcode to unlock Flowstorage"),
-        ),
+        const SizedBox(height: 90),
 
-        const SizedBox(height: 25),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(
-            4,
-            (index) => SizedBox(
-              width: 65,
-              child: TextFormField(
-                style: const TextStyle(
-                  color: ThemeColor.justWhite,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600
-                ),
-                autofocus: false,
-                obscureText: true,
-                controller: controllers[index],
-                focusNode: focusNodes[index],
-                readOnly: true,
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                textAlign: TextAlign.center,
-                decoration: GlobalsStyle.setupTextFieldDecoration(""),
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    if (index < 3) {
-                      FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-                      currentActiveField = index + 1;
-                    } else {
-                      processInput();
-                      focusNodes[index].unfocus();
-                    }
-                  } else {
-                    controllers[index].clear();
-                    if (index > 0) {
-                      FocusScope.of(context).requestFocus(focusNodes[index - 1]);
-                      currentActiveField = index - 1;
-                    }
-                  }
-                },
-              ),
+        const Center(
+          child: Text(
+            "Enter your passcode",
+            style: TextStyle(
+              color: ThemeColor.darkPurple,
+              fontSize: 20,
+              fontWeight: FontWeight.w600
             ),
           ),
         ),
+
+        const SizedBox(height: 70),
+
+        Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              4,
+              (index) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: SizedBox(
+                  width: 35,
+                  height: 35,
+                  child: TextFormField(
+                    style: const TextStyle(
+                      color: ThemeColor.darkPurple,
+                      fontSize: 99,
+                      fontWeight: FontWeight.w600
+                    ),
+                    autofocus: false,
+                    obscureText: true,
+                    controller: controllers[index],
+                    focusNode: focusNodes[index],
+                    readOnly: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 1,
+                    textAlign: TextAlign.center,
+                    decoration: GlobalsStyle.setupPasscodeFieldDecoration(),
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        if (index < 3) {
+                          FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+                          currentActiveField = index + 1;
+                        } else {
+                          processInput();
+                          focusNodes[index].unfocus();
+                        }
+                      } else {
+                        controllers[index].clear();
+                        if (index > 0) {
+                          FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+                          currentActiveField = index - 1;
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
 
         const Spacer(),
 
@@ -236,9 +250,9 @@ class PasscodePageState extends State<PasscodePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            buildButtons("4", "HIJ"),
-            buildButtons("5", "KLM"),
-            buildButtons("6", "NOP"),
+            buildButtons("4", "GHI"),
+            buildButtons("5", "JKL"),
+            buildButtons("6", "MNO"),
           ],
         ),
 
@@ -246,9 +260,9 @@ class PasscodePageState extends State<PasscodePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            buildButtons("7", "QRS"),
+            buildButtons("7", "PQRS"),
             buildButtons("8", "TUV"),
-            buildButtons("9", "XYZ"),
+            buildButtons("9", "WXYZ"),
           ],
         ),
 
@@ -256,12 +270,13 @@ class PasscodePageState extends State<PasscodePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(width: 118),
+            buildButtons("", ""),
             buildButtons("0", "*"),
             buildEraseButton(),
-            const SizedBox(width: 35),
           ],
         ),
+
+        const SizedBox(height: 40),
 
         const Spacer(),
 
@@ -271,8 +286,8 @@ class PasscodePageState extends State<PasscodePage> {
 
   Widget buildEraseButton() {
     return SizedBox(
-      width: 40,
-      height: 40,
+      width: 82,
+      height: 82,
       child: IconButton(
         style: IconButton.styleFrom(
           shape: const CircleBorder(),
