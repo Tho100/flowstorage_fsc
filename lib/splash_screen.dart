@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
+import 'package:flowstorage_fsc/data_classes/user_data_retriever.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
@@ -35,6 +36,8 @@ class SplashScreenState extends State<SplashScreen> {
   final nameGetterStartup = NameGetter();
   final dataGetterStartup = DataRetriever();
   final dateGetterStartup = DateGetter();
+  final accountInformationRetriever = UserDataRetriever();
+
   final crud = Crud();
   
   Timer? _timer;
@@ -144,6 +147,9 @@ class SplashScreenState extends State<SplashScreen> {
       Globals.custUsername = savedCustUsername;
       Globals.custEmail = savedCustEmail;
       Globals.accountType = savedAccountType;
+
+      final accountType = await accountInformationRetriever.retrieveAccountType(email: savedCustEmail);
+      Globals.accountType = accountType;
 
       final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);

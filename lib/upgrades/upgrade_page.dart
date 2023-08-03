@@ -511,7 +511,7 @@ class _UpgradePage extends State<UpradePage> {
 
       singleLoading.startLoading(title: "Validating...",context: context);
 
-      final returnedEmail = await StripeCustomers.getCustomersEmails();
+      final returnedEmail = await StripeCustomers.getCustomersEmails("");
 
       singleLoading.stopLoading();
 
@@ -523,7 +523,7 @@ class _UpgradePage extends State<UpradePage> {
         final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
       
         await updateUserAccountPlan(returnedId);
-        await StripeCustomers.deleteEmailByEmail(Globals.custEmail);
+        //await StripeCustomers.deleteEmailByEmail(Globals.custEmail);
 
         Globals.accountType = userChoosenPlan;      
 

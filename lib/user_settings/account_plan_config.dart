@@ -1,8 +1,8 @@
 class AccountPlan {
 
   static const int supremeLimitedNumber = 2000;
-  static const int expressLimitedNumber = 1000;
-  static const int maxLimitedNumber = 500;
+  static const int expressLimitedNumber = 800;
+  static const int maxLimitedNumber = 150;
   static const int basicLimitedNumber = 25;
 
   static const int supremeLimitedNumberFolder = 20;

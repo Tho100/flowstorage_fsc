@@ -4,6 +4,7 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
+import 'package:flowstorage_fsc/data_classes/user_data_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -39,6 +40,7 @@ class PasscodePageState extends State<PasscodePage> {
   final fileNameGetterStartup = NameGetter();
   final dataGetterStartup = DataRetriever();
   final dateGetterStartup = DateGetter();
+  final accountInformationRetriever = UserDataRetriever();
 
   final crud = Crud();
 
@@ -48,6 +50,9 @@ class PasscodePageState extends State<PasscodePage> {
 
       Globals.fileOrigin = "homeFiles";
       Globals.custUsername = savedCustUsername;
+      
+      final accountType = await accountInformationRetriever.retrieveAccountType(email: savedCustEmail);
+      Globals.accountType = accountType;
 
       final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);

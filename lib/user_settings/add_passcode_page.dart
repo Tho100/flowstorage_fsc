@@ -69,6 +69,7 @@ class AddPasscodePageState extends State<AddPasscodePage> {
       CustomAlertDialog.alertDialogCustomOnPressed(
         messages: "Confrim passcode?", 
         oPressedEvent: () async { 
+          Navigator.pop(context);
           await addPassCode();
           return;
         }, 
@@ -94,7 +95,7 @@ class AddPasscodePageState extends State<AddPasscodePage> {
 
         const Center(
           child: Text(
-            "Enter your passcode",
+            "Add new passcode",
             style: TextStyle(
               color: ThemeColor.darkPurple,
               fontSize: 20,

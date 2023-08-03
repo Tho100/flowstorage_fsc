@@ -735,12 +735,6 @@ class CakeHomeState extends State<Mainboard> {
         return searchTerms.any((term) => file.toLowerCase().contains(term));
       }).toList();
 
-      final filteredImageValues = Globals.imageValues.where((image) {
-        final index = Globals.imageValues.indexOf(image);
-        final file = Globals.fileValues[index];
-        return searchTerms.any((term) => file.toLowerCase().contains(term));
-      }).toList();
-
       final filteredByteValues = Globals.imageByteValues.where((bytes) {
         final index = Globals.imageByteValues.indexOf(bytes);
         final file = Globals.fileValues[index];
