@@ -4237,8 +4237,8 @@ class CakeHomeState extends State<Mainboard> {
             children: [
              Expanded(
                child: Container(
-                width: 86,
-                height: 86,
+                width: 89,
+                height: 89,
                 decoration: const BoxDecoration(
                   color: Colors.transparent,
                 ),
@@ -4260,8 +4260,8 @@ class CakeHomeState extends State<Mainboard> {
                 maxLines: 1,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 2),
               if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
+              const SizedBox(height: 6),
               Visibility(
                 visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
                 child: Text(
@@ -4272,7 +4272,11 @@ class CakeHomeState extends State<Mainboard> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 2),
+
+              Globals.fileOrigin == "psFiles"
+              ? const SizedBox(height: 10) 
+              : const SizedBox(height: 2),
+
             ],
           ),
         ),

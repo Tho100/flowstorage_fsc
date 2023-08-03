@@ -96,7 +96,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
       audioPlayerController.play();
 
-      iconPausePlayNotifier.value = Icons.pause_rounded;
+      iconPausePlayNotifier.value = Icons.pause;
 
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
         if (audioPlayerController.playing) {
@@ -113,7 +113,7 @@ class PreviewAudioState extends State<PreviewAudio> {
           if(isKeepPlayingEnabledNotifier.value == true) {
             audioPlayerController.seek(Duration.zero);
             audioPlayerController.play();
-            iconPausePlayNotifier.value = Icons.pause_rounded;
+            iconPausePlayNotifier.value = Icons.pause;
           }
         }
       });
@@ -222,13 +222,13 @@ class PreviewAudioState extends State<PreviewAudio> {
                 if(value == Icons.replay_rounded) {
                   await audioPlayerController.seek(Duration.zero);
                   audioPlayerController.play();
-                  iconPausePlayNotifier.value = Icons.pause_rounded;
+                  iconPausePlayNotifier.value = Icons.pause;
                 } else {
                   byteAudio = await callAudioDataAsync();
                   await playOrPauseAudioAsync();
                 }
               },
-              icon: Icon(value, color: ThemeColor.darkPurple, size: 50),
+              icon: Icon(value, color: ThemeColor.darkPurple, size: 45),
             ),
           );
         },
@@ -341,13 +341,13 @@ class PreviewAudioState extends State<PreviewAudio> {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        ThemeColor.secondaryWhite,
-                        ThemeColor.darkPurple,
-                      ],
-                    ),
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      ThemeColor.secondaryWhite,
+                      ThemeColor.darkPurple,
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),

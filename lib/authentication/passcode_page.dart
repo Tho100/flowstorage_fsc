@@ -174,14 +174,14 @@ class PasscodePageState extends State<PasscodePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
 
-        const SizedBox(height: 90),
+        const SizedBox(height: 100),
 
         const Center(
           child: Text(
-            "Enter your passcode",
+            "Enter Passcode",
             style: TextStyle(
               color: ThemeColor.darkPurple,
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w600
             ),
           ),
@@ -190,53 +190,52 @@ class PasscodePageState extends State<PasscodePage> {
         const SizedBox(height: 70),
 
         Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              4,
-              (index) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: SizedBox(
-                  width: 35,
-                  height: 35,
-                  child: TextFormField(
-                    style: const TextStyle(
-                      color: ThemeColor.darkPurple,
-                      fontSize: 99,
-                      fontWeight: FontWeight.w600
-                    ),
-                    autofocus: false,
-                    obscureText: true,
-                    controller: controllers[index],
-                    focusNode: focusNodes[index],
-                    readOnly: true,
-                    keyboardType: TextInputType.number,
-                    maxLength: 1,
-                    textAlign: TextAlign.center,
-                    decoration: GlobalsStyle.setupPasscodeFieldDecoration(),
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        if (index < 3) {
-                          FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-                          currentActiveField = index + 1;
-                        } else {
-                          processInput();
-                          focusNodes[index].unfocus();
-                        }
-                      } else {
-                        controllers[index].clear();
-                        if (index > 0) {
-                          FocusScope.of(context).requestFocus(focusNodes[index - 1]);
-                          currentActiveField = index - 1;
-                        }
-                      }
-                    },
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: List.generate(
+            4,
+            (index) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: TextFormField(
+                  style: const TextStyle(
+                    color: ThemeColor.darkPurple,
+                    fontSize: 118,
+                    fontWeight: FontWeight.w600
                   ),
+                  autofocus: false,
+                  obscureText: true,
+                  controller: controllers[index],
+                  focusNode: focusNodes[index],
+                  readOnly: true,
+                  keyboardType: TextInputType.number,
+                  maxLength: 1,
+                  decoration: GlobalsStyle.setupPasscodeFieldDecoration(),
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      if (index < 3) {
+                        FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+                        currentActiveField = index + 1;
+                      } else {
+                        processInput();
+                        focusNodes[index].unfocus();
+                      }
+                    } else {
+                      controllers[index].clear();
+                      if (index > 0) {
+                        FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+                        currentActiveField = index - 1;
+                      }
+                    }
+                  },
                 ),
               ),
             ),
           ),
+        ),
       
-
         const Spacer(),
 
         const SizedBox(height: 185),
@@ -281,7 +280,7 @@ class PasscodePageState extends State<PasscodePage> {
           ],
         ),
 
-        const SizedBox(height: 40),
+        const SizedBox(height: 18),
 
         const Spacer(),
 

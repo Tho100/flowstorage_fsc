@@ -142,7 +142,7 @@ class _UpgradePage extends State<UpradePage> {
                 const SizedBox(height: 25),
                 _buildPriceTag("3"),
                 const SizedBox(height: 35),
-                _buildSecondHeader("Upload up to 500 files!"),
+                _buildSecondHeader("Upload up to 150 files!"),
 
                 const SizedBox(height: 15),
 
@@ -241,7 +241,7 @@ class _UpgradePage extends State<UpradePage> {
                 const SizedBox(height: 25),
                 _buildPriceTag("8"),
                 const SizedBox(height: 35),
-                _buildSecondHeader("Upload up to 1000 files!"),
+                _buildSecondHeader("Upload up to 800 files!"),
 
                 const SizedBox(height: 15),
 
@@ -523,7 +523,6 @@ class _UpgradePage extends State<UpradePage> {
         final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
       
         await updateUserAccountPlan(returnedId);
-        //await StripeCustomers.deleteEmailByEmail(Globals.custEmail);
 
         Globals.accountType = userChoosenPlan;      
 

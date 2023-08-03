@@ -128,12 +128,12 @@ class GlobalsStyle {
 
   static InputDecoration setupPasscodeFieldDecoration() {
     return InputDecoration(
-      contentPadding: const EdgeInsets.fromLTRB(-0.5, -85.0, 5.0, 10.0),
+      contentPadding: const EdgeInsets.fromLTRB(-2.0, -72.0, 0.0, -18.0),
       hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
       fillColor: ThemeColor.darkBlack,
       filled: true,
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(25.0),
+        borderRadius: BorderRadius.circular(35.0), 
         borderSide: const BorderSide(
           color: ThemeColor.darkPurple,
           width: 2.0,
@@ -141,10 +141,10 @@ class GlobalsStyle {
       ),
       counterText: '',
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(80),
+        borderRadius: BorderRadius.circular(35.0),
         borderSide: const BorderSide(
           width: 2.0,
-          color: ThemeColor.darkPurple
+          color: ThemeColor.darkPurple,
         ),
       ),
     );

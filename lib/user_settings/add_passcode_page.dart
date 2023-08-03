@@ -91,14 +91,14 @@ class AddPasscodePageState extends State<AddPasscodePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
 
-        const SizedBox(height: 90),
+        const SizedBox(height: 100),
 
         const Center(
           child: Text(
             "Add new passcode",
             style: TextStyle(
               color: ThemeColor.darkPurple,
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w600
             ),
           ),
@@ -111,16 +111,16 @@ class AddPasscodePageState extends State<AddPasscodePage> {
           children: List.generate(
             4,
             (index) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: SizedBox(
-                  width: 35,
-                  height: 35,
-                  child: TextFormField(
-                    style: const TextStyle(
-                      color: ThemeColor.darkPurple,
-                      fontSize: 99,
-                      fontWeight: FontWeight.w600
-                    ),
+                width: 40,
+                height: 40,
+                child: TextFormField(
+                  style: const TextStyle(
+                    color: ThemeColor.darkPurple,
+                    fontSize: 118,
+                    fontWeight: FontWeight.w600
+                  ),
                   obscureText: true,
                   autofocus: false,
                   controller: controllers[index],
@@ -197,7 +197,7 @@ class AddPasscodePageState extends State<AddPasscodePage> {
           ],
         ),
 
-        const SizedBox(height: 40),
+        const SizedBox(height: 18),
 
         const Spacer(),
 
