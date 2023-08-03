@@ -11,20 +11,17 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 class ResetBackup extends StatefulWidget {
 
-  late String username;
-  
-  ResetBackup({
+  final String username; 
+
+  const ResetBackup({
     Key? key,
     required this.username,
-  }) : super (key: key) {
-    thisUsername = username;
-  }
-
-  String thisUsername = '';
+  }) : super(key: key);
 
   @override
   State<ResetBackup> createState() => _ResetBackupState();
 }
+
 
 class _ResetBackupState extends State<ResetBackup> {
   final TextEditingController emailController = TextEditingController();
@@ -196,7 +193,9 @@ class _ResetBackupState extends State<ResetBackup> {
         if(!mounted) return;
         Navigator.push(
           context, 
-          MaterialPageRoute(builder: (context) => ResetAuthentication(username: widget.thisUsername, email: email)));
+          MaterialPageRoute(builder: (context) => 
+          ResetAuthentication(custUsername: widget.username, 
+                              custEmail: email)));
       }
 
     } catch (exportBackupFailed) {

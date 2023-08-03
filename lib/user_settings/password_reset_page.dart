@@ -9,29 +9,23 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 class ResetAuthentication extends StatefulWidget {
 
-  late String username;
-  late String email;
-
   final curPassController = TextEditingController();
   final newPassController = TextEditingController();
 
-  String custUsername = '';
-  String custEmail = '';
+  final String custUsername;
+  final String custEmail;
 
   ResetAuthentication({
     Key? key,
-    required this.username,
-    required this.email,
-  }) : super (key: key) {
-    custUsername = username;
-    custEmail = email;
-  }
+    required this.custUsername,
+    required this.custEmail,
+  }) : super (key: key);
 
   @override
-  State<ResetAuthentication> createState() => _ResetAuthenticationState();
+  State<ResetAuthentication> createState() => ResetAuthenticationState();
 }
 
-class _ResetAuthenticationState extends State<ResetAuthentication> {
+class ResetAuthenticationState extends State<ResetAuthentication> {
 
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, bool isPin) {
 

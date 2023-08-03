@@ -101,38 +101,34 @@ class StripeCustomers {
 
   static Future<void> cancelCustomerSubscriptionByEmail(String email) async {
 
-    try {
+    const apiKey = 'sk_test_51MO4YYF2lxRV33xsBfTJLQypyLBjhoxYdz18VoLrZZ6hin4eJrAV9O6NzduqR02vosmC4INFgBgxD5TkrkpM3sZs00hqhx3ZzN';
+    
+    final subscriptions = await getCustomerSubscriptionsByEmail(email);
 
-      const apiKey = 'sk_test_51MO4YYF2lxRV33xsBfTJLQypyLBjhoxYdz18VoLrZZ6hin4eJrAV9O6NzduqR02vosmC4INFgBgxD5TkrkpM3sZs00hqhx3ZzN';
+    if (subscriptions.isNotEmpty) {
       
-      final subscriptions = await getCustomerSubscriptionsByEmail(email);
+      final subscriptionId = subscriptions[0]['id'];
 
-      if (subscriptions.isNotEmpty) {
-        
-        final subscriptionId = subscriptions[0]['id'];
+      final cancelUrl = Uri.https('api.stripe.com', '/v1/subscriptions/$subscriptionId');
+      final headers = {
+        'Authorization': 'Bearer $apiKey',
+      };
 
-        final cancelUrl = Uri.https('api.stripe.com', '/v1/subscriptions/$subscriptionId');
-        final headers = {
-          'Authorization': 'Bearer $apiKey',
-        };
-
-        final cancelData = {
-          'cancel_at_period_end': true,
-        };
-        
-        final cancelResponse = await http.delete(cancelUrl, headers: headers, body: jsonEncode(cancelData));
-        
-        if (cancelResponse.statusCode == 200) {
-          Globals.accountType = "Basic";
-        } else {
-          print('Failed to cancel subscription: ${cancelResponse.body}');
-        }
+      final cancelData = {
+        'cancel_at_period_end': true,
+      };
+      
+      final cancelResponse = await http.delete(cancelUrl, headers: headers, body: jsonEncode(cancelData));
+      
+      if (cancelResponse.statusCode == 200) {
+        Globals.accountType = "Basic";
       } else {
-        print('No active subscriptions found for the customer.');
+        return;
       }
-    } catch (e) {
-      print('Error: $e');
+    } else {
+      return;
     }
+  
   }
 
   static Future<void> deleteEmailByEmail(String email) async {

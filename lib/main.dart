@@ -3329,7 +3329,8 @@ class CakeHomeState extends State<Mainboard> {
           ]
         ),
 
-        const Divider(color: ThemeColor.thirdWhite,height: 0),
+        const Divider(color: ThemeColor.whiteGrey, height: 0),
+        
       ],
     );
   }
@@ -3996,11 +3997,11 @@ class CakeHomeState extends State<Mainboard> {
         child: ListView(
           shrinkWrap: true,
           children: [
-
+            
             Visibility(
               visible: Globals.fileValues.isEmpty,
               child: SizedBox(
-                height: MediaQuery.of(context).size.height-355,
+                height: MediaQuery.of(context).size.height-375,
                 child: const Center(
                   child: Text(
                     "It's empty here...",
