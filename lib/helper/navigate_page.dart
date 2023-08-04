@@ -3,6 +3,7 @@ import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flowstorage_fsc/user_settings/add_passcode_page.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
+import 'package:flowstorage_fsc/user_settings/my_plan_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_username_page.dart';
 import 'package:flutter/material.dart';
@@ -141,6 +142,13 @@ class NavigatePage {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const BackupRecovery())
+    );
+  }
+
+  static void goToPageMyPlan(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyPlanPage())
     );
   }
 

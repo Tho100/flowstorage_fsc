@@ -39,7 +39,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
-import 'package:flowstorage_fsc/directory_query/count_directory.dart';
 import 'package:flowstorage_fsc/directory_query/delete_directory.dart';
 import 'package:flowstorage_fsc/directory_query/rename_directory.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
@@ -3204,7 +3203,7 @@ class CakeHomeState extends State<Mainboard> {
                   visible: value,
                   child: ElevatedButton(
                     onPressed: () async {
-                      final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
+                      final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
                       if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                         if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
                           _buildCreateDirectoryDialog();
@@ -3604,7 +3603,7 @@ class CakeHomeState extends State<Mainboard> {
               visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles","offlineFiles"]),
               child: ElevatedButton(
               onPressed: () async {
-                final countDirectory = await CountDirectory.countTotalDirectory(Globals.custUsername);
+                final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
                 if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
 
@@ -4335,6 +4334,7 @@ class CakeHomeState extends State<Mainboard> {
 
   @override 
   void dispose() {
+
     debounceSearchingTimer!.cancel();
     searchBarFocusNode.dispose();
     searchBarController.dispose();
@@ -4344,6 +4344,15 @@ class CakeHomeState extends State<Mainboard> {
     shareController.dispose();
     commentController.dispose();
     folderRenameController.dispose();
+
+    homeButtonVisible.dispose();
+    staggeredListViewSelected.dispose();
+    floatingActionButtonVisible.dispose();
+    navDirectoryButtonVisible.dispose();
+    selectAllItemsIconNotifier.dispose();
+    selectAllItemsIconNotifier.dispose();
+    ascendingDescendingIconNotifier.dispose();
+
     super.dispose();
   }
 

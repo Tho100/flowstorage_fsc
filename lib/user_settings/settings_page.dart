@@ -6,7 +6,6 @@ import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/upgrades/customers_dashboard.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -582,31 +581,10 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                   const SizedBox(height: 10),
                   
                   _buildRowWithButtons(
-                    topText: "Cancel plan", 
-                    bottomText: "Cancel your subscription plan", 
+                    topText: "My plan", 
+                    bottomText: "See your subscription plan details", 
                     onPressed: () async {
-                      CustomAlertDialog.alertDialogCustomOnPressed(
-                        messages: "Are you sure you want to cancel your subscription plan? \n\nYour account will downgraded to Basic from ${Globals.accountType} and you'll no longer be charged.", 
-                        oPressedEvent: () async {
-
-                          await StripeCustomers.
-                          cancelCustomerSubscriptionByEmail(Globals.custEmail);
-
-                          if(!mounted) return;
-                          Navigator.pop(context);
-
-                          CustomAlertDialog.alertDialogTitle(
-                            "Subscription plan cancelled successfully", 
-                            "Thank you for being previously a part of our customer!", 
-                            context
-                          );
-
-                        }, 
-                        onCancelPressed: () {
-                          Navigator.pop(context);
-                        }, 
-                        context: context
-                      );
+                      NavigatePage.goToPageMyPlan(context);
                     }
                   ),
                 ],

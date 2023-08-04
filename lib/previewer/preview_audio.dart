@@ -29,12 +29,12 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   final ValueNotifier<Color> keepPlayingIconColorNotifier = ValueNotifier<Color>(ThemeColor.thirdWhite);
   final ValueNotifier<bool> isKeepPlayingEnabledNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<String> currentAudioDuration = ValueNotifier<String>("0:00");
 
   final AudioPlayer audioPlayerController = AudioPlayer();  
   final RetrieveData retrieveData = RetrieveData();
 
   String audioDuration = "0:00";
-  ValueNotifier<String> currentAudioDuration = ValueNotifier<String>("0:00");
 
   bool isPressedPlayedOnFirstTry = false;
   bool audioIsPlaying = false;
