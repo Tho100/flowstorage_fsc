@@ -422,6 +422,10 @@ class PreviewAudioState extends State<PreviewAudio> {
   void dispose(){
     CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     audioPlayerController.dispose();
+    audioPositionNotifier.dispose();
+    iconPausePlayNotifier.dispose();
+    keepPlayingIconColorNotifier.dispose();
+    isKeepPlayingEnabledNotifier.dispose();
     sliderValueController.close();
     super.dispose();
   }

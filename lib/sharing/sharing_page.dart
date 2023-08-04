@@ -27,10 +27,10 @@ class SharingPage extends StatefulWidget {
   const SharingPage({super.key});
 
   @override
-  State<SharingPage> createState() => _SharingPage();
+  State<SharingPage> createState() => SharingPageState();
 }
 
-class _SharingPage extends State<SharingPage> {
+class SharingPageState extends State<SharingPage> {
 
   File? selectedFilePath;  
 
@@ -40,7 +40,7 @@ class _SharingPage extends State<SharingPage> {
   late String selectedFileName = "";
   late List<int> videoThumbnail = [];
 
-  final ValueNotifier<bool> previewerIsVisible = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> previewerIsVisibleNotifier = ValueNotifier<bool>(false);
 
   final shareToController = TextEditingController();
   final commentController = TextEditingController(text: '');
@@ -83,8 +83,8 @@ class _SharingPage extends State<SharingPage> {
     if (supportedExtensions) {
 
       fileExtensionToType = "";
-      previewerIsVisible.value = false;
-      videoThumbnail = [];
+      previewerIsVisibleNotifier.value = false;
+      videoThumbnail.clear();
 
       if (Globals.videoType.contains(extension)) {
 
@@ -96,7 +96,7 @@ class _SharingPage extends State<SharingPage> {
 
         videoThumbnail = thumbnailBytes!;
         fileBase64Encoded = base64.encode(file.readAsBytesSync());
-        previewerIsVisible.value = true;
+        previewerIsVisibleNotifier.value = true;
 
       } else if (Globals.imageType.contains(extension)) {
 
@@ -109,12 +109,12 @@ class _SharingPage extends State<SharingPage> {
           fileBase64Encoded = base64.encode(compressedImage.readAsBytesSync());
         });
 
-        previewerIsVisible.value = true;
+        previewerIsVisibleNotifier.value = true;
 
       } else {
 
         fileExtensionToType = mapFileType[extension]!;
-        previewerIsVisible.value = true;
+        previewerIsVisibleNotifier.value = true;
         fileBase64Encoded = base64.encode(file.readAsBytesSync());
         
       }
@@ -231,7 +231,7 @@ class _SharingPage extends State<SharingPage> {
 
   Widget _buildPreviewer(String encodedValues) {
     return ValueListenableBuilder<bool>(
-      valueListenable: previewerIsVisible,
+      valueListenable: previewerIsVisibleNotifier,
       builder: (BuildContext context, bool value, Widget? child) {
         return Visibility(
           visible: value,
@@ -347,6 +347,7 @@ class _SharingPage extends State<SharingPage> {
   void dispose() {
     shareToController.dispose();
     commentController.dispose();
+    previewerIsVisibleNotifier.dispose();
     super.dispose();
   }
 

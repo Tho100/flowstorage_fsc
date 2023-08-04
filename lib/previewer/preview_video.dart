@@ -21,8 +21,11 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final ValueNotifier<IconData> iconPausePlay = ValueNotifier<IconData>(Icons.play_arrow);
-  final ValueNotifier<bool> videoIsTapped = ValueNotifier(false);
+  final ValueNotifier<IconData> iconPausePlayNotifier= ValueNotifier<IconData>(Icons.play_arrow);
+  final ValueNotifier<bool> videoIsTappedNotifier = ValueNotifier(false);
+  final ValueNotifier<String> videoDurationNotifier = ValueNotifier<String>("0:00");
+  final ValueNotifier<String> currentVideoDurationNotifier = ValueNotifier<String>("0:00");
+
   final Duration endThreshold = const Duration(milliseconds: 200);
   
   bool videoIsPlaying = false;
@@ -35,9 +38,6 @@ class PreviewVideoState extends State<PreviewVideo> {
   late Size? videoSize;
 
   late Uint8List videoBytes = Uint8List(0);
-
-  ValueNotifier<String> videoDurationNotifier = ValueNotifier<String>("0:00");
-  ValueNotifier<String> currentVideoDurationNotifier = ValueNotifier<String>("0:00");
 
   Future<void> initializeVideoPlayer(String videoUrl, {bool autoPlay = false}) async {
 
@@ -58,7 +58,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     videoSize = videoPlayerController.value.size;
     videoDurationNotifier.value = getDurationString(videoPlayerController.value.duration);
 
-    videoIsTapped.value = true;
+    videoIsTappedNotifier.value = true;
     videoPlayerController.addListener(videoPlayerListener);
 
   }
@@ -189,11 +189,11 @@ class PreviewVideoState extends State<PreviewVideo> {
                         
                         buttonPlayPausePressed = !buttonPlayPausePressed;
 
-                        if(iconPausePlay.value == Icons.replay) {
-                          iconPausePlay.value = Icons.pause;
+                        if(iconPausePlayNotifier.value == Icons.replay) {
+                          iconPausePlayNotifier.value = Icons.pause;
                           videoPlayerController.play();
                         } else {
-                          iconPausePlay.value = buttonPlayPausePressed 
+                          iconPausePlayNotifier.value = buttonPlayPausePressed 
                           ? Icons.play_arrow
                           : Icons.pause;
                         }
@@ -201,7 +201,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                         if (buttonPlayPausePressed) {
                           videoPlayerController.pause();
                         } else {                
-                          iconPausePlay.value = Icons.pause;
+                          iconPausePlayNotifier.value = Icons.pause;
                           videoPlayerController.play();
                         }
 
@@ -209,7 +209,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                     
                       },
                       icon: ValueListenableBuilder(
-                        valueListenable: iconPausePlay,
+                        valueListenable: iconPausePlayNotifier,
                         builder: (BuildContext context, IconData value, Widget? child) {
                           return Icon(
                             value,
@@ -238,7 +238,7 @@ class PreviewVideoState extends State<PreviewVideo> {
       children: [
         GestureDetector(
           onTap: () {
-            videoIsTapped.value = !videoIsTapped.value;
+            videoIsTappedNotifier.value = !videoIsTappedNotifier.value;
             CakePreviewFileState.bottomBarVisibleNotifier.value =
                 !CakePreviewFileState.bottomBarVisibleNotifier.value;
           },
@@ -261,7 +261,7 @@ class PreviewVideoState extends State<PreviewVideo> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 25.0),
             child: ValueListenableBuilder(
-              valueListenable: videoIsTapped,
+              valueListenable: videoIsTappedNotifier,
               builder: (BuildContext context, bool value, Widget? child) {
                 return Visibility(
                   visible: value && videoBytes.isNotEmpty,
@@ -307,7 +307,7 @@ class PreviewVideoState extends State<PreviewVideo> {
     if (newPosition <= duration) {
       videoPlayerController.seekTo(newPosition);
     } else {
-      iconPausePlay.value = Icons.pause;
+      iconPausePlayNotifier.value = Icons.pause;
       videoPlayerController.play();
     }
   }
@@ -335,9 +335,9 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     if (videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
-      iconPausePlay.value = Icons.replay;
+      iconPausePlayNotifier.value = Icons.replay;
       videoIsEnded = true;
-      videoIsTapped.value = true;
+      videoIsTappedNotifier.value = true;
       CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     }
   }
@@ -356,6 +356,9 @@ class PreviewVideoState extends State<PreviewVideo> {
     CakePreviewFileState.bottomBarVisibleNotifier.value = true;
     videoPlayerController.removeListener(videoPlayerListener);
     videoPlayerController.dispose();
+    videoDurationNotifier.dispose();
+    currentVideoDurationNotifier.dispose();
+    iconPausePlayNotifier.dispose();
     super.dispose();
   }
 

@@ -27,9 +27,9 @@ class ResetAuthentication extends StatefulWidget {
 
 class ResetAuthenticationState extends State<ResetAuthentication> {
 
-  Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, bool isPin) {
+  final sufixIconVisibilityNotifier = ValueNotifier<bool>(false);
 
-    final valueNotifier = ValueNotifier<bool>(false);
+  Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, bool isPin) {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,7 +42,7 @@ class ResetAuthenticationState extends State<ResetAuthentication> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: ValueListenableBuilder<bool>(
-              valueListenable: valueNotifier,
+              valueListenable: sufixIconVisibilityNotifier,
               builder: (_, isVisible, __) => TextFormField(
                 style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
                 enabled: true,
@@ -51,16 +51,16 @@ class ResetAuthenticationState extends State<ResetAuthentication> {
                 maxLines: 1,
                 decoration: InputDecoration(
                   suffixIcon: isSecured == true
-                      ? IconButton(
-                          icon: Icon(
-                            isVisible ? Icons.visibility : Icons.visibility_off,
-                            color: const Color.fromARGB(255, 141, 141, 141),
-                          ),
-                          onPressed: () {
-                            valueNotifier.value = !isVisible;
-                          },
-                        )
-                      : null,
+                    ? IconButton(
+                        icon: Icon(
+                          isVisible ? Icons.visibility : Icons.visibility_off,
+                          color: const Color.fromARGB(255, 141, 141, 141),
+                        ),
+                        onPressed: () {
+                          sufixIconVisibilityNotifier.value = !isVisible;
+                        },
+                      )
+                    : null,
                   hintText: hintText,
                   contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
@@ -117,6 +117,12 @@ class ResetAuthenticationState extends State<ResetAuthentication> {
 
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    sufixIconVisibilityNotifier.dispose();
+    super.dispose();
   }
 
   @override

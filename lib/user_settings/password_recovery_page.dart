@@ -19,20 +19,18 @@ class ResetBackup extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ResetBackup> createState() => _ResetBackupState();
+  State<ResetBackup> createState() => ResetBackupState();
 }
 
 
-class _ResetBackupState extends State<ResetBackup> {
+class ResetBackupState extends State<ResetBackup> {
+
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController pinController = TextEditingController();
-
   final TextEditingController recoveryController = TextEditingController();
+  final ValueNotifier<bool> sufixIconVisibilityNotifier = ValueNotifier<bool>(false);
 
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, {bool isFromPin = false}) {
-
-    final valueNotifier = ValueNotifier<bool>(false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,7 +43,7 @@ class _ResetBackupState extends State<ResetBackup> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: ValueListenableBuilder<bool>(
-              valueListenable: valueNotifier,
+              valueListenable: sufixIconVisibilityNotifier,
               builder: (_, isVisible, __) => TextFormField(
                 style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
                 enabled: true,
@@ -56,16 +54,16 @@ class _ResetBackupState extends State<ResetBackup> {
                 keyboardType: isFromPin == true ? TextInputType.number : null,
                 decoration: InputDecoration(
                   suffixIcon: isSecured == true
-                      ? IconButton(
-                          icon: Icon(
-                            isVisible ? Icons.visibility : Icons.visibility_off,
-                            color: const Color.fromARGB(255, 141, 141, 141),
-                          ),
-                          onPressed: () {
-                            valueNotifier.value = !isVisible;
-                          },
-                        )
-                      : null,
+                  ? IconButton(
+                      icon: Icon(
+                        isVisible ? Icons.visibility : Icons.visibility_off,
+                        color: const Color.fromARGB(255, 141, 141, 141),
+                      ),
+                      onPressed: () {
+                        sufixIconVisibilityNotifier.value = !isVisible;
+                      },
+                    )
+                  : null,
                   hintText: hintText,
                   contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
@@ -126,6 +124,15 @@ class _ResetBackupState extends State<ResetBackup> {
 
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    pinController.dispose();
+    emailController.dispose();
+    recoveryController.dispose();
+    sufixIconVisibilityNotifier.dispose();
+    super.dispose();
   }
 
   @override

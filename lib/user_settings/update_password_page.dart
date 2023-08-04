@@ -21,6 +21,7 @@ class ChangePasswordState extends State<ChangePassword> {
   final TextEditingController newPassController = TextEditingController();
   final TextEditingController curPassController = TextEditingController();
   final TextEditingController curPinController = TextEditingController();
+  
   final valueNotifierNew = ValueNotifier<bool>(false);
   final valueNotifierCur = ValueNotifier<bool>(false);
 
