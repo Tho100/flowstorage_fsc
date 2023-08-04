@@ -15,9 +15,15 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:path_provider/path_provider.dart';
 
 
-class ChangeUsername extends StatelessWidget {
+class ChangeUsername extends StatefulWidget {
 
   const ChangeUsername({Key? key}) : super (key: key);
+
+  @override
+  State<ChangeUsername> createState() => ChangeUsernameState();
+}
+
+class ChangeUsernameState extends State<ChangeUsername> {
 
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured) {
 
@@ -43,16 +49,16 @@ class ChangeUsername extends StatelessWidget {
                 maxLines: 1,
                 decoration: InputDecoration(
                   suffixIcon: isSecured == true
-                      ? IconButton(
-                          icon: Icon(
-                            isVisible ? Icons.visibility : Icons.visibility_off,
-                            color: ThemeColor.thirdWhite,
-                          ),
-                          onPressed: () {
-                            valueNotifier.value = !isVisible;
-                          },
-                        )
-                      : null,
+                    ? IconButton(
+                        icon: Icon(
+                          isVisible ? Icons.visibility : Icons.visibility_off,
+                          color: ThemeColor.thirdWhite,
+                        ),
+                        onPressed: () {
+                          valueNotifier.value = !isVisible;
+                        },
+                      )
+                    : null,
                   hintText: hintText,
                   contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
@@ -228,12 +234,14 @@ class ChangeUsername extends StatelessWidget {
           return;
         }
 
+
         await _updateUsername(newUsername: newUsername);
 
         Globals.custUsername = newUsername;
 
         await setupAutoLogin(newUsername);
-      
+
+        if(!mounted) return;
         SnakeAlert.okSnake(message: 'Username updated to $newUsername' ,icon: Icons.check, context: context);
 
       }
@@ -263,5 +271,4 @@ class ChangeUsername extends StatelessWidget {
     return await Verification().notEqual(getUsername, getAuthString, "CUST_PASSWORD");
 
   }
-
 }

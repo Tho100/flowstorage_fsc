@@ -26,12 +26,13 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
+import 'package:image_picker_plus/image_picker_plus.dart';
 
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
-import 'package:image_picker/image_picker.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -42,7 +43,6 @@ import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flowstorage_fsc/directory_query/delete_directory.dart';
 import 'package:flowstorage_fsc/directory_query/rename_directory.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/helper/gallery_picker.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
@@ -1021,7 +1021,7 @@ class CakeHomeState extends State<Mainboard> {
 
     try {
 
-      final takenPhoto = await GalleryPickerHelper.pickerImage(source: ImageSource.camera);
+      /*final takenPhoto = await GalleryPickerHelper.pickerImage(source: ImageSource.camera);
 
       if (takenPhoto == null) {
         return;
@@ -1068,7 +1068,7 @@ class CakeHomeState extends State<Mainboard> {
       _addItemToListView(fileName: imageName);
 
       await CallNotify().uploadedNotification(title: "Upload Finished",count: 1);
-
+      */
     } catch (err) {
       SnakeAlert.errorSnake("Failed to start the camera.",context);
     }
@@ -1299,196 +1299,146 @@ class CakeHomeState extends State<Mainboard> {
 
   /// <summary>
   /// 
-  /// Open user gallery (Video)
+  /// Open user gallery dialog for photo and video
   /// 
   /// </summary>
+  
+  Future<void> _openGalleryDialog() async {
 
-  Future<void> _openGalleryVideo() async {
-    
     try {
 
-      final shortenText = ShortenText();
-      final XFile? pickedVideo = await GalleryPickerHelper.pickerVideo(source: ImageSource.gallery);
+      late String? fileBase64Encoded;
 
-      if (pickedVideo == null) {
+      final shortenText = ShortenText();
+
+      ImagePickerPlus picker = ImagePickerPlus(context);
+      SelectedImagesDetails? details = await picker.pickBoth(
+        source: ImageSource.both,
+        multiSelection: true,
+        galleryDisplaySettings: GalleryDisplaySettings(
+          maximumSelection: 100,
+          appTheme: AppTheme(
+            focusColor: Colors.white, 
+            primaryColor: ThemeColor.darkBlack,
+          ),
+        ),
+      );
+      
+      int countSelectedFiles = details!.selectedFiles.length;
+
+      if (countSelectedFiles == 0) {
         return;
       }
 
-      File? newFileToDisplay;
-
-      if (!mounted) return;
+      if (!mounted) return; 
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-      final selectedFileName = pickedVideo.name;
-      final fileExtension = selectedFileName.split('.').last;
-
-      if (!Globals.videoType.contains(fileExtension)) {
-        if(!mounted) return;
-        CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
+      if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
+        _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
         return;
       }
 
-      if (Globals.fileValues.contains(selectedFileName)) {
+      Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
+
+      if(countSelectedFiles > 2) {
+        SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading $countSelectedFiles item(s)...");
+      }
+
+      for(var filesPath in details.selectedFiles) {
+
+        final pathToString = filesPath.selectedFile.toString().
+                              split(" ").last.replaceAll("'", "");
+        
+        final filesName = pathToString.split("/").last.replaceAll("'", "");
+        final fileExtension = filesName.split('.').last;
+
         if(!mounted) return;
-        CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
-        return;
-      } 
 
-      Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "1 File(s) in progress") : null;
+        if (!Globals.supportedFileTypes.contains(fileExtension)) {
+          CustomFormDialog.startDialog("Couldn't upload $filesName","File type is not supported.",context);
+          await NotificationApi.stopNotification(0);
+          continue;
+        }
 
-      Globals.fileOrigin != "psFiles" 
-      ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
-      : null;
-  
-      final videoFilePath = pickedVideo.path.toString(); 
-      final videoBase64Encoded = base64.encode(File(videoFilePath).readAsBytesSync());
+        if (Globals.fileValues.contains(filesName)) {
+          CustomFormDialog.startDialog("Upload Failed", "$filesName already exists.",context);
+          await NotificationApi.stopNotification(0);
+          continue;
+        } 
 
-      if (Globals.videoType.contains(fileExtension)) {
+        if(countSelectedFiles < 2) {
+          Globals.fileOrigin != "psFiles" 
+          ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(filesName)}") 
+          : null;
+        }
 
-        String setupThumbnailName = selectedFileName.replaceRange(selectedFileName.lastIndexOf("."), selectedFileName.length, ".jpeg");
-
-        Directory appDocDir = await getApplicationDocumentsDirectory();
-        String thumbnailPath = '${appDocDir.path}/$setupThumbnailName';
-
-        Directory tempDir = await getTemporaryDirectory();
-        String tempThumbnailPath = '${tempDir.path}/$setupThumbnailName';
-
-        File thumbnailFile = File(tempThumbnailPath);
-        final thumbnailBytes = await VideoThumbnail.thumbnailData(
-          video: videoFilePath,
-          imageFormat: ImageFormat.JPEG,
-          quality: 40,
-        );
-
-        await thumbnailFile.writeAsBytes(thumbnailBytes!);
-
-        await thumbnailFile.copy(thumbnailPath);
-
-        newFileToDisplay = thumbnailFile;
+        if (!(Globals.imageType.contains(fileExtension))) {
+          fileBase64Encoded = base64.encode(File(pathToString).readAsBytesSync());
+        } else {
+          final filesBytes = File(pathToString).readAsBytesSync();
+          fileBase64Encoded = base64.encode(filesBytes);
+        }
 
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
 
-        if(verifyOrigin == "psFiles") {
+        if (Globals.imageType.contains(fileExtension)) {
 
-          _openPsCommentDialog(filePathVal: videoFilePath, fileName: selectedFileName,
-          tableName: GlobalsTable.psVideo, base64Encoded: videoBase64Encoded, 
-          newFileToDisplay: newFileToDisplay, thumbnail: thumbnailBytes);
+          List<int> bytes = await CompressorApi.compressedByteImage(path: pathToString, quality: 85);
+          String compressedImageBase64Encoded = base64.encode(bytes);
 
-          return;
+          if(verifyOrigin == "psFiles") {
+            _openPsCommentDialog(filePathVal: pathToString, fileName: filesName, tableName: GlobalsTable.psImage, base64Encoded: fileBase64Encoded);
+            return;
+          }
 
-        } else {
+          await _processUploadListView(filePathVal: pathToString, selectedFileName: filesName, tableName: GlobalsTable.homeImage, fileBase64Encoded: compressedImageBase64Encoded);
+
+        } else if (Globals.videoType.contains(fileExtension)) {
+
+          String setupThumbnailName = filesName.replaceRange(filesName.lastIndexOf("."), filesName.length, ".jpeg");
+
+          Directory appDocDir = await getApplicationDocumentsDirectory();
+          String thumbnailPath = '${appDocDir.path}/$setupThumbnailName';
+
+          Directory tempDir = await getTemporaryDirectory();
+          String tempThumbnailPath = '${tempDir.path}/$setupThumbnailName';
+
+          File thumbnailFile = File(tempThumbnailPath);
+          final thumbnailBytes = await VideoThumbnail.thumbnailData(
+            video: pathToString,
+            imageFormat: ImageFormat.JPEG,
+            quality: 40,
+          );
+
+          await thumbnailFile.writeAsBytes(thumbnailBytes!);
+
+          await thumbnailFile.copy(thumbnailPath);
+
+          if(verifyOrigin == "psFiles") {
+            _openPsCommentDialog(filePathVal: pathToString, fileName: filesName, tableName: GlobalsTable.psImage, base64Encoded: fileBase64Encoded);
+            return;
+          } 
 
           await _processUploadListView(
-            filePathVal: videoFilePath,
-            selectedFileName: selectedFileName,
-            tableName: GlobalsTable.homeVideo,
-            fileBase64Encoded: videoBase64Encoded,
-            newFileToDisplay: newFileToDisplay,
+            filePathVal: pathToString, 
+            selectedFileName: filesName, 
+            tableName: GlobalsTable.homeVideo, 
+            fileBase64Encoded: fileBase64Encoded,
+            newFileToDisplay: thumbnailFile,
             thumbnailBytes: thumbnailBytes
           );
 
-        }
-
-        await thumbnailFile.delete();
-
-      } 
-      
-      _addItemToListView(fileName: selectedFileName);
-
-      scaffoldMessenger.hideCurrentSnackBar();
-      SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(selectedFileName)} Has been added.");
-
-      await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
-
-    } catch (err, st) {
-      logger.e('Exception from _openGalleryVideo {main}',err,st);
-      SnakeAlert.errorSnake("Upload failed.",context);
-    }
-  }
-
-  /// <summary>
-  /// 
-  /// Open user gallery (Image)
-  /// 
-  /// </summary>
-  
-  Future<void> _openGalleryImage() async {
-
-    try {
-
-        final shortenText = ShortenText();
-        final List<XFile>? pickedImages = await GalleryPickerHelper.pickMultiImage();
-
-        if (!mounted) return; 
-        final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-        int countSelectedFiles = pickedImages!.length;
-
-        if (countSelectedFiles == 0) {
-          return;
-        }
-
-        if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
-          _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
-          return;
-        }
-
-        Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
-
-        if(countSelectedFiles > 2) {
-          SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading $countSelectedFiles item(s)...");
-        }
-
-        for (final pickedFile in pickedImages) {
-
-          final selectedFileName = pickedFile.name;
-          final fileExtension = selectedFileName.split('.').last;
-
-          if (!Globals.imageType.contains(fileExtension)) {
-            if(!mounted) return;
-            CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported. Try to use Upload Files instead.",context);
-            await NotificationApi.stopNotification(0);
-            continue;
-          }
-
-          if (Globals.fileValues.contains(selectedFileName)) {
-            if(!mounted) return;
-            CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
-            await NotificationApi.stopNotification(0);
-            continue;
-          } 
-
-          if(countSelectedFiles < 2) {
-            Globals.fileOrigin != "psFiles" 
-            ? SnakeAlert.uploadingSnake(snackState: scaffoldMessenger, message: "Uploading ${shortenText.cutText(selectedFileName)}") 
-            : null;
-          }
-
-          final filePathVal = pickedFile.path.toString();
-
-          List<int> bytes = await CompressorApi.compressedByteImage(path: filePathVal,quality: 85);
-          String bodyBytes = base64.encode(bytes);
-
-          if (Globals.imageType.contains(fileExtension)) {
-
-            final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
-
-            if(verifyOrigin == "psFiles") {
-              _openPsCommentDialog(filePathVal: filePathVal, fileName: selectedFileName, tableName: GlobalsTable.psImage, base64Encoded: bodyBytes);
-              return;
-            } else {
-              await _processUploadListView(filePathVal: filePathVal, selectedFileName: selectedFileName, tableName: GlobalsTable.homeImage, fileBase64Encoded: bodyBytes);
-            }
+          await thumbnailFile.delete();
 
         }
-        
-        _addItemToListView(fileName: selectedFileName);
-        
+
+        _addItemToListView(fileName: filesName);
+
         scaffoldMessenger.hideCurrentSnackBar();
 
         if(countSelectedFiles < 2) {
 
-          SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(selectedFileName)} Has been added.");
+          SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${shortenText.cutText(filesName)} Has been added.");
           countSelectedFiles > 0 ? await CallNotify().uploadedNotification(title: "Upload Finished", count: countSelectedFiles) : null;
 
         }
@@ -1557,15 +1507,15 @@ class CakeHomeState extends State<Mainboard> {
           final selectedFileName = pickedFile.name;
           final fileExtension = selectedFileName.split('.').last;
 
+          if(!mounted) return;
+
           if (!Globals.supportedFileTypes.contains(fileExtension)) {
-            if(!mounted) return;
             CustomFormDialog.startDialog("Couldn't upload $selectedFileName","File type is not supported.",context);
             await NotificationApi.stopNotification(0);
             continue;
           }
 
           if (Globals.fileValues.contains(selectedFileName)) {
-            if(!mounted) return;
             CustomFormDialog.startDialog("Upload Failed", "$selectedFileName already exists.",context);
             await NotificationApi.stopNotification(0);
             continue;
@@ -1640,6 +1590,8 @@ class CakeHomeState extends State<Mainboard> {
               tableName: GlobalsTable.homeVideo, fileBase64Encoded: fileBase64!, 
               newFileToDisplay: newFileToDisplayPath, thumbnailBytes: thumbnailBytes
             );
+
+            await thumbnailFile.delete();
 
           } else {
 
@@ -1811,145 +1763,6 @@ class CakeHomeState extends State<Mainboard> {
     setState(() {
       Globals.foldValues.add(folderName);
     });
-  }
-
-  Future<void> _openDialogGallery() async {
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkGrey,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            height: 250,
-            child: Scaffold(
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Colors.transparent,
-              body: Stack(
-                children: [
-                  const Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text(
-                        'Upload from Gallery',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.close,
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 92,
-                              height: 92,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: ThemeColor.darkPurple,
-                                  width: 2,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await _openGalleryImage();
-                                },
-                                icon: const Icon(Icons.image_rounded,size: 56),
-                                color: ThemeColor.darkPurple,
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Image',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(width: 16), 
-
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 92,
-                              height: 92,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: ThemeColor.darkPurple,
-                                  width: 2,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await _openGalleryVideo();
-                                },
-                                icon: const Icon(Icons.video_collection_rounded,size: 56),
-                                color: ThemeColor.darkPurple,
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Video',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-            ),
-          ),
-        );
-      },
-    );
-   
   }
 
   Widget _buildSidebarButtons({
@@ -3328,7 +3141,7 @@ class CakeHomeState extends State<Mainboard> {
           ]
         ),
 
-        const Divider(color: ThemeColor.whiteGrey, height: 0),
+        const Divider(color: ThemeColor.thirdWhite, height: 0),
         
       ],
     );
@@ -3440,7 +3253,7 @@ class CakeHomeState extends State<Mainboard> {
                 onPressed: () async {
                   if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                     Navigator.pop(context);
-                    await _openDialogGallery();
+                    await _openGalleryDialog();
                   } else {
                     _upgradeDialog(
                       "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
@@ -4260,8 +4073,11 @@ class CakeHomeState extends State<Mainboard> {
                 maxLines: 1,
                 textAlign: TextAlign.center,
               ),
+
               if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
               const SizedBox(height: 6),
+
+              if(Globals.fileOrigin == "psFiles")
               Visibility(
                 visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
                 child: Text(

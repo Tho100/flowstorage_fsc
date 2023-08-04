@@ -84,7 +84,7 @@ class SharingPageState extends State<SharingPage> {
 
       fileExtensionToType = "";
       previewerIsVisibleNotifier.value = false;
-      videoThumbnail.clear();
+      videoThumbnail = [];
 
       if (Globals.videoType.contains(extension)) {
 
