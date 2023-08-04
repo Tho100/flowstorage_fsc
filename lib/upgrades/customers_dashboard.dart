@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
@@ -101,8 +102,10 @@ class StripeCustomers {
 
   static Future<void> cancelCustomerSubscriptionByEmail(String email) async {
 
+    final crud = Crud();
+
     const apiKey = 'sk_test_51MO4YYF2lxRV33xsBfTJLQypyLBjhoxYdz18VoLrZZ6hin4eJrAV9O6NzduqR02vosmC4INFgBgxD5TkrkpM3sZs00hqhx3ZzN';
-    
+
     final subscriptions = await getCustomerSubscriptionsByEmail(email);
 
     if (subscriptions.isNotEmpty) {
@@ -121,7 +124,17 @@ class StripeCustomers {
       final cancelResponse = await http.delete(cancelUrl, headers: headers, body: jsonEncode(cancelData));
       
       if (cancelResponse.statusCode == 200) {
+
         Globals.accountType = "Basic";
+
+        await crud.delete(
+          query: "DELETE FROM cust_buyer WHERE CUST_USERNAME = :username", 
+          params: {"username": Globals.custUsername});
+
+        await crud.update(
+          query: "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_USERNAME = :username AND CUST_EMAIL = :email", 
+          params: {"type": "Basic", "username": Globals.custUsername, "email": Globals.custEmail});
+
       } else {
         return;
       }

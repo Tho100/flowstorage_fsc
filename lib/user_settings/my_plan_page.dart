@@ -2,6 +2,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/upgrades/customers_dashboard.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +16,8 @@ class MyPlanPage extends StatefulWidget {
 }
 
 class MyPlanPageState extends State<MyPlanPage> {
-  final double containerWidth = 445.0;
 
+  final double containerWidth = 35.0;
   final double containerheight = 265.0;
 
   Widget buildHeader(String typeTag, String priceTag, String featuresTag) {
@@ -84,17 +85,23 @@ class MyPlanPageState extends State<MyPlanPage> {
             messages: "Are you sure you want to cancel your subscription plan? \n\nYour account will downgraded to Basic from ${Globals.accountType} and you'll no longer be charged.", 
             oPressedEvent: () async {
 
-              await StripeCustomers.
-              cancelCustomerSubscriptionByEmail(Globals.custEmail);
+              try {
 
-              if(!mounted) return;
-              Navigator.pop(context);
+                await StripeCustomers.
+                cancelCustomerSubscriptionByEmail(Globals.custEmail);
 
-              CustomAlertDialog.alertDialogTitle(
-                "Subscription plan cancelled successfully", 
-                "Thank you for being previously a part of our customer!", 
-                context
-              );
+                if(!mounted) return;
+                Navigator.pop(context);
+
+                CustomAlertDialog.alertDialogTitle(
+                  "Subscription plan cancelled successfully", 
+                  "Thank you for being previously a part of our customer!", 
+                  context
+                );
+
+              } catch (er) {
+                SnakeAlert.errorSnake("Subscription cancellation failed.", context);
+              }
 
             }, 
             onCancelPressed: () {
@@ -120,7 +127,7 @@ class MyPlanPageState extends State<MyPlanPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: containerWidth,
+          width: MediaQuery.of(context).size.width-containerWidth,
           height: containerheight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
@@ -161,7 +168,7 @@ class MyPlanPageState extends State<MyPlanPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: containerWidth,
+          width: MediaQuery.of(context).size.width-containerWidth,
           height: containerheight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
@@ -202,7 +209,7 @@ class MyPlanPageState extends State<MyPlanPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: containerWidth,
+          width: MediaQuery.of(context).size.width-containerWidth,
           height: containerheight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
