@@ -200,7 +200,6 @@ class CakeHomeState extends State<Mainboard> {
     dynamic thumbnailBytes,
   }) async {
 
-    final List<File> newImageValues = [];
     final List<Uint8List> newImageByteValues = [];
     final List<Uint8List> newFilteredSearchedBytes = [];
 
@@ -239,9 +238,9 @@ class CakeHomeState extends State<Mainboard> {
 
     setState(() {});
 
-    Globals.imageValues.addAll(newImageValues);
     Globals.imageByteValues.addAll(newImageByteValues);
     Globals.filteredSearchedBytes.addAll(newFilteredSearchedBytes);
+
   }
 
   String _getCurrentPageName() {
@@ -2731,6 +2730,7 @@ class CakeHomeState extends State<Mainboard> {
                         onPressed: () async {
 
                           String newFolderName = folderRenameController.text;
+
                           if (Globals.foldValues.contains(newFolderName)) {
                             showDialog(
                               context: context,
@@ -2757,12 +2757,13 @@ class CakeHomeState extends State<Mainboard> {
                             );
                           } else {
                             if (newFolderName.isNotEmpty) {
-                              _renameFolder(folderName, newFolderName);
+                              await _renameFolder(folderName, newFolderName);
                             } else {
                               CustomAlertDialog.alertDialog('Folder name cannot be empty.', context);
                             }
                           }
 
+                          if(!mounted) return;
                           Navigator.pop(context);
                           folderRenameController.clear();
 

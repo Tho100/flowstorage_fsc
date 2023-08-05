@@ -40,7 +40,7 @@ class SplashScreenState extends State<SplashScreen> {
 
   final crud = Crud();
   
-  Timer? _timer;
+  Timer? splashScreenTimer;
 
   @override
   void initState() {
@@ -51,11 +51,11 @@ class SplashScreenState extends State<SplashScreen> {
   void _startTimer() async {
 
     if ((await _retrieveLocallyStoredInformation())[0] != '') {
-      _timer = Timer(const Duration(milliseconds: 0), () {
+      splashScreenTimer = Timer(const Duration(milliseconds: 0), () {
         _navigateToNextScreen();
       });
     } else {
-      _timer = Timer(const Duration(milliseconds: 2480), () {
+      splashScreenTimer = Timer(const Duration(milliseconds: 2480), () {
         _navigateToNextScreen();
       });
     }
@@ -210,7 +210,7 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    splashScreenTimer?.cancel();
     super.dispose();
   }
 

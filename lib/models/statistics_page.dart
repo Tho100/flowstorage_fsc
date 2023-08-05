@@ -14,10 +14,10 @@ class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
 
   @override
-  State<StatisticsPage> createState() => StatsPage();
+  State<StatisticsPage> createState() => StatsPageState();
 }
 
-class StatsPage extends State<StatisticsPage> {
+class StatsPageState extends State<StatisticsPage> {
 
   final logger = Logger();
   

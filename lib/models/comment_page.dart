@@ -14,10 +14,10 @@ class CommentPage extends StatefulWidget {
   const CommentPage({required this.fileName, Key? key}) : super(key: key);
 
   @override
-  State<CommentPage> createState() => _CommentPage();
+  State<CommentPage> createState() => CommentPageState();
 }
 
-class _CommentPage extends State<CommentPage> {
+class CommentPageState extends State<CommentPage> {
 
   final noCommentController = TextEditingController(text: '(No Comment)');
 

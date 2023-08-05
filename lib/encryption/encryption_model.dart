@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
-import 'package:logger/logger.dart';
 
 class EncryptionClass {
-
-  final logger = Logger();
 
   late List<int> keyBytes;
   
@@ -14,16 +11,18 @@ class EncryptionClass {
   }
 
   String encrypt(String? plainText) {
+    
     try {
-    final key = Key(Uint8List.fromList(keyBytes));
-    final iv = IV.fromLength(16);
+        
+      final key = Key(Uint8List.fromList(keyBytes));
+      final iv = IV.fromLength(16);
 
-    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
-    final encrypted = encrypter.encrypt(plainText!, iv: iv);
+      final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
+      final encrypted = encrypter.encrypt(plainText!, iv: iv);
 
-    return base64.encode(encrypted.bytes);
-    } catch (err, st) {
-      logger.e(err, st);
+      return base64.encode(encrypted.bytes);
+
+    } catch (err) {
       return "";
     }
   }
@@ -31,6 +30,7 @@ class EncryptionClass {
   String decrypt(String? plainText) {
 
     try {
+
       final key = Key(Uint8List.fromList(keyBytes));
       final iv = IV.fromLength(16);
 
@@ -38,8 +38,8 @@ class EncryptionClass {
       final decrypted = encrypter.decrypt(Encrypted(base64.decode(plainText!)), iv: iv);
 
       return decrypted;
-    } catch (err, st) {
-      logger.e(err, st);
+
+    } catch (err) {
       return "";
     }
   }

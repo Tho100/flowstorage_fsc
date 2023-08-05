@@ -25,10 +25,10 @@ class ResetBackup extends StatefulWidget {
 
 class ResetBackupState extends State<ResetBackup> {
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController pinController = TextEditingController();
-  final TextEditingController recoveryController = TextEditingController();
-  final ValueNotifier<bool> sufixIconVisibilityNotifier = ValueNotifier<bool>(false);
+  final emailController = TextEditingController();
+  final pinController = TextEditingController();
+  final recoveryController = TextEditingController();
+  final sufixIconVisibilityNotifier = ValueNotifier<bool>(false);
 
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, {bool isFromPin = false}) {
 

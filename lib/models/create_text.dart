@@ -21,10 +21,10 @@ class CreateText extends StatefulWidget {
   const CreateText({super.key});
 
   @override
-  State<CreateText> createState() => _CreateText();
+  State<CreateText> createState() => CreateTextPageState();
 }
 
-class _CreateText extends State<CreateText> {
+class CreateTextPageState extends State<CreateText> {
 
   final textEditingController = TextEditingController();
   final fileNameController = TextEditingController();

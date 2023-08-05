@@ -43,7 +43,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   late int uploadLimit;
   late String sharingEnabledButton;
 
-  final TextEditingController addPasswordController = TextEditingController();
+  final addPasswordController = TextEditingController();
   
   @override
   void initState() {

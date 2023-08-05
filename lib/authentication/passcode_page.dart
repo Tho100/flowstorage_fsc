@@ -32,8 +32,8 @@ class PasscodePageState extends State<PasscodePage> {
 
   final logger = Logger();
 
-  final List<TextEditingController> controllers = List.generate(4, (_) => TextEditingController());
-  final List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
+  final controllers = List.generate(4, (_) => TextEditingController());
+  final focusNodes = List.generate(4, (_) => FocusNode());
 
   int currentActiveField = 0;
 

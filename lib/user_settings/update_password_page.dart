@@ -18,9 +18,9 @@ class ChangePassword extends StatefulWidget {
 
 class ChangePasswordState extends State<ChangePassword> {
 
-  final TextEditingController newPassController = TextEditingController();
-  final TextEditingController curPassController = TextEditingController();
-  final TextEditingController curPinController = TextEditingController();
+  final newPassController = TextEditingController();
+  final curPassController = TextEditingController();
+  final curPinController = TextEditingController();
   
   final valueNotifierNew = ValueNotifier<bool>(false);
   final valueNotifierCur = ValueNotifier<bool>(false);
