@@ -54,6 +54,8 @@ class SimplifyDownload {
 
     try {
 
+      print("HLELO");
+
       const generalFilesTableName = {GlobalsTable.homeText,GlobalsTable.psText,GlobalsTable.homeVideo,GlobalsTable.psVideo};
 
       if(currentTableValue == GlobalsTable.homeImage || currentTableValue == GlobalsTable.psImage) {
@@ -70,6 +72,8 @@ class SimplifyDownload {
         await _videoGallerySaver(fileDataValue!);
 
       } else if (!(generalFilesTableName.contains(currentTableValue))) {
+
+        print("IN");
 
         await SaveApi().saveFile(fileName: fileNameValue!, fileData: fileDataValue!);
 

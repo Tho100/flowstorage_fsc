@@ -91,8 +91,16 @@ class DataCaller {
         imageBytes = await getAssets.loadAssetsData("exl0.png");
 
       } else if (fileType == "exe") {
-        
+
         imageBytes = await getAssets.loadAssetsData("exe0.png");
+
+      } else if (fileType == "apk") {
+        
+        imageBytes = await getAssets.loadAssetsData("apk0.png");
+
+      } else if (Globals.ptxType.contains(fileType)) {
+
+        imageBytes = await getAssets.loadAssetsData("pptx0.png");
 
       } else {
         continue;

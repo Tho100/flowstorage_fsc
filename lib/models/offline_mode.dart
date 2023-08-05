@@ -89,10 +89,11 @@ class OfflineMode {
     await init();    
 
     const Set<String> generalNonTextFileType = {
-      "pdf",
+      "pdf","exe","apk",
       ...Globals.audioType,
       ...Globals.excelType,
-      ...Globals.wordType
+      ...Globals.wordType,
+      ...Globals.ptxType
     };
 
     final file = File('${offlineDirs.path}/$fileName');

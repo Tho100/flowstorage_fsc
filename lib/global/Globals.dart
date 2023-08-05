@@ -50,6 +50,7 @@ class Globals {
   static const Set<String> videoType = {"mp4","wmv","avi","mov","mkv"};
   static const Set<String> wordType = {"docx","doc"};
   static const Set<String> excelType = {"xls","xlsx"};
+  static const Set<String> ptxType = {"pptx","ptx"};
   static const Set<String> audioType = {"wav","mp3"};
 
   static const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};

@@ -1014,61 +1014,90 @@ class CakeHomeState extends State<Mainboard> {
 
   }
 
-  // TODO: Open the user camera and 
-  // retrieve photo data, encrypt the byte value
-
   Future<void> _initializeCamera() async {
 
     try {
 
-      /*final takenPhoto = await GalleryPickerHelper.pickerImage(source: ImageSource.camera);
+      ImagePickerPlus picker = ImagePickerPlus(context);
+      SelectedImagesDetails? details = await picker.pickImage(
+        source: ImageSource.camera,
+        galleryDisplaySettings: GalleryDisplaySettings(
+          maximumSelection: 1,
+          appTheme: AppTheme(
+            focusColor: Colors.white, 
+            primaryColor: ThemeColor.darkBlack,
+          ),
+        ),
+      );
 
-      if (takenPhoto == null) {
+      if (details!.selectedFiles.isEmpty) {
         return;
       }
 
-      final imageName = takenPhoto.name;
-      final imagePath = takenPhoto.path;
+      for(var photoTaken in details.selectedFiles) {
 
-      List<int> bytes = await CompressorApi.compressedByteImage(path: imagePath,quality: 56);
-      
-      final imageBase64Encoded = base64.encode(bytes); 
+        final imagePath = photoTaken.selectedFile.toString()
+                          .split(" ").last.replaceAll("'", "");
 
-      if(Globals.fileValues.contains(imageName)) {
         if(!mounted) return;
-        CustomFormDialog.startDialog("Upload Failed", "$imageName already exists.",context);
-        return;
-      }
 
-      if(Globals.fileOrigin == "psFiles") {
+        CustomAlertDialog.alertDialog(imagePath, context);
+
+        final imageName = imagePath.split("/").last.replaceAll("'", "");
         
-        _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBase64Encoded);
-        return;
+        CustomAlertDialog.alertDialog(imageName, context);
 
-      } else if (Globals.fileOrigin == "offlineFiles") {
+        final fileExtension = imageName.split('.').last;
 
-        final decodeToBytes = base64.decode(imageBase64Encoded);
-        final imageBytes = Uint8List.fromList(decodeToBytes);
-        await OfflineMode().saveOfflineFile(fileName: imageName, fileData: imageBytes);
+        if(!(Globals.imageType.contains(fileExtension))) {
+          if(!mounted) return;
+          CustomFormDialog.startDialog("Couldn't upload photo","File type is not supported.",context);
+          return;
+        }
 
-        Globals.filteredSearchedBytes.add(decodeToBytes);
-        Globals.imageByteValues.add(decodeToBytes);
+        List<int> bytes = await CompressorApi.compressedByteImage(path: imagePath, quality: 56);
+      
+        final imageBase64Encoded = base64.encode(bytes); 
 
-      } else {
+        if(Globals.fileValues.contains(imageName)) {
+          if(!mounted) return;
+          CustomFormDialog.startDialog("Upload Failed", "$imageName already exists.",context);
+          return;
+        }
 
-        await _processUploadListView(
-          filePathVal: imagePath, 
-          selectedFileName: imageName, 
-          tableName: GlobalsTable.homeImage, 
-          fileBase64Encoded: imageBase64Encoded
-        );
-        
+        if(Globals.fileOrigin == "psFiles") {
+          
+          _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBase64Encoded);
+          return;
+
+        } else if (Globals.fileOrigin == "offlineFiles") {
+
+          final decodeToBytes = base64.decode(imageBase64Encoded);
+          final imageBytes = Uint8List.fromList(decodeToBytes);
+          await OfflineMode().saveOfflineFile(fileName: imageName, fileData: imageBytes);
+
+          Globals.filteredSearchedBytes.add(decodeToBytes);
+          Globals.imageByteValues.add(decodeToBytes);
+
+        } else {
+
+          await _processUploadListView(
+            filePathVal: imagePath, 
+            selectedFileName: imageName, 
+            tableName: GlobalsTable.homeImage, 
+            fileBase64Encoded: imageBase64Encoded
+          );
+          
+        }
+
+        _addItemToListView(fileName: imageName);
+
+        await File(imagePath).delete();
+
       }
-
-      _addItemToListView(fileName: imageName);
-
+      
       await CallNotify().uploadedNotification(title: "Upload Finished",count: 1);
-      */
+      
     } catch (err) {
       SnakeAlert.errorSnake("Failed to start the camera.",context);
     }
@@ -1468,8 +1497,8 @@ class CakeHomeState extends State<Mainboard> {
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
         final shortenText = ShortenText();
 
-        const List<String> nonOfflineFileTypes = [...Globals.imageType, ...Globals.audioType, ...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType, "pdf","exe","ptx","pptx"];
-        const List<String> offlineFileTypes = [...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+        const List<String> nonOfflineFileTypes = [...Globals.imageType, ...Globals.audioType, ...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType, ...Globals.ptxType, "pdf","apk","exe"];
+        const List<String> offlineFileTypes = [...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType, ...Globals.ptxType, "pdf","apk","exe"];
 
         final resultPicker = await FilePicker.platform.pickFiles(
           type: FileType.custom,
@@ -3872,7 +3901,8 @@ class CakeHomeState extends State<Mainboard> {
 
   Future<void> _navigateToPreviewFile(int index) async {
     
-    const Set<String> externalFileTypes = {"xlsx","xls","docx","doc","ptx","pptx"};
+    const Set<String> externalFileTypes = {
+    ...Globals.wordType, ...Globals.excelType, ...Globals.ptxType};
 
     Globals.selectedFileName = Globals.filteredSearchedFiles[index];
     final fileExtension = Globals.selectedFileName.split('.').last;
