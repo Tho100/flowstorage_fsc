@@ -62,8 +62,8 @@ class SharingDialog {
 
     String? thumbnailBase64;
 
-    final shareToComment = commentInput!.isEmpty ? '' : EncryptionClass().Encrypt(commentInput);
-    final encryptedFileName = EncryptionClass().Encrypt(fileName);
+    final shareToComment = commentInput!.isEmpty ? '' : EncryptionClass().encrypt(commentInput);
+    final encryptedFileName = EncryptionClass().encrypt(fileName);
 
     if (await VerifySharing().isAlreadyUploaded(encryptedFileName, username, Globals.custUsername)) {
       if(context.mounted) {
@@ -99,7 +99,7 @@ class SharingDialog {
 
     if(getSharingAuth != "DEF") {
 
-      final fileData = EncryptionClass().Encrypt(base64.encode(await _callData(fileName, tableName)));  
+      final fileData = EncryptionClass().encrypt(base64.encode(await _callData(fileName, tableName)));  
 
       if(context.mounted) {
 
@@ -127,7 +127,7 @@ class SharingDialog {
     }
 
     final fileData = base64.encode(await _callData(fileName, tableName));
-    final encryptedFileData = EncryptionClass().Encrypt(fileData);  
+    final encryptedFileData = EncryptionClass().encrypt(fileData);  
 
     if(context.mounted) {
       

@@ -144,7 +144,7 @@ class BackupRecovery extends StatelessWidget {
       params: params
     );
 
-    return EncryptionClass().Decrypt(returnAuth);
+    return EncryptionClass().decrypt(returnAuth);
 
   }
 

@@ -9,7 +9,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
 class FolderRetrieve {
 
-  final _encryptionClass = EncryptionClass();
+  final encryption = EncryptionClass();
 
   Future<List<String>> retrieveParams(String? custUsername) async {
 
@@ -24,7 +24,7 @@ class FolderRetrieve {
       final fileNameList = <String>{};
 
       for (final row in retrieveNames.rows) {
-        final getNameValues = _encryptionClass.Decrypt(row.assoc()['FOLDER_TITLE']!);
+        final getNameValues = encryption.decrypt(row.assoc()['FOLDER_TITLE']!);
         fileNameList.add(getNameValues);
       }
 

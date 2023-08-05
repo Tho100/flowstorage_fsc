@@ -133,8 +133,8 @@ class SplashScreenState extends State<SplashScreen> {
     }
 
     List<String> accountInfo = [];
-    accountInfo.add(EncryptionClass().Decrypt(username));
-    accountInfo.add(EncryptionClass().Decrypt(email));
+    accountInfo.add(EncryptionClass().decrypt(username));
+    accountInfo.add(EncryptionClass().decrypt(email));
     accountInfo.add(accountType);
 
     return accountInfo;

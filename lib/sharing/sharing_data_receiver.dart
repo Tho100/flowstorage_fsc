@@ -62,7 +62,7 @@ class SharingDataReceiver {
       for (final row in result.rows) {
 
         encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
+        decryptedFileNames = encryption.decrypt(encryptedFileNames);
         fileType = decryptedFileNames.split('.').last.toLowerCase();
 
         switch (fileType) {
@@ -83,7 +83,7 @@ class SharingDataReceiver {
               connection: connection
             );
 
-            fileBytes = base64.decode(EncryptionClass().Decrypt(encryptedBase64));
+            fileBytes = base64.decode(EncryptionClass().decrypt(encryptedBase64));
 
             break;
 

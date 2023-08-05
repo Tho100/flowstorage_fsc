@@ -24,7 +24,7 @@ class FolderDataReceiver {
     required String returnColumn
   }) async {
 
-    final params = {"username": Globals.custUsername,"foldname": encryption.Encrypt(folderTitle),"filename": fileName};
+    final params = {"username": Globals.custUsername,"foldname": encryption.encrypt(folderTitle),"filename": fileName};
 
     final results = await conn.execute(query,params);
 
@@ -43,7 +43,7 @@ class FolderDataReceiver {
     const querySelectImage = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldname AND CUST_FILE_PATH = :filename";
 
     const query = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
-    final params = {'username': username,'foldtitle': encryption.Encrypt(folderTitle)};
+    final params = {'username': username,'foldtitle': encryption.encrypt(folderTitle)};
 
     try {
 
@@ -59,7 +59,7 @@ class FolderDataReceiver {
       for (final row in result.rows) {
         
         encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
+        decryptedFileNames = encryption.decrypt(encryptedFileNames);
 
         fileType = decryptedFileNames.split('.').last.toLowerCase();
 
@@ -73,7 +73,7 @@ class FolderDataReceiver {
             returnColumn: "CUST_FILE"
           );
 
-          fileBytes = base64.decode(encryption.Decrypt(encryptedImageBase64));
+          fileBytes = base64.decode(encryption.decrypt(encryptedImageBase64));
 
         } else if (Globals.videoType.contains(fileType)) {
           

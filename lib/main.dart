@@ -119,7 +119,7 @@ class CakeHomeState extends State<Mainboard> {
   final crud = Crud();
   final logger = Logger();
 
-  final GlobalKey<ScaffoldState> sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
+  final sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
 
   final searchBarFocusNode = FocusNode();
   final searchBarController = TextEditingController();
@@ -132,18 +132,20 @@ class CakeHomeState extends State<Mainboard> {
   final shareController = TextEditingController();
   final commentController = TextEditingController();
 
-  final ValueNotifier<String> appBarTitle  = ValueNotifier<String>('');
-  final ValueNotifier<String> sortingText  = ValueNotifier<String>('Default');
+  final appBarTitle = ValueNotifier<String>('');
+  final sortingText = ValueNotifier<String>('Default');
 
-  final ValueNotifier<bool> navDirectoryButtonVisible = ValueNotifier<bool>(true);
-  final ValueNotifier<bool> floatingActionButtonVisible = ValueNotifier<bool>(true);
-  final ValueNotifier<bool> homeButtonVisible = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> staggeredListViewSelected = ValueNotifier<bool>(false);
+  final navDirectoryButtonVisible = ValueNotifier<bool>(true);
+  final floatingActionButtonVisible = ValueNotifier<bool>(true);
+  final homeButtonVisible = ValueNotifier<bool>(false);
 
-  final ValueNotifier<bool> selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<IconData> selectAllItemsIconNotifier = ValueNotifier<IconData>(Icons.check_box_outline_blank);
+  final staggeredListViewSelected = ValueNotifier<bool>(false);
+  final selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
 
-  final ValueNotifier<IconData> ascendingDescendingIconNotifier = ValueNotifier<IconData>(Icons.expand_more);
+  final selectAllItemsIconNotifier = ValueNotifier<IconData>(
+                                      Icons.check_box_outline_blank);
+  final ascendingDescendingIconNotifier = ValueNotifier<IconData>(
+                                      Icons.expand_more);
 
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
@@ -624,7 +626,7 @@ class CakeHomeState extends State<Mainboard> {
 
     for(int i=0; i<count; i++) {
 
-      final encryptedFileNames = EncryptionClass().Encrypt(checkedItemsName.elementAt(i));
+      final encryptedFileNames = EncryptionClass().encrypt(checkedItemsName.elementAt(i));
 
       if(Globals.fileOrigin == "homeFiles") {
 
@@ -640,12 +642,12 @@ class CakeHomeState extends State<Mainboard> {
       } else if (Globals.fileOrigin == "dirFiles") {
 
         query = "DELETE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'dirname': EncryptionClass().Encrypt(Globals.directoryTitleValue)};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'dirname': EncryptionClass().encrypt(Globals.directoryTitleValue)};
 
       } else if (Globals.fileOrigin == "folderFiles") {
         
         query = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'foldname': EncryptionClass().Encrypt(Globals.folderTitleValue)};
+        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'foldname': EncryptionClass().encrypt(Globals.folderTitleValue)};
 
       } else if (Globals.fileOrigin == "sharedToMe") {
       
@@ -1297,7 +1299,7 @@ class CakeHomeState extends State<Mainboard> {
 
       if(Globals.fileOrigin != "offlineFiles") {
 
-        final encryptVals = EncryptionClass().Encrypt(fileName);
+        final encryptVals = EncryptionClass().encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
         if(!mounted) return;

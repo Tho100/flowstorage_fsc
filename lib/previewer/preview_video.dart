@@ -21,10 +21,12 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final ValueNotifier<IconData> iconPausePlayNotifier= ValueNotifier<IconData>(Icons.play_arrow);
-  final ValueNotifier<bool> videoIsTappedNotifier = ValueNotifier(false);
-  final ValueNotifier<String> videoDurationNotifier = ValueNotifier<String>("0:00");
-  final ValueNotifier<String> currentVideoDurationNotifier = ValueNotifier<String>("0:00");
+  final iconPausePlayNotifier= ValueNotifier<IconData>(
+                                Icons.play_arrow);
+                                
+  final videoIsTappedNotifier = ValueNotifier(false);
+  final videoDurationNotifier = ValueNotifier<String>("0:00");
+  final currentVideoDurationNotifier = ValueNotifier<String>("0:00");
 
   final Duration endThreshold = const Duration(milliseconds: 200);
   

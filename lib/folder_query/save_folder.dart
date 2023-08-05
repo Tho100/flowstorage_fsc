@@ -22,7 +22,7 @@ class SaveFolder {
     final connection = await SqlConnection.insertValueParams();
 
     const query = 'SELECT CUST_FILE_PATH, CUST_FILE FROM folder_upload_info WHERE FOLDER_TITLE = :foldtitle AND CUST_USERNAME = :username';
-    final params = {'username': username,'foldtitle': encryption.Encrypt(folderTitle)};
+    final params = {'username': username,'foldtitle': encryption.encrypt(folderTitle)};
 
     try {
 
@@ -34,10 +34,10 @@ class SaveFolder {
       for (final row in result.rows) {
         
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = encryption.Decrypt(encryptedFileNames);
+        final fileNames = encryption.decrypt(encryptedFileNames);
 
         final encryptedbyteFile = row.assoc()['CUST_FILE']!;
-        fileBytes = base64.decode(encryption.Decrypt(encryptedbyteFile));
+        fileBytes = base64.decode(encryption.decrypt(encryptedbyteFile));
 
         final buffer = ByteData.view(fileBytes.buffer);
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);

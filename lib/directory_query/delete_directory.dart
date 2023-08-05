@@ -6,7 +6,7 @@ class DeleteDirectory {
 
   static Future<void> deleteDirectory({required String? directoryName}) async {
 
-    final encryptionClass = EncryptionClass();
+    final encryption = EncryptionClass();
     final crud = Crud();
 
     const List<String> deleteDirectoryQueries = [
@@ -15,8 +15,8 @@ class DeleteDirectory {
     ];
 
     final params = [
-      {'dirname': encryptionClass.Encrypt(directoryName),'username': Globals.custUsername},
-      {'dirname': encryptionClass.Encrypt(directoryName),'username': Globals.custUsername}
+      {'dirname': encryption.encrypt(directoryName),'username': Globals.custUsername},
+      {'dirname': encryption.encrypt(directoryName),'username': Globals.custUsername}
     ];
 
     for(int i=0; i<deleteDirectoryQueries.length; i++) {

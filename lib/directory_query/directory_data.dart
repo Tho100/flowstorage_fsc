@@ -40,7 +40,7 @@ class DirectoryDataReceiver {
 
     final connection = await SqlConnection.insertValueParams();
 
-    final encryptedDirectoryName = encryption.Encrypt(dirName);
+    final encryptedDirectoryName = encryption.encrypt(dirName);
 
     const querySelectMetadata = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
     final params = {'username': Globals.custUsername,'dirname': encryptedDirectoryName};
@@ -62,7 +62,7 @@ class DirectoryDataReceiver {
       for (final row in result.rows) {
 
         encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        decryptedFileNames = encryption.Decrypt(encryptedFileNames);
+        decryptedFileNames = encryption.decrypt(encryptedFileNames);
         fileType = decryptedFileNames.split('.').last.toLowerCase();
 
         if(Globals.imageType.contains(fileType)) {
@@ -75,7 +75,7 @@ class DirectoryDataReceiver {
             returnColumn: "CUST_FILE"
           );
 
-          fileBytes = base64.decode(encryption.Decrypt(encryptedImageBase64));
+          fileBytes = base64.decode(encryption.decrypt(encryptedImageBase64));
       
         } else if (Globals.videoType.contains(fileType)) {
 

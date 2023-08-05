@@ -43,7 +43,7 @@ class SharingName {
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_FROM FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToMeName;

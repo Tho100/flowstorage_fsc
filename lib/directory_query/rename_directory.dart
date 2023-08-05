@@ -6,7 +6,7 @@ class RenameDirectory {
 
   static Future<void> renameDirectory(String oldDirectoryName,String newDirectoryName) async {
 
-    final encryptionClass = EncryptionClass();
+    final encryption = EncryptionClass();
     final crud = Crud();
 
     const List<String> updateDirectoryQueries = [
@@ -15,7 +15,7 @@ class RenameDirectory {
     ];
 
     final params = [
-      {'newname': encryptionClass.Encrypt(newDirectoryName), 'dirname': encryptionClass.Encrypt(oldDirectoryName),'username': Globals.custUsername},
+      {'newname': encryption.encrypt(newDirectoryName), 'dirname': encryption.encrypt(oldDirectoryName),'username': Globals.custUsername},
     ];
 
     for(int i=0; i<updateDirectoryQueries.length; i++) {

@@ -6,7 +6,7 @@ class Rename {
 
   Future<void> renameParams(String? oldFileName, String? newFileName, String? tableName,{String? username}) async {
 
-    final encryptionClass = EncryptionClass();
+    final encryption = EncryptionClass();
     final crud = Crud();
     
     late final String query;
@@ -17,8 +17,8 @@ class Rename {
       String updateFileNameQuery = "UPDATE $tableName SET CUST_FILE_PATH = :newName WHERE CUST_FILE_PATH = :oldName AND CUST_USERNAME = :username";
       query = updateFileNameQuery;
       params = {
-        'newName': encryptionClass.Encrypt(newFileName!),
-        'oldName': encryptionClass.Encrypt(oldFileName!),
+        'newName': encryption.encrypt(newFileName!),
+        'oldName': encryption.encrypt(oldFileName!),
         'username': Globals.custUsername,
       };
 
@@ -28,8 +28,8 @@ class Rename {
       query = updateFileNameQuery;
       params = {
         'username': username!,
-        'newname': encryptionClass.Encrypt(newFileName),
-        'oldname': encryptionClass.Encrypt(oldFileName),
+        'newname': encryption.encrypt(newFileName),
+        'oldname': encryption.encrypt(oldFileName),
       };
 
     } else if (Globals.fileOrigin == "sharedToMe") {
@@ -38,8 +38,8 @@ class Rename {
       query = updateFileNameQuery;
       params = {
         'username': username!,
-        'newname': encryptionClass.Encrypt(newFileName),
-        'oldname': encryptionClass.Encrypt(oldFileName),
+        'newname': encryption.encrypt(newFileName),
+        'oldname': encryption.encrypt(oldFileName),
       };
 
     } else if (Globals.fileOrigin == "folderFiles") {
@@ -48,9 +48,9 @@ class Rename {
       query = updateFileNameQuery;
       params =  {
         'username': Globals.custUsername,
-        'newname': encryptionClass.Encrypt(newFileName),
-        'oldname': encryptionClass.Encrypt(oldFileName),
-        'foldtitle': encryptionClass.Encrypt(Globals.folderTitleValue),
+        'newname': encryption.encrypt(newFileName),
+        'oldname': encryption.encrypt(oldFileName),
+        'foldtitle': encryption.encrypt(Globals.folderTitleValue),
       };
 
     } else if (Globals.fileOrigin == "dirFiles") {
@@ -59,9 +59,9 @@ class Rename {
       query = updateFileNameQuery;
       params =  {
         'username': Globals.custUsername,
-        'newname': encryptionClass.Encrypt(newFileName),
-        'oldname': encryptionClass.Encrypt(oldFileName),
-        'dirname': encryptionClass.Encrypt(Globals.directoryTitleValue),
+        'newname': encryption.encrypt(newFileName),
+        'oldname': encryption.encrypt(oldFileName),
+        'dirname': encryption.encrypt(Globals.directoryTitleValue),
       };
 
     }

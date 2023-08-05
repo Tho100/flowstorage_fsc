@@ -40,7 +40,7 @@ class SharingPageState extends State<SharingPage> {
   late String selectedFileName = "";
   late List<int> videoThumbnail = [];
 
-  final ValueNotifier<bool> previewerIsVisibleNotifier = ValueNotifier<bool>(false);
+  final  previewerIsVisibleNotifier = ValueNotifier<bool>(false);
 
   final shareToController = TextEditingController();
   final commentController = TextEditingController(text: '');
@@ -127,14 +127,14 @@ class SharingPageState extends State<SharingPage> {
 
   Future<void> _startSharing(BuildContext? context) async {
 
-    final shareToComment = commentController.text.isEmpty ? '' : EncryptionClass().Encrypt(commentController.text);
+    final shareToComment = commentController.text.isEmpty ? '' : EncryptionClass().encrypt(commentController.text);
     final shareToUsername = shareToController.text;
     final fileName = selectedFileName;
     final fileExtension = fileName.substring(fileName.length - 4);
 
     try {
 
-      final encryptedFileName = EncryptionClass().Encrypt(fileName);
+      final encryptedFileName = EncryptionClass().encrypt(fileName);
 
       if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, Globals.custUsername)) {
         CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
@@ -153,7 +153,7 @@ class SharingPageState extends State<SharingPage> {
         return;
       }
 
-      final fileData = EncryptionClass().Encrypt(fileBase64Encoded);
+      final fileData = EncryptionClass().encrypt(fileBase64Encoded);
 
       final getSharingAuth = await SharingOptions.retrievePassword(shareToUsername);
 

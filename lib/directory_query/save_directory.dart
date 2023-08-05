@@ -22,7 +22,7 @@ class SaveDirectory {
 
     final connection = await SqlConnection.insertValueParams();
 
-    final directoryName = encryption.Encrypt(dirName);
+    final directoryName = encryption.encrypt(dirName);
 
     const query ='SELECT CUST_FILE_PATH, CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
     final params = {'username': username,'dirname': directoryName};
@@ -37,10 +37,10 @@ class SaveDirectory {
       for (final row in result.rows) {
 
         final encryptedFileNames = row.assoc()['CUST_FILE_PATH']!;
-        final fileNames = encryption.Decrypt(encryptedFileNames);
+        final fileNames = encryption.decrypt(encryptedFileNames);
 
         final encryptedFileByte = row.assoc()['CUST_FILE']!;
-        fileBytes = base64.decode(encryption.Decrypt(encryptedFileByte));
+        fileBytes = base64.decode(encryption.decrypt(encryptedFileByte));
 
         final buffer = ByteData.view(fileBytes.buffer);
         final bufferedFileBytes = Uint8List.view(buffer.buffer, buffer.offsetInBytes, buffer.lengthInBytes);

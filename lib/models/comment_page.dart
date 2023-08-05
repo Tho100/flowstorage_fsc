@@ -19,8 +19,7 @@ class CommentPage extends StatefulWidget {
 
 class _CommentPage extends State<CommentPage> {
 
-  final _fileOrigin = Globals.fileOrigin;
-  final TextEditingController noCommentController = TextEditingController(text: '(No Comment)');
+  final noCommentController = TextEditingController(text: '(No Comment)');
 
   Widget _buildHeader() {
     return const Row(
@@ -53,7 +52,7 @@ class _CommentPage extends State<CommentPage> {
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_TO FROM cust_sharing WHERE CUST_FROM = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToName;
@@ -70,12 +69,12 @@ class _CommentPage extends State<CommentPage> {
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_COMMENT FROM cust_sharing WHERE CUST_FROM = :from AND CUST_FILE_PATH = :filename AND CUST_TO = :sharedto";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName),'sharedto': await _shareToOtherName()};
+    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _shareToOtherName()};
     final results = await connection.execute(query,params);
 
     String? decryptedComment;
     for(final row in results.rows) {
-      decryptedComment = row.assoc()['CUST_COMMENT'] == ' ' ? '(No Comment)' : EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
+      decryptedComment = row.assoc()['CUST_COMMENT'] == ' ' ? '(No Comment)' : EncryptionClass().decrypt(row.assoc()['CUST_COMMENT']);
     }
 
     return decryptedComment!;
@@ -93,7 +92,7 @@ class _CommentPage extends State<CommentPage> {
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_FROM FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToMeName;
@@ -110,12 +109,12 @@ class _CommentPage extends State<CommentPage> {
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_COMMENT FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().Encrypt(Globals.selectedFileName),'sharedto': await _sharerName()};
+    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _sharerName()};
     final results = await connection.execute(query,params);
 
     String? decryptedComment;
     for(final row in results.rows) {
-      decryptedComment = EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
+      decryptedComment = EncryptionClass().decrypt(row.assoc()['CUST_COMMENT']);
     }
 
     return decryptedComment!;
@@ -130,12 +129,12 @@ class _CommentPage extends State<CommentPage> {
     final connection = await SqlConnection.insertValueParams();
     
     final query = "SELECT CUST_COMMENT FROM $tableName WHERE CUST_FILE_PATH = :filename";
-    final params = {'filename': EncryptionClass().Encrypt(Globals.selectedFileName)};
+    final params = {'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? decryptedComment;
     for(final row in results.rows) {
-      decryptedComment = EncryptionClass().Decrypt(row.assoc()['CUST_COMMENT']);
+      decryptedComment = EncryptionClass().decrypt(row.assoc()['CUST_COMMENT']);
     }
 
     return decryptedComment! == '' ? '(No Comment)' : decryptedComment;
@@ -145,17 +144,17 @@ class _CommentPage extends State<CommentPage> {
 
     late final String mainFileComment;
 
-    if(_fileOrigin == "homeFiles") {
+    if(Globals.fileOrigin == "homeFiles") {
       mainFileComment = "(No Comment)";
-    } else if (_fileOrigin == "sharedFiles") {
+    } else if (Globals.fileOrigin == "sharedFiles") {
       mainFileComment = await _sharedFileComment();
-    } else if (_fileOrigin == "sharedToMe") {
+    } else if (Globals.fileOrigin == "sharedToMe") {
       mainFileComment = await _sharedToMeComment();
-    } else if (_fileOrigin == "psFiles") {
+    } else if (Globals.fileOrigin == "psFiles") {
       mainFileComment = await _psFileComment();
     }
 
-    final TextEditingController commentText = TextEditingController(text: mainFileComment);
+    final commentText = TextEditingController(text: mainFileComment);
     final mediaQuery = MediaQuery.of(context).size;
 
     return Column(

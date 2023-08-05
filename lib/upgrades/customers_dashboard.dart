@@ -194,7 +194,7 @@ class StripeCustomers {
         setupFiles.deleteSync();
       }
 
-      setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(Globals.custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}\nBasic');
+      setupFiles.writeAsStringSync('${EncryptionClass().encrypt(Globals.custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\nBasic');
 
     } catch (e) {
       // TODO: Ignore

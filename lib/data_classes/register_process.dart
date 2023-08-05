@@ -110,7 +110,7 @@ class RegisterUser {
       final conn = await SqlConnection.insertValueParams();
 
       final String setTokRecov = generateRandomString(16) + userName!;
-      final String removeSpacesSetRecov = EncryptionClass().Encrypt(setTokRecov.replaceAll(RegExp(r'\s'), ''));
+      final String removeSpacesSetRecov = EncryptionClass().encrypt(setTokRecov.replaceAll(RegExp(r'\s'), ''));
 
       final String setTokAcc = (generateRandomString(12) + userName).toLowerCase();
       final String removeSpacesSetTokAcc = AuthModel().computeAuth(setTokAcc.replaceAll(RegExp(r'\s'), ''));
@@ -160,7 +160,7 @@ class RegisterUser {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(email)}\n$accountType');
+        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(custUsername)}\n${EncryptionClass().encrypt(email)}\n$accountType');
 
       } catch (e) {
         // 

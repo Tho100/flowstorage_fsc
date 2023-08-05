@@ -3,7 +3,7 @@ import 'package:mysql_client/mysql_client.dart';
 
 class NameGetterPs {
 
-  static final _encryptionClass = EncryptionClass();
+  static final encryption = EncryptionClass();
 
   Future<List<String>> retrieveParams(MySQLConnectionPool conn, String tableName) async {
 
@@ -16,7 +16,7 @@ class NameGetterPs {
 
       for (final row in retrieveNames.rows) {
         final getNameValues = row.assoc()['CUST_FILE_PATH'];
-        nameSet.add(_encryptionClass.Decrypt(getNameValues));
+        nameSet.add(encryption.decrypt(getNameValues));
       }
 
       return nameSet.toList();  

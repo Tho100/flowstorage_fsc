@@ -60,7 +60,7 @@ class DataRetriever {
 
     for (final row in executeRetrieval.rows) {
       final encryptedFile = row.assoc()['CUST_FILE']!;
-      final decodedFile = base64.decode(EncryptionClass().Decrypt(encryptedFile));
+      final decodedFile = base64.decode(EncryptionClass().decrypt(encryptedFile));
 
       final buffer = ByteData.view(decodedFile.buffer);
       final bufferedFileBytes =

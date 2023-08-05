@@ -76,18 +76,25 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   late String fileType;
   late String currentTable;
 
-  final TextEditingController shareToController = TextEditingController();
-  final TextEditingController commentController = TextEditingController();
-  final TextEditingController textController = TextEditingController();
+  final shareToController = TextEditingController();
+  final commentController = TextEditingController();
+  final textController = TextEditingController();
 
   static final bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
-  final appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
+  final appBarTitleNotifier = ValueNotifier<String>(
+                                Globals.selectedFileName);
+
   final fileSizeNotifier = ValueNotifier<String>('');
   final fileResolutionNotifier = ValueNotifier<String>('');
 
-  final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, GlobalsTable.psAudio, GlobalsTable.psText};
-  final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homePdf, GlobalsTable.psText, GlobalsTable.psPdf};
+  final filesWithCustomHeader = {
+    GlobalsTable.homeText, GlobalsTable.homeAudio, 
+    GlobalsTable.psAudio, GlobalsTable.psText};
+
+  final filesInfrontAppBar = {
+    GlobalsTable.homeText, GlobalsTable.homePdf, 
+    GlobalsTable.psText, GlobalsTable.psPdf};
 
   @override
   void initState() {
@@ -126,7 +133,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
       if(Globals.fileOrigin != "offlineFiles") {
 
-        final encryptVals = EncryptionClass().Encrypt(fileName);
+        final encryptVals = EncryptionClass().encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
         GlobalsData.homeImageData.clear();

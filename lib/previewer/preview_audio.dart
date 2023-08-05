@@ -22,17 +22,20 @@ class PreviewAudio extends StatefulWidget {
 
 class PreviewAudioState extends State<PreviewAudio> {
 
-  final StreamController<double> sliderValueController = StreamController<double>();
+  final sliderValueController = StreamController<double>();
 
-  final ValueNotifier<double> audioPositionNotifier = ValueNotifier<double>(0.0);
-  final ValueNotifier<IconData> iconPausePlayNotifier = ValueNotifier<IconData>(Icons.play_arrow_rounded);
+  final audioPositionNotifier = ValueNotifier<double>(0.0);
+  final iconPausePlayNotifier = ValueNotifier<IconData>(
+                                  Icons.play_arrow_rounded);
 
-  final ValueNotifier<Color> keepPlayingIconColorNotifier = ValueNotifier<Color>(ThemeColor.thirdWhite);
-  final ValueNotifier<bool> isKeepPlayingEnabledNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<String> currentAudioDuration = ValueNotifier<String>("0:00");
+  final keepPlayingIconColorNotifier = ValueNotifier<Color>(
+                                ThemeColor.thirdWhite);
 
-  final AudioPlayer audioPlayerController = AudioPlayer();  
-  final RetrieveData retrieveData = RetrieveData();
+  final isKeepPlayingEnabledNotifier = ValueNotifier<bool>(false);
+  final currentAudioDuration = ValueNotifier<String>("0:00");
+
+  final audioPlayerController = AudioPlayer();  
+  final retrieveData = RetrieveData();
 
   String audioDuration = "0:00";
 

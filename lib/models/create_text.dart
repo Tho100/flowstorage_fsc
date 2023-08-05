@@ -26,8 +26,8 @@ class CreateText extends StatefulWidget {
 
 class _CreateText extends State<CreateText> {
 
-  final TextEditingController textEditingController = TextEditingController();
-  final TextEditingController fileNameController = TextEditingController();
+  final textEditingController = TextEditingController();
+  final fileNameController = TextEditingController();
 
   final logger = Logger();
   final getAssets = GetAssets();
@@ -57,7 +57,7 @@ class _CreateText extends State<CreateText> {
   }
 
   Future<bool> _isFileExists(String fileName) async {
-    return Globals.fileValues.contains(EncryptionClass().Decrypt(fileName));
+    return Globals.fileValues.contains(EncryptionClass().decrypt(fileName));
   }
 
   Future _askFileName() {
@@ -210,7 +210,7 @@ class _CreateText extends State<CreateText> {
 
     try {
 
-      if (await _isFileExists(EncryptionClass().Encrypt("$inputValue.txt"))) {
+      if (await _isFileExists(EncryptionClass().encrypt("$inputValue.txt"))) {
         if (!mounted) return;
         CustomAlertDialog.alertDialog("File with this name already exists.", context);
         return;

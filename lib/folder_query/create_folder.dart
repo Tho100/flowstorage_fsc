@@ -4,16 +4,10 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:intl/intl.dart';
 
-/// <summary>
-/// 
-/// Class to insert folder values
-/// 
-/// </summary>
-
 class CreateFolder {
 
-  final encryptionClass = EncryptionClass();
-  final uploadDate = DateFormat('dd/MM/yyyy').format(DateTime.now()); 
+  final encryption = EncryptionClass();
+  final dateNow = DateFormat('dd/MM/yyyy').format(DateTime.now()); 
 
   Future<void> insertParams(
     String titleFolder,
@@ -25,20 +19,23 @@ class CreateFolder {
 
     final conn = await SqlConnection.insertValueParams();
 
-    const query = "INSERT INTO folder_upload_info VALUES (:fold_title,:username,:file,:type,:date,:filename,:thumbnail)";
+    const query = 
+    "INSERT INTO folder_upload_info VALUES (:folder_name,:username,:file_data,:file_type,:upload_date,:file_name,:thumbnail)";
+
+    final encryptedFolderName = encryption.encrypt(titleFolder);
 
     for (int i = 0; i < fileNames.length; i++) {
 
       final params = {
-        'fold_title': encryptionClass.Encrypt(titleFolder), 
+        'folder_name': encryptedFolderName, 
         'username': Globals.custUsername, 
-        'file': encryptionClass.Encrypt(fileValues[i]),
-        'type': fileTypes[i],
-        'date': uploadDate,
-        'filename': encryptionClass.Encrypt(fileNames[i]),
+        'file_data': encryption.encrypt(fileValues[i]),
+        'file_type': fileTypes[i],
+        'upload_date': dateNow,
+        'file_name': encryption.encrypt(fileNames[i]),
         'thumbnail': videoThumbnail != null && videoThumbnail.length > i
-                    ? videoThumbnail[i]
-                    : 'n0'
+              ? videoThumbnail[i]
+              : '0'
       };
 
       await conn.execute(query, params);

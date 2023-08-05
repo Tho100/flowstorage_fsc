@@ -133,7 +133,7 @@ class SignInUser {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync("${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(custEmail)}\n$accountType");
+        setupFiles.writeAsStringSync("${EncryptionClass().encrypt(custUsername)}\n${EncryptionClass().encrypt(custEmail)}\n$accountType");
 
       } catch (e) {
         // TODO: Ignore

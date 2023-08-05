@@ -10,8 +10,8 @@ import 'package:logger/logger.dart';
 
 class ShareFileData {
 
-  final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
-  final Crud _crud = Crud();
+  final dateNow = DateFormat('dd/MM/yyyy');
+  final crud = Crud();
 
   Future<void> startSharing({
     required String? receiverUsername,
@@ -23,7 +23,7 @@ class ShareFileData {
   }) async {
     try {
 
-      final uploadDate = _dateFormat.format(DateTime.now());
+      final uploadDate = dateNow.format(DateTime.now());
 
       const insertSharingData =
       'INSERT INTO cust_sharing(CUST_TO, CUST_FROM, CUST_FILE_PATH, CUST_FILE, UPLOAD_DATE, FILE_EXT, CUST_THUMB, CUST_COMMENT) '
@@ -40,7 +40,7 @@ class ShareFileData {
         'comment': comment ?? '',
       };
 
-      await _crud.insert(query: insertSharingData, params: params);
+      await crud.insert(query: insertSharingData, params: params);
 
     } catch (err, st) {
       Logger().e("Exception from startSharing {share_file}", err, st);
@@ -76,14 +76,14 @@ class ShareFileData {
       await CallNotify().customNotification(
         title: "File Shared",
         subMesssage:
-        "${ShortenText().cutText(EncryptionClass().Decrypt(fileName))} Has been shared to $sendTo",
+        "${ShortenText().cutText(EncryptionClass().decrypt(fileName))} Has been shared to $sendTo",
       );
 
     } catch (err, st) {
       Logger().e("Exception from insertValuesParam {share_file}", err, st);
       await CallNotify().customNotification(
         title: "Something went wrong",
-        subMesssage: "Failed to share ${{ShortenText().cutText(EncryptionClass().Decrypt(fileName))}}",
+        subMesssage: "Failed to share ${{ShortenText().cutText(EncryptionClass().decrypt(fileName))}}",
       );
     }
   }

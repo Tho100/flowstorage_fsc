@@ -14,8 +14,8 @@ class RenameFolder {
     final Map<String,String> params = 
     {
       'username': Globals.custUsername,
-      'newname': EncryptionClass().Encrypt(newFolderTitle),
-      'oldname': EncryptionClass().Encrypt(oldFolderTitle),
+      'newname': EncryptionClass().encrypt(newFolderTitle),
+      'oldname': EncryptionClass().encrypt(oldFolderTitle),
     };
 
     await Crud().update(

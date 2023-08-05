@@ -18,8 +18,8 @@ import 'package:mysql_client/mysql_client.dart';
 class InsertData {
   
   final logger = Logger();
-  final _encryptionClass = EncryptionClass();
-  final _uploadDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  final encryption = EncryptionClass();
+  final dateNow = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
   Future<void> insertValueParams({
     required String tableName,
@@ -31,8 +31,8 @@ class InsertData {
 
     final conn = await SqlConnection.insertValueParams();
 
-    final encryptedFilePath = _encryptionClass.Encrypt(filePath);
-    final encryptedFileVal = _encryptionClass.Encrypt(fileVal);
+    final encryptedFilePath = encryption.encrypt(filePath);
+    final encryptedFileVal = encryption.encrypt(fileVal);
 
     final thumb = vidThumb != null ? base64.encode(vidThumb) : null;
 
@@ -54,7 +54,7 @@ class InsertData {
         await insertVideoInfo(conn,tableName,encryptedFilePath,userName,encryptedFileVal,thumb);
         break;
 
-      case 'upload_info_directory':
+      case GlobalsTable.directoryUploadTable:
         await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
         break;
 
@@ -88,7 +88,7 @@ class InsertData {
   ) async {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE) VALUES (?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal]);
   }
 
   Future<void> insertVideoInfo(
@@ -101,7 +101,7 @@ class InsertData {
   ) async {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB) VALUES (?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, thumb]);
   }
 
   Future<void> insertDirectoryInfo(
@@ -117,10 +117,10 @@ class InsertData {
   ) async {
 
     final fileExtension = localFilePath.substring(localFilePath.length - 4);
-    final encryptedDirName = _encryptionClass.Encrypt(directoryName);
+    final encryptedDirName = encryption.encrypt(directoryName);
 
     await conn.prepare('INSERT INTO upload_info_directory (CUST_USERNAME, CUST_FILE, DIR_NAME, CUST_FILE_PATH, UPLOAD_DATE, FILE_EXT, CUST_THUMB) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        ..execute([custUsername, encryptedFileVal, encryptedDirName, encryptedFilePath, _uploadDate, fileExtension, thumb]);
+        ..execute([custUsername, encryptedFileVal, encryptedDirName, encryptedFilePath, dateNow, fileExtension, thumb]);
   }
 
   Future<void> insertFileInfoPs(
@@ -132,7 +132,7 @@ class InsertData {
   ) async {
 
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, EncryptionClass().Encrypt(Globals.psCommentValue), Globals.psTagValue]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, EncryptionClass().encrypt(Globals.psCommentValue), Globals.psTagValue]);
   }
 
   Future<void> insertVideoInfoPs(
@@ -144,7 +144,7 @@ class InsertData {
   ) async {
 
     await conn.prepare('INSERT INTO ps_info_video (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, _uploadDate, encryptedFileVal, thumb, EncryptionClass().Encrypt(Globals.psCommentValue),Globals.psTagValue]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, thumb, EncryptionClass().encrypt(Globals.psCommentValue),Globals.psTagValue]);
   }
 
 }

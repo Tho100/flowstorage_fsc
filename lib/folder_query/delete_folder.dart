@@ -8,7 +8,7 @@ class DeleteFolder {
 
     final crud = Crud();
     const deleteFolderQuery = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle";
-    final params = {'username': Globals.custUsername, 'foldtitle': EncryptionClass().Encrypt(Globals.folderTitleValue)};
+    final params = {'username': Globals.custUsername, 'foldtitle': EncryptionClass().encrypt(Globals.folderTitleValue)};
 
     await crud.delete(
       query: deleteFolderQuery, 

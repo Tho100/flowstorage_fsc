@@ -168,7 +168,7 @@ class ResetBackupState extends State<ResetBackup> {
       params: params
     );
 
-    return EncryptionClass().Decrypt(returnedAuth);
+    return EncryptionClass().decrypt(returnedAuth);
 
   }
 

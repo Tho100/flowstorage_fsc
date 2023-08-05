@@ -494,7 +494,7 @@ class _UpgradePage extends State<UpradePage> {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(Globals.custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}\n$accountType');
+        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(Globals.custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\n$accountType');
 
       } catch (e) {
         // TODO: Ignore

@@ -27,8 +27,8 @@ class UpdateValues  {
     late final String encryptedFilePath;
     late final String encryptedFileVal;
 
-    encryptedFilePath = EncryptionClass().Encrypt(filePath);
-    encryptedFileVal = EncryptionClass().Encrypt(newValue);
+    encryptedFilePath = EncryptionClass().encrypt(filePath);
+    encryptedFileVal = EncryptionClass().encrypt(newValue);
 
     if (Globals.fileOrigin == "homeFiles") {
 
@@ -43,7 +43,7 @@ class UpdateValues  {
 
         final List<int> getUnits = newValue.codeUnits;  
         final String getEncodedVers = base64.encode(getUnits);
-        final encryptedFileValText = EncryptionClass().Encrypt(getEncodedVers);
+        final encryptedFileValText = EncryptionClass().encrypt(getEncodedVers);
 
         final query = "UPDATE $tableName SET CUST_FILE = :newvalue WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
         final params = {"username": userName, "newvalue": encryptedFileValText, "filename": encryptedFilePath};
@@ -59,7 +59,7 @@ class UpdateValues  {
       
     } else if (Globals.fileOrigin == "dirFiles") {
 
-      final encryptedDirectoryName = EncryptionClass().Encrypt(Globals.directoryTitleValue);
+      final encryptedDirectoryName = EncryptionClass().encrypt(Globals.directoryTitleValue);
 
       const query = "UPDATE upload_info_directory SET CUST_FILE = :newvalue WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
       final params = {"username": userName, "newvalue": encryptedFileVal, "filename": encryptedFilePath, "dirname": encryptedDirectoryName};
@@ -68,7 +68,7 @@ class UpdateValues  {
 
     } else if (Globals.fileOrigin == "folderFiles") {
 
-      final encryptedFolderName = EncryptionClass().Encrypt(Globals.folderTitleValue);
+      final encryptedFolderName = EncryptionClass().encrypt(Globals.folderTitleValue);
 
       const query = "UPDATE folder_upload_info SET CUST_FILE = :newvalue WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
       final params = {"username": userName, "newvalue": encryptedFileVal, "filename": encryptedFilePath, "foldname": encryptedFolderName};

@@ -25,10 +25,10 @@ class Delete {
       params = {'username': username!, 'filename': fileName!};
     } else if (Globals.fileOrigin == "folderFiles") {
       query = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle AND CUST_FILE_PATH = :filename";
-      params = {'username': username!, 'foldtitle': EncryptionClass().Encrypt(Globals.folderTitleValue),'filename': fileName!};
+      params = {'username': username!, 'foldtitle': EncryptionClass().encrypt(Globals.folderTitleValue),'filename': fileName!};
     } else if (Globals.fileOrigin == "dirFiles") {
       query = "DELETE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
-      params = {'username': username!, 'dirname': EncryptionClass().Encrypt(Globals.directoryTitleValue),'filename': fileName!};
+      params = {'username': username!, 'dirname': EncryptionClass().encrypt(Globals.directoryTitleValue),'filename': fileName!};
     }
 
     await crud.delete(query: query, params: params);

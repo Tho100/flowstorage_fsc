@@ -30,10 +30,10 @@ class ThumbnailGetter {
           query += " AND CUST_TO = :username";
         } else if (Globals.fileOrigin == "sharedToMe") {
           query += " AND CUST_FILE_PATH = :filename";
-          params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(fileName)};
+          params = {'username': Globals.custUsername, 'filename': EncryptionClass().encrypt(fileName)};
         }
       }
-      params = {'username': Globals.custUsername, 'filename': EncryptionClass().Encrypt(fileName)};
+      params = {'username': Globals.custUsername, 'filename': EncryptionClass().encrypt(fileName)};
     } else {
       query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username";
       params = {'username': Globals.custUsername};
@@ -60,7 +60,7 @@ class ThumbnailGetter {
     if(Globals.fileOrigin == "homeFiles") {
 
       const query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-      final params = {'username': Globals.custUsername,'filename': EncryptionClass().Encrypt(fileName)};
+      final params = {'username': Globals.custUsername,'filename': EncryptionClass().encrypt(fileName)};
 
       final results = await conn.execute(query,params);
       

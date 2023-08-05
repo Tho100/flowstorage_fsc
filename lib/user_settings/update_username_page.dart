@@ -161,7 +161,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}\n${Globals.accountType}');
+        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\n${Globals.accountType}');
 
       } catch (e) {
         // TODO: Ignore

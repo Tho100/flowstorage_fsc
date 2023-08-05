@@ -29,7 +29,7 @@ class RetrieveData {
     String? originFrom
   ) async {
 
-    final encryptedFileName = encryption.Encrypt(fileName!);
+    final encryptedFileName = encryption.encrypt(fileName!);
 
     late final String query;
     late final Map<String, String> queryParams;
@@ -45,10 +45,10 @@ class RetrieveData {
       queryParams = {"username": username!, "filename": encryptedFileName};
     } else if (originFrom == "folderFiles") {
       query = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "foldtitle": encryption.Encrypt(Globals.folderTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "foldtitle": encryption.encrypt(Globals.folderTitleValue), "filename": encryptedFileName};
     } else if (originFrom == "dirFiles") {
       query = "SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "dirname": encryption.Encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "dirname": encryption.encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
     } else if (originFrom == "psFiles") {
 
       late String toPsFileName = "";
@@ -64,7 +64,7 @@ class RetrieveData {
     }
 
     final row = (await fscDbCon.execute(query, queryParams)).rows.first;
-    final byteData = base64.decode(encryption.Decrypt(row.assoc()['CUST_FILE']!));
+    final byteData = base64.decode(encryption.decrypt(row.assoc()['CUST_FILE']!));
     return byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
   }
 

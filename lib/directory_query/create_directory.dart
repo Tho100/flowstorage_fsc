@@ -11,7 +11,7 @@ import 'package:logger/logger.dart';
 class DirectoryClass {
 
   final logger = Logger();
-  final encryptionClass = EncryptionClass();
+  final encryption = EncryptionClass();
 
   Future<void> createDirectory(String? directoryName,String? username) async {
     
@@ -20,7 +20,7 @@ class DirectoryClass {
       final conn = await SqlConnection.insertValueParams();
 
       const query = "INSERT INTO file_info_directory(DIR_NAME,CUST_USERNAME) VALUES (:dirname,:username)";
-      final params = {'dirname': encryptionClass.Encrypt(directoryName),'username': username};
+      final params = {'dirname': encryption.encrypt(directoryName),'username': username};
 
       await conn.execute(query,params);
 
