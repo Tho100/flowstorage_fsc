@@ -151,8 +151,6 @@ class CakeHomeState extends State<Mainboard> {
   List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
   Set<String> checkedItemsName = {};
 
-  bool isFromUpload = false;
-
   dynamic leadingImageSearchedValue;
   dynamic fileTitleSearchedValue;
 
@@ -543,7 +541,6 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   void _addItemToListView({required String fileName}) {
-    isFromUpload = true;
     setState(() {
       Globals.fileOrigin == "psFiles" 
       ? Globals.setDateValues.add("") 
@@ -956,7 +953,6 @@ class CakeHomeState extends State<Mainboard> {
 
       setState(() {
 
-        isFromUpload = true;
         Globals.setDateValues.add("Directory");
         Globals.imageByteValues.add(directoryImage.readAsBytesSync());
         Globals.filteredSearchedBytes.add(directoryImage.readAsBytesSync());
