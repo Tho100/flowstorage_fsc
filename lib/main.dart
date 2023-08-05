@@ -32,7 +32,6 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
-//import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -1330,7 +1329,7 @@ class CakeHomeState extends State<Mainboard> {
   /// 
   /// </summary>
   
-  Future<void> _openGalleryDialog() async {
+  Future<void> _openDialogGallery() async {
 
     try {
 
@@ -3280,7 +3279,7 @@ class CakeHomeState extends State<Mainboard> {
                 onPressed: () async {
                   if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                     Navigator.pop(context);
-                    await _openGalleryDialog();
+                    await _openDialogGallery();
                   } else {
                     _upgradeDialog(
                       "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
