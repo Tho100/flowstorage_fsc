@@ -32,7 +32,8 @@ class DataCaller {
   final _sharingDataRetriever = SharingDataReceiver();
   
   Future<void> offlineData() async {
-
+    
+    final getAssets = GetAssets();
     final offlineDirPath = await _offlineMode.returnOfflinePath();
 
     if(!offlineDirPath.existsSync()) { 
@@ -71,23 +72,27 @@ class DataCaller {
 
       } else if (Globals.textType.contains(fileType)) {
         
-        imageBytes = await GetAssets().loadAssetsData("txt0.png");
+        imageBytes = await getAssets.loadAssetsData("txt0.png");
 
       } else if (Globals.audioType.contains(fileType)) {
 
-        imageBytes = await GetAssets().loadAssetsData("music0.png");
+        imageBytes = await getAssets.loadAssetsData("music0.png");
 
       } else if (fileType == "pdf") {
 
-        imageBytes = await GetAssets().loadAssetsData("pdf0.png");
+        imageBytes = await getAssets.loadAssetsData("pdf0.png");
 
       } else if (Globals.wordType.contains(fileType)) {
 
-        imageBytes = await GetAssets().loadAssetsData("doc0.png");
+        imageBytes = await getAssets.loadAssetsData("doc0.png");
 
       } else if (Globals.excelType.contains(fileType)) {
 
-        imageBytes = await GetAssets().loadAssetsData("exl0.png");
+        imageBytes = await getAssets.loadAssetsData("exl0.png");
+
+      } else if (fileType == "exe") {
+        
+        imageBytes = await getAssets.loadAssetsData("exe0.png");
 
       } else {
         continue;
@@ -121,6 +126,7 @@ class DataCaller {
       GlobalsTable.homePdf, GlobalsTable.homeExcel, 
       GlobalsTable.homeVideo, GlobalsTable.homeAudio,
       GlobalsTable.homePtx, GlobalsTable.homeWord,
+      GlobalsTable.homeExe, GlobalsTable.homeApk
     ];
 
     final futures = tablesToCheck.map((table) async {

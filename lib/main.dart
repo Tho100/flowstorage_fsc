@@ -1085,9 +1085,7 @@ class CakeHomeState extends State<Mainboard> {
     final fileType = fileName.split('.').last;
     final tableName = Globals.fileTypesToTableNames[fileType]!;
 
-    const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
-
-    if(unsupportedOfflineModeTypes.contains(fileType)) {
+    if(Globals.unsupportedOfflineModeTypes.contains(fileType)) {
       CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
       return;
     } 
@@ -1470,7 +1468,7 @@ class CakeHomeState extends State<Mainboard> {
         final verifyOrigin = Globals.nameToOrigin[_getCurrentPageName()];
         final shortenText = ShortenText();
 
-        const List<String> nonOfflineFileTypes = [...Globals.imageType, ...Globals.audioType, ...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
+        const List<String> nonOfflineFileTypes = [...Globals.imageType, ...Globals.audioType, ...Globals.videoType,...Globals.excelType,...Globals.textType,...Globals.wordType, "pdf","exe","ptx","pptx"];
         const List<String> offlineFileTypes = [...Globals.audioType,...Globals.excelType,...Globals.textType,...Globals.wordType,"pdf","exe","ptx","pptx"];
 
         final resultPicker = await FilePicker.platform.pickFiles(

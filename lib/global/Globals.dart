@@ -52,6 +52,8 @@ class Globals {
   static const Set<String> excelType = {"xls","xlsx"};
   static const Set<String> audioType = {"wav","mp3"};
 
+  static const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
+
   static const Map<String, String> fileTypesToTableNames = {
     'png': fileInfoTable,
     'jpg': fileInfoTable,

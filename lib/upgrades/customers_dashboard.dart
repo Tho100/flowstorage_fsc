@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 
 class StripeCustomers {
 
@@ -135,6 +138,9 @@ class StripeCustomers {
           query: "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_USERNAME = :username AND CUST_EMAIL = :email", 
           params: {"type": "Basic", "username": Globals.custUsername, "email": Globals.custEmail});
 
+        await deleteEmailByEmail(Globals.custEmail);
+        await _updateLocallyStoredAccountType();
+
       } else {
         return;
       }
@@ -166,6 +172,34 @@ class StripeCustomers {
       Logger().i('Failed to delete email');
     }
 
+  }
+
+  static Future<void> _updateLocallyStoredAccountType() async {
+      
+    final getDirApplication = await getApplicationDocumentsDirectory();
+
+    final setupPath = '${getDirApplication.path}/FlowStorageInfos';
+    final setupInfosDir = Directory(setupPath);
+    if (setupInfosDir.existsSync()) {
+      setupInfosDir.deleteSync(recursive: true);
+    }
+
+    setupInfosDir.createSync();
+
+    final setupFiles = File('${setupInfosDir.path}/CUST_DATAS.txt');
+
+    try {
+      
+      if (setupFiles.existsSync()) {
+        setupFiles.deleteSync();
+      }
+
+      setupFiles.writeAsStringSync('${EncryptionClass().Encrypt(Globals.custUsername)}\n${EncryptionClass().Encrypt(Globals.custEmail)}\nBasic');
+
+    } catch (e) {
+      // TODO: Ignore
+    }
+    
   }
 
 }

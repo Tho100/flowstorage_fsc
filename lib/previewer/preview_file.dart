@@ -39,7 +39,6 @@ import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
-import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 
 import 'package:flutter/foundation.dart';
@@ -73,19 +72,19 @@ class CakePreviewFile extends StatefulWidget {
 class CakePreviewFileState extends State<CakePreviewFile> {
 
   final retrieveData = RetrieveData();
-  String fileType = '';
 
+  late String fileType;
   late String currentTable;
 
   final TextEditingController shareToController = TextEditingController();
   final TextEditingController commentController = TextEditingController();
   final TextEditingController textController = TextEditingController();
 
-  static final ValueNotifier<bool> bottomBarVisibleNotifier = ValueNotifier<bool>(true);
+  static final bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
-  final ValueNotifier<String> appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
-  final ValueNotifier<String> fileSizeNotifier = ValueNotifier<String>('');
-  final ValueNotifier<String> fileResolutionNotifier = ValueNotifier<String>('');
+  final appBarTitleNotifier = ValueNotifier<String>(Globals.selectedFileName);
+  final fileSizeNotifier = ValueNotifier<String>('');
+  final fileResolutionNotifier = ValueNotifier<String>('');
 
   final Set<String> filesWithCustomHeader = {GlobalsTable.homeText, GlobalsTable.homeAudio, GlobalsTable.psAudio, GlobalsTable.psText};
   final Set<String> filesInfrontAppBar = {GlobalsTable.homeText, GlobalsTable.homePdf, GlobalsTable.psText, GlobalsTable.psPdf};
@@ -104,9 +103,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     shareToController.dispose();
     commentController.dispose();
     textController.dispose();
+    appBarTitleNotifier.dispose();
+    fileSizeNotifier.dispose();
+    fileResolutionNotifier.dispose();
     fileResolutionNotifier.value = "";
     fileSizeNotifier.value = "";
-
     super.dispose();
   }
 
@@ -244,10 +245,23 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     if (previewMap.containsKey(fileType)) {
       previewWidget = previewMap[fileType]!();
     } else {
-      previewWidget = FailedLoad.buildFailedLoad();
+      previewWidget = _buildPreviewerUnavailable();
     }
 
     return previewWidget;
+  }
+
+  Widget _buildPreviewerUnavailable() {
+    return const Center(
+      child: Text(
+        "(Preview is not available)",
+        style: TextStyle(
+          color: ThemeColor.secondaryWhite,
+          fontSize: 24,
+          fontWeight: FontWeight.w600
+        ),
+      ),
+    );
   }
 
   Widget _buildHeaderTitle() {
@@ -355,9 +369,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     late final Uint8List fileData;
     final fileType = fileName.split('.').last;
 
-    const Set<String> unsupportedOfflineModeTypes = {"docx","doc","pptx","ptx","xlsx","xls","mp4","wmv"};
-
-    if(unsupportedOfflineModeTypes.contains(fileType)) {
+    if(Globals.unsupportedOfflineModeTypes.contains(fileType)) {
       CustomFormDialog.startDialog(ShortenText().cutText(fileName), "This file is unavailable for offline mode.", context);
       return;
     } 

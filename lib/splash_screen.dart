@@ -160,6 +160,7 @@ class SplashScreenState extends State<SplashScreen> {
         GlobalsTable.homePdf, GlobalsTable.homeExcel, 
         GlobalsTable.homeVideo, GlobalsTable.homeAudio,
         GlobalsTable.homePtx, GlobalsTable.homeWord,
+        GlobalsTable.homeExe, GlobalsTable.homeApk
       ];
 
       final futures = tablesToCheck.map((table) async {

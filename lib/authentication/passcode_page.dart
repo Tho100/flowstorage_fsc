@@ -62,7 +62,8 @@ class PasscodePageState extends State<PasscodePage> {
         GlobalsTable.homeImage, GlobalsTable.homeText, 
         GlobalsTable.homePdf, GlobalsTable.homeExcel, 
         GlobalsTable.homeVideo, GlobalsTable.homeAudio,
-        GlobalsTable.homePtx, GlobalsTable.homeWord
+        GlobalsTable.homePtx, GlobalsTable.homeWord,
+        GlobalsTable.homeExe, GlobalsTable.homeApk
       ];
 
       final futures = tablesToCheck.map((table) async {
