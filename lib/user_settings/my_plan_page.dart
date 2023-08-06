@@ -18,7 +18,7 @@ class MyPlanPage extends StatefulWidget {
 class MyPlanPageState extends State<MyPlanPage> {
 
   final double containerWidth = 35.0;
-  final double containerheight = 265.0;
+  final double containerheight = 305.0;
 
   Widget buildHeader(String typeTag, String priceTag, String featuresTag) {
     return Column(
@@ -148,7 +148,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Max", "2", "Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files ${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders ${GlobalsStyle.dotSeperator} Folder Download"
+                      "Max", "2", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
                     ),
                   ),
                 ),
@@ -189,7 +189,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Express", "8", "Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files ${GlobalsStyle.dotSeperator} Folder Download"
+                      "Express", "8", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
                     ),
                   ),
                 ),
@@ -230,7 +230,8 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Supreme", "20", "Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files ${GlobalsStyle.dotSeperator} Folder Download ${GlobalsStyle.dotSeperator} Upload up to 5 Directories"
+                      "Supreme", "20", 
+                      "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download \n${GlobalsStyle.dotSeperator} Upload up to 5 Directories"
                     ),
                   ),
                 ),

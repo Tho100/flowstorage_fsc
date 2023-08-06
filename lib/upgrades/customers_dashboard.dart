@@ -127,16 +127,16 @@ class StripeCustomers {
       final cancelResponse = await http.delete(cancelUrl, headers: headers, body: jsonEncode(cancelData));
       
       if (cancelResponse.statusCode == 200) {
-
-        Globals.accountType = "Basic";
+        
+        await crud.update(
+          query: "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_EMAIL = :email", 
+          params: {"type": "Basic", "email": Globals.custEmail});
 
         await crud.delete(
           query: "DELETE FROM cust_buyer WHERE CUST_USERNAME = :username", 
           params: {"username": Globals.custUsername});
 
-        await crud.update(
-          query: "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_USERNAME = :username AND CUST_EMAIL = :email", 
-          params: {"type": "Basic", "username": Globals.custUsername, "email": Globals.custEmail});
+        Globals.accountType = "Basic";
 
         await deleteEmailByEmail(Globals.custEmail);
         await _updateLocallyStoredAccountType();
@@ -144,7 +144,7 @@ class StripeCustomers {
       } else {
         return;
       }
-    } else {
+    } else {      
       return;
     }
   
