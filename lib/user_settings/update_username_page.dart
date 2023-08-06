@@ -208,6 +208,10 @@ class ChangeUsernameState extends State<ChangeUsername> {
     final usernameParam = {'newusername': newUsername,'oldusername': Globals.custUsername};
     await Crud().update(query: updateUsernameQuery, params: usernameParam);
 
+    const updateUsernameAccountTypeQuery = "UPDATE cust_type SET CUST_USERNAME = :newusername WHERE CUST_USERNAME = :oldusername";
+    final accountTypeParams = {'newusername': newUsername,'oldusername': Globals.custUsername};
+    await Crud().update(query: updateUsernameAccountTypeQuery, params: accountTypeParams);
+
   }
 
   Future<void> _executeChanges(String newUsername,String authenticationString, BuildContext context) async {

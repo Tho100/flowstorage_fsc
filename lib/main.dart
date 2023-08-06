@@ -150,7 +150,9 @@ class CakeHomeState extends State<Mainboard> {
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
 
-  List<bool> checkedList = List.generate(Globals.filteredSearchedFiles.length, (index) => false);
+  List<bool> checkedList = List.generate(
+        Globals.filteredSearchedFiles.length, (index) => false);
+
   Set<String> checkedItemsName = {};
 
   dynamic leadingImageSearchedValue;
@@ -1947,6 +1949,8 @@ class CakeHomeState extends State<Mainboard> {
                 ),
               ),
 
+              if(Globals.fileOrigin != "psFiles")
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1961,8 +1965,8 @@ class CakeHomeState extends State<Mainboard> {
                       textAlign: TextAlign.center,
                     ),
                   ),
+                  
                   Padding(
-
                     padding: const EdgeInsets.only(right: 25.0),
                     child: FutureBuilder<int>(
                       future: _getUsageProgressBar(),
@@ -1980,6 +1984,8 @@ class CakeHomeState extends State<Mainboard> {
                   ),
                 ],
               ),
+
+              if(Globals.fileOrigin != "psFiles")
 
               Padding(
                 padding: const EdgeInsets.all(12.0),

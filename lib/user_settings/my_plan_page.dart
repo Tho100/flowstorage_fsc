@@ -148,7 +148,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Max", "2", "Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files ${GlobalsStyle.dotSeperator} Folder Download"
+                      "Max", "2", "Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files ${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders ${GlobalsStyle.dotSeperator} Folder Download"
                     ),
                   ),
                 ),
