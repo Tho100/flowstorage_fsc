@@ -9,13 +9,14 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
-import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -32,10 +33,14 @@ class PasscodePageState extends State<PasscodePage> {
 
   final logger = Logger();
 
+  final isButtonsEnabledNotifier = ValueNotifier<bool>(true);
+  final isPasscodeIncorrectNotifier = ValueNotifier<bool>(false);
+
   final controllers = List.generate(4, (_) => TextEditingController());
   final focusNodes = List.generate(4, (_) => FocusNode());
 
   int currentActiveField = 0;
+  int totalAttempts = 0;
 
   final fileNameGetterStartup = NameGetter();
   final dataGetterStartup = DataRetriever();
@@ -43,6 +48,10 @@ class PasscodePageState extends State<PasscodePage> {
   final accountInformationRetriever = UserDataRetriever();
 
   final crud = Crud();
+
+  void disableButtons() {
+    isButtonsEnabledNotifier.value = false;
+  }
 
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail, String savedAccountType ,BuildContext context) async {
 
@@ -123,6 +132,13 @@ class PasscodePageState extends State<PasscodePage> {
         userInput += input;
       }
 
+      totalAttempts++;
+
+      if(totalAttempts == 5) {
+        disableButtons();
+        CallToast.call(message: "Passcode has been locked.");
+      }
+
       if(userInput == storedValue) {
 
         final conn = await SqlConnection.insertValueParams();
@@ -140,8 +156,8 @@ class PasscodePageState extends State<PasscodePage> {
         NavigatePage.permanentPageMainboard(context);
 
       } else {
-        if(!mounted) return;
-        SnakeAlert.errorSnake("Incorrect passcode.", context);
+        HapticFeedback.heavyImpact();
+        isPasscodeIncorrectNotifier.value = true;
       }
 
     } catch (err, st) {
@@ -236,10 +252,26 @@ class PasscodePageState extends State<PasscodePage> {
             ),
           ),
         ),
+
+        const SizedBox(height: 25),
       
+        Visibility(
+          visible: isPasscodeIncorrectNotifier.value,
+          child: const Center(
+            child: Text(
+              "Passcode is incorrect",
+              style: TextStyle(
+                color: ThemeColor.darkRed,
+                fontSize: 16,
+                fontWeight: FontWeight.w500
+              ),
+            ),
+          ),
+        ),
+
         const Spacer(),
 
-        const SizedBox(height: 185),
+        const SizedBox(height: 125),
 
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -281,8 +313,6 @@ class PasscodePageState extends State<PasscodePage> {
           ],
         ),
 
-        const SizedBox(height: 18),
-
         const Spacer(),
 
       ],
@@ -318,7 +348,9 @@ class PasscodePageState extends State<PasscodePage> {
           padding: EdgeInsets.zero
         ),
         onPressed: () {
-          setState(() {
+          isButtonsEnabledNotifier.value == false 
+          ? null 
+          : setState(() {
             updateCurrentFieldText(input);
           });
         },
