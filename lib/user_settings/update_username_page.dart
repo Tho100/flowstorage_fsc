@@ -174,12 +174,14 @@ class ChangeUsernameState extends State<ChangeUsername> {
 
   Future<void> _updateUsername({required String newUsername}) async {
 
+    final crud = Crud();
+
     for(final tables in GlobalsTable.tableNamesPs) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
       final params = {'newname': newUsername,'oldname': Globals.custUsername};
 
-      await Crud().update(
+      await crud.update(
         query: updateNameQuery, 
         params: params
       );
@@ -190,27 +192,35 @@ class ChangeUsernameState extends State<ChangeUsername> {
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
       final params = {'newname': newUsername,'oldname': Globals.custUsername};
 
-      await Crud().update(
+      await crud.update(
         query: updateNameQuery, 
         params: params
       );
     }
 
-    const updateNameQuery = "UPDATE cust_sharing SET CUST_FROM = :newname WHERE CUST_FROM = :oldname";
-    final params = {'newname': newUsername,'oldname': Globals.custUsername};
+    const generalTablesName = {
+      GlobalsTable.directoryUploadTable, GlobalsTable.folderUploadTable,
+      "information", "cust_type", "sharing_info"
+    };
 
-    await Crud().update(
-      query: updateNameQuery, 
-      params: params
+    for(final tables in generalTablesName) {
+
+      final updateUsernameQuery = "UPDATE $tables SET CUST_USERNAME = :username WHERE CUST_USERNAME = :oldname";
+      final params = {"username": newUsername, "oldname": Globals.custUsername};
+
+      await crud.update(
+        query: updateUsernameQuery, 
+        params: params
+      );
+    }
+
+    const updateSharingQuery = "UPDATE cust_sharing SET CUST_FROM = :username WHERE CUST_FROM = :oldname";
+    final paramsSharing = {"username": newUsername, "oldname": Globals.custUsername};
+
+    await crud.update(
+      query: updateSharingQuery,
+      params: paramsSharing
     );
-
-    const updateUsernameQuery = "UPDATE information SET CUST_USERNAME = :newusername WHERE CUST_USERNAME = :oldusername";
-    final usernameParam = {'newusername': newUsername,'oldusername': Globals.custUsername};
-    await Crud().update(query: updateUsernameQuery, params: usernameParam);
-
-    const updateUsernameAccountTypeQuery = "UPDATE cust_type SET CUST_USERNAME = :newusername WHERE CUST_USERNAME = :oldusername";
-    final accountTypeParams = {'newusername': newUsername,'oldusername': Globals.custUsername};
-    await Crud().update(query: updateUsernameAccountTypeQuery, params: accountTypeParams);
 
   }
 

@@ -1037,14 +1037,7 @@ class CakeHomeState extends State<Mainboard> {
         final imagePath = photoTaken.selectedFile.toString()
                           .split(" ").last.replaceAll("'", "");
 
-        if(!mounted) return;
-
-        CustomAlertDialog.alertDialog(imagePath, context);
-
         final imageName = imagePath.split("/").last.replaceAll("'", "");
-        
-        CustomAlertDialog.alertDialog(imageName, context);
-
         final fileExtension = imageName.split('.').last;
 
         if(!(Globals.imageType.contains(fileExtension))) {
