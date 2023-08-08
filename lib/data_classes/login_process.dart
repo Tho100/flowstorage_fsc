@@ -151,7 +151,7 @@ class SignInUser {
 
     try {
 
-      final custUsername = await userDataRetriever.retrieveUsername(email: email, conn: conn);
+      final custUsername = await userDataRetriever.retrieveUsername(email: email);
 
       if (custUsername.isNotEmpty) {
 

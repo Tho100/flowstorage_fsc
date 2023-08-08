@@ -57,7 +57,7 @@ class MyPlanPageState extends State<MyPlanPage> {
           featuresTag,
           style: const TextStyle(
             color: ThemeColor.darkBlack,
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w900
           ),
         ),

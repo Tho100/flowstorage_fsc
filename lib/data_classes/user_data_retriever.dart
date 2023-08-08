@@ -25,9 +25,9 @@ class UserDataRetriever {
 
   }
 
-  Future<String> retrieveUsername({
-    required String? email, conn
-  }) async {
+  Future<String> retrieveUsername({required String? email}) async {
+
+    final conn = await SqlConnection.insertValueParams();
 
     const query = "SELECT CUST_USERNAME FROM information WHERE CUST_EMAIL = :email";
     final params = {'email': email};

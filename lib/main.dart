@@ -135,6 +135,8 @@ class CakeHomeState extends State<Mainboard> {
   final appBarTitle = ValueNotifier<String>('');
   final sortingText = ValueNotifier<String>('Default');
 
+  final publicStorageSelected = ValueNotifier<bool>(false);
+
   final navDirectoryButtonVisible = ValueNotifier<bool>(true);
   final floatingActionButtonVisible = ValueNotifier<bool>(true);
   final homeButtonVisible = ValueNotifier<bool>(false);
@@ -257,6 +259,28 @@ class CakeHomeState extends State<Mainboard> {
     Globals.filteredSearchedBytes.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
+  }
+
+  void togglePublicStorage() async {
+    
+    if (publicStorageSelected.value) {
+
+      await _callHomeData();
+
+      appBarTitle.value = "Home";
+
+      _navDirectoryButtonVisibility(true);
+      _floatingButtonVisiblity(true);
+      _returnBackHomeFiles();
+      await _refreshListView();
+
+    } else {
+      await _callPublicStorageData();
+    }
+
+    publicStorageSelected.value = !publicStorageSelected.value; 
+
+    setState(() {});
   }
 
   void _openPsCommentDialog({
@@ -897,9 +921,9 @@ class CakeHomeState extends State<Mainboard> {
     _onTextChanged('');
     searchBarController.text = '';
 
-    _navHomeButtonVisibility(true);
+    _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
-    
+
   }
 
   Future<void> _callFolderData(String folderTitle) async {
@@ -3498,11 +3522,13 @@ class CakeHomeState extends State<Mainboard> {
           ),
           BottomNavigationBarItem(
             icon: SizedBox(
-              width: 25, 
+              width: 25,
               height: 25,
-              child: Image.asset('assets/nice/public_icon.png'),
+              child: publicStorageSelected.value
+                  ? const Icon(Icons.home_outlined)
+                  : Image.asset('assets/nice/public_icon.png'),
             ),
-            label: "Public",
+            label: publicStorageSelected.value ? "Home" : "Public",
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
@@ -3522,7 +3548,7 @@ class CakeHomeState extends State<Mainboard> {
                 break;
             
             case 2:
-              await _callPublicStorageData();
+              togglePublicStorage();
               break;
 
             case 3:

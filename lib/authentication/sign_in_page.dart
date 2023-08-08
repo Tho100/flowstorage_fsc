@@ -168,7 +168,7 @@ class CakeSignInPageState extends State<CakeSignInPage> {
                         },
                       ),
               
-                      hintText: "Enter a password",
+                      hintText: "Enter your password",
                       contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
                       hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                       fillColor: ThemeColor.darkGrey,

@@ -39,7 +39,7 @@ dependencies:
   fluttertoast: ^8.2.2
   video_thumbnail: ^0.5.3
   image_picker_plus: ^0.5.9
-    
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

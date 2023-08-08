@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
@@ -39,15 +37,15 @@ class PasscodePageState extends State<PasscodePage> {
   final controllers = List.generate(4, (_) => TextEditingController());
   final focusNodes = List.generate(4, (_) => FocusNode());
 
-  int currentActiveField = 0;
-  int totalAttempts = 0;
-
   final fileNameGetterStartup = NameGetter();
   final dataGetterStartup = DataRetriever();
   final dateGetterStartup = DateGetter();
   final accountInformationRetriever = UserDataRetriever();
 
   final crud = Crud();
+
+  int currentActiveField = 0;
+  int totalAttempts = 0;
 
   void disableButtons() {
     isButtonsEnabledNotifier.value = false;
@@ -134,12 +132,10 @@ class PasscodePageState extends State<PasscodePage> {
 
       totalAttempts++;
 
-      if(totalAttempts == 5) {
-        disableButtons();
-        CallToast.call(message: "Passcode has been locked.");
-      }
-
       if(userInput == storedValue) {
+
+        isPasscodeIncorrectNotifier.value = false;
+        isButtonsEnabledNotifier.value = true;
 
         final conn = await SqlConnection.insertValueParams();
 
@@ -155,9 +151,10 @@ class PasscodePageState extends State<PasscodePage> {
         if(!mounted) return;
         NavigatePage.permanentPageMainboard(context);
 
-      } else {
-        HapticFeedback.heavyImpact();
+      } else {        
         isPasscodeIncorrectNotifier.value = true;
+        callVibration();
+        disableButtonsOnFailed5Attempts();
       }
 
     } catch (err, st) {
@@ -165,6 +162,18 @@ class PasscodePageState extends State<PasscodePage> {
       logger.e("Exception from validatePassCode {PasscodePage}",err, st);
     } 
 
+  }
+
+  void callVibration() {
+    Clipboard.setData(const ClipboardData(text: ""));
+    HapticFeedback.heavyImpact();
+  }
+
+  void disableButtonsOnFailed5Attempts() {
+    if(totalAttempts == 5) {
+      disableButtons();
+      CallToast.call(message: "Passcode has been locked.");
+    }
   }
 
   void processInput() {
@@ -348,11 +357,18 @@ class PasscodePageState extends State<PasscodePage> {
           padding: EdgeInsets.zero
         ),
         onPressed: () {
+
+          if(isButtonsEnabledNotifier.value == false) {
+            CallToast.call(message: "Passcode has been locked.");
+            return;
+          }
+
           isButtonsEnabledNotifier.value == false 
           ? null 
           : setState(() {
             updateCurrentFieldText(input);
           });
+
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -409,6 +425,9 @@ class PasscodePageState extends State<PasscodePage> {
     for(var node in focusNodes) {
       node.dispose();
     }
+
+    isButtonsEnabledNotifier.dispose();
+    isPasscodeIncorrectNotifier.dispose();
 
     super.dispose();
   }
