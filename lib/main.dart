@@ -135,7 +135,7 @@ class CakeHomeState extends State<Mainboard> {
   final appBarTitle = ValueNotifier<String>('');
   final sortingText = ValueNotifier<String>('Default');
 
-  final publicStorageSelected = ValueNotifier<bool>(false);
+  final publicStorageSelectedNotifier = ValueNotifier<bool>(false);
 
   final navDirectoryButtonVisible = ValueNotifier<bool>(true);
   final floatingActionButtonVisible = ValueNotifier<bool>(true);
@@ -263,11 +263,9 @@ class CakeHomeState extends State<Mainboard> {
 
   void togglePublicStorage() async {
     
-    if (publicStorageSelected.value) {
+    if (publicStorageSelectedNotifier.value) {
 
       await _callHomeData();
-
-      appBarTitle.value = "Home";
 
       _navDirectoryButtonVisibility(true);
       _floatingButtonVisiblity(true);
@@ -278,7 +276,8 @@ class CakeHomeState extends State<Mainboard> {
       await _callPublicStorageData();
     }
 
-    publicStorageSelected.value = !publicStorageSelected.value; 
+    publicStorageSelectedNotifier.value 
+      = !publicStorageSelectedNotifier.value; 
 
     setState(() {});
   }
@@ -870,6 +869,7 @@ class CakeHomeState extends State<Mainboard> {
 
   Future<void> _callHomeData() async {
     await dataCaller.homeData();
+    appBarTitle.value = "Home";
     _navHomeButtonVisibility(false);
   }
 
@@ -976,7 +976,7 @@ class CakeHomeState extends State<Mainboard> {
 
       await DirectoryClass().createDirectory(directoryName, Globals.custUsername);
 
-      final directoryImage = await GetAssets().loadAssetsFile('dir0.png');
+      final directoryImage = await GetAssets().loadAssetsFile('dir1.png');
 
       setState(() {
 
@@ -2949,7 +2949,7 @@ class CakeHomeState extends State<Mainboard> {
                       child: Ink(
                         child: ListTile(
                           leading: Image.asset(
-                            'assets/nice/dir0.png',
+                            'assets/nice/dir1.png',
                             width: 35,
                             height: 35,
                           ),
@@ -3524,11 +3524,12 @@ class CakeHomeState extends State<Mainboard> {
             icon: SizedBox(
               width: 25,
               height: 25,
-              child: publicStorageSelected.value
+              child: publicStorageSelectedNotifier.value
                   ? const Icon(Icons.home_outlined)
                   : Image.asset('assets/nice/public_icon.png'),
             ),
-            label: publicStorageSelected.value ? "Home" : "Public",
+            label: publicStorageSelectedNotifier.value 
+                  ? "Home" : "Public",
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
@@ -4219,6 +4220,7 @@ class CakeHomeState extends State<Mainboard> {
     selectAllItemsIconNotifier.dispose();
     selectAllItemsIconNotifier.dispose();
     ascendingDescendingIconNotifier.dispose();
+    publicStorageSelectedNotifier.dispose();
 
     super.dispose();
   }

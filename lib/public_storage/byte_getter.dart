@@ -32,7 +32,7 @@ class ByteGetterPs {
     _fileInfoAudio: "music0.png",
     _fileInfoExl: "exl0.png",
     _fileInfoPtx: "ptx0.png",
-    _fileInfoMsi: "dir0.png",
+    _fileInfoMsi: "exe0.png",
     _fileInfoDoc: "doc0.png",
     _fileInfoExe: "exe0.png",
     _fileInfoApk: "apk0.png"

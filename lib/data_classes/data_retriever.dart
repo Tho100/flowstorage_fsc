@@ -106,7 +106,7 @@ class DataRetriever {
 
       if(GlobalsData.directoryImageData.isEmpty) {
 
-        final dirImage = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir0.png')));
+        final dirImage = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir1.png')));
         getByteValue.addAll(dirImage);
 
         GlobalsData.directoryImageData.addAll(dirImage);
