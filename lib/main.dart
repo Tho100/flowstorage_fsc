@@ -134,6 +134,7 @@ class CakeHomeState extends State<Mainboard> {
 
   final appBarTitle = ValueNotifier<String>('');
   final sortingText = ValueNotifier<String>('Default');
+  final searchHintText = ValueNotifier<String>('Search in Flowstorage');
 
   final publicStorageSelectedNotifier = ValueNotifier<bool>(false);
 
@@ -252,6 +253,14 @@ class CakeHomeState extends State<Mainboard> {
     return getPageName;
   }
 
+  void _goBackHome() async {
+    appBarTitle.value = "Home";
+    _navDirectoryButtonVisibility(true);
+    _floatingButtonVisiblity(true);
+    _returnBackHomeFiles();
+    await _refreshListView();
+  }
+
   void _clearGlobalData() {
     Globals.fileValues.clear();
     Globals.filteredSearchedFiles.clear();
@@ -259,6 +268,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.filteredSearchedBytes.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
+    searchHintText.value = "Search in Flowstorage";
   }
 
   void _togglePublicStorage() async {
@@ -895,6 +905,7 @@ class CakeHomeState extends State<Mainboard> {
 
     _onTextChanged('');
     searchBarController.text = '';
+    searchHintText.value = "Search in ${appBarTitle.value}";
     _navHomeButtonVisibility(true);
 
   }
@@ -3003,130 +3014,129 @@ class CakeHomeState extends State<Mainboard> {
 
         const SizedBox(height: 8),
 
-        Row(
-
-          children: [
-
-            const SizedBox(width: 16),
-
-            ElevatedButton(
-              onPressed: () {
-                _buildSharedBottom();
-              },
-              style: GlobalsStyle.btnNavigationBarStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.share, color: Colors.white),
-                  Text(
-                    '  Shared',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+        Visibility(
+          visible: VisibilityChecker.setNotVisible("psFiles"),
+          child: Row(
+        
+            children: [
+        
+              const SizedBox(width: 16),
+        
+              ElevatedButton(
+                onPressed: () {
+                  _buildSharedBottom();
+                },
+                style: GlobalsStyle.btnNavigationBarStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.share, color: Colors.white),
+                    Text(
+                      '  Shared',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-
-            const SizedBox(width: 8),
-
-            ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  await _initializeCameraScanner();
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-              style: GlobalsStyle.btnNavigationBarStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.center_focus_strong_rounded, color: Colors.white),
-                  Text(
-                    '  Scan',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+        
+              const SizedBox(width: 8),
+        
+              ElevatedButton(
+                onPressed: () async {
+                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                    await _initializeCameraScanner();
+                  } else {
+                    _upgradeDialog(
+                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                    );
+                  }
+                },
+                style: GlobalsStyle.btnNavigationBarStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.center_focus_strong_rounded, color: Colors.white),
+                    Text(
+                      '  Scan',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-
-            const SizedBox(width: 8),
-
-            ValueListenableBuilder<bool>(
-              valueListenable: navDirectoryButtonVisible,
-              builder: (BuildContext context, bool value, Widget? child) {
-                return Visibility(
-                  visible: value,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
-                      if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                        if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-                          _buildCreateDirectoryDialog();
+        
+              const SizedBox(width: 8),
+        
+              ValueListenableBuilder<bool>(
+                valueListenable: navDirectoryButtonVisible,
+                builder: (BuildContext context, bool value, Widget? child) {
+                  return Visibility(
+                    visible: value,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
+                        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                            _buildCreateDirectoryDialog();
+                          } else {
+                            _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                          }
                         } else {
-                          _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                          _upgradeDialog(
+                            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                          );
                         }
-                      } else {
-                        _upgradeDialog(
-                          "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                        );
-                      }
-                    },
-                    style: GlobalsStyle.btnNavigationBarStyle,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.add_box, color: Colors.white),
-                        Text(
-                          '  Directory',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                      },
+                      style: GlobalsStyle.btnNavigationBarStyle,
+                      child: const Row(
+                        children: [
+                          Icon(Icons.add_box, color: Colors.white),
+                          Text(
+                            '  Directory',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-
-            ValueListenableBuilder<bool>(
-              valueListenable: homeButtonVisible,
-              builder: (BuildContext context, bool value, Widget? child) {
-                return Visibility(
-                  visible: value,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      appBarTitle.value = "Home";
-                      _navDirectoryButtonVisibility(true);
-                      _floatingButtonVisiblity(true);
-                      _returnBackHomeFiles();
-                      await _refreshListView();
-                    },
-                    style: GlobalsStyle.btnNavigationBarStyle,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.home, color: Colors.white),
-                        Text(
-                          '  Home',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                  );
+                },
+              ),
+        
+              ValueListenableBuilder<bool>(
+                valueListenable: homeButtonVisible,
+                builder: (BuildContext context, bool value, Widget? child) {
+                  return Visibility(
+                    visible: value,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _goBackHome();
+                      },
+                      style: GlobalsStyle.btnNavigationBarStyle,
+                      child: const Row(
+                        children: [
+                          Icon(Icons.home, color: Colors.white),
+                          Text(
+                            '  Home',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-
-          ],
+                  );
+                },
+              ),
+        
+            ],
+          ),
         ),
 
         const SizedBox(height: 12),
@@ -3236,7 +3246,7 @@ class CakeHomeState extends State<Mainboard> {
                       borderSide: const BorderSide(color: ThemeColor.mediumGrey),
                       borderRadius: BorderRadius.circular(25.0),
                     ),
-                    hintText: 'Search in Flowstorage',
+                    hintText: searchHintText.value,
                     hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
                     prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
                   ),
@@ -4150,17 +4160,14 @@ class CakeHomeState extends State<Mainboard> {
 
         const SizedBox(height: 6),
 
-        Visibility(
-          visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
-          child: Text(
-            GlobalsData.psTagsValuesData[index],
-            style: TextStyle(
-              color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-            ),
-            textAlign: TextAlign.center,
+        Text(
+          GlobalsData.psTagsValuesData[index],
+          style: TextStyle(
+            color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
           ),
+          textAlign: TextAlign.center,
         ),
-
+      
         const SizedBox(height: 10) 
 
       ],
