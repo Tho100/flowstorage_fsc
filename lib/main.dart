@@ -4035,13 +4035,24 @@ class CakeHomeState extends State<Mainboard> {
                       width: 31,
                     )
                   : const SizedBox(),
-                trailing: GestureDetector(
-                  onTap: () {
-                    _callBottomTrailling(index);
-                  },
-                  child: editAllIsPressed
-                    ? _buildCheckboxItem(index)
-                    : const Icon(Icons.more_vert, color: Colors.white),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if(Globals.fileOrigin == "offlineFiles")
+                    const Icon(Icons.offline_bolt_rounded, color: Colors.white, size: 21),
+
+                    if(Globals.fileOrigin == "offlineFiles")
+                    const SizedBox(width: 8),
+
+                    GestureDetector(
+                      onTap: () {
+                        _callBottomTrailling(index);
+                      },
+                      child: editAllIsPressed
+                        ? _buildCheckboxItem(index)
+                        : const Icon(Icons.more_vert, color: Colors.white),
+                    ),
+                  ],
                 ),
                 title: Text(
                   fileTitleSearchedValue,
