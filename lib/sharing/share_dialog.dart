@@ -95,6 +95,7 @@ class SharingDialog {
     if(Globals.videoType.contains(fileExtension)) {
       
       thumbnailBase64 = await Future.value(ThumbnailGetter().retrieveParamsSingle(fileName: fileName));
+      
     }
 
     if(getSharingAuth != "DEF") {

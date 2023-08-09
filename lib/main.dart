@@ -261,7 +261,7 @@ class CakeHomeState extends State<Mainboard> {
     Globals.imageByteValues.clear();
   }
 
-  void togglePublicStorage() async {
+  void _togglePublicStorage() async {
     
     if (publicStorageSelectedNotifier.value) {
 
@@ -2964,7 +2964,7 @@ class CakeHomeState extends State<Mainboard> {
                             onTap: () {
                               _buildFolderBottomTrailing(Globals.foldValues[index]);
                             },
-                            child: const Icon(Icons.more_vert,color: Colors.white)),
+                          child: const Icon(Icons.more_vert,color: Colors.white)),
                         ),
                       ),
                     );
@@ -3549,7 +3549,7 @@ class CakeHomeState extends State<Mainboard> {
                 break;
             
             case 2:
-              togglePublicStorage();
+              _togglePublicStorage();
               break;
 
             case 3:
@@ -4098,57 +4098,98 @@ class CakeHomeState extends State<Mainboard> {
           await _navigateToPreviewFile(index);
         },
         child: IntrinsicHeight(
-          child: Column(
-            children: [
-             Expanded(
-               child: Container(
-                width: 89,
-                height: 89,
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  child: Image.memory(imageBytes, fit: BoxFit.cover),
-                ),
-              ),
-             ),
-              const SizedBox(height: 10),
-              Text(
-                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
-                style: const TextStyle(
-                  color: ThemeColor.justWhite,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                maxLines: 1,
-                textAlign: TextAlign.center,
-              ),
-
-              if (VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]))
-              const SizedBox(height: 6),
-
-              if(Globals.fileOrigin == "psFiles")
-              Visibility(
-                visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
-                child: Text(
-                  GlobalsData.psTagsValuesData[index],
-                  style: TextStyle(
-                    color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-              Globals.fileOrigin == "psFiles"
-              ? const SizedBox(height: 10) 
-              : const SizedBox(height: 2),
-
-            ],
-          ),
+          child: Globals.fileOrigin == "psFiles"
+                ? _buildPsStaggeredListView(imageBytes, index)
+                : _buildNormalStaggeredListView(imageBytes, index)
         ),
       ),
+    );
+  }
+
+  Widget _buildPsStaggeredListView(Uint8List imageBytes, int index) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+          width: 89,
+          height: 89,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: Image.memory(imageBytes, fit: BoxFit.cover),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+        
+        Text(
+          ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
+          style: const TextStyle(
+            color: ThemeColor.justWhite,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
+          ),
+          maxLines: 1,
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 6),
+
+        Visibility(
+          visible: VisibilityChecker.setNotVisibleList(["homeFiles","sharedToMe","sharedFiles","offlineFiles","folderFiles","dirFiles"]),
+          child: Text(
+            GlobalsData.psTagsValuesData[index],
+            style: TextStyle(
+              color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+
+        const SizedBox(height: 10) 
+
+      ],
+    );
+  }
+
+  Widget _buildNormalStaggeredListView(Uint8List imageBytes, int index) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+          width: 89,
+          height: 89,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: Image.memory(imageBytes, fit: BoxFit.cover),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+        
+        Text(
+          ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
+          style: const TextStyle(
+            color: ThemeColor.justWhite,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
+          ),
+          maxLines: 1,
+          textAlign: TextAlign.center,
+        ),
+        
+        const SizedBox(height: 10) 
+
+      ],
     );
   }
 

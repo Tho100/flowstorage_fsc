@@ -51,16 +51,24 @@ class ThumbnailGetter {
   
   }
 
-  Future<String?> retrieveParamsSingle({required String? fileName}) async {
+  Future<String?> retrieveParamsSingle({
+    required String? fileName,
+    String? subDirName
+  }) async {
 
     final conn = await SqlConnection.insertValueParams();
 
     String? base64EncodeThumbnail;
 
+    final encryptedFileName = EncryptionClass().encrypt(fileName);
+
     if(Globals.fileOrigin == "homeFiles") {
 
       const query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-      final params = {'username': Globals.custUsername,'filename': EncryptionClass().encrypt(fileName)};
+      final params = {
+        'username': Globals.custUsername,
+        'filename': encryptedFileName
+      };
 
       final results = await conn.execute(query,params);
       
@@ -70,11 +78,59 @@ class ThumbnailGetter {
 
     } else if (Globals.fileOrigin == "dirFiles") {
 
+      const query = "SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
+      final params = {
+        'username': Globals.custUsername,'filename': encryptedFileName,
+        'dirname': subDirName
+      };
+
+      final results = await conn.execute(query,params);
+      
+      for(final row in results.rows) {
+        base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
+      }
+
     } else if (Globals.fileOrigin == "folderFiles") {
       
+      const query = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
+      final params = {
+        'username': Globals.custUsername,'filename': encryptedFileName,
+        'foldname': subDirName
+      };
+
+      final results = await conn.execute(query,params);
+      
+      for(final row in results.rows) {
+        base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
+      }
+
     } else if (Globals.fileOrigin == "sharedFiles") {
 
+      const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
+      final params = {
+        'username': Globals.custUsername,
+        'filename': encryptedFileName,
+      };
+
+      final results = await conn.execute(query,params);
+      
+      for(final row in results.rows) {
+        base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
+      }
+
     } else if (Globals.fileOrigin == "sharedToMe") {
+
+      const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
+      final params = {
+        'username': Globals.custUsername,
+        'filename': encryptedFileName,
+      };
+
+      final results = await conn.execute(query,params);
+      
+      for(final row in results.rows) {
+        base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
+      }
 
     }
   
