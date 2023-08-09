@@ -150,6 +150,8 @@ class CakeHomeState extends State<Mainboard> {
   final ascendingDescendingIconNotifier = ValueNotifier<IconData>(
                                       Icons.expand_more);
 
+  final searchBarVisibileNotifier = ValueNotifier<bool>(true);
+
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
 
@@ -255,6 +257,9 @@ class CakeHomeState extends State<Mainboard> {
 
   void _goBackHome() async {
     appBarTitle.value = "Home";
+    searchHintText.value = "Search in Flowstorage";
+    staggeredListViewSelected.value = false;
+    searchBarVisibileNotifier.value = true;
     _navDirectoryButtonVisibility(true);
     _floatingButtonVisiblity(true);
     _returnBackHomeFiles();
@@ -268,7 +273,6 @@ class CakeHomeState extends State<Mainboard> {
     Globals.filteredSearchedBytes.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
-    searchHintText.value = "Search in Flowstorage";
   }
 
   void _togglePublicStorage() async {
@@ -280,6 +284,7 @@ class CakeHomeState extends State<Mainboard> {
       _navDirectoryButtonVisibility(true);
       _floatingButtonVisiblity(true);
       _returnBackHomeFiles();
+      searchBarVisibileNotifier.value = true;
       await _refreshListView();
 
     } else {
@@ -889,6 +894,9 @@ class CakeHomeState extends State<Mainboard> {
     setState(() {});
 
     appBarTitle.value = "Offline";
+    publicStorageSelectedNotifier.value = false;
+    searchBarVisibileNotifier.value = true;
+
     _clearSelectAll(); 
 
     _navHomeButtonVisibility(true);
@@ -929,6 +937,9 @@ class CakeHomeState extends State<Mainboard> {
 
     appBarTitle.value = "Public Storage";
 
+    searchBarVisibileNotifier.value = false;
+    staggeredListViewSelected.value = true;
+
     _onTextChanged('');
     searchBarController.text = '';
 
@@ -968,7 +979,7 @@ class CakeHomeState extends State<Mainboard> {
     } else if (Globals.fileOrigin == "psFiles") {
       await _callPublicStorageData();
     }
-  
+
     _onTextChanged('');
     searchBarController.text = '';
     sortingText.value = "Default";
@@ -1938,29 +1949,20 @@ class CakeHomeState extends State<Mainboard> {
                   children: [
 
                     _buildSidebarButtons(
-                      title: "Shared to me",
-                      icon: Icons.inbox_outlined,
-                      onPressed: () async {
-
-                        Globals.fileOrigin = "sharedToMe";
-                        appBarTitle.value = "Shared to me";
-
-                        _floatingButtonVisiblity(false);
-                        _navDirectoryButtonVisibility(false);
-                        _navHomeButtonVisibility(true);
-                        
-                        Navigator.pop(context);
-                        await _callSharingData("sharedToMe");
-
-                      }
-                    ),
-
-                    _buildSidebarButtons(
                       title: "Offline",
                       icon: Icons.offline_bolt_outlined,
                       onPressed: () async {
                         Navigator.pop(context);
                         await _callOfflineData();
+                      }
+                    ),
+
+                    _buildSidebarButtons(
+                      title: "Upgrade plan",
+                      icon: Icons.rocket_outlined,
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        NavigatePage.goToPageUpgrade(context);
                       }
                     ),
 
@@ -3012,7 +3014,9 @@ class CakeHomeState extends State<Mainboard> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
 
-        const SizedBox(height: 8),
+        Globals.fileOrigin == "psFiles" 
+        ? const SizedBox(height: 0)
+        : const SizedBox(height: 8),
 
         Visibility(
           visible: VisibilityChecker.setNotVisible("psFiles"),
@@ -3139,7 +3143,9 @@ class CakeHomeState extends State<Mainboard> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        Globals.fileOrigin == "psFiles" 
+        ? const SizedBox(height: 0)
+        : const SizedBox(height: 8),
 
         Row(
           children: [
@@ -3206,76 +3212,84 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   Widget _buildSearchBar() {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        searchBarFocusNode.unfocus();
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          color: ThemeColor.mediumGrey,
-        ),
-        height: 48,
-        child: FractionallySizedBox(
-          widthFactor: 0.94, 
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onChanged: (value) {
-                    if (value.isEmpty) {
-                      searchBarFocusNode.unfocus();
-                    }
-                    _onTextChanged(value);
-                  },
-                  controller: searchBarController,
-                  focusNode: searchBarFocusNode,
-                  style: const TextStyle(
-                    color: Color.fromARGB(230, 255, 255, 255)
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: const BorderSide(
-                        color: ThemeColor.mediumGrey,
+    return ValueListenableBuilder(
+      valueListenable: searchBarVisibileNotifier,
+      builder: (BuildContext context, bool value, Widget? child) {
+        return Visibility(
+          visible: value,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              searchBarFocusNode.unfocus();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: ThemeColor.mediumGrey,
+              ),
+              height: 48,
+              child: FractionallySizedBox(
+                widthFactor: 0.94, 
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        onChanged: (value) {
+                          if (value.isEmpty) {
+                            searchBarFocusNode.unfocus();
+                          }
+                          _onTextChanged(value);
+                        },
+                        controller: searchBarController,
+                        focusNode: searchBarFocusNode,
+                        style: const TextStyle(
+                          color: Color.fromARGB(230, 255, 255, 255)
+                        ),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(
+                              color: ThemeColor.mediumGrey,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: ThemeColor.mediumGrey),
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
+                          hintText: searchHintText.value,
+                          hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
+                          prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
+                        ),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: ThemeColor.mediumGrey),
-                      borderRadius: BorderRadius.circular(25.0),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _buildFilterType();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.only(left: 6, right: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)
+                          ),
+                        ).copyWith(
+                          fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
+                        ),
+                        child: const Icon(Icons.filter_list_outlined, size: 25),
+                      ),
                     ),
-                    hintText: searchHintText.value,
-                    hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
-                    prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
-                  ),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 4.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _buildFilterType();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Colors.transparent,
-                    minimumSize: Size.zero,
-                    padding: const EdgeInsets.only(left: 6, right: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25)
-                    ),
-                  ).copyWith(
-                    fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
-                  ),
-                  child: const Icon(Icons.filter_list_outlined, size: 25),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 
@@ -3515,59 +3529,70 @@ class CakeHomeState extends State<Mainboard> {
 
     int bottomNavigationBarIndex = 0;
 
-    return BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: ThemeColor.mediumGrey,
-        unselectedItemColor: Colors.grey,
-        fixedColor: Colors.grey,
-        currentIndex: bottomNavigationBarIndex,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.folder_outlined),
-            label: "Folders",
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.share_outlined),
-            label: "Share",
-          ),
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              width: 25,
-              height: 25,
-              child: publicStorageSelectedNotifier.value
-                  ? const Icon(Icons.home_outlined)
-                  : Image.asset('assets/nice/public_icon.png'),
-            ),
-            label: publicStorageSelectedNotifier.value 
-                  ? "Home" : "Public",
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: "Settings"
-          ),
-        ],
-        
-        onTap: (indexValue) async {
-
-          switch (indexValue) {
-            case 0:
-              _buildFoldersDialog();
-              break;
-
-            case 1:
-              NavigatePage.goToPageSharing(context);
-                break;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 0.8,
+          color: ThemeColor.whiteGrey,
+        ),
+        Container(
+          color: ThemeColor.whiteGrey,
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: ThemeColor.mediumBlack,
+            unselectedItemColor: Colors.grey,
+            fixedColor: Colors.grey,
+            currentIndex: bottomNavigationBarIndex,
+            items: [
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.folder_outlined),
+                label: "Folders",
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.share_outlined),
+                label: "Share",
+              ),
+              BottomNavigationBarItem(
+                icon: SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: publicStorageSelectedNotifier.value
+                      ? const Icon(Icons.home_outlined)
+                      : Image.asset('assets/nice/public_icon.png'),
+                ),
+                label: publicStorageSelectedNotifier.value 
+                      ? "Home" : "Public",
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.settings_outlined),
+                label: "Settings"
+              ),
+            ],
             
-            case 2:
-              _togglePublicStorage();
-              break;
-
-            case 3:
-              NavigatePage.goToPageSettings(context);
+            onTap: (indexValue) async {
               
-          break;
-        }
-      },
+              switch (indexValue) {
+                case 0:
+                  _buildFoldersDialog();
+                  break;
+              
+                case 1:
+                  NavigatePage.goToPageSharing(context);
+                    break;
+                
+                case 2:
+                  _togglePublicStorage();
+                  break;
+              
+                case 3:
+                  NavigatePage.goToPageSettings(context);
+                break;
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -3845,7 +3870,11 @@ class CakeHomeState extends State<Mainboard> {
               visible: VisibilityChecker.setNotVisible("psFiles"),
               child: _buildSelectAll()
             ),
-            _buildMoreOptionsOnSelect()
+            _buildMoreOptionsOnSelect(),
+            Visibility(
+              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","homeFiles","dirFiles","folderFiles","sharedToMe","sharedToOthers"]),
+              child: _buildSearchButtonIcon()
+            )
           ],
           leading: IconButton(
             icon: const Icon(Icons.menu,size: 28),
@@ -4110,7 +4139,8 @@ class CakeHomeState extends State<Mainboard> {
   Widget _buildStaggeredItems(int index) {
     Uint8List imageBytes = Globals.filteredSearchedBytes[index]!;
     return Padding(
-      padding: const EdgeInsets.all(2.0),
+      padding: Globals.fileOrigin == "psFiles" 
+            ? const EdgeInsets.all(0.0) : const EdgeInsets.all(2.0),
       child: GestureDetector(
         onLongPress: () {
           _callBottomTrailling(index);
@@ -4128,49 +4158,81 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   Widget _buildPsStaggeredListView(Uint8List imageBytes, int index) {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-          width: 89,
-          height: 89,
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
+    final mediaQuery = MediaQuery.of(context).size;
+    return Container(
+      width: mediaQuery.width,
+      color: ThemeColor.mediumBlack,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 18.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 37),
+                    style: const TextStyle(
+                      color: ThemeColor.justWhite,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w500,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  _callBottomTrailling(index);
+                },
+                icon: const Icon(Icons.more_vert, color: Colors.white, size: 25),
+              ),
+            ],
           ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: Image.memory(imageBytes, fit: BoxFit.cover),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 108,
+                height: 25,
+                decoration: BoxDecoration(
+                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                ),
+                child: Center(
+                  child: Text(
+                    GlobalsData.psTagsValuesData[index],
+                    style: const TextStyle(
+                      color: ThemeColor.justWhite,
+                      fontWeight: FontWeight.w500
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-
-        const SizedBox(height: 10),
-        
-        Text(
-          ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 11),
-          style: const TextStyle(
-            color: ThemeColor.justWhite,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 15),
+          Expanded(
+            child: Container(
+              width: mediaQuery.width - 35,
+              height: mediaQuery.height - 495,
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                child: Image.memory(imageBytes, fit: BoxFit.cover),
+              ),
+            ),
           ),
-          maxLines: 1,
-          textAlign: TextAlign.center,
-        ),
-
-        const SizedBox(height: 6),
-
-        Text(
-          GlobalsData.psTagsValuesData[index],
-          style: TextStyle(
-            color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-          ),
-          textAlign: TextAlign.center,
-        ),
-      
-        const SizedBox(height: 10) 
-
-      ],
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 
@@ -4212,14 +4274,21 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   Widget _buildStaggeredListView() {
+
+    int fitSize = Globals.fileOrigin == "psFiles" ? 5 : 1;
+
+    EdgeInsetsGeometry paddingValue = Globals.fileOrigin == "psFiles" 
+    ? const EdgeInsets.only(top: 12.0,left: 0.0, right: 0.0, bottom: 8.0) 
+    : const EdgeInsets.only(top: 12.0,left: 8.0, right: 8.0, bottom: 8.0);
+
     return Padding(
-      padding: const EdgeInsets.only(top: 12.0,left: 8.0, right: 8.0, bottom: 8.0),
+      padding: paddingValue,
       child: StaggeredGridView.countBuilder(
         crossAxisCount: 4,
         shrinkWrap: true,
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) => _buildStaggeredItems(index),
-        staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
+        staggeredTileBuilder: (int index) => StaggeredTile.fit(fitSize),
         mainAxisSpacing: 6.5,
         crossAxisSpacing: 6.5,
       ),
@@ -4228,7 +4297,9 @@ class CakeHomeState extends State<Mainboard> {
 
   Widget _buildHomeBody(BuildContext context) {
 
-    final double mediaHeight = MediaQuery.of(context).size.height - 310;
+    final double mediaHeight = Globals.fileOrigin == "psFiles" 
+    ? MediaQuery.of(context).size.height - 202
+    : MediaQuery.of(context).size.height - 310;
 
     return RefreshIndicator(
       color: ThemeColor.darkPurple,
@@ -4250,6 +4321,15 @@ class CakeHomeState extends State<Mainboard> {
           }
         ),
       ),
+    );
+  }
+
+  Widget _buildSearchButtonIcon() {
+    return IconButton(
+        icon: const Icon(Icons.search, color: ThemeColor.justWhite),
+        onPressed: () {
+          searchBarVisibileNotifier.value = !searchBarVisibileNotifier.value;
+        }
     );
   }
 
@@ -4280,6 +4360,8 @@ class CakeHomeState extends State<Mainboard> {
     selectAllItemsIconNotifier.dispose();
     ascendingDescendingIconNotifier.dispose();
     publicStorageSelectedNotifier.dispose();
+    searchBarVisibileNotifier.dispose();
+    searchHintText.dispose();
 
     super.dispose();
   }
