@@ -18,6 +18,7 @@ import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
+import 'package:flowstorage_fsc/models/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
@@ -329,7 +330,8 @@ class CakeHomeState extends State<Mainboard> {
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
 
         GlobalsData.psTagsValuesData.add(Globals.psTagValue);
-
+        GlobalsData.psUploaderName.add(Globals.custUsername);
+        
         scaffoldMessenger.hideCurrentSnackBar();
 
         _addItemToListView(fileName: fileName);
@@ -3533,7 +3535,7 @@ class CakeHomeState extends State<Mainboard> {
     int bottomNavigationBarIndex = 0;
 
     const labelTextStyle = TextStyle(
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       fontSize: 12
     );
 
@@ -4291,7 +4293,49 @@ class CakeHomeState extends State<Mainboard> {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+
+          const SizedBox(height: 12),
+
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: SizedBox(
+                width: 132,
+                height: 38,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(ThemeColor.mediumBlack), 
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16), 
+                        side: const BorderSide(color: ThemeColor.lightGrey, width: 1),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    final fileName = Globals.filteredSearchedFiles[index];
+                    Globals.selectedFileName = fileName;
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => CommentPage(fileName: fileName)),
+                    );
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.comment_outlined, 
+                      color: ThemeColor.justWhite, size: 21),
+                      SizedBox(width: 8),
+                      Text("Comments")
+                    ]
+                  )
+                ),
+                  
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
         ],
       ),
     );
