@@ -39,7 +39,7 @@ class BottomTrailing {
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
-                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.fileValues.indexWhere((name) => name == fileName)]!),
+                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.filteredSearchedFiles.indexWhere((name) => name == fileName)]!),
                       ),
                     ),
                   ),

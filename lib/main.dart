@@ -293,6 +293,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     } else {
       await _callPublicStorageData();
+      await Future.delayed(const Duration(milliseconds: 299));
+      _sortUploadDate();
+      _sortUploadDate();
     }
 
     publicStorageSelectedNotifier.value 
@@ -516,7 +519,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   void _sortUploadDate() {
     isAscendingUploadDate = !isAscendingUploadDate;
     ascendingDescendingIconNotifier.value = isAscendingUploadDate ? Icons.expand_less : Icons.expand_more;
-    sortingText.value = "Upload Date";
+    sortingText.value = Globals.fileOrigin == "psFiles" ? "Default" : "Upload Date";
     _processUploadDateSorting();
   }
 
@@ -542,6 +545,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     isAscendingUploadDate 
     ? itemList.sort((a, b) => a['upload_date'].compareTo(b['upload_date']))
     : itemList.sort((a, b) => b['upload_date'].compareTo(a['upload_date']));
+
 
     setState(() {
       Globals.setDateValues.clear();
@@ -950,10 +954,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
-
-    await Future.delayed(const Duration(milliseconds: 300));
-    _sortUploadDate();
-    _sortUploadDate();
     
   }
 
@@ -986,13 +986,23 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     } else if (Globals.fileOrigin == "offlineFiles") {
       await _callOfflineData();
     } else if (Globals.fileOrigin == "psFiles") {
+
       await _callPublicStorageData();
+      await Future.delayed(const Duration(milliseconds: 299));
+      _sortUploadDate();
+      _sortUploadDate();
+
+      setState(() {});
+
     }
 
     _onTextChanged('');
     searchBarController.text = '';
-    sortingText.value = "Default";
-    ascendingDescendingIconNotifier.value = Icons.expand_more;
+
+    if(Globals.fileOrigin != "psFiles") {
+      sortingText.value = "Default";
+      ascendingDescendingIconNotifier.value = Icons.expand_more;
+    }
 
     if(Globals.fileValues.isEmpty) {
       if(!mounted) return;
@@ -3192,6 +3202,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
             const Spacer(),
 
+            if(Globals.fileOrigin != "psFiles")
             ElevatedButton(
               onPressed: () {
                 staggeredListViewSelected.value = !staggeredListViewSelected.value;
@@ -4187,16 +4198,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     final fileType = Globals.filteredSearchedFiles[index].split('.').last;
 
     final originalDateValues = Globals.setDateValues[index];
-    late final String psFilesDateValues;
 
-    final lastSeparatorIndex = originalDateValues.lastIndexOf(GlobalsStyle.dotSeperator);
-
-    if (lastSeparatorIndex != -1) {
-      psFilesDateValues = originalDateValues.substring(0, lastSeparatorIndex).trim();
-    } else {
-      psFilesDateValues = originalDateValues;
-    }
-  
     final uploaderName = 
       GlobalsData.psUploaderName[index] == Globals.custUsername 
       ? "${GlobalsData.psUploaderName[index]} (You)" 
@@ -4216,7 +4218,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "$uploaderName ${GlobalsStyle.dotSeperator} $psFilesDateValues",
+                      "$uploaderName ${GlobalsStyle.dotSeperator} $originalDateValues",
                       style: const TextStyle(
                         color: ThemeColor.secondaryWhite,
                         fontSize: 15,
