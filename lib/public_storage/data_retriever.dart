@@ -3,9 +3,11 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/public_storage/byte_getter.dart';
 import 'package:flowstorage_fsc/public_storage/date_getter.dart';
 import 'package:flowstorage_fsc/public_storage/name_getter.dart';
+import 'package:flowstorage_fsc/public_storage/uploader_getter.dart';
 
 class PublicStorageDataRetriever {
   
+  final uploaderNameGetter = UploaderGetterPs();
   final nameGetter = NameGetterPs();
   final dateGetter = DateGetterPs();
   final byteGetter = ByteGetterPs();
@@ -18,12 +20,14 @@ class PublicStorageDataRetriever {
     const tablesToCheck = GlobalsTable.tableNamesPs;
 
     final futures = tablesToCheck.map((table) async {
-
+      
+      //final uploaderName = await uploaderNameGetter.retrieveParams(conn, table);
       final fileNames = await nameGetter.retrieveParams(conn, table);
       final bytes = await byteGetter.getLeadingParams(conn, table);
       final dates = await dateGetter.getDateParams(conn, table);
 
       return {
+        //'uploader_name': uploaderName,
         'name': fileNames,
         'date': dates,
         'file_data': bytes,

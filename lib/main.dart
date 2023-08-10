@@ -255,7 +255,7 @@ class CakeHomeState extends State<Mainboard> {
     return getPageName;
   }
 
-  void _goBackHome() async {
+  Future<void> _goBackHome() async {
     appBarTitle.value = "Home";
     searchHintText.value = "Search in Flowstorage";
     staggeredListViewSelected.value = false;
@@ -284,7 +284,10 @@ class CakeHomeState extends State<Mainboard> {
       _navDirectoryButtonVisibility(true);
       _floatingButtonVisiblity(true);
       _returnBackHomeFiles();
+
       searchBarVisibileNotifier.value = true;
+      staggeredListViewSelected.value = false;
+
       await _refreshListView();
 
     } else {
@@ -3118,8 +3121,8 @@ class CakeHomeState extends State<Mainboard> {
                   return Visibility(
                     visible: value,
                     child: ElevatedButton(
-                      onPressed: () {
-                        _goBackHome();
+                      onPressed: () async {
+                        await _goBackHome();
                       },
                       style: GlobalsStyle.btnNavigationBarStyle,
                       child: const Row(
@@ -3529,6 +3532,11 @@ class CakeHomeState extends State<Mainboard> {
 
     int bottomNavigationBarIndex = 0;
 
+    const labelTextStyle = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: 12
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -3544,6 +3552,9 @@ class CakeHomeState extends State<Mainboard> {
             unselectedItemColor: Colors.grey,
             fixedColor: Colors.grey,
             currentIndex: bottomNavigationBarIndex,
+            selectedLabelStyle: labelTextStyle,
+            unselectedLabelStyle: labelTextStyle,
+            iconSize: 25.2,
             items: [
               const BottomNavigationBarItem(
                 icon: Icon(Icons.folder_outlined),
@@ -3555,8 +3566,8 @@ class CakeHomeState extends State<Mainboard> {
               ),
               BottomNavigationBarItem(
                 icon: SizedBox(
-                  width: 25,
-                  height: 25,
+                  width: 26,
+                  height: 26,
                   child: publicStorageSelectedNotifier.value
                       ? const Icon(Icons.home_outlined)
                       : Image.asset('assets/nice/public_icon.png'),
@@ -4158,7 +4169,22 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   Widget _buildPsStaggeredListView(Uint8List imageBytes, int index) {
+
     final mediaQuery = MediaQuery.of(context).size;
+    const generalFileType = {...Globals.audioType, ...Globals.wordType, ...Globals.textType, ...Globals.ptxType, ...Globals.excelType, "apk","exe", "pdf"};
+    final fileType = Globals.filteredSearchedFiles[index].split('.').last;
+
+    final originalDateValues = Globals.setDateValues[index];
+    late final String psFilesDateValues;
+
+    final lastSeparatorIndex = originalDateValues.lastIndexOf(GlobalsStyle.dotSeperator);
+
+    if (lastSeparatorIndex != -1) {
+      psFilesDateValues = originalDateValues.substring(0, lastSeparatorIndex).trim();
+    } else {
+      psFilesDateValues = originalDateValues;
+    }
+  
     return Container(
       width: mediaQuery.width,
       color: ThemeColor.mediumBlack,
@@ -4167,21 +4193,21 @@ class CakeHomeState extends State<Mainboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 18.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 37),
-                    style: const TextStyle(
-                      color: ThemeColor.justWhite,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w500,
-                      overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 18.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                        "The_henryCollin ${GlobalsStyle.dotSeperator} $psFilesDateValues",
+                        style: const TextStyle(
+                          color: ThemeColor.secondaryWhite,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500
+                        ),
+                        textAlign: TextAlign.center
+                      ),
                     ),
-                    maxLines: 1,
-                    textAlign: TextAlign.start,
-                  ),
                 ),
               ),
               IconButton(
@@ -4192,64 +4218,110 @@ class CakeHomeState extends State<Mainboard> {
               ),
             ],
           ),
+        
           Padding(
-            padding: const EdgeInsets.only(left: 16.0),
+            padding: const EdgeInsets.only(left: 18.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Container(
-                width: 108,
-                height: 25,
-                decoration: BoxDecoration(
-                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+              child: Text(
+                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 37),
+                style: const TextStyle(
+                  color: ThemeColor.justWhite,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Center(
-                  child: Text(
-                    GlobalsData.psTagsValuesData[index],
-                    style: const TextStyle(
-                      color: ThemeColor.justWhite,
-                      fontWeight: FontWeight.w500
+                maxLines: 1,
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: 108,
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
                     ),
-                    textAlign: TextAlign.start,
+                    child: Center(
+                      child: Text(
+                        GlobalsData.psTagsValuesData[index],
+                        style: const TextStyle(
+                          color: ThemeColor.justWhite,
+                          fontWeight: FontWeight.w500
+                        ),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
+              
           const SizedBox(height: 15),
+
           Expanded(
-            child: Container(
-              width: mediaQuery.width - 35,
-              height: mediaQuery.height - 495,
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: Image.memory(imageBytes, fit: BoxFit.cover),
-              ),
+            child: Stack(
+              children: [
+                Container(
+                  width: generalFileType.contains(fileType) ? 85 : mediaQuery.width - 35,
+                  height: generalFileType.contains(fileType) ? 85 : mediaQuery.height - 495,
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    child: Image.memory(imageBytes, fit: BoxFit.cover),
+                  ),
+                ),
+                Visibility(
+                  visible: Globals.videoType.contains(fileType),
+                  child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
         ],
       ),
     );
   }
 
   Widget _buildNormalStaggeredListView(Uint8List imageBytes, int index) {
+
+    final fileType = Globals.filteredSearchedFiles[index].split('.').last;
+
     return Column(
       children: [
         Expanded(
-          child: Container(
-          width: 89,
-          height: 89,
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: Image.memory(imageBytes, fit: BoxFit.cover),
-            ),
+          child: Stack(
+            children: [
+              Container(
+              width: 89,
+              height: 89,
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                child: Image.memory(imageBytes, fit: BoxFit.cover),
+                ),
+              ),
+              Visibility(
+                visible: Globals.videoType.contains(fileType),
+                child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 26),
+              ),
+            ],
           ),
         ),
 

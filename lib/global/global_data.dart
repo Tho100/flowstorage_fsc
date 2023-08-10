@@ -3,9 +3,10 @@ import 'dart:ui';
 
 class GlobalsData {
 
+  static List<String> psUploaderName = <String>[];
   static List<String> psTagsValuesData = <String>[];
   static List<Color> psTagsColorData = <Color>[];
-
+  
   static List<Uint8List> psImageData = <Uint8List>[];
   static List<Uint8List> psThumbnailData = <Uint8List>[];
 
