@@ -108,7 +108,7 @@ class Mainboard extends StatefulWidget {
 
 }
 
-class CakeHomeState extends State<Mainboard> { 
+class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin { 
 
   final fileNameGetterHome = NameGetter();
   final dataGetterHome = DataRetriever();
@@ -331,7 +331,7 @@ class CakeHomeState extends State<Mainboard> {
 
         GlobalsData.psTagsValuesData.add(Globals.psTagValue);
         GlobalsData.psUploaderName.add(Globals.custUsername);
-        
+
         scaffoldMessenger.hideCurrentSnackBar();
 
         _addItemToListView(fileName: fileName);
@@ -4187,156 +4187,170 @@ class CakeHomeState extends State<Mainboard> {
       psFilesDateValues = originalDateValues;
     }
   
-    return Container(
-      width: mediaQuery.width,
-      color: ThemeColor.mediumBlack,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 18.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "${GlobalsData.psUploaderName[index]} ${GlobalsStyle.dotSeperator} $psFilesDateValues",
-                      style: const TextStyle(
-                        color: ThemeColor.secondaryWhite,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500
-                      ),
-                      textAlign: TextAlign.center
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  _callBottomTrailling(index);
-                },
-                icon: const Icon(Icons.more_vert, color: Colors.white, size: 25),
-              ),
-            ],
-          ),
-        
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 37),
-                style: const TextStyle(
-                  color: ThemeColor.justWhite,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                maxLines: 1,
-                textAlign: TextAlign.start,
-              ),
-            ),
-          ),
+    final uploaderName = 
+      GlobalsData.psUploaderName[index] == Globals.custUsername 
+      ? "${GlobalsData.psUploaderName[index]} (You)" 
+      : GlobalsData.psUploaderName[index];
 
-          const SizedBox(height: 10),
-
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    width: 108,
-                    height: 25,
-                    decoration: BoxDecoration(
-                      color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    ),
-                    child: Center(
+    return InkWell(
+      child: Container(
+        width: mediaQuery.width,
+        color: ThemeColor.mediumBlack,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 18.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
                       child: Text(
-                        GlobalsData.psTagsValuesData[index],
+                        "$uploaderName ${GlobalsStyle.dotSeperator} $psFilesDateValues",
                         style: const TextStyle(
-                          color: ThemeColor.justWhite,
+                          color: ThemeColor.secondaryWhite,
+                          fontSize: 15,
                           fontWeight: FontWeight.w500
                         ),
-                        textAlign: TextAlign.start,
+                        textAlign: TextAlign.center
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-              
-          const SizedBox(height: 15),
-
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: generalFileType.contains(fileType) ? 85 : mediaQuery.width - 35,
-                  height: generalFileType.contains(fileType) ? 85 : mediaQuery.height - 495,
-                  decoration: const BoxDecoration(
-                    color: Colors.transparent,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    child: Image.memory(imageBytes, fit: BoxFit.cover),
-                  ),
-                ),
-                Visibility(
-                  visible: Globals.videoType.contains(fileType),
-                  child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30),
+                IconButton(
+                  onPressed: () {
+                    _callBottomTrailling(index);
+                  },
+                  icon: const Icon(Icons.more_vert, color: Colors.white, size: 25),
                 ),
               ],
             ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 132,
-                height: 38,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(ThemeColor.mediumBlack), 
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16), 
-                        side: const BorderSide(color: ThemeColor.lightGrey, width: 1),
+          
+            Padding(
+              padding: const EdgeInsets.only(left: 18.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 37),
+                  style: const TextStyle(
+                    color: ThemeColor.justWhite,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  maxLines: 1,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+            ),
+    
+            const SizedBox(height: 10),
+    
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 108,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                        borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          GlobalsData.psTagsValuesData[index],
+                          style: const TextStyle(
+                            color: ThemeColor.justWhite,
+                            fontWeight: FontWeight.w500
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    final fileName = Globals.filteredSearchedFiles[index];
-                    Globals.selectedFileName = fileName;
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (context) => CommentPage(fileName: fileName)),
-                    );
-                  },
-                  child: const Row(
-                    children: [
-                      Icon(Icons.comment_outlined, 
-                      color: ThemeColor.justWhite, size: 21),
-                      SizedBox(width: 8),
-                      Text("Comments")
-                    ]
-                  )
                 ),
-                  
+              ],
+            ),
+                
+            const SizedBox(height: 15),
+    
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    width: generalFileType.contains(fileType) ? 85 : mediaQuery.width - 35,
+                    height: generalFileType.contains(fileType) ? 85 : mediaQuery.height - 495,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: ThemeColor.lightGrey,
+                        width: 2,
+                      )
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      child: Image.memory(imageBytes, fit: BoxFit.cover),
+                    ),
+                  ),
+    
+                  if(Globals.videoType.contains(fileType))
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10,top :5),
+                    child: Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30)
+                  ),
+    
+                ],
               ),
             ),
-          ),
-
-          const SizedBox(height: 8),
-        ],
+    
+            const SizedBox(height: 12),
+    
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: SizedBox(
+                  width: 132,
+                  height: 38,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(ThemeColor.mediumBlack), 
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16), 
+                          side: const BorderSide(color: ThemeColor.lightGrey, width: 1),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      final fileName = Globals.filteredSearchedFiles[index];
+                      Globals.selectedFileName = fileName;
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => CommentPage(fileName: fileName)),
+                      );
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(Icons.comment_outlined, 
+                        color: ThemeColor.justWhite, size: 21),
+                        SizedBox(width: 8),
+                        Text("Comments")
+                      ]
+                    )
+                  ),
+                    
+                ),
+              ),
+            ),
+    
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -4361,10 +4375,10 @@ class CakeHomeState extends State<Mainboard> {
                 child: Image.memory(imageBytes, fit: BoxFit.cover),
                 ),
               ),
-              Visibility(
-                visible: Globals.videoType.contains(fileType),
-                child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 26),
-              ),
+              
+              if(Globals.videoType.contains(fileType))
+              const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 26),
+            
             ],
           ),
         ),
@@ -4483,7 +4497,11 @@ class CakeHomeState extends State<Mainboard> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: searchBarFocusNode.unfocus,
