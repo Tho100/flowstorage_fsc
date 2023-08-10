@@ -185,7 +185,7 @@ class DataCaller {
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams();
 
-    //final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
+    final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
     final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
     final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
     final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
@@ -194,9 +194,7 @@ class DataCaller {
       map((tags) => tags.split(' ').last).toList();
 
     GlobalsData.psTagsValuesData.addAll(getTagsValue);
-    //GlobalsData.psUploaderName.addAll(uploaderList);
-
-    //print(GlobalsData.psUploaderName);
+    GlobalsData.psUploaderName.addAll(uploaderList);
 
     Globals.fileValues.addAll(nameList);
     Globals.setDateValues.addAll(dateList);

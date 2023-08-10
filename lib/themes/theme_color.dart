@@ -4,6 +4,7 @@ class ThemeColor {
 
   static const darkBlack = Color.fromARGB(255, 12, 12, 12);
   static const mediumBlack = Color.fromARGB(255, 18, 18, 18);
+  
   static const darkGrey = Color.fromARGB(255, 22, 22, 22);
   static const mediumGrey = Color.fromARGB(255, 26, 26, 26);
   static const lightGrey = Color.fromARGB(255, 38, 38, 38);

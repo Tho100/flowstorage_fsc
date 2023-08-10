@@ -32,7 +32,7 @@ class BottomTrailing {
                 Padding(
                   padding: const EdgeInsets.only(left: 12,top: 12, bottom: 12),
                   child: Visibility(
-                    visible: Globals.imageType.contains(fileName.split('.').last),
+                    visible: Globals.imageType.contains(fileName.split('.').last) || Globals.videoType.contains(fileName.split('.').last),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: Image(
@@ -63,7 +63,7 @@ class BottomTrailing {
             ),
 
             Visibility(
-              visible: Globals.imageType.contains(fileName.split('.').last),
+              visible: Globals.imageType.contains(fileName.split('.').last) || Globals.videoType.contains(fileName.split('.').last),
               child: const Divider(color: ThemeColor.thirdWhite),
             ),
 

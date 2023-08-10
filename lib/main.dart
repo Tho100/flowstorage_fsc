@@ -948,7 +948,7 @@ class CakeHomeState extends State<Mainboard> {
 
     _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
-
+    
   }
 
   Future<void> _callFolderData(String folderTitle) async {
@@ -4199,15 +4199,15 @@ class CakeHomeState extends State<Mainboard> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                        "The_henryCollin ${GlobalsStyle.dotSeperator} $psFilesDateValues",
-                        style: const TextStyle(
-                          color: ThemeColor.secondaryWhite,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500
-                        ),
-                        textAlign: TextAlign.center
+                      "${GlobalsData.psUploaderName[index]} ${GlobalsStyle.dotSeperator} $psFilesDateValues",
+                      style: const TextStyle(
+                        color: ThemeColor.secondaryWhite,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500
                       ),
+                      textAlign: TextAlign.center
                     ),
+                  ),
                 ),
               ),
               IconButton(

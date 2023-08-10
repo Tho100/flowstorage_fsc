@@ -9,7 +9,7 @@ class UploaderGetterPs {
       final query = 'SELECT CUST_USERNAME FROM $tableName';
 
       final retrieveNames = await conn.execute(query);
-      final nameSet = <String>{};
+      final nameSet = <String>[];
 
       for (final row in retrieveNames.rows) {
         final getNameValues = row.assoc()['CUST_USERNAME']!;
