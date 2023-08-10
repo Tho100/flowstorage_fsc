@@ -4202,9 +4202,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       ? "${GlobalsData.psUploaderName[index]} (You)" 
       : GlobalsData.psUploaderName[index];
 
-    final fileName = Globals.filteredSearchedFiles[index];
-    Globals.selectedFileName = fileName;
-
     return Container(
       width: mediaQuery.width,
       color: ThemeColor.mediumBlack,
@@ -4339,6 +4336,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     ),
                   ),
                   onPressed: () {
+                    final fileName = Globals.filteredSearchedFiles[index];
+                    Globals.selectedFileName = fileName;
                     Navigator.push(
                       context, 
                       MaterialPageRoute(builder: (context) => CommentPage(fileName: fileName)),
