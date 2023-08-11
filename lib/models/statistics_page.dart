@@ -20,11 +20,13 @@ class StatisticsPage extends StatefulWidget {
 class StatsPageState extends State<StatisticsPage> {
 
   final logger = Logger();
-  
-  final categoryNamesHomeFiles = ['Image', 'Audio', 'Document', 'Video', 'Text'];
+  final crud = Crud();
+
+  final categoryNamesHomeFiles = {'Image', 'Audio', 'Document', 'Video', 'Text'};
 
   late List<UploadCountValue> data;
-  bool dataIsLoading = true;
+
+  final dataIsLoading = ValueNotifier<bool>(true);
 
   int totalUpload = 0;
   int directoryCount = 0;
@@ -37,21 +39,24 @@ class StatsPageState extends State<StatisticsPage> {
 
   double usageProgress = 0.0;
   
-  final crud = Crud();
-
   @override 
   void initState() {
     super.initState();
     _initData();
   }
 
+  @override
+  void dispose() {
+    dataIsLoading.dispose();
+    Globals.statisticsFilesName.clear();
+    super.dispose();
+  }
+
   Future<void> _initData() async {
 
     try {
 
-      setState(() {
-        dataIsLoading = true;
-      });
+      dataIsLoading.value = true;
 
       final futuresFile = [
         _countUpload(GlobalsTable.homeImage),
@@ -85,8 +90,8 @@ class StatsPageState extends State<StatisticsPage> {
         }
       }
 
-      categoryWithMostUpload = uploadCategoryList[maxCategoryIndex] == 0 ? "None" : categoryNamesHomeFiles[maxCategoryIndex];
-      categoryWithLeastUpload = categoryNamesHomeFiles[minCategoryIndex] == "Image" ? "None" : categoryNamesHomeFiles[minCategoryIndex];
+      categoryWithMostUpload = uploadCategoryList[maxCategoryIndex] == 0 ? "None" : categoryNamesHomeFiles.elementAt(maxCategoryIndex);
+      categoryWithLeastUpload = categoryNamesHomeFiles.elementAt(minCategoryIndex) == "Image" ? "None" : categoryNamesHomeFiles.elementAt(minCategoryIndex);
 
       final countDirectories = await _countUploadFoldAndDir(GlobalsTable.directoryInfoTable, "DIR_NAME");
 
@@ -107,8 +112,9 @@ class StatsPageState extends State<StatisticsPage> {
           UploadCountValue('Video', uploadCategoryList[3]),
           UploadCountValue('Text', uploadCategoryList[4])
         ];
-        dataIsLoading = false;
       });
+      
+      dataIsLoading.value = false;
 
     } catch (err, st) {
       SnakeAlert.errorSnake("No internet connection.", context);
@@ -119,29 +125,40 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUpload(String tableName) async {
 
-    final countRowsFiles = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': Globals.custUsername};
+    final dataOrigin = Globals.fileOrigin != "homeFiles"
+    ? Globals.statisticsFilesName
+    : Globals.filteredSearchedFiles;
 
-    final rowsCount = await crud.count(
-      query: countRowsFiles, 
-      params: params
-    );
+    final fileTypeList = <String>[];
 
-    return rowsCount;
+    for(int i=0; i<dataOrigin.length; i++) {
+      final fileType = dataOrigin.elementAt(i).split('.').last;
+      fileTypeList.add(fileType);
+    }
+    
+    int uploadCount = 0;
+
+    for (String fileType in fileTypeList) {
+      if (Globals.fileTypesToTableNames.containsKey(fileType) &&
+          Globals.fileTypesToTableNames[fileType] == tableName) {
+        uploadCount++;
+      }
+    }
+
+    return uploadCount;
 
   }
 
   Future<int> _countUploadFoldAndDir(String tableName,String columnName) async {
 
-    final countRowFolderNDir = "SELECT COUNT($columnName) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': Globals.custUsername};
+    int countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
 
-    final rowsCount = await crud.count(
-      query: countRowFolderNDir, 
-      params: params
-    ); 
+    int countFolderOrDirectory = tableName == GlobalsTable.folderUploadTable 
+    ? Globals.foldValues.length
+    : countDirectory;
 
-    return rowsCount;
+    return countFolderOrDirectory;
+
   }
 
   Future<String> _accountCreationDate() async {
@@ -493,8 +510,8 @@ class StatsPageState extends State<StatisticsPage> {
         ),
         body: TabBarView(
           children: [
-            dataIsLoading ? _buildLoading() : _buildPage(context),
-            dataIsLoading ? _buildLoading() : _buildUsagePage(context),
+            dataIsLoading.value ? _buildLoading() : _buildPage(context),
+            dataIsLoading.value ? _buildLoading() : _buildUsagePage(context),
           ],
         ),
       ),

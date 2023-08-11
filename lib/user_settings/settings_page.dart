@@ -1,3 +1,4 @@
+import 'package:flowstorage_fsc/data_classes/data_caller.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
@@ -44,7 +45,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   late String sharingEnabledButton;
 
   final addPasswordController = TextEditingController();
-  
+  final dataCaller = DataCaller();
+
   @override
   void initState() {
     super.initState();
@@ -550,8 +552,15 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
             _buildRowWithButtons(
               topText: "Statistics", 
               bottomText: "Get more insight about your Flowstorage activity", 
-              onPressed: () {
+              onPressed: () async {
+
+                if(Globals.fileOrigin != "homeFiles") {
+                  await dataCaller.homeData(isFromStatistics: true);
+                }
+
+                if(!mounted) return;
                 NavigatePage.goToPageStatistics(context);
+
               }
             ),
 

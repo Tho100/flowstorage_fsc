@@ -999,7 +999,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       sortingText.value = "Default";
       ascendingDescendingIconNotifier.value = Icons.expand_more;
-      
+
     }
 
     if(Globals.fileValues.isEmpty) {
@@ -1756,7 +1756,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       await CallNotify().customNotification(title: "Uploading folder...", subMesssage: "${ShortenText().cutText(folderName)} In progress");
 
+      if(!mounted) return;
       final scaffoldMessenger = ScaffoldMessenger.of(context);
+
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text("Uploading $folderName folder..."),
@@ -3506,7 +3508,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles","offlineFiles"]),
               child: ElevatedButton(
               onPressed: () async {
-                final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
+                final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
                 if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
                   if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
 
@@ -4176,8 +4178,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         },
         child: IntrinsicHeight(
           child: Globals.fileOrigin == "psFiles"
-                ? _buildPsStaggeredListView(imageBytes, index)
-                : _buildNormalStaggeredListView(imageBytes, index)
+              ? _buildPsStaggeredListView(imageBytes, index)
+              : _buildNormalStaggeredListView(imageBytes, index)
         ),
       ),
     );

@@ -121,7 +121,7 @@ class DataCaller {
     
   }
 
-  Future<void> homeData() async {
+  Future<void> homeData({bool? isFromStatistics = false}) async {
 
     final conn = await SqlConnection.insertValueParams();
 
@@ -164,6 +164,11 @@ class DataCaller {
 
     final uniqueFileNames = fileNames.toList();
     final uniqueBytes = bytes.toList();
+
+    if(isFromStatistics!) {
+      Globals.statisticsFilesName.addAll(uniqueFileNames);
+      return;
+    }
 
     Globals.fileValues.addAll(uniqueFileNames);
     Globals.imageByteValues.addAll(uniqueBytes);
