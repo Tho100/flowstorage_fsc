@@ -183,6 +183,7 @@ class SharingDialog {
   }) {
     return showDialog(
       context: context!,
+      barrierDismissible: false,
       builder: (context) {
         return Dialog(
           backgroundColor: ThemeColor.darkBlack,

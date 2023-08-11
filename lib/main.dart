@@ -293,6 +293,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     } else {
       Globals.fileOrigin = "psFiles";
+      _floatingButtonVisiblity(true);
       await _refreshPublicStorage();
     }
 
@@ -318,10 +319,19 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     await NotificationApi.stopNotification(0);
 
+    late final String imagePreview;
+
+    final fileType = fileName.split('.').last;
+    if(Globals.imageType.contains(fileType)) {
+      imagePreview = base64Encoded;
+    } else if (Globals.videoType.contains(fileType)) {
+      imagePreview = base64.encode(thumbnail);
+    } 
+
     if(!mounted) return;
 
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-
+    
     await PsCommentDialog().buildPsCommentDialog(
       fileName: fileName,
       onUploadPressed: () async { 
@@ -344,7 +354,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         Globals.psUploadPassed = true;
 
       },
-      context: context
+      context: context,
+      imageBase64Encoded: imagePreview
     );
 
     await NotificationApi.stopNotification(0);
@@ -1496,7 +1507,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           await thumbnailFile.copy(thumbnailPath);
 
           if(verifyOrigin == "psFiles") {
-            _openPsCommentDialog(filePathVal: pathToString, fileName: filesName, tableName: GlobalsTable.psImage, base64Encoded: fileBase64Encoded);
+
+            _openPsCommentDialog(
+              filePathVal: pathToString, fileName: filesName, 
+              tableName: GlobalsTable.psVideo, base64Encoded: fileBase64Encoded,
+              thumbnail: thumbnailBytes
+            );
+
             return;
           } 
 
@@ -2972,6 +2989,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                         loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
                         await _callFolderData(Globals.foldValues[index]);
 
+                        publicStorageSelectedNotifier.value = false;
+                        searchBarVisibileNotifier.value = true;
+
+
                         loadingDialog.stopLoading();
 
                         if(!mounted) return;
@@ -3277,7 +3298,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                             borderSide: const BorderSide(color: ThemeColor.mediumGrey),
                             borderRadius: BorderRadius.circular(25.0),
                           ),
-                          hintText: searchHintText.value,
+                          hintText: Globals.fileOrigin != "psFiles" 
+                            ? searchHintText.value 
+                            : "Search in Public Storage",
                           hintStyle: const TextStyle(color: Color.fromARGB(255, 200,200,200), fontSize: 16),
                           prefixIcon: const Icon(Icons.search,color: Color.fromARGB(255, 200, 200,200),size: 18),
                         ),
@@ -4255,9 +4278,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               ),
             ),
           ),
-  
+    
           const SizedBox(height: 10),
-  
+    
           Row(
             children: [
               Padding(
@@ -4288,7 +4311,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           ),
               
           const SizedBox(height: 15),
-  
+    
           Expanded(
             child: Stack(
               children: [
@@ -4307,7 +4330,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     child: Image.memory(imageBytes, fit: BoxFit.cover),
                   ),
                 ),
-  
+    
                 if(Globals.videoType.contains(fileType))
                 Padding(
                   padding: const EdgeInsets.only(left: 10, top: 8),
@@ -4321,13 +4344,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30)
                   )
                 ),
-  
+    
               ],
             ),
           ),
-  
+    
           const SizedBox(height: 12),
-  
+    
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Align(
@@ -4337,7 +4360,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 height: 38,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(ThemeColor.mediumBlack), 
+                    backgroundColor: MaterialStateProperty.all<Color>(ThemeColor.darkBlack), 
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16), 
@@ -4365,10 +4388,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          const Divider(color: ThemeColor.lightGrey),
+          const SizedBox(height: 6),
+          const Divider(color: ThemeColor.whiteGrey),
         ],
       ),
+    
     );
   }
 
@@ -4425,7 +4449,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     int fitSize = Globals.fileOrigin == "psFiles" ? 5 : 1;
 
     EdgeInsetsGeometry paddingValue = Globals.fileOrigin == "psFiles" 
-    ? const EdgeInsets.only(top: 12.0,left: 0.0, right: 0.0, bottom: 8.0) 
+    ? const EdgeInsets.only(top: 2.0,left: 0.0, right: 0.0, bottom: 8.0) 
     : const EdgeInsets.only(top: 12.0,left: 8.0, right: 8.0, bottom: 8.0);
 
     return Padding(
@@ -4474,7 +4498,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Widget _buildSearchButtonIcon() {
     return IconButton(
-      icon: const Icon(Icons.search, color: ThemeColor.justWhite),
+      icon: const Icon(Icons.search, color: ThemeColor.justWhite, size: 30),
       onPressed: () {
         searchBarVisibileNotifier.value = !searchBarVisibileNotifier.value;
       }

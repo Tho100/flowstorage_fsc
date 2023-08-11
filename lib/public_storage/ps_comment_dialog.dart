@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
@@ -11,13 +13,13 @@ class PsCommentDialog {
 
   static const tagsItems = {
     "Entertainment",
+    "Random",
     "Creativity",
     "Data",
     "Gaming",
     "Software",
     "Education",
     "Music",
-    "Random",
   };
 
   final ValueNotifier<String> selectedTagValue = ValueNotifier<String>('');
@@ -25,7 +27,8 @@ class PsCommentDialog {
   Future buildPsCommentDialog({
     required String fileName,
     required VoidCallback onUploadPressed,
-    required BuildContext context
+    required BuildContext context,
+    String? imageBase64Encoded
   }) async {
     return showDialog(
       barrierDismissible: false,
@@ -99,14 +102,35 @@ class PsCommentDialog {
 
               Padding(
                 padding: const EdgeInsets.only(left: 16, top: 4),
-                child: Text(
-                  ShortenText().cutText(fileName),
-                  style: const TextStyle(
-                    color: ThemeColor.secondaryWhite,
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Row(
+                  children: [
+
+                    if(Globals.imageType.contains(fileName.split('.').last) || Globals.videoType.contains(fileName.split('.').last))
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Image.memory(
+                          base64.decode(imageBase64Encoded!),
+                          fit: BoxFit.fitWidth,
+                        )
+                      ),
+                    ),
+
+                    if(Globals.imageType.contains(fileName.split('.').last) || Globals.videoType.contains(fileName.split('.').last))
+                    const SizedBox(width: 10),
+
+                    Text(
+                      ShortenText().cutText(fileName),
+                      style: const TextStyle(
+                        color: ThemeColor.secondaryWhite,
+                        fontSize: 15,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
