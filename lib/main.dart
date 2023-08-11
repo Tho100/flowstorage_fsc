@@ -122,6 +122,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   final sidebarMenuScaffoldKey = GlobalKey<ScaffoldState>();
 
+  final scrollListViewController = ScrollController();
+
   final searchBarFocusNode = FocusNode();
   final searchBarController = TextEditingController();
 
@@ -352,6 +354,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         _addItemToListView(fileName: fileName);
         Globals.psUploadPassed = true;
+
+        scrollListViewController.animateTo(
+          scrollListViewController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+        );
 
       },
       context: context,
@@ -4486,6 +4494,7 @@ static List<Color> psTagsColorData = <Color>[];*/
       padding: paddingValue,
       child: StaggeredGridView.countBuilder(
         crossAxisCount: 4,
+        controller: scrollListViewController,
         shrinkWrap: true,
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) => _buildStaggeredItems(index),
