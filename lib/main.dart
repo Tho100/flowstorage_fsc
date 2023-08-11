@@ -992,12 +992,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await _refreshPublicStorage();
     }
 
-    _onTextChanged('');
-    searchBarController.text = '';
-
     if(Globals.fileOrigin != "psFiles") {
+
+      _onTextChanged('');
+      searchBarController.text = '';
+
       sortingText.value = "Default";
       ascendingDescendingIconNotifier.value = Icons.expand_more;
+      
     }
 
     if(Globals.fileValues.isEmpty) {
@@ -4202,7 +4204,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     return Container(
       width: mediaQuery.width,
-      color: ThemeColor.darkBlack,//ThemeColor.mediumBlack, 
+      color: ThemeColor.darkBlack,
       child: Column(
         children: [
           Row(
@@ -4305,9 +4307,17 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ),
   
                 if(Globals.videoType.contains(fileType))
-                const Padding(
-                  padding: EdgeInsets.only(left: 10,top :5),
-                  child: Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30)
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 8),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: ThemeColor.mediumGrey.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 30)
+                  )
                 ),
   
               ],

@@ -28,6 +28,7 @@ class PsCommentDialog {
     required BuildContext context
   }) async {
     return showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return Dialog(
