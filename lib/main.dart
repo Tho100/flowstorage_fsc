@@ -292,16 +292,19 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await _refreshListView();
 
     } else {
-      await _callPublicStorageData();
-      await Future.delayed(const Duration(milliseconds: 299));
-      _sortUploadDate();
-      _sortUploadDate();
+      Globals.fileOrigin = "psFiles";
+      await _refreshPublicStorage();
     }
 
     publicStorageSelectedNotifier.value 
       = !publicStorageSelectedNotifier.value; 
+  }
 
-    setState(() {});
+  Future<void> _refreshPublicStorage() async {
+    await _callPublicStorageData();
+    await Future.delayed(const Duration(milliseconds: 299));
+    _sortUploadDate();
+    _sortUploadDate();
   }
 
   void _openPsCommentDialog({
@@ -986,14 +989,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     } else if (Globals.fileOrigin == "offlineFiles") {
       await _callOfflineData();
     } else if (Globals.fileOrigin == "psFiles") {
-
-      await _callPublicStorageData();
-      await Future.delayed(const Duration(milliseconds: 299));
-      _sortUploadDate();
-      _sortUploadDate();
-
-      setState(() {});
-
+      await _refreshPublicStorage();
     }
 
     _onTextChanged('');
@@ -4206,7 +4202,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     return Container(
       width: mediaQuery.width,
-      color: ThemeColor.mediumBlack,
+      color: ThemeColor.darkBlack,//ThemeColor.mediumBlack, 
       child: Column(
         children: [
           Row(
@@ -4358,6 +4354,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             ),
           ),
           const SizedBox(height: 8),
+          const Divider(color: ThemeColor.lightGrey),
         ],
       ),
     );
@@ -4437,7 +4434,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Widget _buildHomeBody(BuildContext context) {
 
     final double mediaHeight = Globals.fileOrigin == "psFiles" 
-    ? MediaQuery.of(context).size.height - 202
+    ? MediaQuery.of(context).size.height - 194
     : MediaQuery.of(context).size.height - 310;
 
     return RefreshIndicator(
@@ -4448,7 +4445,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           GlobalsData.homeImageData.clear();
           GlobalsData.homeThumbnailData.clear();
         }
-        
+
         await _refreshListView();
       },
       child: SizedBox(
@@ -4465,10 +4462,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Widget _buildSearchButtonIcon() {
     return IconButton(
-        icon: const Icon(Icons.search, color: ThemeColor.justWhite),
-        onPressed: () {
-          searchBarVisibileNotifier.value = !searchBarVisibileNotifier.value;
-        }
+      icon: const Icon(Icons.search, color: ThemeColor.justWhite),
+      onPressed: () {
+        searchBarVisibileNotifier.value = !searchBarVisibileNotifier.value;
+      }
     );
   }
 
