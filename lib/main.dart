@@ -302,7 +302,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   Future<void> _refreshPublicStorage() async {
-    await _callPublicStorageData();
+    await _callPublicStorageData(); 
     await Future.delayed(const Duration(milliseconds: 299));
     _sortUploadDate();
     _sortUploadDate();
@@ -319,7 +319,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     await NotificationApi.stopNotification(0);
 
-    late final String imagePreview;
+    late String? imagePreview = "";
 
     final fileType = fileName.split('.').last;
     if(Globals.imageType.contains(fileType)) {
@@ -545,30 +545,60 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   void _processUploadDateSorting() {
+/*static List<String> psUploaderName = <String>[];
+static List<String> psTagsValuesData = <String>[];
+static List<Color> psTagsColorData = <Color>[];*/
 
     List<Map<String, dynamic>> itemList = [];
 
-    for (int i = 0; i < Globals.filteredSearchedFiles.length; i++) {
-      itemList.add({
-        'file_name': Globals.filteredSearchedFiles[i],
-        'image_byte': Globals.filteredSearchedBytes[i],
-        'upload_date': _parseDate(Globals.setDateValues[i])
-      });
+    if(Globals.fileOrigin != "psFiles") {
+
+      for (int i = 0; i < Globals.filteredSearchedFiles.length; i++) {
+        itemList.add({
+          'file_name': Globals.filteredSearchedFiles[i],
+          'image_byte': Globals.filteredSearchedBytes[i],
+          'upload_date': _parseDate(Globals.setDateValues[i]),
+        });
+      }
+
+    } else {
+
+      for (int i = 0; i < Globals.filteredSearchedFiles.length; i++) {
+        itemList.add({
+          'file_name': Globals.filteredSearchedFiles[i],
+          'image_byte': Globals.filteredSearchedBytes[i],
+          'upload_date': _parseDate(Globals.setDateValues[i]),
+          'tag_value': GlobalsData.psTagsValuesData[i],
+          'uploader_name': GlobalsData.psUploaderName[i]
+        });
+      }
+
+      GlobalsData.psTagsValuesData.clear();
+      GlobalsData.psUploaderName.clear();
+
     }
 
     isAscendingUploadDate 
     ? itemList.sort((a, b) => a['upload_date'].compareTo(b['upload_date']))
     : itemList.sort((a, b) => b['upload_date'].compareTo(a['upload_date']));
 
-
     setState(() {
+
       Globals.setDateValues.clear();
       Globals.filteredSearchedFiles.clear();
       Globals.filteredSearchedBytes.clear();
+
       for (var item in itemList) {
+
         Globals.filteredSearchedFiles.add(item['file_name']);
         Globals.filteredSearchedBytes.add(item['image_byte']);
         Globals.setDateValues.add(_formatDateTime(item['upload_date']));
+
+        if(Globals.fileOrigin == "psFiles") {
+          GlobalsData.psTagsValuesData.add(item['tag_value']);
+          GlobalsData.psUploaderName.add(item['uploader_name']);
+        }
+
       }
     });
 
@@ -4480,6 +4510,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         if(Globals.fileOrigin == "homeFiles") {
           GlobalsData.homeImageData.clear();
           GlobalsData.homeThumbnailData.clear();
+        }
+
+        if(Globals.fileOrigin == "psFiles") {
+          GlobalsData.psUploaderName.clear();
+          GlobalsData.psTagsValuesData.clear();
         }
 
         await _refreshListView();
