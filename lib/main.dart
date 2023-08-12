@@ -4225,7 +4225,11 @@ static List<Color> psTagsColorData = <Color>[];*/
     );
   }
   
-  Widget _buildRecentPsFiles(Uint8List imageBytes, int index, String uploaderName) {
+  Widget _buildRecentPsFiles(Uint8List imageBytes, int index) {
+
+    final fileName = Globals.filteredSearchedFiles[index];
+    final fileType = fileName.split('.').last;
+
     return GestureDetector(
       onTap: () async {
         await _navigateToPreviewFile(index);
@@ -4235,20 +4239,39 @@ static List<Color> psTagsColorData = <Color>[];*/
       },
       child: Row(
         children: [
-          Container(
-            width: 65,
-            height: 65,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: ThemeColor.lightGrey,
-                width: 2,
+          Stack(
+            children: [
+              Container(
+                width: 65,
+                height: 65,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: ThemeColor.lightGrey,
+                    width: 2,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  child: Image.memory(imageBytes, fit: BoxFit.cover),
+                ),
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(14)),
-              child: Image.memory(imageBytes, fit: BoxFit.cover),
-            ),
+
+              if(Globals.videoType.contains(fileType))
+              Padding(
+                padding: const EdgeInsets.only(top: 14.0, left: 16.0),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: ThemeColor.mediumGrey.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 22)
+                ),
+              ),
+
+            ],
           ),
           const SizedBox(width: 10),
           Column(
@@ -4256,7 +4279,7 @@ static List<Color> psTagsColorData = <Color>[];*/
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 15),
+                ShortenText().cutText(fileName, customLength: 15),
                 style: const TextStyle(
                   color: ThemeColor.justWhite,
                   fontSize: 16,
@@ -4264,7 +4287,7 @@ static List<Color> psTagsColorData = <Color>[];*/
                 ),
               ),
               Text(
-                uploaderName,
+                GlobalsData.psUploaderName[index],
                 style: const TextStyle(
                   color: ThemeColor.secondaryWhite,
                   fontSize: 14,
@@ -4311,7 +4334,7 @@ static List<Color> psTagsColorData = <Color>[];*/
         ? "${GlobalsData.psUploaderName[index]} (You)"
         : GlobalsData.psUploaderName[index];
 
-      isRecentPs = index == 0 || index == 1; 
+      isRecentPs = index == 0 || index == 1 || index == 2; 
 
     }
 
@@ -4330,6 +4353,7 @@ static List<Color> psTagsColorData = <Color>[];*/
         },
         child: Column(
           children: [
+
             if (isRecentPs && Globals.fileOrigin == "psFiles" && index == 0) ... [
               const Align(
                 alignment: Alignment.topLeft,
@@ -4351,29 +4375,35 @@ static List<Color> psTagsColorData = <Color>[];*/
                   ),
                 ),
               ),
+
               const SizedBox(height: 16),
+
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal, 
                 child: Row(
                   children: [
-                    const SizedBox(width: 25),
-                    _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0, uploaderNamePs),
+                    const SizedBox(width: 10),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0),
                     const SizedBox(width: 12),
-                    _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1, uploaderNamePs),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1),
+                    const SizedBox(width: 12),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[2]!, 2),
                   ],
                 ),
               ),
+
               const SizedBox(height: 8),
               const Divider(color: ThemeColor.whiteGrey),
+              
             ],
 
             if(Globals.fileOrigin == "psFiles" && !isRecentPs) ... [
 
-              if(index == 2)
+              if(index == 3)
               const Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 18.0, top: 12),
+                  padding: EdgeInsets.only(left: 18.0),
                   child: Row(
                     children: [
                       Icon(Icons.explore_outlined, color: ThemeColor.justWhite, size: 20),
