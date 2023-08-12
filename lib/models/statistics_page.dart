@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +34,10 @@ class StatsPageState extends State<StatisticsPage> {
   int totalUpload = 0;
   int directoryCount = 0;
   int folderCount = 0;
+  int offlineCount = 0;
 
   String categoryWithMostUpload = "";
   String categoryWithLeastUpload = "";
-
-  String accountCreationDate = "";
 
   double usageProgress = 0.0;
   
@@ -97,8 +99,7 @@ class StatsPageState extends State<StatisticsPage> {
 
       folderCount = Globals.foldValues.length;
       directoryCount = countDirectories;
-
-      accountCreationDate = await _accountCreationDate();
+      offlineCount = await _countUploadOffline();
 
       final document0 = await _countUpload(GlobalsTable.homePdf);
       final document1 = await _countUpload(GlobalsTable.homeExcel);
@@ -161,24 +162,13 @@ class StatsPageState extends State<StatisticsPage> {
 
   }
 
-  Future<String> _accountCreationDate() async {
+  Future<int> _countUploadOffline() async {
 
-    try {
+    final offlineDir = await OfflineMode().returnOfflinePath();
 
-      const selectAccCreatedDate = "SELECT CREATED_DATE FROM information WHERE CUST_USERNAME = :username";
-      final params = {'username': Globals.custUsername};
-
-      final createdDateValue = await crud.select(
-        query: selectAccCreatedDate, 
-        returnedColumn: "CREATED_DATE", 
-        params: params
-      );
-
-      return createdDateValue;
-      
-    } catch (err) {
-      return "8/12/2023";
-    }
+    List<FileSystemEntity> files = offlineDir.listSync();
+    int fileCount = files.whereType().length;
+    return fileCount;
 
   }
 
@@ -257,7 +247,7 @@ class StatsPageState extends State<StatisticsPage> {
 
           const SizedBox(height: 5),
 
-          _buildHeaderInfo("Upload Stats"),
+          _buildHeaderInfo("General"),
 
           const SizedBox(height: 5),
 
@@ -279,7 +269,7 @@ class StatsPageState extends State<StatisticsPage> {
 
           const SizedBox(height: 18),
 
-          _buildHeaderInfo("Other Stats"),
+          _buildHeaderInfo("Others"),
 
           const SizedBox(height: 5),
 
@@ -294,7 +284,7 @@ class StatsPageState extends State<StatisticsPage> {
               children: [
                 _buildInfo("Folder Count", folderCount.toString()),
                 _buildInfo("Directory Count", directoryCount.toString()),
-                _buildInfo("Account created in", accountCreationDate),
+                _buildInfo("Offline Total Uploaded", offlineCount.toString()),
               ],
             )
           ),

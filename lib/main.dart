@@ -310,6 +310,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     _sortUploadDate();
   }
 
+  void _scrollEndListView() {
+    scrollListViewController.animateTo(
+      scrollListViewController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
   void _openPsCommentDialog({
     required String filePathVal,
     required String fileName,
@@ -355,11 +363,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         _addItemToListView(fileName: fileName);
         Globals.psUploadPassed = true;
 
-        scrollListViewController.animateTo(
-          scrollListViewController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-        );
+        _scrollEndListView();
 
       },
       context: context,
