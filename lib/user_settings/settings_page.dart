@@ -10,6 +10,7 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -408,12 +409,18 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      custUsername,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        overflow: TextOverflow.ellipsis,
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: custUsername));
+                        CallToast.call(message: "Username copied.");
+                      },
+                      child: Text(
+                        custUsername,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 5),

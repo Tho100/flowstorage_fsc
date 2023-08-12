@@ -153,7 +153,6 @@ class PasscodePageState extends State<PasscodePage> {
 
       } else {        
         isPasscodeIncorrectNotifier.value = true;
-        callVibration();
         disableButtonsOnFailed5Attempts();
       }
 
@@ -162,11 +161,6 @@ class PasscodePageState extends State<PasscodePage> {
       logger.e("Exception from validatePassCode {PasscodePage}",err, st);
     } 
 
-  }
-
-  void callVibration() {
-    Clipboard.setData(const ClipboardData(text: ""));
-    HapticFeedback.heavyImpact();
   }
 
   void disableButtonsOnFailed5Attempts() {

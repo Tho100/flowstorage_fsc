@@ -2595,7 +2595,7 @@ static List<Color> psTagsColorData = <Color>[];*/
                   Padding(
                     padding: EdgeInsets.all(18.0),
                     child: Text(
-                      "Create a new Directory",
+                      "Create new Directory",
                       style: TextStyle(
                         color: Color.fromARGB(255, 255, 255, 255),
                         fontSize: 15,
@@ -3375,6 +3375,17 @@ static List<Color> psTagsColorData = <Color>[];*/
   }
 
   Future _buildAddItemBottom() {
+
+    late String headerText = "";
+
+    if(Globals.fileOrigin == "psFiles") {
+      headerText = "Upload to Public Storage";
+    } else if (Globals.fileOrigin == "dirFiles") {
+      headerText = "Add item to ${appBarTitle.value}";
+    } else {
+      headerText = "Add item to Flowstorage";
+    }
+
     return showModalBottomSheet(
       backgroundColor: ThemeColor.darkGrey,
       context: context,
@@ -3390,7 +3401,7 @@ static List<Color> psTagsColorData = <Color>[];*/
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    Globals.fileOrigin != "psFiles" ? "Add item to Flowstorage" : "Upload to Public Storage",
+                    headerText,
                     style: const TextStyle(
                       color: Color.fromARGB(255, 255, 255, 255),
                       fontSize: 15,

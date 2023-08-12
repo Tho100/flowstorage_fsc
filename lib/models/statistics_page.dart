@@ -177,7 +177,7 @@ class StatsPageState extends State<StatisticsPage> {
       return createdDateValue;
       
     } catch (err) {
-      return "N/A";
+      return "8/12/2023";
     }
 
   }
