@@ -4224,29 +4224,190 @@ static List<Color> psTagsColorData = <Color>[];*/
       ),
     );
   }
+  
+  Widget _buildRecentPsFiles(Uint8List imageBytes, int index, String uploaderName) {
+    return GestureDetector(
+      onTap: () async {
+        await _navigateToPreviewFile(index);
+      },
+      onLongPress: () {
+        _callBottomTrailling(index);
+      },
+      child: Row(
+        children: [
+          Container(
+            width: 65,
+            height: 65,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: ThemeColor.lightGrey,
+                width: 2,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              child: Image.memory(imageBytes, fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                ShortenText().cutText(Globals.filteredSearchedFiles[index], customLength: 15),
+                style: const TextStyle(
+                  color: ThemeColor.justWhite,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                uploaderName,
+                style: const TextStyle(
+                  color: ThemeColor.secondaryWhite,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: 100,
+                height: 23,
+                decoration: BoxDecoration(
+                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                ),
+                child: Center(
+                  child: Text(
+                    GlobalsData.psTagsValuesData[index],
+                    style: const TextStyle(
+                      color: ThemeColor.justWhite,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildStaggeredItems(int index) {
+
     Uint8List imageBytes = Globals.filteredSearchedBytes[index]!;
+
+    String uploaderNamePs = "";
+    bool isRecentPs = false;
+
+    if (Globals.fileOrigin == "psFiles") {
+
+      uploaderNamePs = GlobalsData.psUploaderName[index] == Globals.custUsername
+        ? "${GlobalsData.psUploaderName[index]} (You)"
+        : GlobalsData.psUploaderName[index];
+
+      isRecentPs = index == 0 || index == 1; 
+
+    }
+
     return Padding(
-      padding: Globals.fileOrigin == "psFiles" 
-            ? const EdgeInsets.all(0.0) : const EdgeInsets.all(2.0),
+      padding: EdgeInsets.all(Globals.fileOrigin == "psFiles" ? 0.0 : 2.0),
       child: GestureDetector(
         onLongPress: () {
-          _callBottomTrailling(index);
+          if(!isRecentPs) {
+            _callBottomTrailling(index);
+          }
         },
         onTap: () async {
-          await _navigateToPreviewFile(index);
+          if(!isRecentPs) {
+            await _navigateToPreviewFile(index);
+          }
         },
-        child: IntrinsicHeight(
-          child: Globals.fileOrigin == "psFiles"
-              ? _buildPsStaggeredListView(imageBytes, index)
-              : _buildNormalStaggeredListView(imageBytes, index)
+        child: Column(
+          children: [
+            if (isRecentPs && Globals.fileOrigin == "psFiles" && index == 0) ... [
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 18.0, top: 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule, color: ThemeColor.justWhite, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        "Recent",
+                        style: TextStyle(
+                          fontSize: 23,
+                          color: ThemeColor.justWhite,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal, 
+                child: Row(
+                  children: [
+                    const SizedBox(width: 25),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0, uploaderNamePs),
+                    const SizedBox(width: 12),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1, uploaderNamePs),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Divider(color: ThemeColor.whiteGrey),
+            ],
+
+            if(Globals.fileOrigin == "psFiles" && !isRecentPs) ... [
+
+              if(index == 2)
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 18.0, top: 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.explore_outlined, color: ThemeColor.justWhite, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        "Discover",
+                        style: TextStyle(
+                          fontSize: 23,
+                          color: ThemeColor.justWhite,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              IntrinsicHeight(
+                child: _buildPsStaggeredListView(imageBytes, index, uploaderNamePs)
+              ),
+
+            ],
+
+            if(Globals.fileOrigin != "psFiles")
+            IntrinsicHeight(
+              child: _buildNormalStaggeredListView(imageBytes, index),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildPsStaggeredListView(Uint8List imageBytes, int index) {
+  Widget _buildPsStaggeredListView(Uint8List imageBytes, int index, String uploaderName) {
 
     final mediaQuery = MediaQuery.of(context).size;
 
@@ -4257,13 +4418,7 @@ static List<Color> psTagsColorData = <Color>[];*/
     };
 
     final fileType = Globals.filteredSearchedFiles[index].split('.').last;
-
     final originalDateValues = Globals.setDateValues[index];
-
-    final uploaderName = 
-      GlobalsData.psUploaderName[index] == Globals.custUsername 
-      ? "${GlobalsData.psUploaderName[index]} (You)" 
-      : GlobalsData.psUploaderName[index];
 
     return Container(
       width: mediaQuery.width,
@@ -4567,6 +4722,7 @@ static List<Color> psTagsColorData = <Color>[];*/
     shareController.dispose();
     commentController.dispose();
     folderRenameController.dispose();
+    scrollListViewController.dispose();
     
     homeButtonVisible.dispose();
     staggeredListViewSelected.dispose();

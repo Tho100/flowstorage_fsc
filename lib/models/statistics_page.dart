@@ -163,16 +163,22 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<String> _accountCreationDate() async {
 
-    const selectAccCreatedDate = "SELECT CREATED_DATE FROM information WHERE CUST_USERNAME = :username";
-    final params = {'username': Globals.custUsername};
+    try {
 
-    final createdDateValue = await crud.select(
-      query: selectAccCreatedDate, 
-      returnedColumn: "CREATED_DATE", 
-      params: params
-    );
+      const selectAccCreatedDate = "SELECT CREATED_DATE FROM information WHERE CUST_USERNAME = :username";
+      final params = {'username': Globals.custUsername};
 
-    return createdDateValue;
+      final createdDateValue = await crud.select(
+        query: selectAccCreatedDate, 
+        returnedColumn: "CREATED_DATE", 
+        params: params
+      );
+
+      return createdDateValue;
+      
+    } catch (err) {
+      return "N/A";
+    }
 
   }
 
