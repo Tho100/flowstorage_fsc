@@ -915,7 +915,12 @@ static List<Color> psTagsColorData = <Color>[];*/
         Globals.fileOrigin = 'homeFiles';
       });
 
+      await _refreshListView();
+      _navDirectoryButtonVisibility(true);
+      _floatingButtonVisiblity(true);
+
       if(!mounted) return;
+      Navigator.pop(context);
       SnakeAlert.okSnake(message: "$folderName Folder has been deleted.",icon: Icons.check,context: context);
 
     } catch (err) {

@@ -23,7 +23,6 @@ import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
-import 'package:flowstorage_fsc/public_storage/get_uploader_name.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
@@ -82,6 +81,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   static final bottomBarVisibleNotifier = ValueNotifier<bool>(true);
 
+  final uploaderNameNotifer = ValueNotifier<String>('');
+
   final appBarTitleNotifier = ValueNotifier<String>(
                                 Globals.selectedFileName);
 
@@ -103,6 +104,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     currentTable = Globals.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
+    uploaderName();
   }
 
   @override
@@ -113,6 +115,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     appBarTitleNotifier.dispose();
     fileSizeNotifier.dispose();
     fileResolutionNotifier.dispose();
+    uploaderNameNotifer.dispose();
     fileResolutionNotifier.value = "";
     fileSizeNotifier.value = "";
     super.dispose();
@@ -484,40 +487,32 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
-  Future<String> uploaderName() async {
+  void uploaderName() async {
     
     const localOriginFrom = {"homeFiles","folderFiles","dirFiles"};
     const sharingOriginFrom = {"sharedFiles","sharedToMe"};
 
-    late String returnedUploaderName;
-
     if(localOriginFrom.contains(widget.originFrom)) {
       
-      returnedUploaderName = Globals.custUsername;
+      uploaderNameNotifer.value = Globals.custUsername;
 
     } else if (sharingOriginFrom.contains(widget.originFrom)) {
-
-      returnedUploaderName = widget.originFrom == "sharedFiles" 
+      uploaderNameNotifer.value = widget.originFrom == "sharedFiles" 
       ? await SharingName().shareToOtherName(usernameIndex: widget.tappedIndex) 
       : await SharingName().sharerName();
 
     } else if (widget.originFrom == "psFiles") {
 
-      final uploaderUsername = 
-      await UploaderName().getUploaderName(
-        tableName: Globals.fileTypesToTableNamesPs[fileType]!,
-        fileValues: {fileType}
-      );
-
-      returnedUploaderName = uploaderUsername;
+      final uploaderNameIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+      uploaderNameNotifer.value = GlobalsData.psUploaderName[uploaderNameIndex];
 
     } else {
 
-      returnedUploaderName = Globals.custUsername;
+      uploaderNameNotifer.value = Globals.custUsername;
 
     }
 
-    return "  $returnedUploaderName";
+    //return "  ${uploaderNameNotifer.value}";
 
   }
 
@@ -563,11 +558,24 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           ),
 
           Padding(
-            padding: const EdgeInsets.only(left: 6, top: 12),
+            padding: const EdgeInsets.only(left: 15, top: 12),
             child: SizedBox(
               width: double.infinity,
-              child: FutureBuilder<String>(
-                future: uploaderName(),
+              child: ValueListenableBuilder(
+                valueListenable: uploaderNameNotifer,
+                builder: (BuildContext context, String value, Widget? child) {
+                  return Text(
+                    value,
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
+                }
+              ),/*FutureBuilder<String>(
+                future: uploaderName(),//uploaderNameNotifer.value,
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container();
@@ -585,7 +593,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                     );
                   }
                 },
-              ),
+              ),*/
             ),
           ),
   
@@ -784,6 +792,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   void _updateAppBarTitle() {
     appBarTitleNotifier.value = Globals.selectedFileName;
+    if(Globals.fileOrigin == "psFiles") {
+      uploaderName();
+    }
   }
 
   Widget _buildFileOnCondition() {
@@ -799,7 +810,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else {
       return _buildFilePreview();
     }
-    
+
   }
 
   Widget _buildCopyTextIconButton() {
