@@ -4,11 +4,11 @@ import 'package:flowstorage_fsc/global/globals.dart';
 
 class DeleteFolder {
 
-  Future<void> deletionParams() async {
+  Future<void> deletionParams({required folderName}) async {
 
     final crud = Crud();
     const deleteFolderQuery = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle";
-    final params = {'username': Globals.custUsername, 'foldtitle': EncryptionClass().encrypt(Globals.folderTitleValue)};
+    final params = {'username': Globals.custUsername, 'foldtitle': EncryptionClass().encrypt(folderName)};
 
     await crud.delete(
       query: deleteFolderQuery, 

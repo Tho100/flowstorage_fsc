@@ -908,7 +908,7 @@ static List<Color> psTagsColorData = <Color>[];*/
 
       final deleteClass = DeleteFolder();
 
-      await deleteClass.deletionParams();
+      await deleteClass.deletionParams(folderName: folderName);
 
       setState(() {
         Globals.foldValues.remove(folderName);
