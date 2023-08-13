@@ -512,8 +512,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     }
 
-    //return "  ${uploaderNameNotifer.value}";
-
   }
 
   Widget uploadedByText() {
@@ -574,26 +572,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                     ),
                   );
                 }
-              ),/*FutureBuilder<String>(
-                future: uploaderName(),//uploaderNameNotifer.value,
-                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container();
-                  } else if (snapshot.hasError) {
-                    return const Text('');
-                  } else {
-                    return Text(
-                      snapshot.data ?? '(Unknown)',
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  }
-                },
-              ),*/
+              ),
             ),
           ),
   

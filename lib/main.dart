@@ -557,9 +557,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   void _processUploadDateSorting() {
-/*static List<String> psUploaderName = <String>[];
-static List<String> psTagsValuesData = <String>[];
-static List<Color> psTagsColorData = <Color>[];*/
 
     List<Map<String, dynamic>> itemList = [];
 
@@ -3108,130 +3105,132 @@ static List<Color> psTagsColorData = <Color>[];*/
         ? const SizedBox(height: 0)
         : const SizedBox(height: 8),
 
-        Visibility(
-          visible: VisibilityChecker.setNotVisible("psFiles"),
-          child: Row(
-        
-            children: [
-        
-              const SizedBox(width: 16),
-        
-              ElevatedButton(
-                onPressed: () {
-                  _buildSharedBottom();
-                },
-                style: GlobalsStyle.btnNavigationBarStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.share, color: Colors.white),
-                    Text(
-                      '  Shared',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+        if(Globals.fileOrigin != "psFiles") ... [
+          Visibility(
+            visible: VisibilityChecker.setNotVisible("psFiles"),
+            child: Row(
+          
+              children: [
+          
+                const SizedBox(width: 16),
+          
+                ElevatedButton(
+                  onPressed: () {
+                    _buildSharedBottom();
+                  },
+                  style: GlobalsStyle.btnNavigationBarStyle,
+                  child: const Row(
+                    children: [
+                      Icon(Icons.share, color: Colors.white),
+                      Text(
+                        '  Shared',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-        
-              const SizedBox(width: 8),
-        
-              ElevatedButton(
-                onPressed: () async {
-                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                    await _initializeCameraScanner();
-                  } else {
-                    _upgradeDialog(
-                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                    );
-                  }
-                },
-                style: GlobalsStyle.btnNavigationBarStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.center_focus_strong_rounded, color: Colors.white),
-                    Text(
-                      '  Scan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+          
+                const SizedBox(width: 8),
+          
+                ElevatedButton(
+                  onPressed: () async {
+                    if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                      await _initializeCameraScanner();
+                    } else {
+                      _upgradeDialog(
+                        "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                      );
+                    }
+                  },
+                  style: GlobalsStyle.btnNavigationBarStyle,
+                  child: const Row(
+                    children: [
+                      Icon(Icons.center_focus_strong_rounded, color: Colors.white),
+                      Text(
+                        '  Scan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-        
-              const SizedBox(width: 8),
-        
-              ValueListenableBuilder<bool>(
-                valueListenable: navDirectoryButtonVisible,
-                builder: (BuildContext context, bool value, Widget? child) {
-                  return Visibility(
-                    visible: value,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
-                        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-                            _buildCreateDirectoryDialog();
+          
+                const SizedBox(width: 8),
+          
+                ValueListenableBuilder<bool>(
+                  valueListenable: navDirectoryButtonVisible,
+                  builder: (BuildContext context, bool value, Widget? child) {
+                    return Visibility(
+                      visible: value,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
+                          if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                            if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                              _buildCreateDirectoryDialog();
+                            } else {
+                              _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                            }
                           } else {
-                            _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                            _upgradeDialog(
+                              "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                            );
                           }
-                        } else {
-                          _upgradeDialog(
-                            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                          );
-                        }
-                      },
-                      style: GlobalsStyle.btnNavigationBarStyle,
-                      child: const Row(
-                        children: [
-                          Icon(Icons.add_box, color: Colors.white),
-                          Text(
-                            '  Directory',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                        },
+                        style: GlobalsStyle.btnNavigationBarStyle,
+                        child: const Row(
+                          children: [
+                            Icon(Icons.add_box, color: Colors.white),
+                            Text(
+                              '  Directory',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-        
-              ValueListenableBuilder<bool>(
-                valueListenable: homeButtonVisible,
-                builder: (BuildContext context, bool value, Widget? child) {
-                  return Visibility(
-                    visible: value,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await _goBackHome();
-                      },
-                      style: GlobalsStyle.btnNavigationBarStyle,
-                      child: const Row(
-                        children: [
-                          Icon(Icons.home, color: Colors.white),
-                          Text(
-                            '  Home',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                    );
+                  },
+                ),
+          
+                ValueListenableBuilder<bool>(
+                  valueListenable: homeButtonVisible,
+                  builder: (BuildContext context, bool value, Widget? child) {
+                    return Visibility(
+                      visible: value,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _goBackHome();
+                        },
+                        style: GlobalsStyle.btnNavigationBarStyle,
+                        child: const Row(
+                          children: [
+                            Icon(Icons.home, color: Colors.white),
+                            Text(
+                              '  Home',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-        
-            ],
+                    );
+                  },
+                ),
+          
+              ],
+            ),
           ),
-        ),
+        ],
 
         Globals.fileOrigin == "psFiles" 
         ? const SizedBox(height: 0)
@@ -3978,15 +3977,15 @@ static List<Color> psTagsColorData = <Color>[];*/
             style: GlobalsStyle.greetingAppBarTextStyle,
           ),
           actions: [
-            Visibility(
-              visible: VisibilityChecker.setNotVisible("psFiles"),
-              child: _buildSelectAll()
-            ),
+
+            if(Globals.fileOrigin != "psFiles")
+            _buildSelectAll(),
+
             _buildMoreOptionsOnSelect(),
-            Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","homeFiles","dirFiles","folderFiles","sharedToMe","sharedToOthers"]),
-              child: _buildSearchButtonIcon()
-            )
+
+            if(Globals.fileOrigin == "psFiles") 
+            _buildMyPsFilesButton()
+
           ],
           leading: IconButton(
             icon: const Icon(Icons.menu,size: 28),
@@ -4748,12 +4747,22 @@ static List<Color> psTagsColorData = <Color>[];*/
     );
   }
 
-  Widget _buildSearchButtonIcon() {
-    return IconButton(
-      icon: const Icon(Icons.search, color: ThemeColor.justWhite, size: 30),
-      onPressed: () {
-        searchBarVisibileNotifier.value = !searchBarVisibileNotifier.value;
-      }
+  Widget _buildMyPsFilesButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, right: 8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          
+        },
+        style: GlobalsStyle.btnNavigationBarStyle,
+        child: const Text(
+          'My Files',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 
