@@ -164,11 +164,17 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUploadOffline() async {
 
-    final offlineDir = await OfflineMode().returnOfflinePath();
+    try {
 
-    List<FileSystemEntity> files = offlineDir.listSync();
-    int fileCount = files.whereType().length;
-    return fileCount;
+      final offlineDir = await OfflineMode().returnOfflinePath();
+    
+      List<FileSystemEntity> files = offlineDir.listSync();
+      int fileCount = files.whereType().length;
+      return fileCount;
+
+    } catch (err) {
+      return 0;
+    }
 
   }
 

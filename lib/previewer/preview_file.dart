@@ -522,13 +522,15 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Widget uploadedByText() {
+
+    const generalOrigin = {
+      "homeFiles", "sharedToMe", "folderFiles", 
+      "dirFiles", "psFiles", "offlineFiles"
+    };
+
     return Text(
-      widget.originFrom == "homeFiles" 
-      || widget.originFrom == "sharedToMe" 
-      || widget.originFrom == "folderFiles" 
-      || widget.originFrom == "dirFiles" 
-      || widget.originFrom == "psFiles" 
-      || widget.originFrom == "offlineFiles" ? '   Uploaded By' : "   Shared To",
+      generalOrigin.contains(widget.originFrom) 
+      ? "   Uploaded By" : "   Shared To",
       textAlign: TextAlign.start,
       style: const TextStyle(
         fontSize: 12,
@@ -540,87 +542,86 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   Future<Widget> _buildBottomBar(BuildContext context) async {
     return Container(
-        height: 138,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: ThemeColor.darkBlack,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start, 
-          children: [
-    
-            const SizedBox(height: 2),
+      height: 138,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: ThemeColor.darkBlack,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, 
+        children: [
+  
+          const SizedBox(height: 2),
 
-            Padding(
-              padding: const EdgeInsets.only(left: 6, top: 10), 
-              child: SizedBox(
-                width: double.infinity,
-                child: uploadedByText()
+          Padding(
+            padding: const EdgeInsets.only(left: 6, top: 10), 
+            child: SizedBox(
+              width: double.infinity,
+              child: uploadedByText()
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 6, top: 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: FutureBuilder<String>(
+                future: uploaderName(),
+                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container();
+                  } else if (snapshot.hasError) {
+                    return const Text('');
+                  } else {
+                    return Text(
+                      snapshot.data ?? '(Unknown)',
+                      textAlign: TextAlign.start,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.only(left: 6, top: 12),
-              child: SizedBox(
-                width: double.infinity,
-                child: FutureBuilder<String>(
-                  future: uploaderName(),
-                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container();
-                    } else if (snapshot.hasError) {
-                      return const Text('');
-                    } else {
-                      return Text(
-                        snapshot.data ?? '(Unknown)',
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      );
-                    }
-                  },
-                ),
+          ),
+  
+          const Spacer(),
+  
+          Row(
+            
+            children: [
+  
+              const SizedBox(width: 5),
+  
+              _buildBottomButtons(const Icon(Icons.comment, size: 22), ThemeColor.darkGrey, 60, 45,"comment",context),
+  
+              const Spacer(),
+  
+              Visibility(
+                visible: true,
+                child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
               ),
-            ),
-    
-            const Spacer(),
-    
-            Row(
-              
-              children: [
-    
-                const SizedBox(width: 5),
-    
-                _buildBottomButtons(const Icon(Icons.comment, size: 22), ThemeColor.darkGrey, 60, 45,"comment",context),
-    
-                const Spacer(),
-    
-                Visibility(
-                  visible: true,
-                  child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
-                ),
-    
-                _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
-    
-                _buildBottomButtons(const Text('SHARE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600)),
-                  ThemeColor.darkPurple,
-                  105,
-                  45,
-                  "share",
-                  context
-                ),
-    
-                const SizedBox(width: 5),
-    
-              ],
-            ),
-          ],
-        ),
-      
+  
+              _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
+  
+              _buildBottomButtons(const Text('SHARE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600)),
+                ThemeColor.darkPurple,
+                105,
+                45,
+                "share",
+                context
+              ),
+  
+              const SizedBox(width: 5),
+  
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -798,6 +799,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else {
       return _buildFilePreview();
     }
+    
   }
 
   Widget _buildCopyTextIconButton() {

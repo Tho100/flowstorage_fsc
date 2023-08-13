@@ -1893,12 +1893,15 @@ static List<Color> psTagsColorData = <Color>[];*/
       fileTypes.add(getExtension);
       fileNames.add(getFileName);
     }
+    
+    final formattedDate = 
+      DateFormat('dd/MM/yyyy').format(DateTime.now()); 
 
-    await CreateFolder().insertParams(
-      folderName,
-      fileValues,
-      fileNames,
-      fileTypes,
+    await CreateFolder(EncryptionClass(), formattedDate).insertParams(
+      titleFolder: folderName,
+      fileValues: fileValues,
+      fileNames: fileNames,
+      fileTypes: fileTypes,
       videoThumbnail: videoThumbnails,
     );
 
