@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/public_storage/byte_getter.dart';
 import 'package:flowstorage_fsc/public_storage/date_getter.dart';
 import 'package:flowstorage_fsc/public_storage/name_getter.dart';
@@ -25,13 +26,14 @@ class PublicStorageDataRetriever {
 
       final futures = tablesToCheck.map((table) async {
 
-        final uploaderName = await uploaderNameGetter.myRetrieveParams(conn, table);
         final fileNames = await nameGetter.myRetrieveParams(conn, table);
         final bytes = await byteGetter.myGetLeadingParams(conn, table);
         final dates = await dateGetter.myGetDateParams(conn, table);
 
+        final uploaderNameList = List<String>.generate(fileNames.length, (_) => Globals.custUsername);
+
         return {
-          'uploader_name': uploaderName,
+          'uploader_name': uploaderNameList,
           'name': fileNames,
           'date': dates,
           'file_data': bytes,
