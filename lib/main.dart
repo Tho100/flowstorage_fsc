@@ -1255,7 +1255,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     if(Globals.imageType.contains(fileType)) {
       fileData = Globals.filteredSearchedBytes[indexFile]!;
     } else {
-      fileData = await _callData(fileName,tableName);
+      fileData = await _callData(fileName, tableName);
     }
     
     if(!mounted) return;
@@ -4791,7 +4791,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           psButtonTextNotifier.value == "Back" 
           ? await _refreshPublicStorage()
           : await _callMyPsData();
-          
+
         },
         style: GlobalsStyle.btnNavigationBarStyle,
         child: ValueListenableBuilder(

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 
@@ -59,8 +60,12 @@ class RetrieveData {
         toPsFileName = tableName!;
       }
 
+      final indexUploaderName = Globals.filteredSearchedFiles.indexOf(fileName);
+      final uploaderName = GlobalsData.psUploaderName[indexUploaderName];
+
       query = "SELECT CUST_FILE FROM $toPsFileName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "filename": encryptedFileName};
+      queryParams = {"username": uploaderName, "filename": encryptedFileName};
+
     }
 
     final row = (await fscDbCon.execute(query, queryParams)).rows.first;
