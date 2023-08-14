@@ -71,6 +71,7 @@ class RetrieveData {
     final row = (await fscDbCon.execute(query, queryParams)).rows.first;
     final byteData = base64.decode(encryption.decrypt(row.assoc()['CUST_FILE']!));
     return byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    
   }
 
   Future<Uint8List> retrieveDataParams(

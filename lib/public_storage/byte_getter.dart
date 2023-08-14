@@ -47,23 +47,22 @@ class ByteGetterPs {
         return GlobalsData.psImageData;
       }
     } else {
-      return _getOtherTableParams(conn, tableName);
+      return _getOtherTableParams(conn, tableName, isFromMyPs: false);
     }
   }
 
   Future<List<Uint8List>> myGetLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
       return _getFileInfoParams(conn, true);
-    } /*else {
-      return _getOtherTableParams(conn, tableName);
-    }*/
-    return [];
+    } else {
+      return _getOtherTableParams(conn, tableName, isFromMyPs: true);
+    }
   }
 
   Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, bool isFromMyPs) async {
 
-    String query; 
-    IResultSet executeRetrieval;
+    final String query; 
+    final IResultSet executeRetrieval;
 
     if(isFromMyPs) {
 
@@ -95,18 +94,33 @@ class ByteGetterPs {
     return getByteValue;
   }
 
-  Future<List<Uint8List>> _getOtherTableParams(MySQLConnectionPool conn, String tableName) async {
+  Future<List<Uint8List>> _getOtherTableParams(
+    MySQLConnectionPool conn, 
+    String tableName, 
+    {required bool isFromMyPs}) async {
 
     final getByteValue = <Uint8List>{};
 
     retrieveValue(String iconName) async {
+      
+      final String query;
+      final IResultSet executedRows;
+      
+      if(isFromMyPs) {
 
-      final retrieveCountQuery = 'SELECT COUNT(*) FROM $tableName';
-      final countTotalRows = await conn.execute(retrieveCountQuery);
+        query = 'SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username';
+        final params = {'username': Globals.custUsername};
+
+        executedRows = await conn.execute(query,params);
+
+      } else {
+        query = 'SELECT COUNT(*) FROM $tableName';
+        executedRows = await conn.execute(query);
+      }
 
       int totalCount = 0;
 
-      for(final row in countTotalRows.rows) {
+      for(final row in executedRows.rows) {
         totalCount = row.typedColAt<int>(0)!;
       }
 
@@ -118,7 +132,9 @@ class ByteGetterPs {
 
       if(GlobalsData.psThumbnailData.isEmpty) {
 
-        final thumbnailBytes = await thumbnailGetter.retrieveParams();
+        final thumbnailBytes = isFromMyPs 
+          ? await thumbnailGetter.myRetrieveParams() 
+          : await thumbnailGetter.retrieveParams();
 
         GlobalsData.psThumbnailData.addAll(thumbnailBytes);
         getByteValue.addAll(thumbnailBytes);

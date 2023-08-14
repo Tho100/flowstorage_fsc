@@ -366,14 +366,18 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         _scrollEndListView();
 
+        SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added");
+        await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
+
+        //Globals.psUploadPassed == true ? SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added") : null;
+        //Globals.psUploadPassed == true ? await CallNotify().uploadedNotification(title: "Upload Finished", count: 1) : null;
+
       },
       context: context,
       imageBase64Encoded: imagePreview
     );
 
     await NotificationApi.stopNotification(0);
-    Globals.psUploadPassed == true ? SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added") : null;
-    Globals.psUploadPassed == true ? await CallNotify().uploadedNotification(title: "Upload Finished", count: 1) : null;
     Globals.psUploadPassed = false;
 
   }
@@ -1018,7 +1022,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   }
 
-  Future<void> _callMyPsData() async {
+  Future<void> _callMyPublicStorageData() async {
 
     _clearGlobalData();
 
@@ -1063,7 +1067,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     } else if (Globals.fileOrigin == "offlineFiles") {
       await _callOfflineData();
     } else if (Globals.fileOrigin == "psFiles") {
-      await _refreshPublicStorage();
+
+      appBarTitle.value == "Public Storage" 
+      ? await _refreshPublicStorage()
+      : await _callMyPublicStorageData();
+
     }
 
     if(Globals.fileOrigin != "psFiles") {
@@ -1195,7 +1203,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         if(Globals.fileOrigin == "psFiles") {
           
-          _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: "ps_home_image", base64Encoded: imageBase64Encoded);
+          _openPsCommentDialog(filePathVal: imagePath, fileName: imageName, tableName: GlobalsTable.psImage, base64Encoded: imageBase64Encoded);
           return;
 
         } else if (Globals.fileOrigin == "offlineFiles") {
@@ -2225,28 +2233,28 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     final fileName = Globals.filteredSearchedFiles[index];
 
     return BottomTrailing().buildBottomTrailing(
-        fileName: fileName, 
-        onRenamePressed: () {
-          Navigator.pop(context);
-          _openRenameDialog(fileName);
-        }, 
-        onDownloadPressed: () async {
-          Navigator.pop(context);
-          await _callFileDownload(fileName: fileName);
-        }, 
-        onDeletePressed: () {
-          _openDeleteDialog(fileName);
-        },
-        onSharingPressed: () {
-          Navigator.pop(context);
-          _openSharingDialog(fileName);
-        }, 
-        onAOPressed: () async {
-          Navigator.pop(context);
-          await _makeAvailableOffline(fileName: fileName);
-        }, 
-        context: context
-      );
+      fileName: fileName, 
+      onRenamePressed: () {
+        Navigator.pop(context);
+        _openRenameDialog(fileName);
+      }, 
+      onDownloadPressed: () async {
+        Navigator.pop(context);
+        await _callFileDownload(fileName: fileName);
+      }, 
+      onDeletePressed: () {
+        _openDeleteDialog(fileName);
+      },
+      onSharingPressed: () {
+        Navigator.pop(context);
+        _openSharingDialog(fileName);
+      }, 
+      onAOPressed: () async {
+        Navigator.pop(context);
+        await _makeAvailableOffline(fileName: fileName);
+      }, 
+      context: context
+    );
   }
 
   /// <summary>
@@ -4790,7 +4798,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
           psButtonTextNotifier.value == "Back" 
           ? await _refreshPublicStorage()
-          : await _callMyPsData();
+          : await _callMyPublicStorageData();
 
         },
         style: GlobalsStyle.btnNavigationBarStyle,
