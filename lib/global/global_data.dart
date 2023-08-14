@@ -6,7 +6,10 @@ class GlobalsData {
   static List<String> psUploaderName = <String>[];
   static List<String> psTagsValuesData = <String>[];
   static List<Color> psTagsColorData = <Color>[];
-  
+
+  static List<Uint8List> myPsImageData = <Uint8List>[];
+  static List<Uint8List> myPsThumbnailData = <Uint8List>[];
+
   static List<Uint8List> psImageData = <Uint8List>[];
   static List<Uint8List> psThumbnailData = <Uint8List>[];
 

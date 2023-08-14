@@ -239,12 +239,18 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     if (verifyTableName == GlobalsTable.homeImage) {
       homeImageData.addAll(newFilteredSearchedBytes);
+      
     } else if (verifyTableName == GlobalsTable.homeVideo) {
       homeThumbnailData.add(thumbnailBytes);
+
     } else if (verifyTableName == GlobalsTable.psImage) {
       GlobalsData.psImageData.addAll(newFilteredSearchedBytes);
+      GlobalsData.myPsImageData.addAll(newFilteredSearchedBytes);
+      
     } else if (verifyTableName == GlobalsTable.psVideo) {
       GlobalsData.psThumbnailData.add(thumbnailBytes);
+      GlobalsData.myPsThumbnailData.add(thumbnailBytes);
+
     }
 
     setState(() {});
@@ -270,6 +276,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     await _refreshListView();
   }
 
+  void _clearPublicStorageData() {
+    GlobalsData.psUploaderName.clear();
+    GlobalsData.psTagsValuesData.clear();
+    GlobalsData.psTagsColorData.clear();
+  }
+
   void _clearGlobalData() {
     Globals.fileValues.clear();
     Globals.filteredSearchedFiles.clear();
@@ -282,6 +294,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   void _togglePublicStorage() async {
     
     if (publicStorageSelectedNotifier.value) {
+
+      if(psButtonTextNotifier.value == "Back") {
+        _clearPublicStorageData();
+      }
 
       await _callHomeData();
 
@@ -368,9 +384,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added");
         await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
-
-        //Globals.psUploadPassed == true ? SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added") : null;
-        //Globals.psUploadPassed == true ? await CallNotify().uploadedNotification(title: "Upload Finished", count: 1) : null;
 
       },
       context: context,
@@ -4789,11 +4802,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         onPressed: () async {
 
           if(psButtonTextNotifier.value == "Back") {
-            GlobalsData.psImageData.clear();
-            GlobalsData.psUploaderName.clear();
-            GlobalsData.psThumbnailData.clear();
-            GlobalsData.psTagsValuesData.clear();
-            GlobalsData.psTagsColorData.clear();
+            _clearPublicStorageData();
+          }
+
+          if(psButtonTextNotifier.value == "My Files") {
+            await Future.delayed(const Duration(milliseconds: 299));
+            _sortUploadDate();
+            _sortUploadDate();
           }
 
           psButtonTextNotifier.value == "Back" 

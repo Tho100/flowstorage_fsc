@@ -42,24 +42,28 @@ class ByteGetterPs {
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
       if(GlobalsData.psImageData.isEmpty) {
-        return _getFileInfoParams(conn, false);
+        return getFileInfoParams(conn, false);
       } else {
         return GlobalsData.psImageData;
       }
     } else {
-      return _getOtherTableParams(conn, tableName, isFromMyPs: false);
+      return getOtherTableParams(conn, tableName, isFromMyPs: false);
     }
   }
 
   Future<List<Uint8List>> myGetLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
-      return _getFileInfoParams(conn, true);
+      if(GlobalsData.myPsImageData.isEmpty) {
+        return getFileInfoParams(conn, true);
+      } else {
+        return GlobalsData.myPsImageData;
+      }
     } else {
-      return _getOtherTableParams(conn, tableName, isFromMyPs: true);
+      return getOtherTableParams(conn, tableName, isFromMyPs: true);
     }
   }
 
-  Future<List<Uint8List>> _getFileInfoParams(MySQLConnectionPool conn, bool isFromMyPs) async {
+  Future<List<Uint8List>> getFileInfoParams(MySQLConnectionPool conn, bool isFromMyPs) async {
 
     final String query; 
     final IResultSet executeRetrieval;
@@ -89,15 +93,18 @@ class ByteGetterPs {
       getByteValue.add(bufferedFileBytes);
     }
     
-    GlobalsData.psImageData.addAll(getByteValue);
+    isFromMyPs 
+    ? GlobalsData.myPsImageData.addAll(getByteValue)
+    : GlobalsData.psImageData.addAll(getByteValue);
 
     return getByteValue;
   }
 
-  Future<List<Uint8List>> _getOtherTableParams(
+  Future<List<Uint8List>> getOtherTableParams(
     MySQLConnectionPool conn, 
     String tableName, 
-    {required bool isFromMyPs}) async {
+    {required bool isFromMyPs}
+  ) async {
 
     final getByteValue = <Uint8List>{};
 
@@ -130,17 +137,22 @@ class ByteGetterPs {
 
     if (tableName == _fileInfoVidTable) {
 
-      if(GlobalsData.psThumbnailData.isEmpty) {
+      if(GlobalsData.psThumbnailData.isEmpty || GlobalsData.myPsThumbnailData.isEmpty) {
 
         final thumbnailBytes = isFromMyPs 
           ? await thumbnailGetter.myRetrieveParams() 
           : await thumbnailGetter.retrieveParams();
 
-        GlobalsData.psThumbnailData.addAll(thumbnailBytes);
+        isFromMyPs 
+        ? GlobalsData.myPsThumbnailData.addAll(thumbnailBytes)
+        : GlobalsData.psThumbnailData.addAll(thumbnailBytes);
+
         getByteValue.addAll(thumbnailBytes);
 
       } else {
-        getByteValue.addAll(GlobalsData.psThumbnailData);
+        isFromMyPs 
+        ? getByteValue.addAll(GlobalsData.myPsThumbnailData)
+        : getByteValue.addAll(GlobalsData.psThumbnailData);
       }
 
     } else {

@@ -15,7 +15,7 @@ import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
+import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 
 import 'package:flutter/material.dart';
 
@@ -90,8 +90,6 @@ class SharingDialog {
 
     final getSharingAuth = await SharingOptions.retrievePassword(username);
 
-    final loadingDialog = MultipleTextLoading();
-
     if(Globals.videoType.contains(fileExtension)) {
       
       thumbnailBase64 = await Future.value(ThumbnailGetter().retrieveParamsSingle(fileName: fileName));
@@ -121,10 +119,14 @@ class SharingDialog {
 
     }
 
-    await CallNotify().customNotification(title: "Sharing...", subMesssage: "Sharing to $username");
+    await CallNotify().customNotification(
+      title: "Sharing...", subMesssage: "Sharing to $username");
     
+    final singleTextLoading = SingleTextLoading();
+
     if(context.mounted) {
-      loadingDialog.startLoading(title: "Sharing...",subText: "Sharing to $username",context: context);
+      singleTextLoading.startLoading(
+        title: "Sharing...", context: context);
     }
 
     final fileData = base64.encode(await _callData(fileName, tableName));
@@ -144,10 +146,10 @@ class SharingDialog {
 
     }
 
-
-    loadingDialog.stopLoading();
+    singleTextLoading.stopLoading();
 
     await NotificationApi.stopNotification(0);
+
   }
 
   void _onSharePressed({
@@ -191,23 +193,66 @@ class SharingDialog {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Text(
-                      ShortenText().cutText(fileName!, customLength: 42),
-                      style: const TextStyle(
-                        color: ThemeColor.justWhite,
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
+
+                  Stack(
+                    children: [
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image(
+                            width: 55,
+                            height: 55,
+                            fit: BoxFit.cover,
+                            image: MemoryImage(Globals.filteredSearchedBytes[Globals.filteredSearchedFiles.indexWhere((name) => name == fileName)]!),
+                          ),
+                        ),
+                      ),
+
+                      if(Globals.videoType.contains(fileName!.split('.').last))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 22.0, left: 24.0),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: ThemeColor.mediumGrey.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 22)
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          ShortenText().cutText(fileName, customLength: 42),
+                          style: const TextStyle(
+                            color: ThemeColor.justWhite,
+                            fontSize: 15,
+                            overflow: TextOverflow.ellipsis,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                  
                 ],
               ),
+
+              const Divider(color: ThemeColor.lightGrey),
+              const SizedBox(height: 8),
+
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -260,31 +305,26 @@ class SharingDialog {
                 ),
               ),
 
-              const SizedBox(height: 5),
               Row(
                 children: [
                   const SizedBox(width: 5),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            shareToController!.clear();
-                            commentController!.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
+                      child: buildButtons(
+                        text: "Close",
+                        onPressed: () {
+                          shareToController!.clear();
+                          commentController!.clear();
+                          Navigator.pop(context);
+                        },
+                        buttonStyle: ElevatedButton.styleFrom(
+                          backgroundColor: ThemeColor.darkBlack,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: ThemeColor.darkPurple),
                           ),
-                          child: const Text('Close'),
                         ),
                       ),
                     ),
@@ -292,28 +332,24 @@ class SharingDialog {
 
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: buildButtons(
+                        text: "Share",
+                        onPressed: () {
 
-                            final shareToInput = shareToController!.text;
-                            final comment = commentController!.text;
+                          final shareToInput = shareToController!.text;
+                          final comment = commentController!.text;
 
-                            _onSharePressed(
-                              receiverUsername: shareToInput,
-                              fileName: fileName,
-                              commentInput: comment,
-                              context: context
-                            );
+                          _onSharePressed(
+                            receiverUsername: shareToInput,
+                            fileName: fileName,
+                            commentInput: comment,
+                            context: context
+                          );
 
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Share'),
-                        ),
-                      ),
+                        },
+                        buttonStyle: GlobalsStyle.btnMainStyle
+                      )
                     ),
                   ),
 
@@ -324,6 +360,24 @@ class SharingDialog {
           ),
         );
       },
+    );
+  }
+
+  Widget buildButtons({
+    required String text, 
+    required VoidCallback onPressed, 
+    required ButtonStyle buttonStyle
+  }) {
+    return SizedBox(
+      width: 85,
+      height: 45,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: buttonStyle,
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 16)),
+      ),
     );
   }
 
