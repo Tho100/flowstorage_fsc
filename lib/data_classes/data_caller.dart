@@ -188,7 +188,44 @@ class DataCaller {
     GlobalsData.psTagsValuesData.clear();
 
     final psDataRetriever = PublicStorageDataRetriever();
-    final dataList = await psDataRetriever.retrieveParams();
+    final dataList = await psDataRetriever.retrieveParams(isFromMyPs: false);
+
+    final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
+    final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
+    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
+
+    final getTagsValue = dateList.
+      map((tags) => tags.split(' ').last).toList();
+
+    GlobalsData.psTagsValuesData.addAll(getTagsValue);
+    GlobalsData.psUploaderName.addAll(uploaderList);
+
+    Globals.fileValues.addAll(nameList);
+    Globals.setDateValues.addAll(dateList);
+    Globals.imageByteValues.addAll(byteList);
+
+    Globals.fileOrigin = "psFiles";
+
+    justLoading.stopLoading();
+    
+  }
+
+  Future<void> myPublicStorageData({required BuildContext context}) async {
+
+    final justLoading = JustLoading();
+
+    justLoading.startLoading(context: context);
+
+    GlobalsData.psImageData.clear();
+    GlobalsData.psUploaderName.clear();
+    GlobalsData.psThumbnailData.clear();
+
+    GlobalsData.psTagsValuesData.clear();
+    GlobalsData.psTagsColorData.clear();
+
+    final psDataRetriever = PublicStorageDataRetriever();
+    final dataList = await psDataRetriever.retrieveParams(isFromMyPs: true);
 
     final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
     final nameList = dataList.expand((data) => data['name'] as List<String>).toList();

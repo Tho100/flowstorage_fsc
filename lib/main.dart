@@ -140,6 +140,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   final searchHintText = ValueNotifier<String>('Search in Flowstorage');
 
   final publicStorageSelectedNotifier = ValueNotifier<bool>(false);
+  final psButtonTextNotifier = ValueNotifier<String>('My Files');
 
   final navDirectoryButtonVisible = ValueNotifier<bool>(true);
   final floatingActionButtonVisible = ValueNotifier<bool>(true);
@@ -295,7 +296,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     } else {
       Globals.fileOrigin = "psFiles";
-      _floatingButtonVisiblity(true);
       await _refreshPublicStorage();
     }
 
@@ -308,6 +308,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     await Future.delayed(const Duration(milliseconds: 299));
     _sortUploadDate();
     _sortUploadDate();
+    _floatingButtonVisiblity(true);
   }
 
   void _scrollEndListView() {
@@ -1003,6 +1004,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     await dataCaller.publicStorageData(context: context);
 
     appBarTitle.value = "Public Storage";
+    psButtonTextNotifier.value = "My Files";
 
     searchBarVisibileNotifier.value = false;
     staggeredListViewSelected.value = true;
@@ -1012,7 +1014,24 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
+    _floatingButtonVisiblity(true);
+
+  }
+
+  Future<void> _callMyPsData() async {
+
+    _clearGlobalData();
+
+    await dataCaller.myPublicStorageData(context: context);
+
+    appBarTitle.value = "My Public Storage";
+    psButtonTextNotifier.value = "Back";
     
+    _onTextChanged('');
+    searchBarController.text = '';
+
+    _floatingButtonVisiblity(false);
+
   }
 
   Future<void> _callFolderData(String folderTitle) async {
@@ -4401,15 +4420,23 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               const SizedBox(height: 16),
 
               SingleChildScrollView(
-                scrollDirection: Axis.horizontal, 
+                scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
+
                     const SizedBox(width: 10),
                     _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0),
-                    const SizedBox(width: 12),
-                    _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1),
-                    const SizedBox(width: 12),
-                    _buildRecentPsFiles(Globals.filteredSearchedBytes[2]!, 2),
+                                      
+                    if (Globals.filteredSearchedBytes.length > 1) ... [
+                      const SizedBox(width: 12),
+                      _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1),
+                    ],
+                    
+                    if (Globals.filteredSearchedBytes.length > 2) ... [
+                      const SizedBox(width: 12),
+                      _buildRecentPsFiles(Globals.filteredSearchedBytes[2]!, 2),
+                    ],
+                              
                   ],
                 ),
               ),
@@ -4751,16 +4778,33 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, right: 8.0),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
+
+          if(psButtonTextNotifier.value == "Back") {
+            GlobalsData.psImageData.clear();
+            GlobalsData.psUploaderName.clear();
+            GlobalsData.psThumbnailData.clear();
+            GlobalsData.psTagsValuesData.clear();
+            GlobalsData.psTagsColorData.clear();
+          }
+
+          psButtonTextNotifier.value == "Back" 
+          ? await _refreshPublicStorage()
+          : await _callMyPsData();
           
         },
         style: GlobalsStyle.btnNavigationBarStyle,
-        child: const Text(
-          'My Files',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
+        child: ValueListenableBuilder(
+          valueListenable: psButtonTextNotifier,
+          builder: (BuildContext context, String value, Widget? child) {
+            return Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          }
         ),
       ),
     );
@@ -4785,7 +4829,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     commentController.dispose();
     folderRenameController.dispose();
     scrollListViewController.dispose();
-    
+    psButtonTextNotifier.dispose();
+
     homeButtonVisible.dispose();
     staggeredListViewSelected.dispose();
     floatingActionButtonVisible.dispose();

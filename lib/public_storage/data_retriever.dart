@@ -14,33 +14,63 @@ class PublicStorageDataRetriever {
 
   final dataSet = <Map<String, dynamic>>[];
 
-  Future<List<Map<String, dynamic>>> retrieveParams() async {
+  Future<List<Map<String, dynamic>>> retrieveParams({
+    required bool isFromMyPs
+  }) async {
 
     final conn = await SqlConnection.insertValueParams();
     const tablesToCheck = GlobalsTable.tableNamesPs;
 
-    final futures = tablesToCheck.map((table) async {
-      
-      final uploaderName = await uploaderNameGetter.retrieveParams(conn, table);
-      final fileNames = await nameGetter.retrieveParams(conn, table);
-      final bytes = await byteGetter.getLeadingParams(conn, table);
-      final dates = await dateGetter.getDateParams(conn, table);
+    if(isFromMyPs) {
 
-      return {
-        'uploader_name': uploaderName,
-        'name': fileNames,
-        'date': dates,
-        'file_data': bytes,
-      };
-    }).toList();
+      final futures = tablesToCheck.map((table) async {
+
+        final uploaderName = await uploaderNameGetter.myRetrieveParams(conn, table);
+        final fileNames = await nameGetter.myRetrieveParams(conn, table);
+        final bytes = await byteGetter.myGetLeadingParams(conn, table);
+        final dates = await dateGetter.myGetDateParams(conn, table);
+
+        return {
+          'uploader_name': uploaderName,
+          'name': fileNames,
+          'date': dates,
+          'file_data': bytes,
+        };
+      }).toList();
+
+      final results = await Future.wait(futures);
+
+      for (final result in results) {
+        dataSet.add(result);
+      }
+
+    } else {
+
+      final futures = tablesToCheck.map((table) async {
+        
+        final uploaderName = await uploaderNameGetter.retrieveParams(conn, table);
+        final fileNames = await nameGetter.retrieveParams(conn, table);
+        final bytes = await byteGetter.getLeadingParams(conn, table);
+        final dates = await dateGetter.getDateParams(conn, table);
+
+        return {
+          'uploader_name': uploaderName,
+          'name': fileNames,
+          'date': dates,
+          'file_data': bytes,
+        };
+      }).toList();
 
 
-    final results = await Future.wait(futures);
+      final results = await Future.wait(futures);
 
-    for (final result in results) {
-      dataSet.add(result);
+      for (final result in results) {
+        dataSet.add(result);
+      }
+
     }
 
     return dataSet;
+
   }
 }
