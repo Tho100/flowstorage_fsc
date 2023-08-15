@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
 
         MainButton(
           text: "Sign In",
-          minusWidth: 85,
+          minusWidth: 65,
           onPressed: () async {
             NavigatePage.goToPageLogin(context);
           },
@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
 
         SizedBox(
           height: 65,
-          width: MediaQuery.of(context).size.width-85,
+          width: MediaQuery.of(context).size.width-65,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
             backgroundColor: ThemeColor.darkBlack,

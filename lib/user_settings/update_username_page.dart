@@ -60,7 +60,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
                       )
                     : null,
                   hintText: hintText,
-                  contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
+                  contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                   fillColor: ThemeColor.darkGrey,
                   filled: true,
@@ -101,7 +101,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
 
         _buildTextField("Enter a new username",newUserController,context,false),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
 
         _buildTextField("Enter your password",passController,context,true),
         

@@ -52,7 +52,7 @@ class BackupRecovery extends StatelessWidget {
                         )
                       : null,
                   hintText: hintText,
-                  contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
+                  contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                   fillColor: ThemeColor.darkGrey,
                   filled: true,

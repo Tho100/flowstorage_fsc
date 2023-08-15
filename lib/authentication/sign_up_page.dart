@@ -205,19 +205,19 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
               controller: usernameController
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
             MainTextField(
               hintText: "Enter your email address", 
               controller: emailController
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
             Row(
               children: [
                 SizedBox(
-                  width: mediaQuery.size.width*0.66,
+                  width: mediaQuery.size.width*0.68,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
@@ -244,7 +244,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                         ),
                 
                         hintText: "Enter a password",
-                        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
+                        contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
                         hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                         fillColor: ThemeColor.darkGrey,
                         filled: true,
@@ -264,7 +264,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                   ),
                 ),
               
-                const SizedBox(width: 18),
+                const SizedBox(width: 6),
 
                 SizedBox(
                   width: mediaQuery.size.width*0.2,
@@ -282,7 +282,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: "PIN",
-                        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
+                        contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
                         hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                         fillColor: ThemeColor.darkGrey,
                         filled: true,
@@ -306,7 +306,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
               ],
             ),
           
-          const SizedBox(height: 40),
+          const SizedBox(height: 25),
 
           MainButton(
             text: "Sign Up",
@@ -327,15 +327,12 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                     ),
                   ),
 
-                  const SizedBox(width: 2), 
-
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: ThemeColor.darkBlack,
                         elevation: 0,
                         shadowColor: Colors.transparent,
                         shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
                       ),
                       onPressed: () {
                         NavigatePage.goToPageLogin(context);

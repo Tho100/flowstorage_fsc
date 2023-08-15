@@ -14,6 +14,7 @@ import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/simplify_download.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -797,7 +798,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       onPressed: () {
         final textValue = textController.text;
         Clipboard.setData(ClipboardData(text: textValue));
-        SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+        CallToast.call(message: "Copied to clipboard");
       },
       icon: const Icon(Icons.copy),
     );
@@ -833,7 +834,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   void _copyAppBarTitle() {
     Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
-    SnakeAlert.okSnake(message: "Copied to clipboard", context: context);
+    CallToast.call(message: "Copied to clipboard");
   }
 
   @override
