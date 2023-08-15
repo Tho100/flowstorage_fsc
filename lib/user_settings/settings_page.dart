@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -109,11 +110,12 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                   ),
                 ],
               ),
+              
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
                   ),
                   child: TextFormField(
@@ -124,70 +126,53 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 5),
+
               Row(
                 children: [
+
                   const SizedBox(width: 5),
+
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            addPasswordController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Close'),
-                        ),
-                      ),
+                      child: MainDialogButton(
+                        text: "Close", 
+                        onPressed: () {
+                          addPasswordController.clear();
+                          Navigator.pop(context);
+                        }, 
+                        isButtonClose: true
+                      )
                     ),
                   ),
 
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: MainDialogButton(
+                        text: "Confirm",
+                        onPressed: () async {
 
-                            try {
+                          try {
 
-                              if(addPasswordController.text.isEmpty) {
-                                return;
-                              }
-
-                              final getAddPassword = AddPasswordSharing();
-                              getAddPassword.insertValuesParams(username: custUsername, newAuth: addPasswordController.text);
-
-                              CustomAlertDialog.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
-
-                            } catch (err, st) {
-                              Logger().e("Exception from _buildAddPassword {settings_page}", err, st);
-                              CustomAlertDialog.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
+                            if(addPasswordController.text.isEmpty) {
+                              return;
                             }
 
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkPurple,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Confirm'),
-                        ),
+                            final getAddPassword = AddPasswordSharing();
+                            getAddPassword.insertValuesParams(username: custUsername, newAuth: addPasswordController.text);
+
+                            CustomAlertDialog.alertDialogTitle("Added password for File Sharing", "Users are required to enter the password before they can share a file with you.", context);
+
+                          } catch (err, st) {
+                            Logger().e("Exception from _buildAddPassword {settings_page}", err, st);
+                            CustomAlertDialog.alertDialogTitle("An error occurred", "Faild to add/update pasword for File Sharing. Please try again later.", context);
+                          }
+
+                        },
+                        isButtonClose: false,
                       ),
                     ),
                   ),

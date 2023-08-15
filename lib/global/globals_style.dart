@@ -92,7 +92,7 @@ class GlobalsStyle {
     backgroundColor: ThemeColor.darkPurple,
     elevation: 0,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
     ),
   );
 
@@ -107,17 +107,17 @@ class GlobalsStyle {
   static InputDecoration setupTextFieldDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
-      contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
+      contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
       hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
       fillColor: ThemeColor.darkGrey,
       filled: true,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(14.0),
         borderSide: BorderSide.none,
       ),
       counterText: '',
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
           width: 2.0,
           color: Color.fromARGB(255, 6, 102, 226),

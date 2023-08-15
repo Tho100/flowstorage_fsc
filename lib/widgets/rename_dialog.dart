@@ -1,6 +1,7 @@
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -53,7 +54,7 @@ class RenameDialog {
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
                   ),
                   child: TextFormField(
@@ -71,44 +72,29 @@ class RenameDialog {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            renameController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
-                      ),
+                      child: MainDialogButton(
+                        text: "Cancel", 
+                        onPressed: () {
+                          renameController.clear();
+                          Navigator.pop(context);
+                        }, 
+                        isButtonClose: true
+                      )
                     ),
                   ),
 
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            onRenamePressed();
-                            renameController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Rename'),
-                        ),
-                      ),
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: MainDialogButton(
+                        text: "Rename", 
+                        onPressed: () {
+                          onRenamePressed();
+                          renameController.clear();
+                          Navigator.pop(context);
+                        }, 
+                        isButtonClose: false
+                      )
                     ),
                   ),
 

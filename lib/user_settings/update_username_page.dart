@@ -37,7 +37,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: ValueListenableBuilder<bool>(
               valueListenable: valueNotifier,
@@ -60,16 +60,16 @@ class ChangeUsernameState extends State<ChangeUsername> {
                       )
                     : null,
                   hintText: hintText,
-                  contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
+                  contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
                   hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                   fillColor: ThemeColor.darkGrey,
                   filled: true,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       width: 2.0,
                       color: Color.fromARGB(255, 6, 102, 226),

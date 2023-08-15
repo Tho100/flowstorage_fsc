@@ -13,6 +13,7 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/api/compressor_api.dart';
+import 'package:flowstorage_fsc/helper/date_parser.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
@@ -525,26 +526,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     }
   }
 
-  DateTime _parseDate(String dateString) {
-
-    DateTime now = DateTime.now();
-
-    if(dateString == "Directory") {
-      return now;
-    }
-    
-    if (dateString.contains('days ago')) {
-
-      int daysAgo = int.parse(dateString.split(' ')[0]);
-      
-      return now.subtract(Duration(days: daysAgo));
-
-    } else {
-      return DateFormat('MMM dd yyyy').parse(dateString);
-    }
-    
-  }
-
   String _formatDateTime(DateTime dateTime) {
 
     final now = DateTime.now();
@@ -576,6 +557,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   void _processUploadDateSorting() {
 
+    final dateParser = DateParser();
+
     List<Map<String, dynamic>> itemList = [];
 
     if(Globals.fileOrigin != "psFiles") {
@@ -584,7 +567,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         itemList.add({
           'file_name': Globals.filteredSearchedFiles[i],
           'image_byte': Globals.filteredSearchedBytes[i],
-          'upload_date': _parseDate(Globals.setDateValues[i]),
+          'upload_date': dateParser.parseDate(Globals.setDateValues[i]),
         });
       }
 
@@ -594,7 +577,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         itemList.add({
           'file_name': Globals.filteredSearchedFiles[i],
           'image_byte': Globals.filteredSearchedBytes[i],
-          'upload_date': _parseDate(Globals.setDateValues[i]),
+          'upload_date': dateParser.parseDate(Globals.setDateValues[i]),
           'tag_value': GlobalsData.psTagsValuesData[i],
           'uploader_name': GlobalsData.psUploaderName[i]
         });
@@ -3146,129 +3129,126 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         : const SizedBox(height: 8),
 
         if(Globals.fileOrigin != "psFiles") ... [
-          Visibility(
-            visible: VisibilityChecker.setNotVisible("psFiles"),
-            child: Row(
+          Row(
           
-              children: [
-          
-                const SizedBox(width: 16),
-          
-                ElevatedButton(
-                  onPressed: () {
-                    _buildSharedBottom();
-                  },
-                  style: GlobalsStyle.btnNavigationBarStyle,
-                  child: const Row(
-                    children: [
-                      Icon(Icons.share, color: Colors.white),
-                      Text(
-                        '  Shared',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+            children: [
+        
+              const SizedBox(width: 16),
+        
+              ElevatedButton(
+                onPressed: () {
+                  _buildSharedBottom();
+                },
+                style: GlobalsStyle.btnNavigationBarStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.share, color: Colors.white),
+                    Text(
+                      '  Shared',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-          
-                const SizedBox(width: 8),
-          
-                ElevatedButton(
-                  onPressed: () async {
-                    if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                      await _initializeCameraScanner();
-                    } else {
-                      _upgradeDialog(
-                        "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                      );
-                    }
-                  },
-                  style: GlobalsStyle.btnNavigationBarStyle,
-                  child: const Row(
-                    children: [
-                      Icon(Icons.center_focus_strong_rounded, color: Colors.white),
-                      Text(
-                        '  Scan',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ),
+        
+              const SizedBox(width: 8),
+        
+              ElevatedButton(
+                onPressed: () async {
+                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                    await _initializeCameraScanner();
+                  } else {
+                    _upgradeDialog(
+                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                    );
+                  }
+                },
+                style: GlobalsStyle.btnNavigationBarStyle,
+                child: const Row(
+                  children: [
+                    Icon(Icons.center_focus_strong_rounded, color: Colors.white),
+                    Text(
+                      '  Scan',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-          
-                const SizedBox(width: 8),
-          
-                ValueListenableBuilder<bool>(
-                  valueListenable: navDirectoryButtonVisible,
-                  builder: (BuildContext context, bool value, Widget? child) {
-                    return Visibility(
-                      visible: value,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
-                          if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                            if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-                              _buildCreateDirectoryDialog();
-                            } else {
-                              _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
-                            }
+              ),
+        
+              const SizedBox(width: 8),
+        
+              ValueListenableBuilder<bool>(
+                valueListenable: navDirectoryButtonVisible,
+                builder: (BuildContext context, bool value, Widget? child) {
+                  return Visibility(
+                    visible: value,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
+                        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                            _buildCreateDirectoryDialog();
                           } else {
-                            _upgradeDialog(
-                              "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                            );
+                            _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
                           }
-                        },
-                        style: GlobalsStyle.btnNavigationBarStyle,
-                        child: const Row(
-                          children: [
-                            Icon(Icons.add_box, color: Colors.white),
-                            Text(
-                              '  Directory',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        } else {
+                          _upgradeDialog(
+                            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                          );
+                        }
+                      },
+                      style: GlobalsStyle.btnNavigationBarStyle,
+                      child: const Row(
+                        children: [
+                          Icon(Icons.add_box, color: Colors.white),
+                          Text(
+                            '  Directory',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-          
-                ValueListenableBuilder<bool>(
-                  valueListenable: homeButtonVisible,
-                  builder: (BuildContext context, bool value, Widget? child) {
-                    return Visibility(
-                      visible: value,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await _goBackHome();
-                        },
-                        style: GlobalsStyle.btnNavigationBarStyle,
-                        child: const Row(
-                          children: [
-                            Icon(Icons.home, color: Colors.white),
-                            Text(
-                              '  Home',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    ),
+                  );
+                },
+              ),
+        
+              ValueListenableBuilder<bool>(
+                valueListenable: homeButtonVisible,
+                builder: (BuildContext context, bool value, Widget? child) {
+                  return Visibility(
+                    visible: value,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _goBackHome();
+                      },
+                      style: GlobalsStyle.btnNavigationBarStyle,
+                      child: const Row(
+                        children: [
+                          Icon(Icons.home, color: Colors.white),
+                          Text(
+                            '  Home',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-          
-              ],
-            ),
+                    ),
+                  );
+                },
+              ),
+        
+            ],
           ),
         ],
 

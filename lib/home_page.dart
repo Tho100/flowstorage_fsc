@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 15),
 
         SizedBox(
-          height: 55,
+          height: 65,
           width: MediaQuery.of(context).size.width-85,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
               width: 3,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
             ),  
           ),
 

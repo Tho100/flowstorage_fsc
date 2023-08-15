@@ -220,7 +220,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                   width: mediaQuery.size.width*0.66,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(width: 2.0, color: ThemeColor.darkBlack),
                     ),
                     child: TextFormField(
@@ -244,7 +244,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                         ),
                 
                         hintText: "Enter a password",
-                        contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
+                        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
                         hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                         fillColor: ThemeColor.darkGrey,
                         filled: true,
@@ -270,7 +270,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                   width: mediaQuery.size.width*0.2,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextFormField(
                       style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
@@ -282,7 +282,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: "PIN",
-                        contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 25.0),
+                        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 25.0),
                         hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
                         fillColor: ThemeColor.darkGrey,
                         filled: true,

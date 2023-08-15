@@ -104,7 +104,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     currentTable = Globals.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
-    uploaderName();
+    initializeUploaderName();
   }
 
   @override
@@ -487,7 +487,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     );
   }
 
-  void uploaderName() async {
+  void initializeUploaderName() async {
     
     const localOriginFrom = {"homeFiles","folderFiles","dirFiles"};
     const sharingOriginFrom = {"sharedFiles","sharedToMe"};
@@ -772,7 +772,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   void _updateAppBarTitle() {
     appBarTitleNotifier.value = Globals.selectedFileName;
     if(Globals.fileOrigin == "psFiles") {
-      uploaderName();
+      initializeUploaderName();
     }
   }
 

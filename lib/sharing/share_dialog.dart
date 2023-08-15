@@ -16,6 +16,7 @@ import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 
 import 'package:flutter/material.dart';
 
@@ -274,7 +275,7 @@ class SharingDialog {
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
                   ),
                   child: TextFormField(
@@ -291,7 +292,7 @@ class SharingDialog {
 
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
                     ),
                     child: TextFormField(
@@ -311,21 +312,14 @@ class SharingDialog {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: buildButtons(
+                      child: MainDialogButton(
                         text: "Close",
                         onPressed: () {
                           shareToController!.clear();
                           commentController!.clear();
                           Navigator.pop(context);
                         },
-                        buttonStyle: ElevatedButton.styleFrom(
-                          backgroundColor: ThemeColor.darkBlack,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(color: ThemeColor.darkPurple),
-                          ),
-                        ),
+                        isButtonClose: true,
                       ),
                     ),
                   ),
@@ -333,7 +327,7 @@ class SharingDialog {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 12.0),
-                      child: buildButtons(
+                      child: MainDialogButton(
                         text: "Share",
                         onPressed: () {
 
@@ -346,9 +340,8 @@ class SharingDialog {
                             commentInput: comment,
                             context: context
                           );
-
                         },
-                        buttonStyle: GlobalsStyle.btnMainStyle
+                        isButtonClose: false
                       )
                     ),
                   ),
@@ -360,24 +353,6 @@ class SharingDialog {
           ),
         );
       },
-    );
-  }
-
-  Widget buildButtons({
-    required String text, 
-    required VoidCallback onPressed, 
-    required ButtonStyle buttonStyle
-  }) {
-    return SizedBox(
-      width: 85,
-      height: 45,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: buttonStyle,
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16)),
-      ),
     );
   }
 
