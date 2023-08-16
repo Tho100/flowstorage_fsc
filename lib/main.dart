@@ -25,9 +25,11 @@ import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
+import 'package:flowstorage_fsc/widgets/bottom_trailing_add_item.dart';
 import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
+import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 
 import 'package:intl/intl.dart';
@@ -1935,230 +1937,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     });
   }
 
-  Widget _buildSidebarButtons({
-    required String title,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        splashColor: ThemeColor.secondaryWhite,
-        child: Ink(
-          color: ThemeColor.darkBlack,
-          child: ListTile(
-            leading: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-            title: Text(
-              title,
-              style: GlobalsStyle.sidebarMenuButtonsStyle,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSidebarMenu() {
-    return Drawer(
-      child: Container(
-        color: ThemeColor.darkBlack,
-          child: Column(
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: ThemeColor.darkBlack,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 55,
-                      height: 55,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          Globals.custUsername != "" ? Globals.custUsername.substring(0, 2) : "",
-                          style: const TextStyle(
-                            fontSize: 24,
-                            color: ThemeColor.darkPurple,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 15),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            Globals.custUsername,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            Globals.custEmail,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255,185,185,185),
-                              fontSize: 16,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    NavigatePage.goToPageUpgrade(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    backgroundColor: ThemeColor.darkPurple,
-                  ),
-                  child: const Text(
-                    'Get more storage',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              const Divider(color: ThemeColor.lightGrey),
-
-              Expanded(
-                child: ListView(
-                  children: [
-
-                    _buildSidebarButtons(
-                      title: "Offline",
-                      icon: Icons.offline_bolt_outlined,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await _callOfflineData();
-                      }
-                    ),
-
-                    _buildSidebarButtons(
-                      title: "Upgrade plan",
-                      icon: Icons.rocket_outlined,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        NavigatePage.goToPageUpgrade(context);
-                      }
-                    ),
-
-                    _buildSidebarButtons(
-                      title: "Feedback",
-                      icon: Icons.feedback_outlined,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        NavigatePage.goToPageFeedback(context);
-                      }
-                    ),
-
-                  ],
-                ),
-              ),
-
-              if(Globals.fileOrigin != "psFiles")
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 22.0),
-                    child: Text(
-                      "Storage Usage",
-                      style: TextStyle(
-                        color: ThemeColor.thirdWhite,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  
-                  Padding(
-                    padding: const EdgeInsets.only(right: 25.0),
-                    child: FutureBuilder<int>(
-                      future: _getUsageProgressBar(),
-                      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                        return Text(
-                          "${snapshot.data.toString()}%",
-                          style: const TextStyle(
-                            color: ThemeColor.thirdWhite,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        );
-                      }
-                    ),
-                  ),
-                ],
-              ),
-
-              if(Globals.fileOrigin != "psFiles")
-
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Container(
-                  height: 10,
-                  width: 260,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: ThemeColor.darkGrey,
-                      width: 2.0,
-                    ),
-                  ),
-                  child: FutureBuilder<int>(
-                    future: _getUsageProgressBar(),
-                    builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return LinearProgressIndicator(
-                          backgroundColor: Colors.grey[200],
-                        );
-                      }
-                      final double progressValue = snapshot.data! / 100.0;
-                      return LinearProgressIndicator(
-                        backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation<Color>(ThemeColor.darkPurple),
-                        value: progressValue,
-                      );
-                    },
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// <summary>
   /// 
   /// Dialog to show if the user tried to upload a file 
@@ -2253,12 +2031,167 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  /// <summary>
-  /// 
-  /// Build file search filtering for listView bottom menu 
-  /// when the user clicked on "Filter Type" button
-  /// 
-  /// </summary>
+  Future _callBottomTrailingAddItem() {
+
+    late String headerText = "";
+
+    if(Globals.fileOrigin == "psFiles") {
+      headerText = "Upload to Public Storage";
+    } else if (Globals.fileOrigin == "dirFiles") {
+      headerText = "Add item to ${appBarTitle.value}";
+    } else {
+      headerText = "Add item to Flowstorage";
+    }
+    
+    final limitUpload = AccountPlan.mapFilesUpload[Globals.accountType]!;
+
+    final bottomTrailingAddItem = BottomTrailingAddItem();
+    return bottomTrailingAddItem.buildTrailing(
+      headerText: headerText, 
+      galleryOnPressed: () async {
+
+        if(Globals.fileValues.length < limitUpload) {
+          Navigator.pop(context);
+          await _openDialogGallery();
+        } else {
+          _upgradeDialog(
+            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          );
+        }
+
+      }, 
+      fileOnPressed: () async {
+
+        if (Globals.fileOrigin == "psFiles") {
+
+          int count = GlobalsData.psUploaderName
+              .where((uploader) => uploader == Globals.custUsername)
+              .length;
+
+          if (count < limitUpload) {
+            Navigator.pop(context);
+            await _openDialogFile();
+          } else {
+            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+          } 
+
+        } else {
+
+          if(Globals.fileValues.length < limitUpload) {
+            Navigator.pop(context);
+            await _openDialogFile();
+          } else {
+            _upgradeDialog(
+              "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+            );
+          }
+        }
+
+      }, 
+      folderOnPressed: () async {
+
+        if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]!) {
+          await _openDialogFolder();
+          
+          if(!mounted) return;
+          Navigator.pop(context);
+
+        } else {
+          _upgradeDialog("You're currently limited to ${AccountPlan.mapFoldersUpload[Globals.accountType]} folders upload. Upgrade your account plan to upload more folder.");
+        }
+
+      }, 
+      photoOnPressed: () async {
+
+        if (Globals.fileOrigin == "psFiles") {
+
+          int count = GlobalsData.psUploaderName
+              .where((uploader) => uploader == Globals.custUsername)
+              .length;
+
+          if (count < limitUpload) {
+            Navigator.pop(context);
+            await _openDialogFile();
+          } else {
+            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+          }
+
+        } else {
+
+          if (Globals.fileValues.length < limitUpload) {
+            Navigator.pop(context);
+            await _initializeCamera();
+          } else {
+            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+          }
+
+        }
+
+      }, 
+      scannerOnPressed: () async {
+
+        if(Globals.fileValues.length < limitUpload) {
+          Navigator.pop(context);
+          await _initializeCameraScanner();
+        } else {
+          _upgradeDialog(
+            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          );
+        }
+
+      }, 
+      textOnPressed: () async {
+
+        if(Globals.fileValues.length < limitUpload) {
+          Navigator.pop(context);
+          NavigatePage.goToPageCreateText(context);
+        } else {
+          _upgradeDialog(
+            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          );
+        }
+
+      }, 
+      directoryOnPressed: () async {
+
+        final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
+        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+
+            if(!mounted) return;
+            Navigator.pop(context);
+
+            _buildCreateDirectoryDialog();
+            
+          } else {
+            _upgradeDialog("Upgrade your account to upload more directory.");
+          }
+        } else {
+          _upgradeDialog(
+            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+          );
+        }
+
+      }, 
+      context: context
+    );
+    
+  }
+  
+  Widget _buildSideBarMenu() {
+
+    final menu = SideBarMenu();
+
+    return menu.buildSidebarMenu(
+      context: context, 
+      usageProgress: _getUsageProgressBar(), 
+      offlinePageOnPressed: () async {
+        Navigator.pop(context);
+        await _callOfflineData();
+      }
+    );
+
+  }
 
   Widget _buildFilterTypeButtons(String filterName, IconData icon, String filterType) {
     return ElevatedButton.icon(
@@ -3422,270 +3355,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               ),
             ),
           ),
-        );
-      }
-    );
-  }
-
-  Future _buildAddItemBottom() {
-
-    late String headerText = "";
-
-    if(Globals.fileOrigin == "psFiles") {
-      headerText = "Upload to Public Storage";
-    } else if (Globals.fileOrigin == "dirFiles") {
-      headerText = "Add item to ${appBarTitle.value}";
-    } else {
-      headerText = "Add item to Flowstorage";
-    }
-
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkGrey,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Text(
-                    headerText,
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-    
-            Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles"]),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                    Navigator.pop(context);
-                    await _openDialogGallery();
-                  } else {
-                    _upgradeDialog(
-                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                    );
-                  }
-                },
-                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.photo),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'Upload from Gallery',
-                      style: GlobalsStyle.btnBottomDialogTextStyle
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            ElevatedButton(
-              onPressed: () async {
-
-                final limitUpload = AccountPlan.mapFilesUpload[Globals.accountType]!;
-
-                if (Globals.fileOrigin == "psFiles") {
-
-                  int count = GlobalsData.psUploaderName
-                      .where((uploader) => uploader == Globals.custUsername)
-                      .length;
-
-                  if(count < limitUpload) {
-                    Navigator.pop(context);
-                    await _openDialogFile();
-                  } else {
-                    _upgradeDialog(
-                      "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
-                    );
-                  }
-                  return;
-
-                }
-
-                if(Globals.fileValues.length < limitUpload) {
-                  Navigator.pop(context);
-                  await _openDialogFile();
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.upload_file),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Upload Files',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-
-            Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles","dirFiles","folderFiles"]),
-              child: ElevatedButton(
-              onPressed: () async {
-
-                if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]!) {
-                  await _openDialogFolder();
-                  
-                  if(!mounted) return;
-                  Navigator.pop(context);
-
-                } else {
-                  _upgradeDialog("You're currently limited to ${AccountPlan.mapFoldersUpload[Globals.accountType]} folders upload. Upgrade your account plan to upload more folder.");
-                }
-
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.folder),
-                  SizedBox(width: 10.0),
-                  Text('Upload Folder',
-                    style: GlobalsStyle.btnBottomDialogTextStyle
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const Divider(color: ThemeColor.thirdWhite),
-
-          ElevatedButton(
-            onPressed: () async {
-              if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                Navigator.pop(context);
-                await _initializeCamera();
-              } else {
-                _upgradeDialog(
-                  "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                );
-              }
-            },
-
-            style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-            child: const Row(
-              children: [
-                Icon(Icons.camera_alt_rounded),
-                SizedBox(width: 10.0),
-                Text(
-                  'Take a photo',
-                  style: GlobalsStyle.btnBottomDialogTextStyle,
-                ),
-              ],
-            ),
-          ),
-
-          Visibility(
-            visible: VisibilityChecker.setNotVisible("offlineFiles"),
-            child: ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  Navigator.pop(context);
-                  await _initializeCameraScanner();
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-          
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.center_focus_strong_rounded),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Scan Document',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const Divider(color: ThemeColor.thirdWhite),
-
-          Visibility(
-            visible: VisibilityChecker.setNotVisible("psFiles"),
-            child: ElevatedButton(
-              onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  Navigator.pop(context);
-                  NavigatePage.goToPageCreateText(context);
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-                style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.add_box),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'Create Text file',
-                      style: GlobalsStyle.btnBottomDialogTextStyle,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        
-            Visibility(
-              visible: VisibilityChecker.setNotVisibleList(["psFiles","dirFiles","folderFiles","offlineFiles"]),
-              child: ElevatedButton(
-              onPressed: () async {
-                final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                  if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-
-                    if(!mounted) return;
-                    Navigator.pop(context);
-
-                    _buildCreateDirectoryDialog();
-                    
-                  } else {
-                    _upgradeDialog("Upgrade your account to upload more directory.");
-                  }
-                } else {
-                  _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                  );
-                }
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.add_box),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'Create Directory',
-                      style: GlobalsStyle.btnBottomDialogTextStyle,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         );
       }
     );
@@ -4905,7 +4574,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       child: Scaffold(
         key: sidebarMenuScaffoldKey,
         backgroundColor: ThemeColor.darkBlack,
-        drawer: _buildSidebarMenu(),
+        drawer: _buildSideBarMenu(),
         appBar: _buildCustomAppBar(),
         body: Globals.fileValues.isEmpty 
 
@@ -4926,7 +4595,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   borderRadius: BorderRadius.all(Radius.circular(15.0)),
                 ),
                 backgroundColor: ThemeColor.darkPurple,
-                onPressed: _buildAddItemBottom,
+                onPressed: _callBottomTrailingAddItem,
                 child: const Icon(Icons.add, color: ThemeColor.darkBlack, size: 30),
               ),
             );
