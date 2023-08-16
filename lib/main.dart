@@ -828,6 +828,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   /// </summary>
   
   void _onTextChanged(String value) {
+
     debounceSearchingTimer?.cancel();
     debounceSearchingTimer = Timer(const Duration(milliseconds: 280), () {
       final searchTerms =
@@ -1003,6 +1004,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Future<void> _callPublicStorageData() async {
 
     _clearGlobalData();
+    _clearPublicStorageData();
 
     await dataCaller.publicStorageData(context: context);
 
@@ -3920,10 +3922,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
   
-  Widget _buildRecentPsFiles(Uint8List imageBytes, int index) {
+  Widget _buildRecentPsFiles(Uint8List imageBytes, int index, String uploader) {
 
     final fileName = Globals.filteredSearchedFiles[index];
     final fileType = fileName.split('.').last;
+
+    final indexOfFile = Globals.fileValues.indexOf(Globals.filteredSearchedFiles[index]);
+    final uploaderName = GlobalsData.psUploaderName[indexOfFile];
 
     return GestureDetector(
       onTap: () async {
@@ -3982,7 +3987,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ),
               ),
               Text(
-                GlobalsData.psUploaderName[index],
+                uploaderName,
                 style: const TextStyle(
                   color: ThemeColor.secondaryWhite,
                   fontSize: 14,
@@ -4025,9 +4030,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     if (Globals.fileOrigin == "psFiles") {
 
-      uploaderNamePs = GlobalsData.psUploaderName[index] == Globals.custUsername
-        ? "${GlobalsData.psUploaderName[index]} (You)"
-        : GlobalsData.psUploaderName[index];
+      uploaderNamePs = GlobalsData.psUploaderName[index];
+      if (uploaderNamePs == Globals.custUsername) {
+        uploaderNamePs = "${Globals.custUsername} (You)";
+      }
 
       isRecentPs = index == 0 || index == 1 || index == 2; 
 
@@ -4079,16 +4085,16 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   children: [
     
                     const SizedBox(width: 10),
-                    _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0),
+                    _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0, uploaderNamePs),
                                       
                     if (Globals.filteredSearchedBytes.length > 1) ... [
                       const SizedBox(width: 12),
-                      _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1),
+                      _buildRecentPsFiles(Globals.filteredSearchedBytes[1]!, 1, uploaderNamePs),
                     ],
                     
                     if (Globals.filteredSearchedBytes.length > 2) ... [
                       const SizedBox(width: 12),
-                      _buildRecentPsFiles(Globals.filteredSearchedBytes[2]!, 2),
+                      _buildRecentPsFiles(Globals.filteredSearchedBytes[2]!, 2, uploaderNamePs),
                     ],
                               
                   ],

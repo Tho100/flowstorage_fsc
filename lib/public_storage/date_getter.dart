@@ -45,7 +45,7 @@ class DateGetterPs {
 
   Future<List<String>> getDateParams(MySQLConnectionPool conn, String tableName) async {
     
-    final selectUploadDate = "SELECT UPLOAD_DATE, CUST_TAG FROM $tableName";
+    final selectUploadDate = 'SELECT UPLOAD_DATE, CUST_TAG FROM $tableName ORDER BY STR_TO_DATE(UPLOAD_DATE, "%d/%m/%Y") DESC';
     final retrieveUploadDate = await conn.execute(selectUploadDate);
 
     final storeDateValues = <String>[];

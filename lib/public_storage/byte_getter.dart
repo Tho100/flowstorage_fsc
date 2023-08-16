@@ -76,7 +76,7 @@ class ByteGetterPs {
       executeRetrieval = await conn.execute(query,params);
 
     } else {
-      query = 'SELECT CUST_FILE FROM $_fileInfoTable';
+      query = 'SELECT CUST_FILE FROM $_fileInfoTable ORDER BY STR_TO_DATE(UPLOAD_DATE, "%d/%m/%Y") DESC';
       executeRetrieval = await conn.execute(query);
     }
     

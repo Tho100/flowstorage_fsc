@@ -12,7 +12,7 @@ class UploaderName {
 
     List<String> uploaderNameList = <String>[];
 
-    final query = "SELECT CUST_USERNAME FROM $tableName";
+    final query = 'SELECT CUST_USERNAME FROM $tableName';
     final results = await connection.execute(query);
 
     String? uploaderName;

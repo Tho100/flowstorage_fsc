@@ -33,7 +33,7 @@ class NameGetterPs {
 
     try {   
 
-      final query = 'SELECT CUST_FILE_PATH FROM $tableName';
+      final query = 'SELECT CUST_FILE_PATH FROM $tableName ORDER BY STR_TO_DATE(UPLOAD_DATE, "%d/%m/%Y") DESC';
 
       final retrieveNames = await conn.execute(query);
       final nameSet = <String>{};

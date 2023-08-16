@@ -6,7 +6,7 @@ class UploaderGetterPs {
 
     try {   
 
-      final query = 'SELECT CUST_USERNAME FROM $tableName';
+      final query = 'SELECT CUST_USERNAME FROM $tableName ORDER BY STR_TO_DATE(UPLOAD_DATE, "%d/%m/%Y") DESC';
 
       final retrieveNames = await conn.execute(query);
       final nameSet = <String>[];
