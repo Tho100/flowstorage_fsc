@@ -26,11 +26,12 @@ import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_add_item.dart';
-import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
-import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
+import 'package:flowstorage_fsc/interact_dialog/folder_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/rename_dialog.dart';
 
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -2955,101 +2956,41 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   Future _buildFoldersDialog() async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ThemeColor.darkGrey,
-          contentPadding: EdgeInsets.zero,
-          content: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4, 
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: SizedBox(
-                width: double.maxFinite,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: Globals.foldValues.length,
-                  separatorBuilder: (BuildContext context, int index) => const Divider(
-                    color: ThemeColor.thirdWhite,
-                    height: 1,
-                  ),
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () async {
 
-                        Globals.fileOrigin = "folderFiles";
-                        Globals.folderTitleValue = Globals.foldValues[index];
+    final folderDialog = FolderDialog();
+    folderDialog.buildFolderDialog(
+      folderOnPressed: (int index) async {
 
-                        _floatingButtonVisiblity(false);
-                        _navDirectoryButtonVisibility(false);
-                        _navHomeButtonVisibility(true);
+        Globals.fileOrigin = "folderFiles";
+        Globals.folderTitleValue = Globals.foldValues[index];
 
-                        appBarTitle.value = Globals.folderTitleValue;
+        _floatingButtonVisiblity(false);
+        _navDirectoryButtonVisibility(false);
+        _navHomeButtonVisibility(true);
 
-                        final loadingDialog = MultipleTextLoading();
+        appBarTitle.value = Globals.folderTitleValue;
 
-                        loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
-                        await _callFolderData(Globals.foldValues[index]);
+        final loadingDialog = MultipleTextLoading();
 
-                        publicStorageSelectedNotifier.value = false;
-                        searchBarVisibileNotifier.value = true;
+        loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
+        await _callFolderData(Globals.foldValues[index]);
+
+        publicStorageSelectedNotifier.value = false;
+        searchBarVisibileNotifier.value = true;
 
 
-                        loadingDialog.stopLoading();
+        loadingDialog.stopLoading();
 
-                        if(!mounted) return;
-                        Navigator.pop(context);
+        if(!mounted) return;
+        Navigator.pop(context);
 
-                      },
-                      child: Ink(
-                        child: ListTile(
-                          leading: Image.asset(
-                            'assets/nice/dir1.png',
-                            width: 35,
-                            height: 35,
-                          ),
-                          title: Text(
-                            Globals.foldValues[index],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          trailing: GestureDetector(
-                            onTap: () {
-                              _buildFolderBottomTrailing(Globals.foldValues[index]);
-                            },
-                          child: const Icon(Icons.more_vert,color: Colors.white)),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Folders',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
       },
+      trailingOnPressed: (int index) {
+        _buildFolderBottomTrailing(Globals.foldValues[index]);
+      }, 
+      context: context
     );
+
   }
 
   Widget _buildNavigationButtons() {

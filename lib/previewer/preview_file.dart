@@ -38,8 +38,8 @@ import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
-import 'package:flowstorage_fsc/widgets/delete_dialog.dart';
-import 'package:flowstorage_fsc/widgets/rename_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/delete_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/rename_dialog.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
