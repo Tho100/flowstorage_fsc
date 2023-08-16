@@ -3292,6 +3292,28 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
             const Spacer(),
 
+            if(Globals.fileOrigin == "psFiles")
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  _buildFilterType();
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.only(left: 6, right: 25),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25)
+                  ),
+                ).copyWith(
+                  fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
+                ),
+                child: const Icon(Icons.filter_list_outlined, size: 27),
+              ),
+            ),
+
             if(Globals.fileOrigin != "psFiles")
             ElevatedButton(
               onPressed: () {
@@ -3471,15 +3493,37 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
             ElevatedButton(
               onPressed: () async {
-                if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+
+                final limitUpload = AccountPlan.mapFilesUpload[Globals.accountType]!;
+
+                if (Globals.fileOrigin == "psFiles") {
+
+                  int count = GlobalsData.psUploaderName
+                      .where((uploader) => uploader == Globals.custUsername)
+                      .length;
+
+                  if(count < limitUpload) {
+                    Navigator.pop(context);
+                    await _openDialogFile();
+                  } else {
+                    _upgradeDialog(
+                      "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+                    );
+                  }
+                  return;
+
+                }
+
+                if(Globals.fileValues.length < limitUpload) {
                   Navigator.pop(context);
                   await _openDialogFile();
                 } else {
                   _upgradeDialog(
-                    "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                    "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
                   );
                 }
               },
+
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
                 children: [
@@ -3492,7 +3536,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ],
               ),
             ),
-          
 
             Visibility(
               visible: VisibilityChecker.setNotVisibleList(["offlineFiles","psFiles","dirFiles","folderFiles"]),
@@ -4395,7 +4438,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         },
         child: Column(
           children: [
-
+    
             if (isRecentPs && Globals.fileOrigin == "psFiles" && index == 0) ... [
               const Align(
                 alignment: Alignment.topLeft,
@@ -4417,14 +4460,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   ),
                 ),
               ),
-
+    
               const SizedBox(height: 16),
-
+    
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-
+    
                     const SizedBox(width: 10),
                     _buildRecentPsFiles(Globals.filteredSearchedBytes[0]!, 0),
                                       
@@ -4441,14 +4484,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   ],
                 ),
               ),
-
+    
               const SizedBox(height: 8),
               const Divider(color: ThemeColor.whiteGrey),
               
             ],
-
+    
             if(Globals.fileOrigin == "psFiles" && !isRecentPs) ... [
-
+    
               if(index == 3)
               const Align(
                 alignment: Alignment.topLeft,
@@ -4474,9 +4517,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               IntrinsicHeight(
                 child: _buildPsStaggeredListView(imageBytes, index, uploaderNamePs)
               ),
-
+    
             ],
-
+    
             if(Globals.fileOrigin != "psFiles")
             IntrinsicHeight(
               child: _buildNormalStaggeredListView(imageBytes, index),
@@ -4525,12 +4568,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   ),
                 ),
               ),
+
               IconButton(
                 onPressed: () {
                   _callBottomTrailling(index);
                 },
                 icon: const Icon(Icons.more_vert, color: Colors.white, size: 25),
               ),
+            
             ],
           ),
         
@@ -4665,8 +4710,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           const Divider(color: ThemeColor.whiteGrey),
         ],
       ),
-    
     );
+    
   }
 
   Widget _buildNormalStaggeredListView(Uint8List imageBytes, int index) {

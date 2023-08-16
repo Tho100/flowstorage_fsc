@@ -39,7 +39,7 @@ class _UpgradePage extends State<UpradePage> {
       children: [
         Padding(
           padding: EdgeInsets.only(left: 28),
-          child: HeaderText(title: "Upgrade Plan", subTitle: "Select any of the available plans to access \nadditional file upload and features!"),
+          child: HeaderText(title: "Upgrade Plan", subTitle: "Choose a plan to unlock more file upload \nand features!"),
         ),
         SizedBox(height: 15),
       ],
