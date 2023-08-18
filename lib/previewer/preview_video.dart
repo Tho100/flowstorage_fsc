@@ -21,7 +21,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
   late VideoPlayerController videoPlayerController;
 
-  final iconPausePlayNotifier= ValueNotifier<IconData>(
+  final iconPausePlayNotifier = ValueNotifier<IconData>(
                                 Icons.play_arrow);
                                 
   final videoIsTappedNotifier = ValueNotifier(false);

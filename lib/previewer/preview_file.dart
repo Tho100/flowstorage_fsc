@@ -105,7 +105,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     currentTable = Globals.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
-    initializeUploaderName();
+    _initializeUploaderName();
   }
 
   @override
@@ -114,12 +114,29 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     commentController.dispose();
     textController.dispose();
     appBarTitleNotifier.dispose();
-    fileSizeNotifier.dispose();
-    fileResolutionNotifier.dispose();
     uploaderNameNotifer.dispose();
-    fileResolutionNotifier.value = "";
-    fileSizeNotifier.value = "";
+    fileResolutionNotifier.dispose();
+    fileSizeNotifier.dispose();
     super.dispose();
+  }
+
+  void _updateAppBarTitle() async {
+    
+    appBarTitleNotifier.value = Globals.selectedFileName;
+
+    final fileType = Globals.selectedFileName.split('.').last;
+
+    currentTable = Globals.fileOrigin != "homeFiles" 
+    ? Globals.fileTypesToTableNamesPs[fileType]! 
+    : Globals.fileTypesToTableNames[fileType]!;
+
+    fileSizeNotifier.value = "";
+    fileResolutionNotifier.value = "";
+
+    if(Globals.fileOrigin == "psFiles") {
+      _initializeUploaderName();
+    }
+
   }
 
   void _deleteFile(String fileName) async {
@@ -175,6 +192,35 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     RenameDialog().buildRenameFileDialog(
       fileName: fileName, 
       onRenamePressed: () => _onRenamePressed(fileName),
+      context: context
+    );
+  }
+
+  Future _callBottomTrailling() {
+  
+    final fileName = appBarTitleNotifier.value;
+
+    return BottomTrailing().buildBottomTrailing(
+      fileName: fileName, 
+      onRenamePressed: () {
+        Navigator.pop(context);
+        _openRenameDialog(fileName);
+      }, 
+      onDownloadPressed: () async {
+        Navigator.pop(context);
+        await _callFileDownload(fileName: fileName);
+      }, 
+      onDeletePressed: () {
+        _openDeleteDialog(fileName);
+      },
+      onSharingPressed: () {
+        Navigator.pop(context);
+        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
+      }, 
+      onAOPressed: () async {
+        Navigator.pop(context);
+        await _makeAvailableOffline(fileName: Globals.selectedFileName);
+      }, 
       context: context
     );
   }
@@ -487,8 +533,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       ),
     );
   }
-
-  void initializeUploaderName() async {
+  
+  void _initializeUploaderName() async {
     
     const localOriginFrom = {"homeFiles","folderFiles","dirFiles"};
     const sharingOriginFrom = {"sharedFiles","sharedToMe"};
@@ -515,7 +561,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   }
 
-  Widget uploadedByText() {
+  Widget _uploadedByText() {
 
     const generalOrigin = {
       "homeFiles", "sharedToMe", "folderFiles", 
@@ -552,7 +598,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
             padding: const EdgeInsets.only(left: 6, top: 10), 
             child: SizedBox(
               width: double.infinity,
-              child: uploadedByText()
+              child: _uploadedByText()
             ),
           ),
 
@@ -589,10 +635,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   
               const Spacer(),
   
-              Visibility(
-                visible: true,
-                child: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
-              ),
+              currentTable == 
+              GlobalsTable.homeText 
+              || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
   
               _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
   
@@ -624,15 +669,24 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   Future<String> _getFileSize() async {
 
-    final getFileByte = await _callFileSize();
-    double getSizeMB = getFileByte.lengthInBytes/(1024*1024);
+    final fileType = Globals.selectedFileName.split('.').last;
+
+    final fileIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+    final getFileByte = Globals.imageType.contains(fileType) 
+      ? Globals.filteredSearchedBytes[fileIndex] 
+      : await _callFileSize();
+
+    double getSizeMB = getFileByte!.lengthInBytes/(1024*1024);
     return getSizeMB.toDouble().toStringAsFixed(2);
     
   }
 
   Future<String> _returnImageSize() async {
 
-    final imageSize = await _getImageResolution(await _callFileSize());
+    final indexImage = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+    final imageBytes = Globals.filteredSearchedBytes.elementAt(indexImage);
+
+    final imageSize = await _getImageResolution(imageBytes!);
     final imageWidth = imageSize.width.toInt();
     final imageHeight = imageSize.height.toInt();
 
@@ -675,16 +729,23 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     final mediaQuery = MediaQuery.of(context);
     
-    late Future<String> imageResolutionFuture;
-    late Future<String> fileSizeFuture;
+    if(fileResolutionNotifier.value.isEmpty) {
 
-    if (currentTable == GlobalsTable.homeImage || currentTable == GlobalsTable.psImage) {
-      imageResolutionFuture = _returnImageSize();
-    } else {
-      imageResolutionFuture = Future.value('N/A');
+      final fileType = Globals.selectedFileName.split('.').last;
+
+      if (Globals.videoType.contains(fileType) || Globals.imageType.contains(fileType)) {
+        fileResolutionNotifier.value = await _returnImageSize();
+      } else {
+        fileResolutionNotifier.value = "N/A";
+      } 
+
+    } 
+
+    if(fileSizeNotifier.value.isEmpty) {
+      fileSizeNotifier.value = await _getFileSize();
     }
 
-    fileSizeFuture = _getFileSize();
+    if(!mounted) return;
 
     return showModalBottomSheet(
       backgroundColor: const Color.fromARGB(255, 25, 25, 25),
@@ -715,22 +776,18 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                   const SizedBox(height: 20),
                   _buildFileInfoHeader("File Name", Globals.selectedFileName),
                   const SizedBox(height: 8),
-                  FutureBuilder<String>(
-                    future: imageResolutionFuture,
-                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      final String fileResolution = snapshot.data ?? 'N/A';
-
-                      return _buildFileInfoHeader("File Resolution", fileResolution);
-                    },
+                  ValueListenableBuilder(
+                    valueListenable: fileResolutionNotifier, 
+                    builder: (BuildContext context, String value, Widget? child) {
+                      return _buildFileInfoHeader("File Resolution", value);
+                    }
                   ),
                   const SizedBox(height: 8),
-                  FutureBuilder<String>(
-                    future: fileSizeFuture,
-                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      final String fileSize = snapshot.data ?? 'N/A';
-
-                      return _buildFileInfoHeader("File Size", '$fileSize Mb');
-                    },
+                  ValueListenableBuilder(
+                    valueListenable: fileSizeNotifier,
+                    builder: (BuildContext context, String value, Widget? child) {
+                      return _buildFileInfoHeader("File Size", "$value Mb");
+                    }
                   ),
                 ],
               ),
@@ -739,42 +796,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         );
       },
     );
-  }
-
-  Future _callBottomTrailling() {
-  
-    final fileName = appBarTitleNotifier.value;
-
-    return BottomTrailing().buildBottomTrailing(
-      fileName: fileName, 
-      onRenamePressed: () {
-        Navigator.pop(context);
-        _openRenameDialog(fileName);
-      }, 
-      onDownloadPressed: () async {
-        Navigator.pop(context);
-        await _callFileDownload(fileName: fileName);
-      }, 
-      onDeletePressed: () {
-        _openDeleteDialog(fileName);
-      },
-      onSharingPressed: () {
-        Navigator.pop(context);
-        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
-      }, 
-      onAOPressed: () async {
-        Navigator.pop(context);
-        await _makeAvailableOffline(fileName: Globals.selectedFileName);
-      }, 
-      context: context
-    );
-  }
-
-  void _updateAppBarTitle() {
-    appBarTitleNotifier.value = Globals.selectedFileName;
-    if(Globals.fileOrigin == "psFiles") {
-      initializeUploaderName();
-    }
   }
 
   Widget _buildFileOnCondition() {
@@ -845,9 +866,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(55.0),
         child: GestureDetector(
-          onTap: () {
-            _copyAppBarTitle();
-          },
+          onTap: () { _copyAppBarTitle(); },
           child: ValueListenableBuilder<bool>(
             valueListenable: bottomBarVisibleNotifier,
             builder: (BuildContext context, bool value, Widget? child) {
@@ -856,14 +875,12 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                 child: AppBar(
                   backgroundColor: filesInfrontAppBar.contains(currentTable) ? ThemeColor.darkBlack : const Color(0x44000000),
                   actions: <Widget>[ 
-                    Visibility(
-                      visible: currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText,
-                      child: _buildCopyTextIconButton(),
-                    ),
-                    Visibility(
-                      visible: currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio,
-                      child: _buildCommentIconButtonAudio(),
-                    ),
+
+                    if(currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText)
+                    _buildCopyTextIconButton(),
+                    if(currentTable == GlobalsTable.homeAudio || currentTable == GlobalsTable.psAudio)
+                    _buildCommentIconButtonAudio(),
+   
                     IconButton(
                       onPressed: _buildBottomInfo,
                       icon: const Icon(Icons.info_outlined),

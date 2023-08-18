@@ -13,6 +13,7 @@ import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -110,24 +111,13 @@ class CreateTextPageState extends State<CreateText> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            fileNameController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
+                      child: MainDialogButton(
+                        text: "Cancel", 
+                        onPressed: () {
+                          fileNameController.clear();
+                          Navigator.pop(context);
+                        }, 
+                        isButtonClose: true
                       ),
                     ),
                   ),
@@ -135,31 +125,19 @@ class CreateTextPageState extends State<CreateText> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
+                      child: MainDialogButton(
+                        text: "Save", 
+                        onPressed: () async {
 
-                            String getFileTitle = fileNameController.text.trim();
+                          final getFileTitle = fileNameController.text.trim();
+                          if (getFileTitle.isEmpty) {
+                            return;
+                          }
+                          
+                          await _saveText(textEditingController.text);
 
-                            if (getFileTitle.isEmpty) {
-                              return;
-                            }
-                            
-                            await _saveText(textEditingController.text);
-
-                          },
-
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkPurple,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Save'),
-                        ),
+                        }, 
+                        isButtonClose: false
                       ),
                     ),
                   ),
@@ -217,13 +195,13 @@ class CreateTextPageState extends State<CreateText> {
       }
 
       final toUtf8Bytes = utf8.encode(inputValue);
-      final String bodyBytes = base64.encode(toUtf8Bytes);
-      final String getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
+      final base64Encoded = base64.encode(toUtf8Bytes);
+      final getFileName = "${fileNameController.text.trim().replaceAll(".", "")}.txt";
 
       await _insertUserFile(
         table: _tableToUploadTo(),
         filePath: getFileName,
-        fileValue: bodyBytes,
+        fileValue: base64Encoded,
       );
 
       setState(() {
@@ -288,28 +266,27 @@ class CreateTextPageState extends State<CreateText> {
 
   Widget _buildTxt(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextFormField(
-          autofocus: true,
-          controller: textEditingController,
-          enabled: textFormEnabled,
-          keyboardType: TextInputType.multiline,
-            maxLines: null,
-            style: GoogleFonts.roboto(
-              color: const Color.fromARGB(255, 214, 213, 213),
-              fontWeight: FontWeight.w500,
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        autofocus: true,
+        controller: textEditingController,
+        enabled: textFormEnabled,
+        keyboardType: TextInputType.multiline,
+          maxLines: null,
+          style: GoogleFonts.roboto(
+            color: const Color.fromARGB(255, 214, 213, 213),
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: const InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.transparent),
             ),
-            decoration: const InputDecoration(
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.transparent),
             ),
-        ),
-      );
-      
+          ),
+      ),
+    );
   }
 
   @override
@@ -342,7 +319,6 @@ class CreateTextPageState extends State<CreateText> {
             ),
           ),
         ],
-
         backgroundColor: ThemeColor.darkBlack,
         elevation: 0,
         title: const Text("New Text File",

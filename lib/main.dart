@@ -827,10 +827,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   /// 
   /// </summary>
   
-  void _onTextChanged(String value) {
+  void _onTextChanged(String value) async {
 
     debounceSearchingTimer?.cancel();
-    debounceSearchingTimer = Timer(const Duration(milliseconds: 280), () {
+    debounceSearchingTimer = Timer(const Duration(milliseconds: 299), () {
       final searchTerms =
           value.split(",").map((term) => term.trim().toLowerCase()).toList();
 
@@ -848,6 +848,48 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         Globals.filteredSearchedFiles = filteredFiles;
         Globals.filteredSearchedBytes = filteredByteValues;
 
+        if (filteredFiles.isNotEmpty) {
+          final index = Globals.fileValues.indexOf(filteredFiles.first);
+          leadingImageSearchedValue = 
+            filteredByteValues.isNotEmpty && filteredByteValues.length > index
+            ? Image.memory(filteredByteValues[index]!)
+            : null;
+
+        } else {
+          leadingImageSearchedValue = null;
+        }
+      });
+    });
+
+  }
+
+  void _filterTypePublicStorage(String value) async {
+    debounceSearchingTimer?.cancel();
+    debounceSearchingTimer = Timer(const Duration(milliseconds: 299), () {
+      final searchTerms =
+          value.split(",").map((term) => term.trim().toLowerCase()).toList();
+
+      final filteredFiles = Globals.filteredSearchedFiles.where((file) {
+        return searchTerms.any((term) => file.toLowerCase().contains(term));
+      }).toList();
+
+      final filteredByteValues = Globals.imageByteValues.where((bytes) {
+        final index = Globals.imageByteValues.indexOf(bytes);
+        final file = Globals.fileValues[index];
+        return searchTerms.any((term) => file.toLowerCase().contains(term));
+      }).toList();
+
+      /*final filteredUploaderName = GlobalsData.psUploaderName.where((uploader) {
+        final index = GlobalsData.psUploaderName.indexOf(uploader);
+        final file = Globals.fileValues[index];
+        return searchTerms.any((term) => file.toLowerCase().contains(term));
+      }).toList();*/
+
+      setState(() {
+        Globals.fileValues = filteredFiles;
+        Globals.filteredSearchedBytes = filteredByteValues;
+        //GlobalsData.psUploaderName = filteredUploaderName;
+        
         if (filteredFiles.isNotEmpty) {
           final index = Globals.fileValues.indexOf(filteredFiles.first);
           leadingImageSearchedValue = 
@@ -1799,6 +1841,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     } catch (err, st) {
       logger.e('Exception from _openDialogFile {main}',err,st);
+      if(!mounted) return;
       SnakeAlert.errorSnake("Upload failed.",context);
     }
   }
@@ -2199,7 +2242,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Widget _buildFilterTypeButtons(String filterName, IconData icon, String filterType) {
     return ElevatedButton.icon(
       onPressed: () {
-        _onTextChanged(filterType);
+        Globals.fileOrigin == "psFiles" 
+        ? _filterTypePublicStorage(filterType) 
+        : _onTextChanged(filterType);
         Navigator.pop(context);
       },
       icon: Icon(icon),
@@ -3923,12 +3968,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
   
   Widget _buildRecentPsFiles(Uint8List imageBytes, int index, String uploader) {
-
+    
     final fileName = Globals.filteredSearchedFiles[index];
     final fileType = fileName.split('.').last;
-
-    final indexOfFile = Globals.fileValues.indexOf(Globals.filteredSearchedFiles[index]);
-    final uploaderName = GlobalsData.psUploaderName[indexOfFile];
 
     return GestureDetector(
       onTap: () async {
@@ -3987,7 +4029,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ),
               ),
               Text(
-                uploaderName,
+                GlobalsData.psUploaderName[index],
                 style: const TextStyle(
                   color: ThemeColor.secondaryWhite,
                   fontSize: 14,
@@ -4023,7 +4065,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Widget _buildStaggeredItems(int index) {
 
-    Uint8List imageBytes = Globals.filteredSearchedBytes[index]!;
+    final imageBytes = Globals.filteredSearchedBytes[index]!;
 
     String uploaderNamePs = "";
     bool isRecentPs = false;
@@ -4149,7 +4191,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Widget _buildPsStaggeredListView(Uint8List imageBytes, int index, String uploaderName) {
 
     final mediaQuery = MediaQuery.of(context).size;
-
     const generalFileType = {
       ...Globals.audioType, 
       ...Globals.wordType, ...Globals.textType, 
