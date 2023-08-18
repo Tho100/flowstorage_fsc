@@ -29,6 +29,7 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_add_item.dart';
 import 'package:flowstorage_fsc/interact_dialog/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
+import 'package:flowstorage_fsc/widgets/bottom_trailing_filter.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:flowstorage_fsc/interact_dialog/folder_dialog.dart';
@@ -297,6 +298,32 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     Globals.imageByteValues.clear();
   }
 
+  void _togglePhotos() async {
+
+    if(Globals.fileOrigin == "psFiles") {
+
+      _clearPublicStorageData();
+      await _callHomeData();
+
+      _returnBackHomeFiles();
+      await _refreshListView();
+      
+    }
+
+    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
+
+    appBarTitle.value = "Photos";
+    searchBarVisibileNotifier.value = false;
+    staggeredListViewSelected.value = true;
+
+    _navHomeButtonVisibility(false);
+    _navDirectoryButtonVisibility(false);
+    _floatingButtonVisiblity(true);
+
+    togglePhotosPressed = true;
+    
+  }
+
   void _togglePublicStorage() async {
     
     if (publicStorageSelectedNotifier.value) {
@@ -319,7 +346,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await _refreshListView();
 
     } else {
-      Globals.fileOrigin = "psFiles";
+      togglePhotosPressed = false;
       await _refreshPublicStorage();
     }
 
@@ -333,6 +360,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     _sortUploadDate();
     _sortUploadDate();
     _floatingButtonVisiblity(true);
+    Globals.fileOrigin = "psFiles";
   }
 
   void _scrollEndListView() {
@@ -2243,191 +2271,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   }
 
-  Widget _buildFilterTypeButtons(String filterName, IconData icon, String filterType) {
-    return ElevatedButton.icon(
-      onPressed: () {
-        Globals.fileOrigin == "psFiles" 
-        ? _filterTypePublicStorage(filterType) 
-        : _onTextChanged(filterType);
-        Navigator.pop(context);
-      },
-      icon: Icon(icon),
-      label: Text(filterName),
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        fixedSize: const Size(112,25),
-        backgroundColor: ThemeColor.mediumGrey,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(35.0),
-        ),
-      ),
-    );
-  }
-
-  Future _buildFilterType() {
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkBlack,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return SizedBox(
-          height: 315,
-          child: Column(
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      "Filter Type",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ), 
-                ],
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                        
-                    Column(
-              
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-              
-                      children: [
-              
-                        const SizedBox(height: 5),
-              
-                        _buildFilterTypeButtons("Images",Icons.photo,'.png,.jpg,.jpeg'),
-              
-                        Row(
-              
-                          children: [
-
-                          _buildFilterTypeButtons("Text",Icons.text_snippet_rounded,'.txt,.html'),
-              
-                          const SizedBox(width: 8),
-              
-                          _buildFilterTypeButtons("Audio",Icons.music_note_rounded,'.mp3,.wav'),
-              
-                          const SizedBox(width: 8),
-              
-                          _buildFilterTypeButtons("Videos",Icons.video_collection_rounded,'.mp4,.avi,.mov,.wmv'),
-              
-                        ],
-                      ),
-                      ],
-                    ),
-                      
-                    const SizedBox(height: 5),
-                      
-                    Column(
-              
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-              
-                      children: [
-              
-                        const SizedBox(height: 5),
-              
-                        Row(
-                          children: [
-
-                            _buildFilterTypeButtons("PDFs",Icons.picture_as_pdf,'.pdf'),
-                            const SizedBox(width: 8),
-                            _buildFilterTypeButtons("Sheets",Icons.table_chart,'.xls,.xlsx'),
-
-                          ]
-                        ),
-              
-                        Row(
-              
-                          children: [
-              
-                            _buildFilterTypeButtons("DOCs",Icons.text_snippet_outlined,'.docx,.doc'),
-              
-                            const SizedBox(width: 8),
-              
-                            _buildFilterTypeButtons("CSV",Icons.insert_chart_outlined,'.csv'),
-                  
-                            const SizedBox(width: 8),
-
-                            _buildFilterTypeButtons("All",Icons.shape_line_rounded,' '),
-                                    
-                          ],
-                        ),
-                      ],
-                    ),  
-                          
-                  ],
-              
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future _buildFilterTypePhotos() {
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkBlack,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return SizedBox(
-          height: 145,
-          child: Column(
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      "Filter Type",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ), 
-                ],
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-              
-                  crossAxisAlignment: CrossAxisAlignment.start,
-          
-                  children: [
-                    
-                    _buildFilterTypeButtons("Images",Icons.photo,'.png,.jpg,.jpeg'),
-                    const SizedBox(width: 8),
-                    _buildFilterTypeButtons("Videos",Icons.video_collection_rounded,'.mp4,.avi,.mov,.wmv'),
-                    const SizedBox(width: 8),
-                    _buildFilterTypeButtons("All",Icons.shape_line_rounded,'.png,.jpg,.jpeg,.mp4,.avi,.mov,.wmv'),
-          
-                  ],
-                ),
-              ),   
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   /// <summary>
   /// 
   /// Build shared bottom menu options:
@@ -3275,7 +3118,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    _buildFilterType();
+                    final bottomTrailingFilter = BottomTrailingFilter();
+                    bottomTrailingFilter.buildFilterTypeAll(
+                      filterTypePublicStorage: _filterTypePublicStorage, 
+                      filterTypeNormal: _onTextChanged, 
+                      context: context
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
@@ -3380,7 +3228,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                       padding: const EdgeInsets.only(right: 4.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          _buildFilterType();
+                          final bottomTrailingFilter = BottomTrailingFilter();
+                          bottomTrailingFilter.buildFilterTypeAll(
+                            filterTypePublicStorage: _filterTypePublicStorage, 
+                            filterTypeNormal: _onTextChanged, 
+                            context: context
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           elevation: 0,
@@ -3404,22 +3257,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         );
       }
     );
-  }
-
-  void _togglePhotos() {
-
-    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
-
-    appBarTitle.value = "Photos";
-    searchBarVisibileNotifier.value = false;
-    staggeredListViewSelected.value = true;
-
-    _navHomeButtonVisibility(false);
-    _navDirectoryButtonVisibility(false);
-    _floatingButtonVisiblity(true);
-
-    togglePhotosPressed = true;
-    
   }
 
   Widget _buildCustomBottomBar() {
@@ -3726,7 +3563,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Widget _buildTunePhotosType() {
     return IconButton(
       onPressed: () {
-        _buildFilterTypePhotos();
+        final bottomTrailingFilter = BottomTrailingFilter();
+        bottomTrailingFilter.buildFilterTypePhotos(
+          filterTypePublicStorage: _filterTypePublicStorage, 
+          filterTypeNormal: _onTextChanged, 
+          context: context
+        );
       },
       icon: const Icon(Icons.tune_outlined, 
         color: Colors.white, size: 26),
