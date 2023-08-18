@@ -2310,7 +2310,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                         Row(
               
                           children: [
-              
+
                           _buildFilterTypeButtons("Text",Icons.text_snippet_rounded,'.txt,.html'),
               
                           const SizedBox(width: 8),
@@ -2319,7 +2319,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               
                           const SizedBox(width: 8),
               
-                          _buildFilterTypeButtons("Video",Icons.video_collection_rounded,'.mp4,.avi,.mov,.wmv'),
+                          _buildFilterTypeButtons("Videos",Icons.video_collection_rounded,'.mp4,.avi,.mov,.wmv'),
               
                         ],
                       ),
@@ -2370,6 +2370,57 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
               
                 ),
               ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future _buildFilterTypePhotos() {
+    return showModalBottomSheet(
+      backgroundColor: ThemeColor.darkBlack,
+      context: context,
+      shape: GlobalsStyle.bottomDialogBorderStyle,
+      builder: (context) {
+        return SizedBox(
+          height: 145,
+          child: Column(
+            children: [
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Text(
+                      "Filter Type",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ), 
+                ],
+              ),
+              
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+              
+                  crossAxisAlignment: CrossAxisAlignment.start,
+          
+                  children: [
+                    
+                    _buildFilterTypeButtons("Images",Icons.photo,'.png,.jpg,.jpeg'),
+                    const SizedBox(width: 8),
+                    _buildFilterTypeButtons("Videos",Icons.video_collection_rounded,'.mp4,.avi,.mov,.wmv'),
+                    const SizedBox(width: 8),
+                    _buildFilterTypeButtons("All",Icons.shape_line_rounded,'.png,.jpg,.jpeg,.mp4,.avi,.mov,.wmv'),
+          
+                  ],
+                ),
+              ),   
             ],
           ),
         );
@@ -3675,7 +3726,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Widget _buildTunePhotosType() {
     return IconButton(
       onPressed: () {
-        _buildFilterType();
+        _buildFilterTypePhotos();
       },
       icon: const Icon(Icons.tune_outlined, 
         color: Colors.white, size: 26),
