@@ -14,6 +14,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/api/compressor_api.dart';
 import 'package:flowstorage_fsc/helper/date_parser.dart';
+import 'package:flowstorage_fsc/helper/external_app.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
@@ -160,6 +161,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   final searchBarVisibileNotifier = ValueNotifier<bool>(true);
 
+  bool togglePhotosPressed = false;
   bool editAllIsPressed = false;
   bool itemIsChecked = false;
 
@@ -308,6 +310,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       _navDirectoryButtonVisibility(true);
       _floatingButtonVisiblity(true);
       _returnBackHomeFiles();
+
+      togglePhotosPressed = false;
 
       searchBarVisibileNotifier.value = true;
       staggeredListViewSelected.value = false;
@@ -3041,226 +3045,229 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   Widget _buildNavigationButtons() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-
-        Globals.fileOrigin == "psFiles" 
-        ? const SizedBox(height: 0)
-        : const SizedBox(height: 8),
-
-        if(Globals.fileOrigin != "psFiles") ... [
-          Row(
+    return Visibility(
+      visible: !togglePhotosPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+    
+          Globals.fileOrigin == "psFiles" 
+          ? const SizedBox(height: 0)
+          : const SizedBox(height: 8),
+    
+          if(Globals.fileOrigin != "psFiles") ... [
+            Row(
+            
+              children: [
           
-            children: [
-        
-              const SizedBox(width: 16),
-        
-              ElevatedButton(
-                onPressed: () {
-                  _buildSharedBottom();
-                },
-                style: GlobalsStyle.btnNavigationBarStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.share, color: Colors.white),
-                    Text(
-                      '  Shared',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-        
-              const SizedBox(width: 8),
-        
-              ElevatedButton(
-                onPressed: () async {
-                  if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                    await _initializeCameraScanner();
-                  } else {
-                    _upgradeDialog(
-                      "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                    );
-                  }
-                },
-                style: GlobalsStyle.btnNavigationBarStyle,
-                child: const Row(
-                  children: [
-                    Icon(Icons.center_focus_strong_rounded, color: Colors.white),
-                    Text(
-                      '  Scan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-        
-              const SizedBox(width: 8),
-        
-              ValueListenableBuilder<bool>(
-                valueListenable: navDirectoryButtonVisible,
-                builder: (BuildContext context, bool value, Widget? child) {
-                  return Visibility(
-                    visible: value,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
-                        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
-                            _buildCreateDirectoryDialog();
-                          } else {
-                            _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
-                          }
-                        } else {
-                          _upgradeDialog(
-                            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
-                          );
-                        }
-                      },
-                      style: GlobalsStyle.btnNavigationBarStyle,
-                      child: const Row(
-                        children: [
-                          Icon(Icons.add_box, color: Colors.white),
-                          Text(
-                            '  Directory',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-        
-              ValueListenableBuilder<bool>(
-                valueListenable: homeButtonVisible,
-                builder: (BuildContext context, bool value, Widget? child) {
-                  return Visibility(
-                    visible: value,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await _goBackHome();
-                      },
-                      style: GlobalsStyle.btnNavigationBarStyle,
-                      child: const Row(
-                        children: [
-                          Icon(Icons.home, color: Colors.white),
-                          Text(
-                            '  Home',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-        
-            ],
-          ),
-        ],
-
-        Globals.fileOrigin == "psFiles" 
-        ? const SizedBox(height: 0)
-        : const SizedBox(height: 8),
-
-        Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                _buildSortItemBottom();
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: ThemeColor.darkBlack,
-              ),
-              child: ValueListenableBuilder<String>(
-                valueListenable: sortingText,
-                builder: (BuildContext context, String value, Widget? child) {
-                  return Row(
+                const SizedBox(width: 16),
+          
+                ElevatedButton(
+                  onPressed: () {
+                    _buildSharedBottom();
+                  },
+                  style: GlobalsStyle.btnNavigationBarStyle,
+                  child: const Row(
                     children: [
+                      Icon(Icons.share, color: Colors.white),
                       Text(
-                        '  $value',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                        '  Shared',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      ValueListenableBuilder(
-                        valueListenable: ascendingDescendingIconNotifier, 
-                        builder: (BuildContext context, IconData value, Widget? child) {
-                          return Icon(value, color: Colors.white);
-                        }
+                    ],
+                  ),
+                ),
+          
+                const SizedBox(width: 8),
+          
+                ElevatedButton(
+                  onPressed: () async {
+                    if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                      await _initializeCameraScanner();
+                    } else {
+                      _upgradeDialog(
+                        "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                      );
+                    }
+                  },
+                  style: GlobalsStyle.btnNavigationBarStyle,
+                  child: const Row(
+                    children: [
+                      Icon(Icons.center_focus_strong_rounded, color: Colors.white),
+                      Text(
+                        '  Scan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
-                  );
-                }
-              ),
+                  ),
+                ),
+          
+                const SizedBox(width: 8),
+          
+                ValueListenableBuilder<bool>(
+                  valueListenable: navDirectoryButtonVisible,
+                  builder: (BuildContext context, bool value, Widget? child) {
+                    return Visibility(
+                      visible: value,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
+                          if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                            if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                              _buildCreateDirectoryDialog();
+                            } else {
+                              _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                            }
+                          } else {
+                            _upgradeDialog(
+                              "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                            );
+                          }
+                        },
+                        style: GlobalsStyle.btnNavigationBarStyle,
+                        child: const Row(
+                          children: [
+                            Icon(Icons.add_box, color: Colors.white),
+                            Text(
+                              '  Directory',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+          
+                ValueListenableBuilder<bool>(
+                  valueListenable: homeButtonVisible,
+                  builder: (BuildContext context, bool value, Widget? child) {
+                    return Visibility(
+                      visible: value,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _goBackHome();
+                        },
+                        style: GlobalsStyle.btnNavigationBarStyle,
+                        child: const Row(
+                          children: [
+                            Icon(Icons.home, color: Colors.white),
+                            Text(
+                              '  Home',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+          
+              ],
             ),
-
-            const Spacer(),
-
-            if(Globals.fileOrigin == "psFiles")
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: ElevatedButton(
+          ],
+    
+          Globals.fileOrigin == "psFiles" 
+          ? const SizedBox(height: 0)
+          : const SizedBox(height: 8),
+    
+          Row(
+            children: [
+              ElevatedButton(
                 onPressed: () {
-                  _buildFilterType();
+                  _buildSortItemBottom();
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: Colors.transparent,
-                  minimumSize: Size.zero,
-                  padding: const EdgeInsets.only(left: 6, right: 25),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25)
-                  ),
-                ).copyWith(
-                  fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
+                  backgroundColor: ThemeColor.darkBlack,
                 ),
-                child: const Icon(Icons.filter_list_outlined, size: 27),
+                child: ValueListenableBuilder<String>(
+                  valueListenable: sortingText,
+                  builder: (BuildContext context, String value, Widget? child) {
+                    return Row(
+                      children: [
+                        Text(
+                          '  $value',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: ascendingDescendingIconNotifier, 
+                          builder: (BuildContext context, IconData value, Widget? child) {
+                            return Icon(value, color: Colors.white);
+                          }
+                        ),
+                      ],
+                    );
+                  }
+                ),
               ),
-            ),
-
-            if(Globals.fileOrigin != "psFiles")
-            ElevatedButton(
-              onPressed: () {
-                staggeredListViewSelected.value = !staggeredListViewSelected.value;
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: ThemeColor.darkBlack,
-              ),
-              child: Row(
-                children: [
-                  ValueListenableBuilder<bool>(
-                    valueListenable: staggeredListViewSelected,
-                    builder: (BuildContext context, bool value, Widget? child) {
-                      return value == false ? const Icon(Icons.grid_view,size: 23) : const Icon(Icons.format_list_bulleted_outlined,size: 25);
-                    }
+    
+              const Spacer(),
+    
+              if(Globals.fileOrigin == "psFiles")
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _buildFilterType();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.only(left: 6, right: 25),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25)
+                    ),
+                  ).copyWith(
+                    fixedSize: MaterialStateProperty.all<Size>(const Size(36, 36)),
                   ),
-                ],
+                  child: const Icon(Icons.filter_list_outlined, size: 27),
+                ),
               ),
-            ),
-          ]
-        ),
-
-        const Divider(color: ThemeColor.thirdWhite, height: 0),
-        
-      ],
+    
+              if(Globals.fileOrigin != "psFiles")
+              ElevatedButton(
+                onPressed: () {
+                  staggeredListViewSelected.value = !staggeredListViewSelected.value;
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: ThemeColor.darkBlack,
+                ),
+                child: Row(
+                  children: [
+                    ValueListenableBuilder<bool>(
+                      valueListenable: staggeredListViewSelected,
+                      builder: (BuildContext context, bool value, Widget? child) {
+                        return value == false ? const Icon(Icons.grid_view,size: 23) : const Icon(Icons.format_list_bulleted_outlined,size: 25);
+                      }
+                    ),
+                  ],
+                ),
+              ),
+            ]
+          ),
+    
+          const Divider(color: ThemeColor.thirdWhite, height: 0),
+          
+        ],
+      ),
     );
   }
 
@@ -3348,6 +3355,22 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  void _togglePhotos() {
+
+    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
+
+    appBarTitle.value = "Photos";
+    searchBarVisibileNotifier.value = false;
+    staggeredListViewSelected.value = true;
+
+    _navHomeButtonVisibility(false);
+    _navDirectoryButtonVisibility(false);
+    _floatingButtonVisiblity(true);
+
+    togglePhotosPressed = true;
+    
+  }
+
   Widget _buildCustomBottomBar() {
 
     int bottomNavigationBarIndex = 0;
@@ -3381,8 +3404,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 label: "Folders",
               ),
               const BottomNavigationBarItem(
-                icon: Icon(Icons.share_outlined),
-                label: "Share",
+                icon: Icon(Icons.photo_outlined),
+                label: "Photos",
               ),
               BottomNavigationBarItem(
                 icon: SizedBox(
@@ -3409,8 +3432,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   break;
               
                 case 1:
-                  NavigatePage.goToPageSharing(context);
-                    break;
+                  //NavigatePage.goToPageSharing(context);
+                  _togglePhotos();
+                  break;
                 
                 case 2:
                   _togglePublicStorage();
@@ -3648,6 +3672,16 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  Widget _buildTunePhotosType() {
+    return IconButton(
+      onPressed: () {
+        _buildFilterType();
+      },
+      icon: const Icon(Icons.tune_outlined, 
+        color: Colors.white, size: 26),
+    );
+  }
+
   /// <summary>
   /// 
   /// Setup greeting on the AppBar text 
@@ -3703,6 +3737,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
             _buildMoreOptionsOnSelect(),
 
+            if(togglePhotosPressed)
+            _buildTunePhotosType(),
+
             if(Globals.fileOrigin == "psFiles") 
             _buildMyPsFilesButton()
 
@@ -3752,45 +3789,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         ),
       ),
     );
-  }
-
-  /// <summary>
-  /// 
-  /// Main page for listView item when the user added/loaded
-  /// files
-  /// 
-  /// </summary>
-
-  void _openFileInExternalApp(Uint8List bytes, String fileName) async {
-
-    try {
-
-      Directory tempDir = await getTemporaryDirectory();
-      String tempPath = tempDir.path;
-
-      File tempFile = File('$tempPath/$fileName');
-      
-      await tempFile.writeAsBytes(bytes, flush: true);
-
-      String filePath = tempFile.path;
-      final OpenResult result = await OpenFile.open(filePath);
-
-      if(result.type != ResultType.done) {
-
-        if(!mounted) return;
-        
-        CustomFormDialog.startDialog(
-          "Couldn't open ${Globals.selectedFileName}",
-          "No default app to open this file found.",
-          context,
-        );
-
-      }
-
-    } catch (err, st) {
-      logger.e(err, st);
-    }
-
   }
 
   Future<void> _navigateToPreviewFile(int index) async {
@@ -3847,7 +3845,21 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         fileData = await OfflineMode().loadOfflineFileByte(Globals.selectedFileName);
       }
 
-      _openFileInExternalApp(fileData, Globals.selectedFileName);
+      final result = await ExternalApp.openFileInExternalApp(
+        bytes: fileData, 
+        fileName: Globals.selectedFileName
+      );
+
+      if(result.type != ResultType.done) {
+        
+        if(!mounted) return;
+        CustomFormDialog.startDialog(
+          "Couldn't open ${Globals.selectedFileName}",
+          "No default app to open this file found.",
+          context,
+        );
+
+      }
 
       return;
 
@@ -4178,10 +4190,16 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     
             ],
     
-            if(Globals.fileOrigin != "psFiles")
+            if(Globals.fileOrigin != "psFiles" && togglePhotosPressed == false)
             IntrinsicHeight(
               child: _buildNormalStaggeredListView(imageBytes, index),
             ),
+            
+            if(Globals.fileOrigin != "psFiles" && togglePhotosPressed == true)
+            IntrinsicHeight(
+              child: _buildPhotosStaggeredItems(index),
+            ),
+          
           ],
         ),
       ),
@@ -4291,8 +4309,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             child: Stack(
               children: [
                 Container(
-                  width: generalFileType.contains(fileType) ? 85 : mediaQuery.width - 35,
-                  height: generalFileType.contains(fileType) ? 85 : mediaQuery.height - 495,
+                  width: generalFileType.contains(fileType) ? 72 : mediaQuery.width - 35,
+                  height: generalFileType.contains(fileType) ? 72 : mediaQuery.height - 495,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
@@ -4419,6 +4437,44 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  Widget _buildPhotosStaggeredItems(int index) {
+
+    final fileType = Globals.filteredSearchedFiles[index].split('.').last;
+    final imageBytes = Globals.filteredSearchedBytes[index]!;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              Container(
+                width: 335,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: ThemeColor.lightGrey,
+                    width: 1,
+                  )
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(imageBytes, fit: BoxFit.cover)
+                ),
+              ),
+          
+              if(Globals.videoType.contains(fileType))
+              const Padding(
+                padding: EdgeInsets.only(left: 6.0, top: 4.0),
+                child: Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 26),
+              ),
+            ],
+          ),
+        ),
+
+      ],
+    );
+  }
+
   Widget _buildStaggeredListView() {
 
     int fitSize = Globals.fileOrigin == "psFiles" ? 5 : 1;
@@ -4430,24 +4486,30 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     return Padding(
       padding: paddingValue,
       child: StaggeredGridView.countBuilder(
-        crossAxisCount: 4,
         controller: scrollListViewController,
         shrinkWrap: true,
         itemCount: Globals.filteredSearchedFiles.length,
         itemBuilder: (BuildContext context, int index) => _buildStaggeredItems(index),
         staggeredTileBuilder: (int index) => StaggeredTile.fit(fitSize),
-        mainAxisSpacing: 6.5,
-        crossAxisSpacing: 6.5,
-        padding: const EdgeInsets.only(bottom: 65),
+        crossAxisCount: togglePhotosPressed ? 2 : 4,
+        mainAxisSpacing: togglePhotosPressed ? 8 : 6.5,
+        crossAxisSpacing: togglePhotosPressed ? 8 : 6.5,
+      
       ),
     );
   }
 
   Widget _buildHomeBody(BuildContext context) {
 
-    final double mediaHeight = Globals.fileOrigin == "psFiles" 
-    ? MediaQuery.of(context).size.height - 194
-    : MediaQuery.of(context).size.height - 310;
+    late double mediaHeight;
+
+    if(Globals.fileOrigin == "psFiles") {
+      mediaHeight = MediaQuery.of(context).size.height - 194;
+    } else if (Globals.fileOrigin != "psFiles" && !togglePhotosPressed) {
+      mediaHeight = MediaQuery.of(context).size.height - 310;
+    } else if (Globals.fileOrigin != "psFiles" && togglePhotosPressed) {
+      mediaHeight = MediaQuery.of(context).size.height - 148;
+    }
 
     return RefreshIndicator(
       color: ThemeColor.darkPurple,
