@@ -153,6 +153,15 @@ class SideBarMenu {
                       }
                     ),
 
+                    _buildSidebarButtons(
+                      title: "Settings",
+                      icon: Icons.settings_outlined,
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        NavigatePage.goToPageSettings(context);
+                      }
+                    ),
+
                   ],
                 ),
               ),

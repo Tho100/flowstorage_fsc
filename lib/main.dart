@@ -30,6 +30,8 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing_add_item.dart';
 import 'package:flowstorage_fsc/interact_dialog/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_filter.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
+import 'package:flowstorage_fsc/widgets/navigation_bar.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:flowstorage_fsc/interact_dialog/folder_dialog.dart';
@@ -145,12 +147,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   final sortingText = ValueNotifier<String>('Default');
   final searchHintText = ValueNotifier<String>('Search in Flowstorage');
 
-  final publicStorageSelectedNotifier = ValueNotifier<bool>(false);
   final psButtonTextNotifier = ValueNotifier<String>('My Files');
 
   final navDirectoryButtonVisible = ValueNotifier<bool>(true);
   final floatingActionButtonVisible = ValueNotifier<bool>(true);
-  final homeButtonVisible = ValueNotifier<bool>(false);
 
   final staggeredListViewSelected = ValueNotifier<bool>(false);
   final selectAllItemsIsPressedNotifier = ValueNotifier<bool>(false);
@@ -272,17 +272,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     return getPageName;
   }
 
-  Future<void> _goBackHome() async {
-    appBarTitle.value = "Home";
-    searchHintText.value = "Search in Flowstorage";
-    staggeredListViewSelected.value = false;
-    searchBarVisibileNotifier.value = true;
-    _navDirectoryButtonVisibility(true);
-    _floatingButtonVisiblity(true);
-    _returnBackHomeFiles();
-    await _refreshListView();
-  }
-
   void _clearPublicStorageData() {
     GlobalsData.psUploaderName.clear();
     GlobalsData.psTagsValuesData.clear();
@@ -310,49 +299,59 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       
     }
 
-    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
-
     appBarTitle.value = "Photos";
     searchBarVisibileNotifier.value = false;
     staggeredListViewSelected.value = true;
 
-    _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
     _floatingButtonVisiblity(true);
 
     togglePhotosPressed = true;
-    
+
+    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
+
   }
 
   void _togglePublicStorage() async {
     
-    if (publicStorageSelectedNotifier.value) {
+    togglePhotosPressed = false;
+    await _refreshPublicStorage();
+  
+  }
 
-      if(psButtonTextNotifier.value == "Back") {
-        _clearPublicStorageData();
-      }
+  void _toggleHome() async {
 
-      await _callHomeData();
-
-      _navDirectoryButtonVisibility(true);
-      _floatingButtonVisiblity(true);
-      _returnBackHomeFiles();
-
-      togglePhotosPressed = false;
-
-      searchBarVisibileNotifier.value = true;
-      staggeredListViewSelected.value = false;
-
-      await _refreshListView();
-
-    } else {
-      togglePhotosPressed = false;
-      await _refreshPublicStorage();
+    if (Globals.fileOrigin == "homeFiles" && !togglePhotosPressed) {
+      return;
     }
 
-    publicStorageSelectedNotifier.value 
-      = !publicStorageSelectedNotifier.value; 
+    if (Globals.fileOrigin == "psFiles") {
+      _clearPublicStorageData();
+    }
+
+    if (Globals.fileOrigin == "homeFiles" && togglePhotosPressed) {
+      _returnBackHomeFiles();
+    } else {
+      await _callHomeData();
+      _returnBackHomeFiles();
+      await _refreshListView();
+    }
+
+    _navDirectoryButtonVisibility(true);
+    _floatingButtonVisiblity(true);
+
+    togglePhotosPressed = false;
+    searchBarVisibileNotifier.value = true;
+    staggeredListViewSelected.value = false;
+
+    appBarTitle.value = "Home";
+    searchHintText.value = "Search in Flowstorage";
+
+    Globals.fileOrigin == "Home";
+    _onTextChanged('');
+
   }
+
 
   Future<void> _refreshPublicStorage() async {
     await _callPublicStorageData(); 
@@ -957,10 +956,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     floatingActionButtonVisible.value = visible;
   }
 
-  void _navHomeButtonVisibility(bool visible) {
-    homeButtonVisible.value = visible;
-  }
-
   void _navDirectoryButtonVisibility(bool visible) {
     navDirectoryButtonVisible.value = visible;
   }
@@ -971,7 +966,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       Globals.folderTitleValue = '';
       Globals.directoryTitleValue = '';
     });
-    _navHomeButtonVisibility(false);
   }
   
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
@@ -1029,23 +1023,25 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   Future<void> _callHomeData() async {
+
+    _clearGlobalData();
+
     await dataCaller.homeData();
     appBarTitle.value = "Home";
-    _navHomeButtonVisibility(false);
   }
 
   Future<void> _callOfflineData() async {
+
+    _clearGlobalData();
 
     await dataCaller.offlineData();
     setState(() {});
 
     appBarTitle.value = "Offline";
-    publicStorageSelectedNotifier.value = false;
     searchBarVisibileNotifier.value = true;
 
     _clearSelectAll(); 
 
-    _navHomeButtonVisibility(true);
     _navDirectoryButtonVisibility(false);
     _floatingButtonVisiblity(true);
  
@@ -1060,7 +1056,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     _onTextChanged('');
     searchBarController.text = '';
     searchHintText.value = "Search in ${appBarTitle.value}";
-    _navHomeButtonVisibility(true);
 
   }
 
@@ -1071,7 +1066,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     await dataCaller.sharingData(originFrom);
 
     _onTextChanged('');
-    _navHomeButtonVisibility(true);
 
   }
 
@@ -1091,7 +1085,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     _onTextChanged('');
     searchBarController.text = '';
 
-    _navHomeButtonVisibility(false);
     _navDirectoryButtonVisibility(false);
     _floatingButtonVisiblity(true);
 
@@ -1118,16 +1111,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     _clearGlobalData();
 
     await dataCaller.folderData(folderName: folderTitle);
-
+    
     _onTextChanged('');
     searchBarController.text = '';
-    _navHomeButtonVisibility(true);
 
   }
 
   Future<void> _refreshListView() async {
-
-    _clearGlobalData();
 
     if(Globals.fileOrigin == "homeFiles") {
       await _callHomeData();
@@ -1157,6 +1147,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       sortingText.value = "Default";
       ascendingDescendingIconNotifier.value = Icons.expand_more;
 
+    }
+
+    if(Globals.fileOrigin == "homeFiles" && togglePhotosPressed) {
+      _togglePhotos();
     }
 
     if(Globals.fileValues.isEmpty) {
@@ -2540,57 +2534,42 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            directoryCreateController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
-                      ),
+                      child: MainDialogButton(
+                        text: "Cancel",
+                        onPressed: () {
+                          directoryCreateController.clear();
+                          Navigator.pop(context);
+                        },
+                        isButtonClose: true,
+                      )
                     ),
                   ),
 
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
+                      child: MainDialogButton(
+                        text: "Create",
+                        onPressed: () async {
 
-                            final getDirectoryTitle = directoryCreateController.text.trim();
+                          final getDirectoryTitle = directoryCreateController.text.trim();
 
-                            if(getDirectoryTitle.isEmpty) {
-                              return;
-                            }
+                          if(getDirectoryTitle.isEmpty) {
+                            return;
+                          }
 
-                            if(Globals.fileValues.contains(getDirectoryTitle)) {
-                              CustomAlertDialog.alertDialog("Directory with this name already exists.",context);
-                              return;
-                            }
+                          if(Globals.fileValues.contains(getDirectoryTitle)) {
+                            CustomAlertDialog.alertDialog("Directory with this name already exists.",context);
+                            return;
+                          }
 
-                            await _buildDirectory(getDirectoryTitle);
-                            directoryCreateController.clear();
-                            if(!mounted) return;
-                            Navigator.pop(context);
+                          await _buildDirectory(getDirectoryTitle);
+                          directoryCreateController.clear();
+                          if(!mounted) return;
+                          Navigator.pop(context);
 
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Create'),
-                        ),
+                        },
+                        isButtonClose: false,
                       ),
                     ),
                   ),
@@ -2911,7 +2890,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         _floatingButtonVisiblity(false);
         _navDirectoryButtonVisibility(false);
-        _navHomeButtonVisibility(true);
 
         appBarTitle.value = Globals.folderTitleValue;
 
@@ -2920,7 +2898,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
         await _callFolderData(Globals.foldValues[index]);
 
-        publicStorageSelectedNotifier.value = false;
         searchBarVisibileNotifier.value = true;
 
 
@@ -3030,33 +3007,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                             Icon(Icons.add_box, color: Colors.white),
                             Text(
                               '  Directory',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-          
-                ValueListenableBuilder<bool>(
-                  valueListenable: homeButtonVisible,
-                  builder: (BuildContext context, bool value, Widget? child) {
-                    return Visibility(
-                      visible: value,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await _goBackHome();
-                        },
-                        style: GlobalsStyle.btnNavigationBarStyle,
-                        child: const Row(
-                          children: [
-                            Icon(Icons.home, color: Colors.white),
-                            Text(
-                              '  Home',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -3256,86 +3206,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           ),
         );
       }
-    );
-  }
-
-  Widget _buildCustomBottomBar() {
-
-    int bottomNavigationBarIndex = 0;
-
-    const labelTextStyle = TextStyle(
-      fontWeight: FontWeight.w500,
-      fontSize: 12
-    );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 0.8,
-          color: ThemeColor.whiteGrey,
-        ),
-        Container(
-          color: ThemeColor.whiteGrey,
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: ThemeColor.mediumBlack,
-            unselectedItemColor: Colors.grey,
-            fixedColor: Colors.grey,
-            currentIndex: bottomNavigationBarIndex,
-            selectedLabelStyle: labelTextStyle,
-            unselectedLabelStyle: labelTextStyle,
-            iconSize: 25.2,
-            items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.folder_outlined),
-                label: "Folders",
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.photo_outlined),
-                label: "Photos",
-              ),
-              BottomNavigationBarItem(
-                icon: SizedBox(
-                  width: 26,
-                  height: 26,
-                  child: publicStorageSelectedNotifier.value
-                      ? const Icon(Icons.home_outlined)
-                      : Image.asset('assets/nice/public_icon.png'),
-                ),
-                label: publicStorageSelectedNotifier.value 
-                      ? "Home" : "Public",
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined),
-                label: "Settings"
-              ),
-            ],
-            
-            onTap: (indexValue) async {
-              
-              switch (indexValue) {
-                case 0:
-                  _buildFoldersDialog();
-                  break;
-              
-                case 1:
-                  //NavigatePage.goToPageSharing(context);
-                  _togglePhotos();
-                  break;
-                
-                case 2:
-                  _togglePublicStorage();
-                  break;
-              
-                case 3:
-                  NavigatePage.goToPageSettings(context);
-                break;
-              }
-            },
-          ),
-        ),
-      ],
     );
   }
 
@@ -4491,14 +4361,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     scrollListViewController.dispose();
     psButtonTextNotifier.dispose();
 
-    homeButtonVisible.dispose();
     staggeredListViewSelected.dispose();
     floatingActionButtonVisible.dispose();
     navDirectoryButtonVisible.dispose();
     selectAllItemsIconNotifier.dispose();
     selectAllItemsIconNotifier.dispose();
     ascendingDescendingIconNotifier.dispose();
-    publicStorageSelectedNotifier.dispose();
     searchBarVisibileNotifier.dispose();
     searchHintText.dispose();
 
@@ -4526,7 +4394,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         : Column(
           children: [_buildSearchBar(),_buildNavigationButtons(),_buildHomeBody(context)]),
 
-        bottomNavigationBar: _buildCustomBottomBar(),
+        bottomNavigationBar: CustomNavigationBar(
+          openFolderDialog: _buildFoldersDialog, 
+          toggleHome: _toggleHome,
+          togglePhotos: _togglePhotos, 
+          togglePublicStorage: _togglePublicStorage, 
+          context: context
+        ),
+
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: ValueListenableBuilder<bool>(
           valueListenable: floatingActionButtonVisible,

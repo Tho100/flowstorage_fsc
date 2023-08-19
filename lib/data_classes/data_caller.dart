@@ -291,6 +291,8 @@ class DataCaller {
     Globals.setDateValues.addAll(dateList);
     Globals.imageByteValues.addAll(byteList);
 
+    Globals.fileOrigin == "folderFiles";
+
   }
 
 }
