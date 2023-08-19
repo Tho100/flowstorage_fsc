@@ -19,8 +19,6 @@ class Globals {
   static String directoryTitleValue = '';
   static String selectedFileName = '';
 
-  static Set<String> statisticsFilesName = <String>{};
-
   static List<String> fileValues = [];
   static List<File> imageValues = [];
   static List<String> foldValues = [];

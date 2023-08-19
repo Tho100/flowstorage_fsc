@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/provider/files_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,7 @@ class StatsPageState extends State<StatisticsPage> {
   @override
   void dispose() {
     dataIsLoading.dispose();
-    Globals.statisticsFilesName.clear();
+    _locator<FilesDataProvider>().statisticsFilesName.clear();
     super.dispose();
   }
 
@@ -129,8 +130,10 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUpload(String tableName) async {
 
+    final statsData = _locator<FilesDataProvider>();
+
     final dataOrigin = Globals.fileOrigin != "homeFiles"
-    ? Globals.statisticsFilesName
+    ? statsData.statisticsFilesName
     : Globals.filteredSearchedFiles;
 
     final fileTypeList = <String>[];

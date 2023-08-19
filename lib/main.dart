@@ -23,6 +23,7 @@ import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/provider/files_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
@@ -86,14 +87,19 @@ import 'package:get_it/get_it.dart';
 void setupLocator() {
   final locator = GetIt.instance;
   locator.registerLazySingleton<UserDataProvider>(() => UserDataProvider());
+  locator.registerLazySingleton<FilesDataProvider>(() => FilesDataProvider());
 }
 
 void main() async {
   setupLocator();
-  runApp(ChangeNotifierProvider(
-    create: (context) => UserDataProvider(),
-    child: const MainRun()
-    )
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => GetIt.instance<UserDataProvider>()),
+        ChangeNotifierProvider(create: (context) => GetIt.instance<FilesDataProvider>())
+      ],
+      child: const MainRun(),
+    ),
   );
 }
 
