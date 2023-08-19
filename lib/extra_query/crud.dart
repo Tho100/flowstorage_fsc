@@ -1,7 +1,10 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 class Crud {
+
+  final _locator = GetIt.instance;
 
   Future<void> processCud(
     String? query,
@@ -65,10 +68,12 @@ class Crud {
 
   Future<int> countUserTableRow(String tableName) async {
 
+    final userData = _locator<UserDataProvider>();
+
     final conn = await SqlConnection.insertValueParams();
 
     final countRowQuery = "SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username";
-    final params = {'username': Globals.custUsername};
+    final params = {'username': userData.username};
 
     final results = await conn.execute(countRowQuery,params);
 

@@ -1,12 +1,15 @@
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 class CreateFolder {
 
   final EncryptionClass encryption; 
   final String formattedDate;
+
+  final _locator = GetIt.instance;
 
   CreateFolder(this.encryption, this.formattedDate);
 
@@ -17,6 +20,8 @@ class CreateFolder {
     required List<String> fileTypes,
     List<dynamic>? videoThumbnail
   }) async {
+    
+    final userData = _locator<UserDataProvider>();
 
     final conn = await SqlConnection.insertValueParams();
 
@@ -29,7 +34,7 @@ class CreateFolder {
 
       final params = {
         'folder_name': encryptedFolderName, 
-        'username': Globals.custUsername, 
+        'username': userData.username, 
         'file_data': encryption.encrypt(fileValues[i]),
         'file_type': fileTypes[i],
         'upload_date': formattedDate,

@@ -1,11 +1,12 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/upgrades/customers_dashboard.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class MyPlanPage extends StatefulWidget {
 
@@ -16,6 +17,10 @@ class MyPlanPage extends StatefulWidget {
 }
 
 class MyPlanPageState extends State<MyPlanPage> {
+
+  final _locator = GetIt.instance;
+
+  late final UserDataProvider userData;
 
   final double containerWidth = 35.0;
   final double containerheight = 305.0;
@@ -82,13 +87,13 @@ class MyPlanPageState extends State<MyPlanPage> {
         ),
         onPressed: () async {
           CustomAlertDialog.alertDialogCustomOnPressed(
-            messages: "Are you sure you want to cancel your subscription plan? \n\nYour account will downgraded to Basic from ${Globals.accountType} and you'll no longer be charged.", 
+            messages: "Are you sure you want to cancel your subscription plan? \n\nYour account will downgraded to Basic from ${userData.accountType} and you'll no longer be charged.", 
             oPressedEvent: () async {
 
               try {
 
                 await StripeCustomers.
-                cancelCustomerSubscriptionByEmail(Globals.custEmail);
+                cancelCustomerSubscriptionByEmail(userData.email, context);
 
                 if(!mounted) return;
                 Navigator.pop(context);
@@ -124,6 +129,7 @@ class MyPlanPageState extends State<MyPlanPage> {
   }
 
   Widget buildMaxPage() {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -148,7 +154,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Max", "2", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
+                      "Max", "2", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[userData.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[userData.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
                     ),
                   ),
                 ),
@@ -165,6 +171,7 @@ class MyPlanPageState extends State<MyPlanPage> {
   }
 
   Widget buildExpressPage() {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -189,7 +196,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                   child: Align(
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
-                      "Express", "8", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
+                      "Express", "8", "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[userData.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[userData.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download"
                     ),
                   ),
                 ),
@@ -206,6 +213,7 @@ class MyPlanPageState extends State<MyPlanPage> {
   }
 
   Widget buildSupremePage() {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -231,7 +239,7 @@ class MyPlanPageState extends State<MyPlanPage> {
                     alignment: Alignment.topLeft, 
                     child: buildHeader(
                       "Supreme", "20", 
-                      "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[Globals.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[Globals.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download \n${GlobalsStyle.dotSeperator} Upload up to 5 Directories"
+                      "${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFilesUpload[userData.accountType]} Files \n${GlobalsStyle.dotSeperator} Upload up to ${AccountPlan.mapFoldersUpload[userData.accountType]} Folders \n${GlobalsStyle.dotSeperator} Folder Download \n${GlobalsStyle.dotSeperator} Upload up to 5 Directories"
                     ),
                   ),
                 ),
@@ -245,6 +253,12 @@ class MyPlanPageState extends State<MyPlanPage> {
         ),
       ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    userData = _locator<UserDataProvider>();
   }
 
   @override
@@ -264,9 +278,9 @@ class MyPlanPageState extends State<MyPlanPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 35),
-            if(Globals.accountType == "Max") buildMaxPage(),
-            if(Globals.accountType == "Express") buildExpressPage(),
-            if(Globals.accountType == "Supreme") buildSupremePage(),
+            if(userData.accountType == "Max") buildMaxPage(),
+            if(userData.accountType == "Express") buildExpressPage(),
+            if(userData.accountType == "Supreme") buildSupremePage(),
           ],
         ),
       ),

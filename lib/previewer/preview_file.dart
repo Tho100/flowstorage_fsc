@@ -24,6 +24,7 @@ import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
@@ -44,6 +45,7 @@ import 'package:flowstorage_fsc/interact_dialog/rename_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class CakePreviewFile extends StatefulWidget {
@@ -71,10 +73,14 @@ class CakePreviewFile extends StatefulWidget {
 
 class CakePreviewFileState extends State<CakePreviewFile> {
 
+  final _locator = GetIt.instance;
+
   final retrieveData = RetrieveData();
 
   late String fileType;
   late String currentTable;
+
+  late final UserDataProvider userData;
 
   final shareToController = TextEditingController();
   final commentController = TextEditingController();
@@ -101,11 +107,16 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   @override
   void initState() {
     super.initState();
+    userData = _locator<UserDataProvider>();
     fileType = widget.fileType;
+    _initializeTableName();
+    _initializeUploaderName();
+  }
+
+  void _initializeTableName() {
     currentTable = Globals.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
-    _initializeUploaderName();
   }
 
   @override
@@ -143,7 +154,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     String fileExtension = fileName.split('.').last;
 
-    await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[fileExtension]!,context);
+    await _deletionFile(userData.username,fileName,Globals.fileTypesToTableNames[fileExtension]!,context);
     _removeFileFromListView(fileName);
 
   }
@@ -344,7 +355,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   Future<Uint8List> _callDataDownload() async {
 
     return await retrieveData.retrieveDataParams(
-      Globals.custUsername,
+      userData.username,
       widget.selectedFilename,
       currentTable,
       widget.originFrom
@@ -391,7 +402,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         await UpdateValues().insertValueParams(
           tableName: currentTable, 
           filePath: Globals.selectedFileName, 
-          userName: Globals.custUsername, 
+          userName: userData.username, 
           newValue: changesUpdate,
           columnName: "null",
         );
@@ -541,7 +552,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     if(localOriginFrom.contains(widget.originFrom)) {
       
-      uploaderNameNotifer.value = Globals.custUsername;
+      uploaderNameNotifer.value = userData.username;
 
     } else if (sharingOriginFrom.contains(widget.originFrom)) {
       uploaderNameNotifer.value = widget.originFrom == "sharedFiles" 
@@ -555,7 +566,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     } else {
 
-      uploaderNameNotifer.value = Globals.custUsername;
+      uploaderNameNotifer.value = userData.username;
 
     }
 
@@ -664,7 +675,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future<Uint8List> _callFileSize() async {
-    return await retrieveData.retrieveDataParams(Globals.custUsername, Globals.selectedFileName, currentTable, widget.originFrom);
+    return await retrieveData.retrieveDataParams(userData.username, Globals.selectedFileName, currentTable, widget.originFrom);
   }
 
   Future<String> _getFileSize() async {

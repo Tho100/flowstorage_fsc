@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/thumbnail_getter.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class ByteGetterPs {
@@ -22,6 +23,8 @@ class ByteGetterPs {
   static const _fileInfoAudio = 'ps_info_audio';
   static const _fileInfoExe = 'ps_info_exe';
   static const _fileInfoMsi = 'ps_info_msi';
+
+  final _locator = GetIt.instance;
 
   final crud = Crud();
   final getAssets = GetAssets();
@@ -65,13 +68,15 @@ class ByteGetterPs {
 
   Future<List<Uint8List>> getFileInfoParams(MySQLConnectionPool conn, bool isFromMyPs) async {
 
+    final userData = _locator<UserDataProvider>();
+
     final String query; 
     final IResultSet executeRetrieval;
 
     if(isFromMyPs) {
 
       query = 'SELECT CUST_FILE FROM $_fileInfoTable WHERE CUST_USERNAME = :username';
-      final params = {'username': Globals.custUsername};
+      final params = {'username': userData.username};
 
       executeRetrieval = await conn.execute(query,params);
 
@@ -105,6 +110,8 @@ class ByteGetterPs {
     String tableName, 
     {required bool isFromMyPs}
   ) async {
+    
+    final userData = _locator<UserDataProvider>();
 
     final getByteValue = <Uint8List>{};
 
@@ -116,7 +123,7 @@ class ByteGetterPs {
       if(isFromMyPs) {
 
         query = 'SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username';
-        final params = {'username': Globals.custUsername};
+        final params = {'username': userData.username};
 
         executedRows = await conn.execute(query,params);
 

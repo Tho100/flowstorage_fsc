@@ -7,8 +7,9 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
@@ -29,6 +30,8 @@ import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 
 class SignInUser {
 
+  final _locator = GetIt.instance;
+
   final nameGetterLogin = NameGetter();
   final loginGetterLogin = DataRetriever();
   final dateGetterLogin = DateGetter();
@@ -39,16 +42,18 @@ class SignInUser {
 
   String custEmailInit = '';
 
-  Future<void> _callData(MySQLConnectionPool conn,bool isChecked) async {
-    
+  Future<void> _callData(MySQLConnectionPool conn, bool isChecked, BuildContext context) async {
+
+    final userData = _locator<UserDataProvider>();
+
     final custUsernameList = await userDataRetriever.retrieveAccountTypeAndUsername(email: custEmailInit);
     final custUsernameGetter = custUsernameList[0]!;
     final custTypeGetter = custUsernameList[1]!;
 
     Globals.fileOrigin = "homeFiles";
-    Globals.custUsername = custUsernameGetter;
-    Globals.custEmail = custEmailInit;
-    Globals.accountType = custTypeGetter;
+    userData.setUsername(custUsernameGetter);
+    userData.setEmail(custEmailInit);
+    userData.setAccountType(custTypeGetter);
 
     final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
 
@@ -173,7 +178,7 @@ class SignInUser {
             justLoading.startLoading(context: context);
           }
 
-          await _callData(conn,isChecked);
+          await _callData(conn,isChecked, context);
 
           justLoading.stopLoading();
           

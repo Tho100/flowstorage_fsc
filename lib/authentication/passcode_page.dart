@@ -9,13 +9,14 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
-import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
@@ -28,6 +29,8 @@ class PasscodePage extends StatefulWidget {
 }
 
 class PasscodePageState extends State<PasscodePage> {
+
+  final _locator = GetIt.instance;
 
   final logger = Logger();
 
@@ -54,12 +57,16 @@ class PasscodePageState extends State<PasscodePage> {
   Future<void> _callData(MySQLConnectionPool conn, String savedCustUsername,String savedCustEmail, String savedAccountType ,BuildContext context) async {
 
     try {
+      
+      final userData = _locator<UserDataProvider>();
 
       Globals.fileOrigin = "homeFiles";
-      Globals.custUsername = savedCustUsername;
-      
+
+      userData.setUsername(savedCustUsername);
+      userData.setEmail(savedCustEmail);
+
       final accountType = await accountInformationRetriever.retrieveAccountType(email: savedCustEmail);
-      Globals.accountType = accountType;
+      userData.setAccountType(accountType);
 
       final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);
@@ -122,6 +129,8 @@ class PasscodePageState extends State<PasscodePage> {
 
     try {
 
+      final userData = _locator<UserDataProvider>();
+
       const storage = FlutterSecureStorage();
       String? storedValue = await storage.read(key: 'key0015');
       String userInput = "";
@@ -144,7 +153,7 @@ class PasscodePageState extends State<PasscodePage> {
         if(!mounted) return;
         justLoading.startLoading(context: context);
 
-        await _callData(conn,Globals.custUsername,Globals.custEmail, Globals.accountType,context);
+        await _callData(conn, userData.username, userData.email, userData.accountType, context);
 
         justLoading.stopLoading();
         

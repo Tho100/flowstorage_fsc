@@ -5,6 +5,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/sharing/verify_sharing.dart';
@@ -15,6 +16,7 @@ import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +63,8 @@ class SharingPageState extends State<SharingPage> {
     "ptx": "Presentation File",
     "pptx": "Presentation File"
   };    
+
+  final _locator = GetIt.instance;
 
   Future<void> _openDialogFile() async {
 
@@ -132,11 +136,13 @@ class SharingPageState extends State<SharingPage> {
     final fileName = selectedFileName;
     final fileExtension = fileName.substring(fileName.length - 4);
 
+    final userData = _locator<UserDataProvider>();
+
     try {
 
       final encryptedFileName = EncryptionClass().encrypt(fileName);
 
-      if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, Globals.custUsername)) {
+      if (await VerifySharing().isAlreadyUploaded(encryptedFileName, shareToUsername, userData.username)) {
         CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context!);
         return;
       }
@@ -363,6 +369,8 @@ class SharingPageState extends State<SharingPage> {
           TextButton(
             onPressed: () async {
 
+              final userData = _locator<UserDataProvider>();
+
               if(shareToController.text.isEmpty) {
                 CustomAlertDialog.alertDialogTitle("Sharing Failed", "Please enter receiver username.", context);
                 return;
@@ -373,7 +381,7 @@ class SharingPageState extends State<SharingPage> {
                 return;
               }
 
-              if(shareToController.text == Globals.custUsername) {
+              if(shareToController.text == userData.username) {
                 CustomAlertDialog.alertDialogTitle("Sharing Failed", "You can't share to yourself.", context);
                 return;
               }

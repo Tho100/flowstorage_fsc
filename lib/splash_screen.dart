@@ -9,7 +9,7 @@ import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
-import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -17,6 +17,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:path_provider/path_provider.dart';
@@ -65,6 +66,9 @@ class SplashScreenState extends State<SplashScreen> {
   Future<void> _navigateToNextScreen() async {
 
     try {
+      
+      final locater = GetIt.instance;
+      final userData = locater<UserDataProvider>();
 
       final getLocalUsername = (await _retrieveLocallyStoredInformation())[0];
       final getLocalEmail = (await _retrieveLocallyStoredInformation())[1];
@@ -80,9 +84,10 @@ class SplashScreenState extends State<SplashScreen> {
         const storage = FlutterSecureStorage();
         bool isPassCodeExists = await storage.containsKey(key: "key0015");
 
-        Globals.custUsername = getLocalUsername;
-        Globals.accountType = getLocalAccountType;
-        Globals.custEmail = getLocalEmail;
+        userData.setAccountType(getLocalAccountType);
+        userData.setUsername(getLocalUsername);
+        userData.setEmail(getLocalEmail);
+
         Globals.fileOrigin = "homeFiles";
 
         if(isPassCodeExists) {
@@ -144,12 +149,15 @@ class SplashScreenState extends State<SplashScreen> {
 
     try {
 
-      Globals.custUsername = savedCustUsername;
-      Globals.custEmail = savedCustEmail;
-      Globals.accountType = savedAccountType;
+      final locater = GetIt.instance;
+      final userData = locater<UserDataProvider>();
 
+      userData.setUsername(savedCustUsername);
+      userData.setEmail(savedCustEmail);
+      userData.setAccountType(savedAccountType);
+      
       final accountType = await accountInformationRetriever.retrieveAccountType(email: savedCustEmail);
-      Globals.accountType = accountType;
+      userData.setAccountType(accountType);
 
       final dirListCount = await crud.countUserTableRow(GlobalsTable.directoryInfoTable);
       final dirLists = List.generate(dirListCount, (_) => GlobalsTable.directoryInfoTable);

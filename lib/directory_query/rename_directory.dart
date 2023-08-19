@@ -1,10 +1,15 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 class RenameDirectory {
 
+  static final _locator = GetIt.instance;
+
   static Future<void> renameDirectory(String oldDirectoryName,String newDirectoryName) async {
+
+    final userData = _locator<UserDataProvider>();
 
     final encryption = EncryptionClass();
     final crud = Crud();
@@ -15,7 +20,7 @@ class RenameDirectory {
     ];
 
     final params = [
-      {'newname': encryption.encrypt(newDirectoryName), 'dirname': encryption.encrypt(oldDirectoryName),'username': Globals.custUsername},
+      {'newname': encryption.encrypt(newDirectoryName), 'dirname': encryption.encrypt(oldDirectoryName),'username': userData.username},
     ];
 
     for(int i=0; i<updateDirectoryQueries.length; i++) {

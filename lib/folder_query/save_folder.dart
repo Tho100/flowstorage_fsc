@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/helper/call_notification.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -7,16 +8,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
+import 'package:get_it/get_it.dart';
 
 class SaveFolder {
 
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
   
+  final _locator = GetIt.instance;
+
   Future<List<Map<String, dynamic>>> retrieveParams(String username, String folderTitle) async {
 
     final connection = await SqlConnection.insertValueParams();
@@ -78,10 +81,12 @@ class SaveFolder {
 
     try {
 
+      final userData = _locator<UserDataProvider>();
+
       final loadingDialog = SingleTextLoading();      
       loadingDialog.startLoading(title: "Saving...", context: context);
 
-      final dataList = await retrieveParams(Globals.custUsername,folderName);
+      final dataList = await retrieveParams(userData.username,folderName);
 
       final nameList = dataList.map((data) => data['name'] as String).toList();
       final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();

@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class StripeCustomers {
+
+  static final _locator = GetIt.instance;
 
   static Future<String> getCustomerIdByEmail(String email) async {
 
@@ -103,7 +106,9 @@ class StripeCustomers {
     }
   }
 
-  static Future<void> cancelCustomerSubscriptionByEmail(String email) async {
+  static Future<void> cancelCustomerSubscriptionByEmail(String email, BuildContext context) async {
+
+    final userData = _locator<UserDataProvider>();
 
     final crud = Crud();
 
@@ -130,15 +135,16 @@ class StripeCustomers {
         
         await crud.update(
           query: "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_EMAIL = :email", 
-          params: {"type": "Basic", "email": Globals.custEmail});
+          params: {"type": "Basic", "email": userData.email});
 
         await crud.delete(
           query: "DELETE FROM cust_buyer WHERE CUST_USERNAME = :username", 
-          params: {"username": Globals.custUsername});
+          params: {"username": userData.username});
 
-        Globals.accountType = "Basic";
 
-        await deleteEmailByEmail(Globals.custEmail);
+        userData.setAccountType("Basic");
+
+        await deleteEmailByEmail(userData.email);
         await _updateLocallyStoredAccountType();
 
       } else {
@@ -176,6 +182,8 @@ class StripeCustomers {
 
   static Future<void> _updateLocallyStoredAccountType() async {
       
+    final userData = _locator<UserDataProvider>();
+
     final getDirApplication = await getApplicationDocumentsDirectory();
 
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -194,7 +202,7 @@ class StripeCustomers {
         setupFiles.deleteSync();
       }
 
-      setupFiles.writeAsStringSync('${EncryptionClass().encrypt(Globals.custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\nBasic');
+      setupFiles.writeAsStringSync('${EncryptionClass().encrypt(userData.username)}\n${EncryptionClass().encrypt(userData.email)}\nBasic');
 
     } catch (e, st) {
       Logger().e(e, st);

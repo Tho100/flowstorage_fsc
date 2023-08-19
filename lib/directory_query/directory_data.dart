@@ -5,12 +5,16 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class DirectoryDataReceiver {
+
+  final _locator = GetIt.instance;
 
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
@@ -24,7 +28,9 @@ class DirectoryDataReceiver {
     required String returnColumn,
   }) async {
 
-    final params = {"username": Globals.custUsername, "dirname": directoryTitle,"filename": fileName};
+    final userData = _locator<UserDataProvider>();
+
+    final params = {"username": userData.username, "dirname": directoryTitle,"filename": fileName};
     final results = await conn.execute(query,params);
 
     for(final row in results.rows) { 
@@ -38,12 +44,14 @@ class DirectoryDataReceiver {
     required String dirName
   }) async {
 
+    final userData = _locator<UserDataProvider>();
+
     final connection = await SqlConnection.insertValueParams();
 
     final encryptedDirectoryName = encryption.encrypt(dirName);
 
     const querySelectMetadata = 'SELECT CUST_FILE_PATH, UPLOAD_DATE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname';
-    final params = {'username': Globals.custUsername,'dirname': encryptedDirectoryName};
+    final params = {'username': userData.username,'dirname': encryptedDirectoryName};
 
     const querySelectThumbnail = 'SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename';
     const querySelectImage = 'SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename';

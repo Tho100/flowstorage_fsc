@@ -1,7 +1,7 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 import 'package:flowstorage_fsc/widgets/main_text_field.dart';
@@ -11,6 +11,7 @@ import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/data_classes/register_process.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
 class CakeSignUpPage extends StatefulWidget {
@@ -30,6 +31,8 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
   final emailController = TextEditingController();
   final auth0Controller = TextEditingController();
   final auth1Controller = TextEditingController(); 
+
+  final _locator = GetIt.instance;
 
   @override
   void initState() {
@@ -76,6 +79,8 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
 
   Future<void> processRegistration() async {
     
+    final userData = _locator<UserDataProvider>();
+
     var custUsernameInput = usernameController.text;
     var custEmailInput = emailController.text;
     var custAuth0Input = auth0Controller.text;
@@ -137,10 +142,11 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
     Globals.filteredSearchedBytes.clear();
     Globals.imageByteValues.clear();
     
-    Globals.custUsername = custUsernameInput;
-    Globals.custEmail = custEmailInput;
+    userData.setUsername(custUsernameInput);
+    userData.setEmail(custEmailInput);
+    userData.setAccountType("Basic");
+    
     Globals.fileOrigin = "homeFiles";
-    Globals.accountType = "Basic";
     
     final singleTextLoading = SingleTextLoading();
 

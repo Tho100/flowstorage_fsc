@@ -6,9 +6,10 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
-import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
@@ -21,6 +22,8 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class StatsPageState extends State<StatisticsPage> {
+
+  final _locator = GetIt.instance;
 
   final logger = Logger();
   final crud = Crud();
@@ -441,8 +444,10 @@ class StatsPageState extends State<StatisticsPage> {
 
   Widget _buildUsageContainer(BuildContext context) {
 
-    final int maxValue = AccountPlan.mapFilesUpload[Globals.accountType]!;
-    final int percentage = ((Globals.fileValues.length/maxValue) * 100).toInt();
+    final userData = _locator<UserDataProvider>();
+
+    final maxValue = AccountPlan.mapFilesUpload[userData.accountType]!;
+    final percentage = ((Globals.fileValues.length/maxValue) * 100).toInt();
     usageProgress = percentage/100.0;
 
     return Padding(

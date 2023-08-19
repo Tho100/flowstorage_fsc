@@ -1,5 +1,5 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/user_settings/password_recovery_page.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class CakeSignInPage extends StatefulWidget {
 
@@ -19,6 +20,8 @@ class CakeSignInPage extends StatefulWidget {
 }
 
 class CakeSignInPageState extends State<CakeSignInPage> {
+
+  final _locator = GetIt.instance;
 
   BuildContext? loginContext;
 
@@ -297,9 +300,10 @@ class CakeSignInPageState extends State<CakeSignInPage> {
 
                   TextButton(
                     onPressed: () {
+                      final userData = _locator<UserDataProvider>();
                       Navigator.push(
                         context, 
-                        MaterialPageRoute(builder: (context) => ResetBackup(username: Globals.custUsername)));
+                        MaterialPageRoute(builder: (context) => ResetBackup(username: userData.username)));
                     },
                     child: const Text('Reset with Recovery Key',  
                       style: TextStyle(

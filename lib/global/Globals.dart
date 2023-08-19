@@ -14,12 +14,6 @@ class Globals {
   static String psCommentValue = '';
   static String psTagValue = '';
 
-  static String userSharingStatus = "null";
-
-  static String custUsername = '';
-  static String custEmail = '';
-  static String accountType = '';
-  
   static String fileOrigin = '';
   static String folderTitleValue = '';
   static String directoryTitleValue = '';

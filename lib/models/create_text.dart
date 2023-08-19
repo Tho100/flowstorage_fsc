@@ -10,10 +10,12 @@ import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -26,6 +28,8 @@ class CreateText extends StatefulWidget {
 }
 
 class CreateTextPageState extends State<CreateText> {
+  
+  final _locator = GetIt.instance;
 
   final textEditingController = TextEditingController();
   final fileNameController = TextEditingController();
@@ -37,19 +41,19 @@ class CreateTextPageState extends State<CreateText> {
   bool textFormEnabled = true;
 
   Future<void> _insertUserFile({
-    
     required String table,
     required String filePath,
     required dynamic fileValue,
-
   }) async {
     
+    final userData = _locator<UserDataProvider>();
+
     List<Future<void>> isolatedFileFutures = [];
 
     isolatedFileFutures.add(InsertData().insertValueParams(
       tableName: table,
       filePath: filePath,
-      userName: Globals.custUsername,
+      userName: userData.username,
       fileVal: fileValue,
     ));
 

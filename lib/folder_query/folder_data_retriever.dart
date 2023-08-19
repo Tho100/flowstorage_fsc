@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +14,8 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
 class FolderDataReceiver {
 
+  final _locator = GetIt.instance;
+
   final encryption = EncryptionClass();
   final getAssets = GetAssets();
   final dateNow = DateTime.now();
@@ -23,8 +27,10 @@ class FolderDataReceiver {
     required String fileName,
     required String returnColumn
   }) async {
+    
+    final userData = _locator<UserDataProvider>();
 
-    final params = {"username": Globals.custUsername,"foldname": encryption.encrypt(folderTitle),"filename": fileName};
+    final params = {"username": userData.username,"foldname": encryption.encrypt(folderTitle),"filename": fileName};
 
     final results = await conn.execute(query,params);
 

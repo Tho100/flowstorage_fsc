@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/models/feedback_page.dart';
-import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flowstorage_fsc/user_settings/add_passcode_page.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
@@ -7,13 +7,13 @@ import 'package:flowstorage_fsc/user_settings/my_plan_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_username_page.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import '../home_page.dart';
 import '../authentication/passcode_page.dart';
 import '../authentication/sign_in_page.dart';
 import '../authentication/sign_up_page.dart';
-import '../global/globals.dart';
 import '../main.dart';
 import '../models/create_text.dart';
 import '../models/statistics_page.dart';
@@ -99,28 +99,50 @@ class NavigatePage {
 
   static void goToPageSettings(BuildContext context) async {
 
+    final locator = GetIt.instance;
+    final userData = locator<UserDataProvider>();
+
+    final username = userData.username;
+    final email = userData.email;
+    final accountType = userData.accountType;
+
     try {
 
-      if(Globals.userSharingStatus == "null") {
-        Globals.userSharingStatus = await SharingOptions.retrieveDisabled(Globals.custUsername);
-      }
-    
-      _openSettingsPage(context: context, sharingDisabledStatus: Globals.userSharingStatus);
+      if(userData.sharingStatus.isEmpty) {
+        final status = await SharingOptions.retrieveDisabled(userData.username);
+        userData.setSharingStatus(status);
+      } 
+
+      _openSettingsPage(
+        context: context, 
+        email: email,
+        username: username,
+        accountType: accountType,
+        sharingDisabledStatus: userData.sharingStatus,
+      );
 
     } catch (err, st) {
 
       SnakeAlert.errorSnake("No internet connection.", context);
       Logger().e("Exception on goToPageSettings (NavigatePage)", err, st);
       
-      await Future.delayed(const Duration(milliseconds: 1300));
+      await Future.delayed(const Duration(milliseconds: 990));
 
-      _openSettingsPage(context: context, sharingDisabledStatus: "0");
+      _openSettingsPage(
+        context: context, sharingDisabledStatus: "0",
+        email: email,
+        username: username,
+        accountType: accountType,
+      );
 
     }
   }
 
   static void _openSettingsPage({
     required BuildContext context, 
+    required String email, 
+    required String username,
+    required String accountType,
     required String sharingDisabledStatus
   }) {
     Navigator.push(
@@ -128,10 +150,10 @@ class NavigatePage {
       MaterialPageRoute(
         builder: (context) => 
           CakeSettingsPage(
-          accType: Globals.accountType,
-          custEmail: Globals.custEmail,
-          custUsername: Globals.custUsername,
-          uploadLimit: AccountPlan.mapFilesUpload[Globals.accountType]!,
+          accType: accountType,
+          custEmail: email,
+          custUsername: username,
+          uploadLimit: AccountPlan.mapFilesUpload[accountType]!,
           sharingEnabledButton: sharingDisabledStatus,
         ),
       ),
@@ -141,7 +163,7 @@ class NavigatePage {
   static void goToPageBackupRecovery(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const BackupRecovery())
+      MaterialPageRoute(builder: (context) => BackupRecovery())
     );
   }
 

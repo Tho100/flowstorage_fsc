@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
@@ -15,6 +15,7 @@ import 'package:flowstorage_fsc/upgrades/max_page.dart';
 import 'package:flowstorage_fsc/upgrades/supreme_page.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -26,6 +27,8 @@ class UpradePage extends StatefulWidget {
 }
 
 class _UpgradePage extends State<UpradePage> {
+
+  final _locator = GetIt.instance;
 
   String userChoosenPlan = "";
 
@@ -460,21 +463,25 @@ class _UpgradePage extends State<UpradePage> {
   }
 
   Future<void> updateUserAccountPlan(String customerId) async {
-    
+
+    final userData = _locator<UserDataProvider>();
+
     final dateToStr = DateFormat('yyyy/MM/dd').format(DateTime.now());
 
     const queryUpdateAccType = "UPDATE cust_type SET ACC_TYPE = :type WHERE CUST_EMAIL = :email AND CUST_USERNAME = :username";
-    final params = {"username": Globals.custUsername,"email": Globals.custEmail,"type": userChoosenPlan};
+    final params = {"username": userData.username,"email": userData.email,"type": userChoosenPlan};
     await Crud().update(query: queryUpdateAccType, params: params);
 
     const queryInsertBuyer = "INSERT INTO cust_buyer(CUST_USERNAME,CUST_EMAIL,ACC_TYPE,CUST_ID,PURCHASE_DATE) VALUES (:username,:email,:type,:id,:date)";
-    final paramsBuyer = {"username": Globals.custUsername,"email": Globals.custEmail,"type": userChoosenPlan,"id": customerId,"date": dateToStr};
+    final paramsBuyer = {"username": userData.username,"email": userData.email,"type": userChoosenPlan,"id": customerId,"date": dateToStr};
     await Crud().insert(query: queryInsertBuyer, params: paramsBuyer);
 
   }
 
   Future<void> updateLocallyStoredAccountType(String accountType) async {
       
+    final userData = _locator<UserDataProvider>();
+
     final getDirApplication = await getApplicationDocumentsDirectory();
 
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -494,7 +501,7 @@ class _UpgradePage extends State<UpradePage> {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(Globals.custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\n$accountType');
+        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(userData.username)}\n${EncryptionClass().encrypt(userData.email)}\n$accountType');
 
       } catch (e) {
         // TODO: Ignore
@@ -509,22 +516,24 @@ class _UpgradePage extends State<UpradePage> {
 
     try {
 
+      final userData = _locator<UserDataProvider>();
+
       singleLoading.startLoading(title: "Validating...",context: context);
 
       final returnedEmail = await StripeCustomers.getCustomersEmails("");
 
       singleLoading.stopLoading();
 
-      if(returnedEmail.contains(Globals.custEmail)) {
+      if(returnedEmail.contains(userData.email)) {
         
         if(!mounted) return;
         singleLoading.startLoading(title: "Upgrading...", context: context);
 
-        final returnedId = await StripeCustomers.getCustomerIdByEmail(Globals.custEmail);
+        final returnedId = await StripeCustomers.getCustomerIdByEmail(userData.email);
       
         await updateUserAccountPlan(returnedId);
 
-        Globals.accountType = userChoosenPlan;      
+        userData.setAccountType(userChoosenPlan);      
 
         await updateLocallyStoredAccountType(userChoosenPlan);
 

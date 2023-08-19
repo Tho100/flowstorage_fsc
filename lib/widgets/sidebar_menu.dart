@@ -1,10 +1,14 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class SideBarMenu {
+
+  final _locator = GetIt.instance;
 
   Widget _buildSidebarButtons({
     required String title,
@@ -39,6 +43,9 @@ class SideBarMenu {
     required Future<int> usageProgress,
     required VoidCallback offlinePageOnPressed
   }) {
+
+    final userData = _locator<UserDataProvider>();
+
     return Drawer(
       child: Container(
         color: ThemeColor.darkBlack,
@@ -59,7 +66,7 @@ class SideBarMenu {
                       ),
                       child: Center(
                         child: Text(
-                          Globals.custUsername != "" ? Globals.custUsername.substring(0, 2) : "",
+                          userData.username != "" ? userData.username.substring(0, 2) : "",
                           style: const TextStyle(
                             fontSize: 24,
                             color: ThemeColor.darkPurple,
@@ -76,7 +83,7 @@ class SideBarMenu {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            Globals.custUsername,
+                            userData.username,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -85,7 +92,7 @@ class SideBarMenu {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            Globals.custEmail,
+                            userData.email,
                             style: const TextStyle(
                               color: Color.fromARGB(255,185,185,185),
                               fontSize: 16,

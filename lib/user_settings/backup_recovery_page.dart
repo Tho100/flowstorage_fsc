@@ -1,7 +1,7 @@
 import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
@@ -10,11 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/verify_auth.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:get_it/get_it.dart';
 
 class BackupRecovery extends StatelessWidget {
 
-  const BackupRecovery({Key? key}) : super (key: key);
+  BackupRecovery({Key? key}) : super (key: key);
   
+  final _locator = GetIt.instance;
+
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured, {bool isFromPin = false}) {
 
     final valueNotifier = ValueNotifier<bool>(false);
@@ -152,22 +155,24 @@ class BackupRecovery extends StatelessWidget {
 
     try {
 
+      final userData = _locator<UserDataProvider>();
+
       if(auth0.isEmpty && auth1.isEmpty) {
         return;
       }
 
-      if(await _incorrectAuth(Globals.custUsername, AuthModel().computeAuth(auth0),"CUST_PIN")) {
+      if(await _incorrectAuth(userData.username, AuthModel().computeAuth(auth0),"CUST_PIN")) {
         CustomAlertDialog.alertDialog("Entered PIN is incorrect.", context);
         return;
       }
 
-      if(await _incorrectAuth(Globals.custUsername, AuthModel().computeAuth(auth1),"CUST_PASSWORD")) {
+      if(await _incorrectAuth(userData.username, AuthModel().computeAuth(auth1),"CUST_PASSWORD")) {
         CustomAlertDialog.alertDialog("Password is incorrect.", context);
         return;
 
       } 
 
-      final getBackupData = await _getBackup(Globals.custUsername);
+      final getBackupData = await _getBackup(userData.username);
       final saveBackup = await SaveApi().saveFile(fileName: "FlowstorageRECOVERYKEY.txt", fileData: getBackupData);
 
       CustomFormDialog.startDialog(

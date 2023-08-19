@@ -39,6 +39,8 @@ dependencies:
   fluttertoast: ^8.2.2
   video_thumbnail: ^0.5.3
   image_picker_plus: ^0.5.9
+  provider: ^6.0.5
+  get_it: ^7.6.0
   
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,11 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/byte_getter.dart';
 import 'package:flowstorage_fsc/public_storage/date_getter.dart';
 import 'package:flowstorage_fsc/public_storage/name_getter.dart';
 import 'package:flowstorage_fsc/public_storage/uploader_getter.dart';
+import 'package:get_it/get_it.dart';
 
 class PublicStorageDataRetriever {
   
@@ -15,10 +16,14 @@ class PublicStorageDataRetriever {
 
   final dataSet = <Map<String, dynamic>>[];
 
+  final _locator = GetIt.instance;
+
   Future<List<Map<String, dynamic>>> retrieveParams({
     required bool isFromMyPs
   }) async {
 
+    final userData = _locator<UserDataProvider>();
+    
     final conn = await SqlConnection.insertValueParams();
     const tablesToCheck = GlobalsTable.tableNamesPs;
 
@@ -30,7 +35,7 @@ class PublicStorageDataRetriever {
         final bytes = await byteGetter.myGetLeadingParams(conn, table);
         final dates = await dateGetter.myGetDateParams(conn, table);
 
-        final uploaderNameList = List<String>.generate(fileNames.length, (_) => Globals.custUsername);
+        final uploaderNameList = List<String>.generate(fileNames.length, (_) => userData.username);
 
         return {
           'uploader_name': uploaderNameList,

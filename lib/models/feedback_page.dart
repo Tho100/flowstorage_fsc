@@ -1,5 +1,5 @@
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
@@ -7,19 +7,24 @@ import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
 class FeedBackPage extends StatelessWidget {
+
   FeedBackPage({super.key});
 
   final feedBackController = TextEditingController();
+  final _locator = GetIt.instance;
 
   Future<void> sendFeedback(String feedbackInput) async {
+
+    final userData = _locator<UserDataProvider>();
 
     final currentdate = DateFormat('dd/MM/yyyy');
 
     const query = "INSERT INTO feedback_info VALUES (:username,:feedback,:date)";
-    final params = {"username": Globals.custUsername,"feedback": feedbackInput,"date": currentdate};
+    final params = {"username": userData.username,"feedback": feedbackInput,"date": currentdate};
 
     await Crud().insert(query: query, params: params);
   }
@@ -68,6 +73,9 @@ class FeedBackPage extends StatelessWidget {
   }
 
   Widget buildBody(BuildContext context) {
+
+    final userData = _locator<UserDataProvider>();
+
     return Column(
       children: [
         
@@ -90,7 +98,7 @@ class FeedBackPage extends StatelessWidget {
             sendFeedback(feedBackController.text);
             loading.stopLoading();
 
-            CustomAlertDialog.alertDialogTitle("Feedback sent", "Thank you ${Globals.custUsername} for your feedback! We really appreciate it.", context);
+            CustomAlertDialog.alertDialogTitle("Feedback sent", "Thank you ${userData.username} for your feedback! We really appreciate it.", context);
           }
         ),
 

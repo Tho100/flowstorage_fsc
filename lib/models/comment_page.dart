@@ -2,9 +2,11 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CommentPage extends StatefulWidget {
@@ -20,6 +22,8 @@ class CommentPage extends StatefulWidget {
 class CommentPageState extends State<CommentPage> {
 
   final noCommentController = TextEditingController(text: '(No Comment)');
+  
+  final _locator = GetIt.instance;
 
   Widget _buildHeader() {
     return const Row(
@@ -49,10 +53,12 @@ class CommentPageState extends State<CommentPage> {
 
   Future<String> _shareToOtherName() async {
 
+    final userData = _locator<UserDataProvider>();
+
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_TO FROM cust_sharing WHERE CUST_FROM = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
+    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToName;
@@ -66,10 +72,12 @@ class CommentPageState extends State<CommentPage> {
 
   Future<String> _sharedFileComment() async {
 
+    final userData = _locator<UserDataProvider>();
+
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_COMMENT FROM cust_sharing WHERE CUST_FROM = :from AND CUST_FILE_PATH = :filename AND CUST_TO = :sharedto";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _shareToOtherName()};
+    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _shareToOtherName()};
     final results = await connection.execute(query,params);
 
     String? decryptedComment;
@@ -89,10 +97,12 @@ class CommentPageState extends State<CommentPage> {
   /// 
   Future<String> _sharerName() async {
 
+    final userData = _locator<UserDataProvider>();
+
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_FROM FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
+    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToMeName;
@@ -106,10 +116,12 @@ class CommentPageState extends State<CommentPage> {
 
   Future<String> _sharedToMeComment() async {
 
+    final userData = _locator<UserDataProvider>();
+
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_COMMENT FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': Globals.custUsername, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _sharerName()};
+    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(Globals.selectedFileName),'sharedto': await _sharerName()};
     final results = await connection.execute(query,params);
 
     String? decryptedComment;

@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
@@ -19,11 +20,14 @@ import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class SharingDialog {
 
   final retrieveData = RetrieveData();
   final shareFileData = ShareFileData();
+
+  final _locator = GetIt.instance;
 
   Future<void> _sendFileToShare({
     required String shareToName, 
@@ -47,7 +51,8 @@ class SharingDialog {
   }
 
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
-    return await retrieveData.retrieveDataParams(Globals.custUsername, selectedFilename, tableName,Globals.fileOrigin);
+    final userData = _locator<UserDataProvider>();
+    return await retrieveData.retrieveDataParams(userData.username, selectedFilename, tableName,Globals.fileOrigin);
   }
 
   Future<void> _prepareFileToShare({
@@ -57,6 +62,7 @@ class SharingDialog {
     required BuildContext context
   }) async {
 
+    final userData = _locator<UserDataProvider>();
 
     final fileExtension = fileName.split('.').last;
     final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileExtension]! : Globals.fileTypesToTableNames[fileExtension]!;
@@ -66,7 +72,7 @@ class SharingDialog {
     final shareToComment = commentInput!.isEmpty ? '' : EncryptionClass().encrypt(commentInput);
     final encryptedFileName = EncryptionClass().encrypt(fileName);
 
-    if (await VerifySharing().isAlreadyUploaded(encryptedFileName, username, Globals.custUsername)) {
+    if (await VerifySharing().isAlreadyUploaded(encryptedFileName, username, userData.username)) {
       if(context.mounted) {
         CustomAlertDialog.alertDialogTitle("Sharing Failed", "You've already shared this file.", context);
       }
@@ -160,12 +166,14 @@ class SharingDialog {
     required BuildContext context
   }) async {
 
+    final userData = _locator<UserDataProvider>();
+
     if (receiverUsername.isEmpty) {
       CustomAlertDialog.alertDialog("Please enter the receiver username.", context);
       return;
     }
     
-    if (receiverUsername == Globals.custUsername) {
+    if (receiverUsername == userData.username) {
       CustomAlertDialog.alertDialog("You cannot share to yourself.", context);
       return;
     }

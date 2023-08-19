@@ -20,8 +20,10 @@ import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
+import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
@@ -45,6 +47,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
@@ -78,9 +81,20 @@ import 'package:flowstorage_fsc/extra_query/rename.dart';
 
 import 'splash_screen.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get_it/get_it.dart';
+
+void setupLocator() {
+  final locator = GetIt.instance;
+  locator.registerLazySingleton<UserDataProvider>(() => UserDataProvider());
+}
 
 void main() async {
-  runApp(const MainRun());
+  setupLocator();
+  runApp(ChangeNotifierProvider(
+    create: (context) => UserDataProvider(),
+    child: const MainRun()
+    )
+  );
 }
 
 class MainRun extends StatelessWidget {
@@ -117,6 +131,10 @@ class Mainboard extends StatefulWidget {
 }
 
 class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin { 
+
+  final _locator = GetIt.instance;
+
+  late final UserDataProvider userData;
 
   final fileNameGetterHome = NameGetter();
   final dataGetterHome = DataRetriever();
@@ -193,7 +211,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     isolatedFileFutures.add(insertData.insertValueParams(
       tableName: table,
       filePath: filePath,
-      userName: Globals.custUsername,
+      userName: userData.username,
       fileVal: fileValue,
       vidThumb: vidThumbnail,
     ));
@@ -412,7 +430,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
 
         GlobalsData.psTagsValuesData.add(Globals.psTagValue);
-        GlobalsData.psUploaderName.add(Globals.custUsername);
+        GlobalsData.psUploaderName.add(userData.username);
 
         scaffoldMessenger.hideCurrentSnackBar();
 
@@ -777,26 +795,26 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         final tableName = Globals.fileTypesToTableNames[fileType];
 
         query = "DELETE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
+        params = {'username': userData.username, 'filename': encryptedFileNames};
 
       } else if (Globals.fileOrigin == "dirFiles") {
 
         query = "DELETE FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'dirname': EncryptionClass().encrypt(Globals.directoryTitleValue)};
+        params = {'username': userData.username, 'filename': encryptedFileNames,'dirname': EncryptionClass().encrypt(Globals.directoryTitleValue)};
 
       } else if (Globals.fileOrigin == "folderFiles") {
         
         query = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames,'foldname': EncryptionClass().encrypt(Globals.folderTitleValue)};
+        params = {'username': userData.username, 'filename': encryptedFileNames,'foldname': EncryptionClass().encrypt(Globals.folderTitleValue)};
 
       } else if (Globals.fileOrigin == "sharedToMe") {
       
         query = "DELETE FROM CUST_SHARING WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
+        params = {'username': userData.username, 'filename': encryptedFileNames};
 
       } else if (Globals.fileOrigin == "sharedFiles") {
         query = "DELETE FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
-        params = {'username': Globals.custUsername, 'filename': encryptedFileNames};
+        params = {'username': userData.username, 'filename': encryptedFileNames};
       } else if (Globals.fileOrigin == "offlineFiles") {
         query = "";
         params = {};
@@ -914,16 +932,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         return searchTerms.any((term) => file.toLowerCase().contains(term));
       }).toList();
 
-      /*final filteredUploaderName = GlobalsData.psUploaderName.where((uploader) {
-        final index = GlobalsData.psUploaderName.indexOf(uploader);
-        final file = Globals.fileValues[index];
-        return searchTerms.any((term) => file.toLowerCase().contains(term));
-      }).toList();*/
-
       setState(() {
         Globals.fileValues = filteredFiles;
         Globals.filteredSearchedBytes = filteredByteValues;
-        //GlobalsData.psUploaderName = filteredUploaderName;
         
         if (filteredFiles.isNotEmpty) {
           final index = Globals.fileValues.indexOf(filteredFiles.first);
@@ -943,13 +954,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     try {
 
-      final int maxValue = AccountPlan.mapFilesUpload[Globals.accountType]!;
+      final int maxValue = AccountPlan.mapFilesUpload[userData.accountType]!;
       final int percentage = ((Globals.fileValues.length/maxValue) * 100).toInt();
 
       return percentage;
 
     } catch (err, st) {
-      Globals.accountType = "Basic";
+      userData.setAccountType("Basic");
       logger.e('Exception on _getUsageProgressBar (main)',err, st);
       return 0;
     }
@@ -973,7 +984,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
   
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
-    return await retrieveData.retrieveDataParams(Globals.custUsername, selectedFilename, tableName,Globals.fileOrigin);
+    return await retrieveData.retrieveDataParams(userData.username, selectedFilename, tableName,Globals.fileOrigin);
   }
 
   Future<void> _deleteFolder(String folderName) async {
@@ -1179,7 +1190,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     try {
 
-      await DirectoryClass().createDirectory(directoryName, Globals.custUsername);
+      await DirectoryClass().createDirectory(directoryName, userData.username);
 
       final directoryImage = await GetAssets().loadAssetsFile('dir1.png');
 
@@ -1231,7 +1242,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     if(extension == fileName) {
       await _deletionDirectory(fileName);
     } else {
-      await _deletionFile(Globals.custUsername,fileName,Globals.fileTypesToTableNames[extension]!);
+      await _deletionFile(userData.username,fileName,Globals.fileTypesToTableNames[extension]!);
     }
     
     Globals.fileOrigin == "homeFiles" ? GlobalsData.homeImageData.clear() : null;
@@ -1580,8 +1591,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       if (!mounted) return; 
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-      if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
-        _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
+      if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[userData.accountType]!) {
+        UpgradeDialog.buildUpgradeDialog(
+            message: "It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.", 
+            context: context);
+
         return;
       }
 
@@ -1741,8 +1755,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         int countSelectedFiles = resultPicker.files.length;
 
-        if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[Globals.accountType]!) {
-          _upgradeDialog("It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.");
+        if(Globals.fileValues.length + countSelectedFiles > AccountPlan.mapFilesUpload[userData.accountType]!) {
+          UpgradeDialog.buildUpgradeDialog(
+            message: "It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.",
+            context: context
+          );
           return;
         }
 
@@ -1972,7 +1989,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     final files = Directory(folderPath).listSync().whereType<File>().toList();
 
-    if(files.length == AccountPlan.mapFilesUpload[Globals.accountType]) {
+    if(files.length == AccountPlan.mapFilesUpload[userData.accountType]) {
       CustomFormDialog.startDialog("Couldn't upload $folderName", "It looks like the number of files in this folder exceeded the number of file you can upload. Please upgrade your account plan.", context);
       return;
     }
@@ -2024,71 +2041,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     });
   }
 
-  /// <summary>
-  /// 
-  /// Dialog to show if the user tried to upload a file 
-  /// when they've exceed the number of files they can upload
-  /// 
-  /// </summary>
-
-  Future _upgradeDialog(String message) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ThemeColor.darkGrey,
-          title: const Text('Upgrade Account',
-          style: TextStyle(
-              color: Colors.white
-          )),
-          content: Text(message,
-            style: const TextStyle(
-              color: Colors.white,
-            )),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK',
-                style: TextStyle(
-                  color: Colors.white,
-                )),
-            ),
-
-            TextButton(
-              onPressed: () async {
-
-                Navigator.pop(context);
-                NavigatePage.goToPageUpgrade(context);
-
-              },
-              child: const Text('Upgrade',
-                style: TextStyle(
-                  color: ThemeColor.darkPurple,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                )),
-            ),
-
-          ],
-        );
-      },
-    );
-  }
-
-  /// <summary>
-  /// 
-  /// Build bottom menu when the user clicked on the 
-  /// item trailing and shows options:
-  /// 
-  /// Rename File
-  /// Share File
-  /// Availale Offline
-  /// Remove File
-  /// 
-  /// </summary>
-  
   Future _callBottomTrailling(int index) {
 
     final fileName = Globals.filteredSearchedFiles[index];
@@ -2130,7 +2082,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       headerText = "Add item to Flowstorage";
     }
     
-    final limitUpload = AccountPlan.mapFilesUpload[Globals.accountType]!;
+    final limitUpload = AccountPlan.mapFilesUpload[userData.accountType]!;
 
     final bottomTrailingAddItem = BottomTrailingAddItem();
     return bottomTrailingAddItem.buildTrailing(
@@ -2141,8 +2093,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           await _openDialogGallery();
         } else {
-          _upgradeDialog(
-            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          UpgradeDialog.buildUpgradeDialog(
+            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+            context: context
           );
         }
 
@@ -2152,14 +2105,17 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         if (Globals.fileOrigin == "psFiles") {
 
           int count = GlobalsData.psUploaderName
-              .where((uploader) => uploader == Globals.custUsername)
+              .where((uploader) => uploader == userData.username)
               .length;
 
           if (count < limitUpload) {
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+            UpgradeDialog.buildUpgradeDialog(
+              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+              context: context
+            );
           } 
 
         } else {
@@ -2168,8 +2124,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            _upgradeDialog(
-              "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+            UpgradeDialog.buildUpgradeDialog(
+              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+              context: context
             );
           }
         }
@@ -2177,14 +2134,17 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       }, 
       folderOnPressed: () async {
 
-        if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[Globals.accountType]!) {
+        if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[userData.accountType]!) {
           await _openDialogFolder();
           
           if(!mounted) return;
           Navigator.pop(context);
 
         } else {
-          _upgradeDialog("You're currently limited to ${AccountPlan.mapFoldersUpload[Globals.accountType]} folders upload. Upgrade your account plan to upload more folder.");
+          UpgradeDialog.buildUpgradeDialog(
+            message: "You're currently limited to ${AccountPlan.mapFoldersUpload[userData.accountType]} folders upload. Upgrade your account plan to upload more folder.",
+            context: context
+          );
         }
 
       }, 
@@ -2193,14 +2153,17 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         if (Globals.fileOrigin == "psFiles") {
 
           int count = GlobalsData.psUploaderName
-              .where((uploader) => uploader == Globals.custUsername)
+              .where((uploader) => uploader == userData.username)
               .length;
 
           if (count < limitUpload) {
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+            UpgradeDialog.buildUpgradeDialog(
+              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+              context: context
+            );
           }
 
         } else {
@@ -2209,7 +2172,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             Navigator.pop(context);
             await _initializeCamera();
           } else {
-            _upgradeDialog("You're currently limited to $limitUpload uploads. Upgrade your account to upload more.");
+            UpgradeDialog.buildUpgradeDialog(
+              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+              context: context
+            );
           }
 
         }
@@ -2221,8 +2187,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           await _initializeCameraScanner();
         } else {
-          _upgradeDialog(
-            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          UpgradeDialog.buildUpgradeDialog(
+            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+            context: context
           );
         }
 
@@ -2233,8 +2200,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           NavigatePage.goToPageCreateText(context);
         } else {
-          _upgradeDialog(
-            "You're currently limited to $limitUpload uploads. Upgrade your account to upload more."
+          UpgradeDialog.buildUpgradeDialog(
+            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
+            context: context
           );
         }
 
@@ -2242,8 +2210,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       directoryOnPressed: () async {
 
         final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
-        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-          if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+        if(Globals.fileValues.length < AccountPlan.mapFilesUpload[userData.accountType]!) {
+          if(countDirectory != AccountPlan.mapDirectoryUpload[userData.accountType]!) {
 
             if(!mounted) return;
             Navigator.pop(context);
@@ -2251,11 +2219,15 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             _buildCreateDirectoryDialog();
             
           } else {
-            _upgradeDialog("Upgrade your account to upload more directory.");
+            UpgradeDialog.buildUpgradeDialog(
+              message: "Upgrade your account to upload more directory.",
+              context: context
+            );
           }
         } else {
-          _upgradeDialog(
-            "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+          UpgradeDialog.buildUpgradeDialog(
+            message: "You're currently limited to ${AccountPlan.mapFilesUpload[userData.accountType]} uploads. Upgrade your account to upload more.",
+            context: context
           );
         }
 
@@ -2848,8 +2820,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
             ElevatedButton(
               onPressed: () async {
-                if(Globals.accountType == "Basic") {
-                  _upgradeDialog("Upgrade your account to any paid plan to download folder.");
+                if(userData.accountType == "Basic") {
+                  UpgradeDialog.buildUpgradeDialog(
+                    message: "Upgrade your account to any paid plan to download folder.",
+                    context: context
+                  );
                 } else {
                   await SaveFolder().selectDirectoryUserFolder(folderName: folderName, context: context);
                 }
@@ -2962,11 +2937,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           
                 ElevatedButton(
                   onPressed: () async {
-                    if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
+                    if(Globals.fileValues.length < AccountPlan.mapFilesUpload[userData.accountType]!) {
                       await _initializeCameraScanner();
                     } else {
-                      _upgradeDialog(
-                        "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                      UpgradeDialog.buildUpgradeDialog(
+                        message: "You're currently limited to ${AccountPlan.mapFilesUpload[userData.accountType]} uploads. Upgrade your account to upload more.",
+                        context: context
                       );
                     }
                   },
@@ -2994,16 +2970,20 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                       visible: value,
                       child: ElevatedButton(
                         onPressed: () async {
-                          final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;//await CountDirectory.countTotalDirectory(Globals.custUsername);
-                          if(Globals.fileValues.length < AccountPlan.mapFilesUpload[Globals.accountType]!) {
-                            if(countDirectory != AccountPlan.mapDirectoryUpload[Globals.accountType]!) {
+                          final countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
+                          if(Globals.fileValues.length < AccountPlan.mapFilesUpload[userData.accountType]!) {
+                            if(countDirectory != AccountPlan.mapDirectoryUpload[userData.accountType]!) {
                               _buildCreateDirectoryDialog();
                             } else {
-                              _upgradeDialog("You're currently limited to ${AccountPlan.mapDirectoryUpload[Globals.accountType]} directory uploads. Upgrade your account to upload more directory.");
+                              UpgradeDialog.buildUpgradeDialog(
+                                message: "You're currently limited to ${AccountPlan.mapDirectoryUpload[userData.accountType]} directory uploads. Upgrade your account to upload more directory.",
+                                context: context
+                              );
                             }
                           } else {
-                            _upgradeDialog(
-                              "You're currently limited to ${AccountPlan.mapFilesUpload[Globals.accountType]} uploads. Upgrade your account to upload more."
+                            UpgradeDialog.buildUpgradeDialog(
+                              message: "You're currently limited to ${AccountPlan.mapFilesUpload[userData.accountType]} uploads. Upgrade your account to upload more.",
+                              context: context
                             );
                           }
                         },
@@ -3484,7 +3464,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   PreferredSizeWidget _buildCustomAppBar() {
 
     final getGreeting = _setupGreetingTime();
-    final setupGreeting = "$getGreeting${Globals.custUsername}";
+    final setupGreeting = "$getGreeting${userData.username}";
 
     String setupTitle = appBarTitle.value == '' ? setupGreeting : appBarTitle.value;
 
@@ -3575,7 +3555,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         context,
         MaterialPageRoute(
           builder: (_) => CakePreviewFile(
-            custUsername: Globals.custUsername,
+            custUsername: userData.username,
             fileValues: Globals.fileValues,
             selectedFilename: Globals.selectedFileName,
             originFrom: Globals.fileOrigin,
@@ -3854,8 +3834,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     if (Globals.fileOrigin == "psFiles") {
 
       uploaderNamePs = GlobalsData.psUploaderName[index];
-      if (uploaderNamePs == Globals.custUsername) {
-        uploaderNamePs = "${Globals.custUsername} (You)";
+      if (uploaderNamePs == userData.username) {
+        uploaderNamePs = "${userData.username} (You)";
       }
 
       isRecentPs = index == 0 || index == 1 || index == 2; 
@@ -4349,6 +4329,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
+    userData = _locator<UserDataProvider>();
     _onTextChanged('');
   }
 

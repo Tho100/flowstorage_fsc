@@ -1,10 +1,16 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 class Rename {
 
+  final _locator = GetIt.instance;
+
   Future<void> renameParams(String? oldFileName, String? newFileName, String? tableName,{String? username}) async {
+
+    final userData = _locator<UserDataProvider>();
 
     final encryption = EncryptionClass();
     final crud = Crud();
@@ -19,7 +25,7 @@ class Rename {
       params = {
         'newName': encryption.encrypt(newFileName!),
         'oldName': encryption.encrypt(oldFileName!),
-        'username': Globals.custUsername,
+        'username': userData.username,
       };
 
     } else if (Globals.fileOrigin == "sharedFiles") {
@@ -47,7 +53,7 @@ class Rename {
       const updateFileNameQuery = "UPDATE folder_upload_info SET CUST_FILE_PATH = :newname WHERE CUST_FILE_PATH = :oldname AND CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle";
       query = updateFileNameQuery;
       params =  {
-        'username': Globals.custUsername,
+        'username': userData.username,
         'newname': encryption.encrypt(newFileName),
         'oldname': encryption.encrypt(oldFileName),
         'foldtitle': encryption.encrypt(Globals.folderTitleValue),
@@ -58,7 +64,7 @@ class Rename {
       const updateFileNameQuery = "UPDATE upload_info_directory SET CUST_FILE_PATH = :newname WHERE CUST_FILE_PATH = :oldname AND CUST_USERNAME = :username AND DIR_NAME = :dirname";
       query = updateFileNameQuery;
       params =  {
-        'username': Globals.custUsername,
+        'username': userData.username,
         'newname': encryption.encrypt(newFileName),
         'oldname': encryption.encrypt(oldFileName),
         'dirname': encryption.encrypt(Globals.directoryTitleValue),

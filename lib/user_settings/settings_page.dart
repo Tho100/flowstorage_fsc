@@ -3,7 +3,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
-import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -48,6 +49,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
   final addPasswordController = TextEditingController();
   final dataCaller = DataCaller();
+
+  final _locator = GetIt.instance;
 
   @override
   void initState() {
@@ -410,7 +413,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      Globals.accountType,
+                      accountType,
                       style: const TextStyle(
                         color: Color.fromARGB(255, 185, 185, 185),
                         fontSize: 16,
@@ -479,6 +482,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               bottomText: sharingEnabledButton, 
               onPressed: () async {
                 
+                final userData = _locator<UserDataProvider>();
+
                 sharingEnabledButton == 'Disable' 
                 ? await SharingOptions.disableSharing(custUsername) 
                 : await SharingOptions.enableSharing(custUsername);
@@ -492,10 +497,12 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
                 const fileSharingDisabledMsg = "File sharing disabled. No one can share a file to you.";
                 const fileSharingEnabledMsg = "File sharing enabled. People can share a file to you.";
 
-                Globals.userSharingStatus = sharingEnabledButton == "Enable" ? "1" : "0";
+                final updatedStatus = sharingEnabledButton == "Enable" ? "1" : "0";
+
+                userData.setSharingStatus(updatedStatus);
 
                 final conclusionSubMsg = sharingStatus == "Disabled" ? fileSharingDisabledMsg : fileSharingEnabledMsg;
-                
+
                 if(!mounted) return;
                 CustomAlertDialog.alertDialogTitle("Sharing $sharingStatus", conclusionSubMsg, context);
               }
@@ -572,7 +579,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
             ),
 
             Visibility(
-              visible: Globals.accountType != "Basic",
+              visible: accountType != "Basic",
               child: Column(
                 children: [
                   const SizedBox(height: 20),

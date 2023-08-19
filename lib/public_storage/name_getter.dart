@@ -1,18 +1,23 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class NameGetterPs {
 
   static final encryption = EncryptionClass();
+  
+  final _locator = GetIt.instance;
 
   Future<List<String>> myRetrieveParams(MySQLConnectionPool conn, String tableName) async {
 
     try {   
 
+      final userData = _locator<UserDataProvider>();
+
       final query = 'SELECT CUST_FILE_PATH FROM $tableName WHERE CUST_USERNAME = :username';
 
-      final params = {'username': Globals.custUsername};
+      final params = {'username': userData.username};
       final retrieveNames = await conn.execute(query, params);
 
       final nameSet = <String>{};

@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 /// <summary>
 /// 
@@ -13,7 +15,11 @@ import 'package:flowstorage_fsc/global/globals.dart';
 
 class ThumbnailGetter {
   
+  final _locator = GetIt.instance;
+
   Future<List<Uint8List>> retrieveParams({required String? fileName}) async {
+    
+    final userData = _locator<UserDataProvider>();
 
     final conn = await SqlConnection.insertValueParams();
 
@@ -30,13 +36,13 @@ class ThumbnailGetter {
           query += " AND CUST_TO = :username";
         } else if (Globals.fileOrigin == "sharedToMe") {
           query += " AND CUST_FILE_PATH = :filename";
-          params = {'username': Globals.custUsername, 'filename': EncryptionClass().encrypt(fileName)};
+          params = {'username': userData.username, 'filename': EncryptionClass().encrypt(fileName)};
         }
       }
-      params = {'username': Globals.custUsername, 'filename': EncryptionClass().encrypt(fileName)};
+      params = {'username': userData.username, 'filename': EncryptionClass().encrypt(fileName)};
     } else {
       query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username";
-      params = {'username': Globals.custUsername};
+      params = {'username': userData.username};
     }
 
     final getThumbBytesQue = await conn.execute(query, params);
@@ -55,6 +61,8 @@ class ThumbnailGetter {
     required String? fileName,
     String? subDirName
   }) async {
+    
+    final userData = _locator<UserDataProvider>();
 
     final conn = await SqlConnection.insertValueParams();
 
@@ -66,7 +74,7 @@ class ThumbnailGetter {
 
       const query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       final params = {
-        'username': Globals.custUsername,
+        'username': userData.username,
         'filename': encryptedFileName
       };
 
@@ -80,7 +88,7 @@ class ThumbnailGetter {
 
       const query = "SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
       final params = {
-        'username': Globals.custUsername,'filename': encryptedFileName,
+        'username': userData.username,'filename': encryptedFileName,
         'dirname': subDirName
       };
 
@@ -94,7 +102,7 @@ class ThumbnailGetter {
       
       const query = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
       final params = {
-        'username': Globals.custUsername,'filename': encryptedFileName,
+        'username': userData.username,'filename': encryptedFileName,
         'foldname': subDirName
       };
 
@@ -108,7 +116,7 @@ class ThumbnailGetter {
 
       const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
       final params = {
-        'username': Globals.custUsername,
+        'username': userData.username,
         'filename': encryptedFileName,
       };
 
@@ -122,7 +130,7 @@ class ThumbnailGetter {
 
       const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
       final params = {
-        'username': Globals.custUsername,
+        'username': userData.username,
         'filename': encryptedFileName,
       };
 

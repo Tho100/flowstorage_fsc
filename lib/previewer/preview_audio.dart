@@ -8,8 +8,10 @@ import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/players/ajbyte_source.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
 
@@ -21,6 +23,8 @@ class PreviewAudio extends StatefulWidget {
 }
 
 class PreviewAudioState extends State<PreviewAudio> {
+
+  final _locator = GetIt.instance;
 
   final sliderValueController = StreamController<double>();
 
@@ -302,6 +306,8 @@ class PreviewAudioState extends State<PreviewAudio> {
   }
 
   Widget buildHeader() {
+    
+    final userData = _locator<UserDataProvider>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -317,7 +323,7 @@ class PreviewAudioState extends State<PreviewAudio> {
         ),
         const SizedBox(height: 6),
         Text(
-          Globals.custUsername,
+          userData.username,
           style: const TextStyle(
             color: ThemeColor.secondaryWhite,
             fontSize: 19,

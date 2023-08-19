@@ -10,16 +10,20 @@ import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 
 class DataCaller {
+
+  final _locator = GetIt.instance;
 
   final _crud = Crud();
   final _offlineMode = OfflineMode();
@@ -33,6 +37,7 @@ class DataCaller {
   
   Future<void> offlineData() async {
     
+
     final getAssets = GetAssets();
     final offlineDirPath = await _offlineMode.returnOfflinePath();
 
@@ -123,6 +128,8 @@ class DataCaller {
 
   Future<void> homeData({bool? isFromStatistics = false}) async {
 
+    final userData = _locator<UserDataProvider>();
+
     final conn = await SqlConnection.insertValueParams();
 
     final dirListCount = await _crud.countUserTableRow(GlobalsTable.directoryInfoTable);
@@ -138,11 +145,11 @@ class DataCaller {
     ];
 
     final futures = tablesToCheck.map((table) async {
-      final fileNames = await _fileNameGetterHome.retrieveParams(conn,Globals.custUsername, table);
-      final bytes = await _dataGetterHome.getLeadingParams(conn,Globals.custUsername, table);
+      final fileNames = await _fileNameGetterHome.retrieveParams(conn,userData.username, table);
+      final bytes = await _dataGetterHome.getLeadingParams(conn,userData.username, table);
       final dates = table == GlobalsTable.directoryInfoTable
           ? List.generate(1,(_) => "Directory")
-          : await _dateGetterHome.getDateParams(Globals.custUsername, table);
+          : await _dateGetterHome.getDateParams(userData.username, table);
       return [fileNames, bytes, dates];
     }).toList();
 
@@ -266,7 +273,9 @@ class DataCaller {
 
   Future<void> sharingData(String originFrom) async {
 
-    final dataList = await _sharingDataRetriever.retrieveParams(Globals.custUsername,originFrom);
+    final userData = _locator<UserDataProvider>();
+
+    final dataList = await _sharingDataRetriever.retrieveParams(userData.username,originFrom);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
     final dateList = dataList.map((data) => data['date'] as String).toList();
@@ -280,8 +289,10 @@ class DataCaller {
 
   Future<void> folderData({required String folderName}) async {
 
+    final userData = _locator<UserDataProvider>();
+
     final folderDataReceiver = FolderDataReceiver();
-    final dataList = await folderDataReceiver.retrieveParams(Globals.custUsername, folderName);
+    final dataList = await folderDataReceiver.retrieveParams(userData.username, folderName);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
     final dateList = dataList.map((data) => data['date'] as String).toList();
@@ -292,7 +303,7 @@ class DataCaller {
     Globals.imageByteValues.addAll(byteList);
 
     Globals.fileOrigin = "folderFiles";
-    
+
   }
 
 }

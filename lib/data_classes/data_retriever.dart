@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:flowstorage_fsc/data_classes/thumbnail_retriever.dart';
@@ -81,7 +80,7 @@ class DataRetriever {
     Future<void> retrieveValue(String iconName) async {
 
       final retrieveCountQuery = 'SELECT COUNT(*) FROM $tableName WHERE CUST_USERNAME = :username';
-      final params = {'username': Globals.custUsername};
+      final params = {'username': username!};
       final countTotalRows = await crud.count(query: retrieveCountQuery, params: params);
 
       final loadAssetImage = await Future.wait(List.generate(countTotalRows, (_) => GetAssets().loadAssetsData(iconName)));

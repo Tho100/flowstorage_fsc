@@ -1,10 +1,11 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/ui_dialog/form_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -12,6 +13,8 @@ class ShareFileData {
 
   final dateNow = DateFormat('dd/MM/yyyy');
   final crud = Crud();
+
+  final _locator = GetIt.instance;
 
   Future<void> startSharing({
     required String? receiverUsername,
@@ -21,7 +24,10 @@ class ShareFileData {
     required String? fileType,
     dynamic thumbnail,
   }) async {
+
     try {
+
+      final userData = _locator<UserDataProvider>();
 
       final uploadDate = dateNow.format(DateTime.now());
 
@@ -31,7 +37,7 @@ class ShareFileData {
 
       final params = {
         'to': receiverUsername!,
-        'from': Globals.custUsername,
+        'from': userData.username,
         'fileval': fileValue!,
         'filename': fileName!,
         'date': uploadDate,
@@ -59,7 +65,9 @@ class ShareFileData {
 
     try {
 
-      if (sendTo == Globals.custUsername) {
+      final userData = _locator<UserDataProvider>();
+
+      if (sendTo == userData.username) {
         CustomFormDialog.startDialog('Sharing Failed',"You can't share to yourself.",context);
         return;
       }

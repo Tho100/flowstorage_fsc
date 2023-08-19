@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
-import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/verify_auth.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -24,6 +24,10 @@ class ChangeUsername extends StatefulWidget {
 }
 
 class ChangeUsernameState extends State<ChangeUsername> {
+
+  final _locator = GetIt.instance;
+
+  late final UserDataProvider userData;
 
   Widget _buildTextField(String hintText, TextEditingController mainController, BuildContext context, bool isSecured) {
 
@@ -119,6 +123,12 @@ class ChangeUsernameState extends State<ChangeUsername> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    userData = _locator<UserDataProvider>();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -141,7 +151,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
   }
 
   Future<void> setupAutoLogin(String custUsername) async {
-      
+
     final getDirApplication = await getApplicationDocumentsDirectory();
 
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -161,7 +171,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
           setupFiles.deleteSync();
         }
 
-        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(custUsername)}\n${EncryptionClass().encrypt(Globals.custEmail)}\n${Globals.accountType}');
+        setupFiles.writeAsStringSync('${EncryptionClass().encrypt(custUsername)}\n${EncryptionClass().encrypt(userData.email)}\n${userData.accountType}');
 
       } catch (e) {
         // TODO: Ignore
@@ -179,7 +189,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
     for(final tables in GlobalsTable.tableNamesPs) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
-      final params = {'newname': newUsername,'oldname': Globals.custUsername};
+      final params = {'newname': newUsername,'oldname': userData.username};
 
       await crud.update(
         query: updateNameQuery, 
@@ -190,7 +200,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
     for(final tables in GlobalsTable.tableNames) {
 
       final updateNameQuery = "UPDATE $tables SET CUST_USERNAME = :newname WHERE CUST_USERNAME = :oldname";
-      final params = {'newname': newUsername,'oldname': Globals.custUsername};
+      final params = {'newname': newUsername,'oldname': userData.username};
 
       await crud.update(
         query: updateNameQuery, 
@@ -206,7 +216,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
     for(final tables in generalTablesName) {
 
       final updateUsernameQuery = "UPDATE $tables SET CUST_USERNAME = :username WHERE CUST_USERNAME = :oldname";
-      final params = {"username": newUsername, "oldname": Globals.custUsername};
+      final params = {"username": newUsername, "oldname": userData.username};
 
       await crud.update(
         query: updateUsernameQuery, 
@@ -215,7 +225,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
     }
 
     const updateSharingQuery = "UPDATE cust_sharing SET CUST_FROM = :username WHERE CUST_FROM = :oldname";
-    final paramsSharing = {"username": newUsername, "oldname": Globals.custUsername};
+    final paramsSharing = {"username": newUsername, "oldname": userData.username};
 
     await crud.update(
       query: updateSharingQuery,
@@ -232,12 +242,12 @@ class ChangeUsernameState extends State<ChangeUsername> {
         return;
       }
 
-      if(newUsername == Globals.custUsername) {
+      if(newUsername == userData.username) {
         CustomAlertDialog.alertDialog("The new entered username is your current username.", context);
         return;
       }
 
-      if(await _verifyAuthentication(Globals.custUsername, AuthModel().computeAuth(authenticationString))) {
+      if(await _verifyAuthentication(userData.username, AuthModel().computeAuth(authenticationString))) {
         CustomAlertDialog.alertDialog("Password is incorrect.", context);
         return;
 
@@ -251,7 +261,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
 
         await _updateUsername(newUsername: newUsername);
 
-        Globals.custUsername = newUsername;
+        userData.setUsername(newUsername);
 
         await setupAutoLogin(newUsername);
 
