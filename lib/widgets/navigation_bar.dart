@@ -97,8 +97,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
                 label: "Public",
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.folder_outlined),
-                activeIcon: Globals.fileOrigin == "folderFiles" 
+                icon: Globals.fileOrigin == "folderFiles" 
                 ? const Icon(Icons.folder) 
                 : const Icon(Icons.folder_outlined),
                 label: "Folders",
@@ -110,7 +109,6 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
                 _bottomNavigationBarIndex.value = _bottomNavigationBarIndex.value;
               } else {
                 _bottomNavigationBarIndex.value = indexValue;
-                setState(() {});
               }
 
               switch (indexValue) {

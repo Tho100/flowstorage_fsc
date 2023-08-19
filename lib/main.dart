@@ -314,6 +314,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   void _togglePublicStorage() async {
     
+    if(Globals.fileOrigin == "psFiles") {
+      return;
+    }
+
     togglePhotosPressed = false;
     await _refreshPublicStorage();
   
@@ -1108,12 +1112,23 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Future<void> _callFolderData(String folderTitle) async {
 
+    if(appBarTitle.value == folderTitle) {
+      return;
+    }
+
     _clearGlobalData();
 
     await dataCaller.folderData(folderName: folderTitle);
     
     _onTextChanged('');
+
+    _floatingButtonVisiblity(false);
+    _navDirectoryButtonVisibility(false);
+    
+    appBarTitle.value = Globals.folderTitleValue;
+
     searchBarController.text = '';
+    searchBarVisibileNotifier.value = true;
 
   }
 
@@ -2885,21 +2900,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     folderDialog.buildFolderDialog(
       folderOnPressed: (int index) async {
 
-        Globals.fileOrigin = "folderFiles";
-        Globals.folderTitleValue = Globals.foldValues[index];
-
-        _floatingButtonVisiblity(false);
-        _navDirectoryButtonVisibility(false);
-
-        appBarTitle.value = Globals.folderTitleValue;
-
         final loadingDialog = MultipleTextLoading();
+
+        Globals.folderTitleValue = Globals.foldValues[index];
 
         loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
         await _callFolderData(Globals.foldValues[index]);
-
-        searchBarVisibileNotifier.value = true;
-
 
         loadingDialog.stopLoading();
 
