@@ -10,7 +10,7 @@ import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
-import 'package:flowstorage_fsc/provider/files_data_provider.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
@@ -130,7 +130,7 @@ class DataCaller {
   Future<void> homeData({bool? isFromStatistics = false}) async {
 
     final userData = _locator<UserDataProvider>();
-    final statsData = _locator<FilesDataProvider>();
+    final statsData = _locator<StorageDataProvider>();
 
     final conn = await SqlConnection.insertValueParams();
 

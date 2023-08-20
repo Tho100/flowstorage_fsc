@@ -23,7 +23,7 @@ import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/models/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
-import 'package:flowstorage_fsc/provider/files_data_provider.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
@@ -87,7 +87,7 @@ import 'package:get_it/get_it.dart';
 void setupLocator() {
   final locator = GetIt.instance;
   locator.registerLazySingleton<UserDataProvider>(() => UserDataProvider());
-  locator.registerLazySingleton<FilesDataProvider>(() => FilesDataProvider());
+  locator.registerLazySingleton<StorageDataProvider>(() => StorageDataProvider());
 }
 
 void main() async {
@@ -96,7 +96,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => GetIt.instance<UserDataProvider>()),
-        ChangeNotifierProvider(create: (context) => GetIt.instance<FilesDataProvider>())
+        ChangeNotifierProvider(create: (context) => GetIt.instance<StorageDataProvider>())
       ],
       child: const MainRun(),
     ),
@@ -141,6 +141,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   final _locator = GetIt.instance;
 
   late final UserDataProvider userData;
+  late final StorageDataProvider storageData;
 
   final fileNameGetterHome = NameGetter();
   final dataGetterHome = DataRetriever();
@@ -1002,7 +1003,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await deleteClass.deletionParams(folderName: folderName);
 
       setState(() {
-        Globals.foldValues.remove(folderName);
+        storageData.foldersNameList.remove(folderName);
         Globals.fileOrigin = 'homeFiles';
       });
 
@@ -1027,10 +1028,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       final renameClass = RenameFolder();
       await renameClass.renameParams(oldFolderTitle: oldFolderName, newFolderTitle: newFolderName);
 
-      int indexOldFolder = Globals.foldValues.indexWhere((name) => name == oldFolderName);
+      int indexOldFolder = storageData.foldersNameList.indexWhere((name) => name == oldFolderName);
       if(indexOldFolder != -1) {
         setState(() {
-          Globals.foldValues[indexOldFolder] = newFolderName;
+          storageData.foldersNameList[indexOldFolder] = newFolderName;
         });
       }
 
@@ -1944,7 +1945,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       final folderName = path.basename(result);
 
-      if (Globals.foldValues.contains(folderName)) {
+      if (storageData.foldersNameList.contains(folderName)) {
         if(!mounted) return;
         CustomFormDialog.startDialog("Upload Failed", "$folderName already exists.",context);
         return;
@@ -2043,7 +2044,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
 
     setState(() {
-      Globals.foldValues.add(folderName);
+      storageData.foldersNameList.add(folderName);
     });
   }
 
@@ -2140,7 +2141,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       }, 
       folderOnPressed: () async {
 
-        if(Globals.foldValues.length != AccountPlan.mapFoldersUpload[userData.accountType]!) {
+        if(storageData.foldersNameList.length != AccountPlan.mapFoldersUpload[userData.accountType]!) {
           await _openDialogFolder();
           
           if(!mounted) return;
@@ -2724,7 +2725,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
                           String newFolderName = folderRenameController.text;
 
-                          if (Globals.foldValues.contains(newFolderName)) {
+                          if (storageData.foldersNameList.contains(newFolderName)) {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
@@ -2880,13 +2881,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     final folderDialog = FolderDialog();
     folderDialog.buildFolderDialog(
       folderOnPressed: (int index) async {
-
+        
         final loadingDialog = MultipleTextLoading();
 
-        Globals.folderTitleValue = Globals.foldValues[index];
+        Globals.folderTitleValue = storageData.foldersNameList[index];//Globals.foldValues[index];
 
         loadingDialog.startLoading(title: "Please wait",subText: "Retrieving ${Globals.folderTitleValue} files.",context: context);
-        await _callFolderData(Globals.foldValues[index]);
+        await _callFolderData(storageData.foldersNameList[index]);
 
         loadingDialog.stopLoading();
 
@@ -2895,7 +2896,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       },
       trailingOnPressed: (int index) {
-        _buildFolderBottomTrailing(Globals.foldValues[index]);
+        _buildFolderBottomTrailing(storageData.foldersNameList[index]);
       }, 
       context: context
     );
@@ -4336,6 +4337,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   void initState() {
     super.initState();
     userData = _locator<UserDataProvider>();
+    storageData = _locator<StorageDataProvider>();
     _onTextChanged('');
   }
 

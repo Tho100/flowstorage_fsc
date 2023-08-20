@@ -6,7 +6,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
-import 'package:flowstorage_fsc/provider/files_data_provider.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +54,7 @@ class StatsPageState extends State<StatisticsPage> {
   @override
   void dispose() {
     dataIsLoading.dispose();
-    _locator<FilesDataProvider>().statisticsFilesName.clear();
+    _locator<StorageDataProvider>().statisticsFilesName.clear();
     super.dispose();
   }
 
@@ -63,6 +63,8 @@ class StatsPageState extends State<StatisticsPage> {
     try {
 
       dataIsLoading.value = true;
+
+      final storageData = _locator<StorageDataProvider>();
 
       final futuresFile = [
         _countUpload(GlobalsTable.homeImage),
@@ -101,7 +103,7 @@ class StatsPageState extends State<StatisticsPage> {
 
       final countDirectories = await _countUploadFoldAndDir(GlobalsTable.directoryInfoTable, "DIR_NAME");
 
-      folderCount = Globals.foldValues.length;
+      folderCount = storageData.foldersNameList.length;
       directoryCount = countDirectories;
       offlineCount = await _countUploadOffline();
 
@@ -130,7 +132,7 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUpload(String tableName) async {
 
-    final statsData = _locator<FilesDataProvider>();
+    final statsData = _locator<StorageDataProvider>();
 
     final dataOrigin = Globals.fileOrigin != "homeFiles"
     ? statsData.statisticsFilesName
@@ -158,10 +160,12 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUploadFoldAndDir(String tableName,String columnName) async {
 
+    final storageData = _locator<StorageDataProvider>();
+
     int countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
 
     int countFolderOrDirectory = tableName == GlobalsTable.folderUploadTable 
-    ? Globals.foldValues.length
+    ? storageData.foldersNameList.length
     : countDirectory;
 
     return countFolderOrDirectory;

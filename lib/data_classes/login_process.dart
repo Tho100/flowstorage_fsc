@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:get_it/get_it.dart';
@@ -45,6 +46,7 @@ class SignInUser {
   Future<void> _callData(MySQLConnectionPool conn, bool isChecked, BuildContext context) async {
 
     final userData = _locator<UserDataProvider>();
+    final storageData = _locator<StorageDataProvider>();
 
     final custUsernameList = await userDataRetriever.retrieveAccountTypeAndUsername(email: custEmailInit);
     final custUsernameGetter = custUsernameList[0]!;
@@ -101,8 +103,10 @@ class SignInUser {
       retrieveFolders.addAll(await FolderRetrieve().retrieveParams(custUsernameGetter));
     }
 
+    final uniqueFolder = retrieveFolders.toList();
+
     Globals.fileValues.addAll(uniqueFileNames);
-    Globals.foldValues.addAll(retrieveFolders);
+    storageData.setFolderName(uniqueFolder);
     Globals.imageByteValues.addAll(uniqueBytes);
     Globals.setDateValues.addAll(dates);
 

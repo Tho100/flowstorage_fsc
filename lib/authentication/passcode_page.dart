@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
@@ -59,6 +60,7 @@ class PasscodePageState extends State<PasscodePage> {
     try {
       
       final userData = _locator<UserDataProvider>();
+      final storageData = _locator<StorageDataProvider>();
 
       Globals.fileOrigin = "homeFiles";
 
@@ -112,9 +114,10 @@ class PasscodePageState extends State<PasscodePage> {
 
       final uniqueFileNames = fileNames.toList();
       final uniqueBytes = bytes.toList();
+      final uniqueFolders = retrieveFolders.toList();
 
       Globals.fileValues.addAll(uniqueFileNames);
-      Globals.foldValues.addAll(retrieveFolders);
+      storageData.setFolderName(uniqueFolders);
       Globals.imageByteValues.addAll(uniqueBytes);
       Globals.setDateValues.addAll(dates);
 

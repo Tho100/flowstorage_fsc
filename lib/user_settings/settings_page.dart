@@ -3,6 +3,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
@@ -73,7 +74,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
     Globals.fileValues.clear();
     Globals.imageValues.clear();
     Globals.imageByteValues.clear();
-    Globals.foldValues.clear();
+    _locator<StorageDataProvider>().foldersNameList.clear();
     Globals.setDateValues.clear();
     Globals.filteredSearchedFiles.clear();
     Globals.filteredSearchedBytes.clear();

@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:async';
@@ -150,7 +151,9 @@ class SplashScreenState extends State<SplashScreen> {
     try {
 
       final locater = GetIt.instance;
+
       final userData = locater<UserDataProvider>();
+      final storageData = locater<StorageDataProvider>();
 
       userData.setUsername(savedCustUsername);
       userData.setEmail(savedCustEmail);
@@ -203,9 +206,10 @@ class SplashScreenState extends State<SplashScreen> {
 
       final uniqueFileNames = fileNames.toList();
       final uniqueBytes = bytes.toList();
+      final uniqueFolders = retrieveFolders.toList();
 
       Globals.fileValues.addAll(uniqueFileNames);
-      Globals.foldValues.addAll(retrieveFolders);
+      storageData.setFolderName(uniqueFolders);
       Globals.imageByteValues.addAll(uniqueBytes);
       Globals.setDateValues.addAll(dates);
 
