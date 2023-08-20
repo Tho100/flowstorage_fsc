@@ -4,6 +4,8 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 /// <summary>
 /// 
@@ -22,6 +24,8 @@ class UpdateValues  {
     required String columnName,
   }) async {
   
+    final tempData = GetIt.instance<TempDataProvider>();
+
     final conn = await SqlConnection.insertValueParams();
 
     late final String encryptedFilePath;
@@ -59,7 +63,7 @@ class UpdateValues  {
       
     } else if (Globals.fileOrigin == "dirFiles") {
 
-      final encryptedDirectoryName = EncryptionClass().encrypt(Globals.directoryTitleValue);
+      final encryptedDirectoryName = EncryptionClass().encrypt(tempData.directoryName);
 
       const query = "UPDATE upload_info_directory SET CUST_FILE = :newvalue WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
       final params = {"username": userName, "newvalue": encryptedFileVal, "filename": encryptedFilePath, "dirname": encryptedDirectoryName};
@@ -68,7 +72,7 @@ class UpdateValues  {
 
     } else if (Globals.fileOrigin == "folderFiles") {
 
-      final encryptedFolderName = EncryptionClass().encrypt(Globals.folderTitleValue);
+      final encryptedFolderName = EncryptionClass().encrypt(tempData.folderName);
 
       const query = "UPDATE folder_upload_info SET CUST_FILE = :newvalue WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
       final params = {"username": userName, "newvalue": encryptedFileVal, "filename": encryptedFilePath, "foldname": encryptedFolderName};

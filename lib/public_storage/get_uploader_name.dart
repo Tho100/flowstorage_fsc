@@ -1,5 +1,7 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 class UploaderName {
 
@@ -27,7 +29,8 @@ class UploaderName {
 
   int getUsernameIndex(Set fileValues) {
 
-    final getVideoFiles = Globals.fileValues.where((file) {
+    final getVideoFiles = GetIt.instance<StorageDataProvider>()
+      .fileNamesList.where((file) {
     for (var fileType in fileValues) {
       if (file.endsWith('.$fileType')) {
         return true;

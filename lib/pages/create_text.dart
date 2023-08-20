@@ -10,6 +10,7 @@ import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
@@ -62,7 +63,8 @@ class CreateTextPageState extends State<CreateText> {
   }
 
   Future<bool> _isFileExists(String fileName) async {
-    return Globals.fileValues.contains(EncryptionClass().decrypt(fileName));
+    return _locator<StorageDataProvider>()
+      .fileNamesList.contains(EncryptionClass().decrypt(fileName));
   }
 
   Future _askFileName() {
@@ -175,16 +177,14 @@ class CreateTextPageState extends State<CreateText> {
 
   void _addTextFileToListView({required String fileName}) async {
 
-    final txtImageFile = await getAssets.loadAssetsFile('txt0.png');
     final txtImageData = await getAssets.loadAssetsData('txt0.png');
 
-    Globals.setDateValues.add("Just now");
-    Globals.fileValues.add(fileName);
-    Globals.filteredSearchedFiles.add(fileName);
+    _locator<StorageDataProvider>().fileDateList.add("Just now");
+    _locator<StorageDataProvider>().fileNamesList.add(fileName);
+    _locator<StorageDataProvider>().fileNamesFilteredList.add(fileName);
     
-    Globals.imageValues.add(txtImageFile);
-    Globals.imageByteValues.add(txtImageData);
-    Globals.filteredSearchedBytes.add(txtImageData);
+    _locator<StorageDataProvider>().imageBytesList.add(txtImageData);
+    _locator<StorageDataProvider>().imageBytesFilteredList.add(txtImageData);
     
   }
 

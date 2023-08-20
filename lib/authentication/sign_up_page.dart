@@ -1,6 +1,7 @@
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -80,6 +81,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
   Future<void> processRegistration() async {
     
     final userData = _locator<UserDataProvider>();
+    final storageData = _locator<StorageDataProvider>();
 
     var custUsernameInput = usernameController.text;
     var custEmailInput = emailController.text;
@@ -136,11 +138,10 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
       return;
     }
 
-    Globals.fileValues.clear();
-    Globals.imageValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
-    Globals.imageByteValues.clear();
+    storageData.fileNamesList.clear();
+    storageData.fileNamesFilteredList.clear();
+    storageData.imageBytesFilteredList.clear();
+    storageData.imageBytesList.clear();
     
     userData.setUsername(custUsernameInput);
     userData.setEmail(custEmailInput);

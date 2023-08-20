@@ -105,10 +105,10 @@ class SignInUser {
 
     final uniqueFolder = retrieveFolders.toList();
 
-    Globals.fileValues.addAll(uniqueFileNames);
-    storageData.setFolderName(uniqueFolder);
-    Globals.imageByteValues.addAll(uniqueBytes);
-    Globals.setDateValues.addAll(dates);
+    storageData.setFilesName(uniqueFileNames);
+    storageData.setFoldersName(uniqueFolder);
+    storageData.setImageBytes(uniqueBytes);
+    storageData.setFilesDate(dates);
 
     if (isChecked) {
       await _setupAutoLogin(custUsernameGetter,custEmailInit,custTypeGetter);

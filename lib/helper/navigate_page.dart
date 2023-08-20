@@ -1,26 +1,26 @@
-import 'package:flowstorage_fsc/models/feedback_page.dart';
+import 'package:flowstorage_fsc/pages/feedback_page.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flowstorage_fsc/user_settings/add_passcode_page.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
-import 'package:flowstorage_fsc/user_settings/my_plan_page.dart';
+import 'package:flowstorage_fsc/pages/my_plan_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_password_page.dart';
 import 'package:flowstorage_fsc/user_settings/update_username_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import '../home_page.dart';
+import '../pages/home_page.dart';
 import '../authentication/passcode_page.dart';
 import '../authentication/sign_in_page.dart';
 import '../authentication/sign_up_page.dart';
 import '../main.dart';
-import '../models/create_text.dart';
-import '../models/statistics_page.dart';
+import '../pages/create_text.dart';
+import '../pages/statistics_page.dart';
 import '../sharing/sharing_options.dart';
 import '../sharing/sharing_page.dart';
 import '../upgrades/upgrade_page.dart';
-import '../user_settings/settings_page.dart';
+import '../pages/settings_page.dart';
 
 class NavigatePage {
 

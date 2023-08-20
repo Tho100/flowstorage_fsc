@@ -2,6 +2,7 @@ import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 
 class FolderDialog {
 
@@ -42,12 +43,16 @@ class FolderDialog {
                             width: 35,
                             height: 35,
                           ),
-                          title: Text(
-                            storageData.foldersNameList[index],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          title: Consumer<StorageDataProvider>(
+                            builder: (context, storageData, child) {
+                              return Text(
+                                storageData.foldersNameList[index],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
                           ),
                           trailing: GestureDetector(
                             onTap: () => trailingOnPressed(index),

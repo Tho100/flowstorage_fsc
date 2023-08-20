@@ -2,10 +2,14 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class BottomTrailing {
+
+  final storageData = GetIt.instance<StorageDataProvider>();
 
   Future buildBottomTrailing({
     required String fileName,
@@ -39,7 +43,7 @@ class BottomTrailing {
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
-                        image: MemoryImage(Globals.filteredSearchedBytes[Globals.filteredSearchedFiles.indexWhere((name) => name == fileName)]!),
+                        image: MemoryImage(storageData.imageBytesFilteredList[storageData.fileNamesFilteredList.indexWhere((name) => name == fileName)]!),
                       ),
                     ),
                   ),

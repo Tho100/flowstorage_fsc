@@ -24,7 +24,8 @@ import 'package:flowstorage_fsc/models/offline_mode.dart';
 
 class DataCaller {
 
-  final _locator = GetIt.instance;
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final userData = GetIt.instance<UserDataProvider>();
 
   final _crud = Crud();
   final _offlineMode = OfflineMode();
@@ -119,18 +120,15 @@ class DataCaller {
       filteredSearchedBytes.add(imageBytes);
     }
 
-    Globals.fileValues = fileValues;
-    Globals.filteredSearchedFiles = filteredSearchedFiles;
-    Globals.setDateValues = setDateValues;
-    Globals.imageByteValues = imageByteValues;
-    Globals.filteredSearchedBytes = filteredSearchedBytes;
+    storageData.setFilesName(fileValues);
+    storageData.setFilteredFilesName(filteredSearchedFiles);
+    storageData.setFilesDate(setDateValues);
+    storageData.setImageBytes(imageByteValues);
+    storageData.setFilteredImageBytes(filteredSearchedBytes);
     
   }
 
   Future<void> homeData({bool? isFromStatistics = false}) async {
-
-    final userData = _locator<UserDataProvider>();
-    final statsData = _locator<StorageDataProvider>();
 
     final conn = await SqlConnection.insertValueParams();
 
@@ -175,16 +173,16 @@ class DataCaller {
     final uniqueBytes = bytes.toList();
 
     if(isFromStatistics!) {
-      statsData.setStatsFilesName(uniqueFileNames);
+      storageData.setStatsFilesName(uniqueFileNames);
       return;
     }
 
-    Globals.fileValues.addAll(uniqueFileNames);
-    Globals.imageByteValues.addAll(uniqueBytes);
-    Globals.setDateValues.addAll(dates);
-
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
+    storageData.setFilesName(uniqueFileNames);
+    storageData.setImageBytes(uniqueBytes);
+    storageData.setFilesDate(dates);
+    
+    storageData.fileNamesFilteredList.clear();
+    storageData.imageBytesFilteredList.clear();
 
   }
 
@@ -201,18 +199,18 @@ class DataCaller {
 
     final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
     final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
-    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    final fileDateList = dataList.expand((data) => data['date'] as List<String>).toList();
     final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
-    final getTagsValue = dateList.
+    final getTagsValue = fileDateList.
       map((tags) => tags.split(' ').last).toList();
 
     GlobalsData.psTagsValuesData.addAll(getTagsValue);
     GlobalsData.psUploaderName.addAll(uploaderList);
 
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    storageData.setFilesName(nameList);
+    storageData.setFilesDate(fileDateList);
+    storageData.setImageBytes(byteList);
 
     Globals.fileOrigin = "psFiles";
 
@@ -238,18 +236,18 @@ class DataCaller {
 
     final uploaderList = dataList.expand((data) => data['uploader_name'] as List<String>).toList();
     final nameList = dataList.expand((data) => data['name'] as List<String>).toList();
-    final dateList = dataList.expand((data) => data['date'] as List<String>).toList();
+    final fileDateList = dataList.expand((data) => data['date'] as List<String>).toList();
     final byteList = dataList.expand((data) => data['file_data'] as List<Uint8List>).toList();
 
-    final getTagsValue = dateList.
+    final getTagsValue = fileDateList.
       map((tags) => tags.split(' ').last).toList();
 
     GlobalsData.psTagsValuesData.addAll(getTagsValue);
     GlobalsData.psUploaderName.addAll(uploaderList);
 
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    storageData.setFilesName(nameList);
+    storageData.setFilesDate(fileDateList);
+    storageData.setImageBytes(byteList);
 
     Globals.fileOrigin = "psFiles";
 
@@ -262,12 +260,12 @@ class DataCaller {
     final dataList = await _directoryDataReceiver.retrieveParams(dirName: directoryName);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
+    final fileDateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
     
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    storageData.setFilesName(nameList);
+    storageData.setFilesDate(fileDateList);
+    storageData.setImageBytes(byteList);
 
     Globals.fileOrigin = "dirFiles";
 
@@ -275,34 +273,30 @@ class DataCaller {
 
   Future<void> sharingData(String originFrom) async {
 
-    final userData = _locator<UserDataProvider>();
-
     final dataList = await _sharingDataRetriever.retrieveParams(userData.username,originFrom);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
+    final fileDateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
 
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    storageData.setFilesName(nameList);
+    storageData.setFilesDate(fileDateList);
+    storageData.setImageBytes(byteList);
 
   }
 
   Future<void> folderData({required String folderName}) async {
 
-    final userData = _locator<UserDataProvider>();
-
     final folderDataReceiver = FolderDataReceiver();
     final dataList = await folderDataReceiver.retrieveParams(userData.username, folderName);
 
     final nameList = dataList.map((data) => data['name'] as String).toList();
-    final dateList = dataList.map((data) => data['date'] as String).toList();
+    final fileDateList = dataList.map((data) => data['date'] as String).toList();
     final byteList = dataList.map((data) => data['file_data'] as Uint8List).toList();
 
-    Globals.fileValues.addAll(nameList);
-    Globals.setDateValues.addAll(dateList);
-    Globals.imageByteValues.addAll(byteList);
+    storageData.setFilesName(nameList);
+    storageData.setFilesDate(fileDateList);
+    storageData.setImageBytes(byteList);
 
     Globals.fileOrigin = "folderFiles";
 

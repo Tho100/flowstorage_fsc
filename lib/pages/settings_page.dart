@@ -71,13 +71,12 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
 
   void _clearUserRecords() {
 
-    Globals.fileValues.clear();
-    Globals.imageValues.clear();
-    Globals.imageByteValues.clear();
+    _locator<StorageDataProvider>().fileNamesList.clear();
     _locator<StorageDataProvider>().foldersNameList.clear();
-    Globals.setDateValues.clear();
-    Globals.filteredSearchedFiles.clear();
-    Globals.filteredSearchedBytes.clear();
+    _locator<StorageDataProvider>().fileNamesFilteredList.clear();
+    _locator<StorageDataProvider>().fileDateList.clear();
+    _locator<StorageDataProvider>().imageBytesList.clear();
+    _locator<StorageDataProvider>().imageBytesFilteredList.clear();
 
   }
 

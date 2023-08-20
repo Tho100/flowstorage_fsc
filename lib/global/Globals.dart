@@ -1,5 +1,5 @@
-import 'dart:io';
-import 'dart:typed_data';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
+import 'package:get_it/get_it.dart';
 
 /// <summary>
 /// 
@@ -10,23 +10,10 @@ import 'dart:typed_data';
 
 class Globals {
 
-  static bool psUploadPassed = false;
-  static String psCommentValue = '';
-  static String psTagValue = '';
+  static final _tempData = GetIt.instance<TempDataProvider>();
 
   static String fileOrigin = '';
-  static String folderTitleValue = '';
-  static String directoryTitleValue = '';
   static String selectedFileName = '';
-
-  static List<String> fileValues = [];
-  static List<File> imageValues = [];
-
-  static List<Uint8List?> imageByteValues = <Uint8List?>[];
-  static List<String> setDateValues = <String>[];
-
-  static List<String> filteredSearchedFiles = <String>[];
-  static List<Uint8List?> filteredSearchedBytes = <Uint8List?>[];
 
   static const String fileInfoTable = 'file_info';
   static const String fileInfoExpandTable = 'file_info_expand';
@@ -126,8 +113,8 @@ class Globals {
   static Map<String,String> get originToName {
     return {
       'homeFiles': 'Home',
-      'folderFiles': Globals.folderTitleValue,
-      'dirFiles': Globals.directoryTitleValue,
+      'folderFiles': _tempData.folderName,
+      'dirFiles': _tempData.directoryName,
       'sharedToMe': 'Shared to me',
       'sharedFiles': 'Shared files',
       'offlineFiles': 'Offline',
@@ -138,8 +125,8 @@ class Globals {
   static Map<String,String> get nameToOrigin {
     return {
       'Home': 'homeFiles',
-      Globals.folderTitleValue: 'folderFiles',
-      Globals.directoryTitleValue: 'dirFiles',
+      _tempData.folderName: 'folderFiles',
+      _tempData.directoryName: 'dirFiles',
       'Shared to me': 'sharedToMe',
       'Shared files': 'sharedFiles',
       'Offline': 'offlineFiles',

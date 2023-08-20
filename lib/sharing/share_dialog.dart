@@ -9,6 +9,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
@@ -27,7 +28,8 @@ class SharingDialog {
   final retrieveData = RetrieveData();
   final shareFileData = ShareFileData();
 
-  final _locator = GetIt.instance;
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final userData = GetIt.instance<UserDataProvider>();
 
   Future<void> _sendFileToShare({
     required String shareToName, 
@@ -51,7 +53,6 @@ class SharingDialog {
   }
 
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
-    final userData = _locator<UserDataProvider>();
     return await retrieveData.retrieveDataParams(userData.username, selectedFilename, tableName,Globals.fileOrigin);
   }
 
@@ -61,8 +62,6 @@ class SharingDialog {
     required String? commentInput,
     required BuildContext context
   }) async {
-
-    final userData = _locator<UserDataProvider>();
 
     final fileExtension = fileName.split('.').last;
     final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileExtension]! : Globals.fileTypesToTableNames[fileExtension]!;
@@ -166,8 +165,6 @@ class SharingDialog {
     required BuildContext context
   }) async {
 
-    final userData = _locator<UserDataProvider>();
-
     if (receiverUsername.isEmpty) {
       CustomAlertDialog.alertDialog("Please enter the receiver username.", context);
       return;
@@ -217,7 +214,7 @@ class SharingDialog {
                             width: 55,
                             height: 55,
                             fit: BoxFit.cover,
-                            image: MemoryImage(Globals.filteredSearchedBytes[Globals.filteredSearchedFiles.indexWhere((name) => name == fileName)]!),
+                            image: MemoryImage(storageData.imageBytesFilteredList[storageData.fileNamesFilteredList.indexWhere((name) => name == fileName)]!),
                           ),
                         ),
                       ),

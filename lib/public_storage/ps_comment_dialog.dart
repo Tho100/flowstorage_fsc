@@ -4,8 +4,10 @@ import 'package:flowstorage_fsc/api/notification_api.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/ps_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class PsCommentDialog {
 
@@ -22,7 +24,8 @@ class PsCommentDialog {
     "Music",
   };
 
-  final ValueNotifier<String> selectedTagValue = ValueNotifier<String>('');
+  final  selectedTagValue = ValueNotifier<String>('');
+  final psUploadData = GetIt.instance<PsUploadDataProvider>();
 
   Future buildPsCommentDialog({
     required String fileName,
@@ -83,7 +86,7 @@ class PsCommentDialog {
                       ),
                       onPressed: () {
 
-                        Globals.psCommentValue = commentController.text;
+                        psUploadData.setCommentValue(commentController.text);
                         
                         onUploadPressed();
                         clearComment();
@@ -212,8 +215,8 @@ class PsCommentDialog {
                           backgroundColor: GlobalsStyle.psTagsToColor[tagsItems.elementAt(index)]
                         ),
                         onPressed: () {
-                          Globals.psTagValue = tagsItems.elementAt(index);
-                          selectedTagValue.value = Globals.psTagValue;
+                          psUploadData.setTagValue(tagsItems.elementAt(index));
+                          selectedTagValue.value = psUploadData.psTagValue;
                         },
                         child: Text(tagsItems.elementAt(index)),
                       )
@@ -231,14 +234,14 @@ class PsCommentDialog {
 
   void clearValues() async {
     await NotificationApi.stopNotification(0);
-    Globals.psUploadPassed = false;
-    Globals.psCommentValue = '';
-    Globals.psTagValue = '';
+    psUploadData.setUploadPassed(false);
+    psUploadData.setCommentValue('');
+    psUploadData.setTagValue('');
     commentController.clear();
   }
 
   void clearComment() {
-    Globals.psCommentValue = commentController.text;
+    psUploadData.setCommentValue(commentController.text);
     commentController.clear();
   }
 

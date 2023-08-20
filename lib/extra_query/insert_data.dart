@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/ps_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
@@ -21,6 +23,9 @@ class InsertData {
   final encryption = EncryptionClass();
   final dateNow = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
+  final psUploadData = GetIt.instance<PsUploadDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
+  
   Future<void> insertValueParams({
     required String tableName,
     required String filePath,
@@ -55,7 +60,7 @@ class InsertData {
         break;
 
       case GlobalsTable.directoryUploadTable:
-        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal,Globals.directoryTitleValue,encryptedFilePath,thumb,filePath);
+        await insertDirectoryInfo(conn,tableName,userName,encryptedFileVal, tempData.directoryName,encryptedFilePath,thumb,filePath);
         break;
 
       case GlobalsTable.psText:
@@ -131,8 +136,11 @@ class InsertData {
     String encryptedFileVal,
   ) async {
 
+    final encryptedComment = EncryptionClass().encrypt(psUploadData.psCommentValue);
+    final tag = psUploadData.psTagValue;
+
     await conn.prepare('INSERT INTO $tableName (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, EncryptionClass().encrypt(Globals.psCommentValue), Globals.psTagValue]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, encryptedComment, tag]);
   }
 
   Future<void> insertVideoInfoPs(
@@ -143,8 +151,11 @@ class InsertData {
     String? thumb,
   ) async {
 
+    final encryptedComment = EncryptionClass().encrypt(psUploadData.psCommentValue);
+    final tag = psUploadData.psTagValue;
+
     await conn.prepare('INSERT INTO ps_info_video (CUST_FILE_PATH, CUST_USERNAME, UPLOAD_DATE, CUST_FILE, CUST_THUMB, CUST_COMMENT, CUST_TAG) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, thumb, EncryptionClass().encrypt(Globals.psCommentValue),Globals.psTagValue]);
+        ..execute([encryptedFilePath, userName, dateNow, encryptedFileVal, thumb, encryptedComment, tag]);
   }
 
 }

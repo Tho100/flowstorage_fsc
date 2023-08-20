@@ -24,8 +24,6 @@ class StatisticsPage extends StatefulWidget {
 
 class StatsPageState extends State<StatisticsPage> {
 
-  final _locator = GetIt.instance;
-
   final logger = Logger();
   final crud = Crud();
 
@@ -45,6 +43,9 @@ class StatsPageState extends State<StatisticsPage> {
 
   double usageProgress = 0.0;
   
+  final userData = GetIt.instance<UserDataProvider>();
+  final storageData = GetIt.instance<StorageDataProvider>();
+
   @override 
   void initState() {
     super.initState();
@@ -54,7 +55,7 @@ class StatsPageState extends State<StatisticsPage> {
   @override
   void dispose() {
     dataIsLoading.dispose();
-    _locator<StorageDataProvider>().statisticsFilesName.clear();
+    storageData.statisticsFilesName.clear();
     super.dispose();
   }
 
@@ -63,8 +64,6 @@ class StatsPageState extends State<StatisticsPage> {
     try {
 
       dataIsLoading.value = true;
-
-      final storageData = _locator<StorageDataProvider>();
 
       final futuresFile = [
         _countUpload(GlobalsTable.homeImage),
@@ -132,11 +131,9 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUpload(String tableName) async {
 
-    final statsData = _locator<StorageDataProvider>();
-
     final dataOrigin = Globals.fileOrigin != "homeFiles"
-    ? statsData.statisticsFilesName
-    : Globals.filteredSearchedFiles;
+    ? storageData.statisticsFilesName
+    : storageData.fileNamesFilteredList;
 
     final fileTypeList = <String>[];
 
@@ -160,9 +157,8 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUploadFoldAndDir(String tableName,String columnName) async {
 
-    final storageData = _locator<StorageDataProvider>();
-
-    int countDirectory = Globals.filteredSearchedFiles.where((dir) => !dir.contains('.')).length;
+    int countDirectory = storageData.fileNamesFilteredList
+      .where((dir) => !dir.contains('.')).length;
 
     int countFolderOrDirectory = tableName == GlobalsTable.folderUploadTable 
     ? storageData.foldersNameList.length
@@ -451,10 +447,8 @@ class StatsPageState extends State<StatisticsPage> {
 
   Widget _buildUsageContainer(BuildContext context) {
 
-    final userData = _locator<UserDataProvider>();
-
     final maxValue = AccountPlan.mapFilesUpload[userData.accountType]!;
-    final percentage = ((Globals.fileValues.length/maxValue) * 100).toInt();
+    final percentage = ((storageData.fileNamesList.length/maxValue) * 100).toInt();
     usageProgress = percentage/100.0;
 
     return Padding(

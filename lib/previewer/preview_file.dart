@@ -24,10 +24,11 @@ import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
-import 'package:flowstorage_fsc/models/comment_page.dart';
+import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/data_classes/update_data.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/retrieve_data.dart';
@@ -81,6 +82,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   late String currentTable;
 
   late final UserDataProvider userData;
+  late final StorageDataProvider storageData;
 
   final shareToController = TextEditingController();
   final commentController = TextEditingController();
@@ -108,6 +110,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   void initState() {
     super.initState();
     userData = _locator<UserDataProvider>();
+    storageData = _locator<StorageDataProvider>();
     fileType = widget.fileType;
     _initializeTableName();
     _initializeUploaderName();
@@ -237,8 +240,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   void _updateRenameFile(String newFileName, int indexOldFile, int indexOldFileSearched) {
-    Globals.fileValues[indexOldFile] = newFileName;
-    Globals.filteredSearchedFiles[indexOldFileSearched] = newFileName;
+    storageData.fileNamesList[indexOldFile] = newFileName;
+    storageData.fileNamesFilteredList[indexOldFileSearched] = newFileName;
     Globals.selectedFileName = newFileName;
     appBarTitleNotifier.value = newFileName;
   }
@@ -251,8 +254,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     try {
       
       Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : await OfflineMode().renameFile(oldFileName,newFileName);
-      int indexOldFile = Globals.fileValues.indexOf(oldFileName);
-      int indexOldFileSearched = Globals.filteredSearchedFiles.indexOf(oldFileName);
+      int indexOldFile = storageData.fileNamesList.indexOf(oldFileName);
+      int indexOldFileSearched = storageData.fileNamesFilteredList.indexOf(oldFileName);
 
       if (indexOldFileSearched != -1) {
 
@@ -275,7 +278,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       String newItemValue = RenameDialog.renameController.text;
       String newRenameValue = "$newItemValue.${fileName.split('.').last}";
 
-      if (Globals.fileValues.contains(newRenameValue)) {
+      if (storageData.fileNamesList.contains(newRenameValue)) {
         CustomAlertDialog.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
       } else {
         await _renameFile(fileName, newRenameValue);
@@ -366,14 +369,14 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     try {
 
-      int indexOfFile = Globals.filteredSearchedFiles.indexOf(fileName);
+      int indexOfFile = storageData.fileNamesFilteredList.indexOf(fileName);
 
       setState(() {
-        if (indexOfFile >= 0 && indexOfFile < Globals.fileValues.length) {
-          Globals.fileValues.removeAt(indexOfFile);
-          Globals.filteredSearchedFiles.removeAt(indexOfFile);
-          Globals.imageByteValues.removeAt(indexOfFile);
-          Globals.filteredSearchedBytes.removeAt(indexOfFile);
+        if (indexOfFile >= 0 && indexOfFile < storageData.fileNamesList.length) {
+          storageData.fileNamesList.removeAt(indexOfFile);
+          storageData.fileNamesFilteredList.removeAt(indexOfFile);
+          storageData.imageBytesList.removeAt(indexOfFile);
+          storageData.imageBytesFilteredList.removeAt(indexOfFile);
         }
       });
 
@@ -445,7 +448,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     singleLoading.startLoading(title: "Preparing...", context: context);
 
     if(Globals.imageType.contains(fileType)) {
-      fileData = Globals.filteredSearchedBytes[widget.tappedIndex]!;
+      fileData = storageData.imageBytesFilteredList[widget.tappedIndex]!;
     } else {
       fileData = await _callDataDownload();
     }
@@ -472,7 +475,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       if(Globals.fileOrigin != "offlineFiles") {
 
         if(Globals.imageType.contains(fileType)) {
-          fileData = Globals.filteredSearchedBytes[Globals.fileValues.indexOf(fileName)]!;
+          fileData = storageData.imageBytesFilteredList[storageData.fileNamesList.indexOf(fileName)]!;
         } else {
           fileData = await _callDataDownload();
         }
@@ -561,7 +564,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     } else if (widget.originFrom == "psFiles") {
 
-      final uploaderNameIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+      final uploaderNameIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
       uploaderNameNotifer.value = GlobalsData.psUploaderName[uploaderNameIndex];
 
     } else {
@@ -682,9 +685,9 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     final fileType = Globals.selectedFileName.split('.').last;
 
-    final fileIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+    final fileIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
     final getFileByte = Globals.imageType.contains(fileType) 
-      ? Globals.filteredSearchedBytes[fileIndex] 
+      ? storageData.imageBytesFilteredList[fileIndex] 
       : await _callFileSize();
 
     double getSizeMB = getFileByte!.lengthInBytes/(1024*1024);
@@ -694,8 +697,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   Future<String> _returnImageSize() async {
 
-    final indexImage = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
-    final imageBytes = Globals.filteredSearchedBytes.elementAt(indexImage);
+    final indexImage = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
+    final imageBytes = storageData.imageBytesFilteredList.elementAt(indexImage);
 
     final imageSize = await _getImageResolution(imageBytes!);
     final imageWidth = imageSize.width.toInt();

@@ -116,10 +116,10 @@ class PasscodePageState extends State<PasscodePage> {
       final uniqueBytes = bytes.toList();
       final uniqueFolders = retrieveFolders.toList();
 
-      Globals.fileValues.addAll(uniqueFileNames);
-      storageData.setFolderName(uniqueFolders);
-      Globals.imageByteValues.addAll(uniqueBytes);
-      Globals.setDateValues.addAll(dates);
+      storageData.setFilesName(uniqueFileNames);
+      storageData.setFoldersName(uniqueFolders);
+      storageData.setImageBytes(uniqueBytes);
+      storageData.setFilesDate(dates);
 
     } catch (err) {
       NavigatePage.permanentPageMainboard(context);

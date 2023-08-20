@@ -6,9 +6,11 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 /// <summary>
@@ -21,7 +23,8 @@ import 'package:mysql_client/mysql_client.dart';
 class RetrieveData {
 
   final encryption = EncryptionClass();
-
+  final storageData = GetIt.instance<StorageDataProvider>();
+  
   Future<Uint8List> retrieveDataModules(
     MySQLConnectionPool fscDbCon,
     String? username,
@@ -29,6 +32,8 @@ class RetrieveData {
     String? tableName,
     String? originFrom
   ) async {
+
+    final tempData = GetIt.instance<TempDataProvider>();
 
     final encryptedFileName = encryption.encrypt(fileName!);
 
@@ -46,10 +51,10 @@ class RetrieveData {
       queryParams = {"username": username!, "filename": encryptedFileName};
     } else if (originFrom == "folderFiles") {
       query = "SELECT CUST_FILE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "foldtitle": encryption.encrypt(Globals.folderTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "foldtitle": encryption.encrypt(tempData.folderName), "filename": encryptedFileName};
     } else if (originFrom == "dirFiles") {
       query = "SELECT CUST_FILE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
-      queryParams = {"username": username!, "dirname": encryption.encrypt(Globals.directoryTitleValue), "filename": encryptedFileName};
+      queryParams = {"username": username!, "dirname": encryption.encrypt(tempData.directoryName), "filename": encryptedFileName};
     } else if (originFrom == "psFiles") {
 
       late String toPsFileName = "";
@@ -60,7 +65,7 @@ class RetrieveData {
         toPsFileName = tableName!;
       }
 
-      final indexUploaderName = Globals.filteredSearchedFiles.indexOf(fileName);
+      final indexUploaderName = storageData.fileNamesFilteredList.indexOf(fileName);
       final uploaderName = GlobalsData.psUploaderName[indexUploaderName];
 
       query = "SELECT CUST_FILE FROM $toPsFileName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";

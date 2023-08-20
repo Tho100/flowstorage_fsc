@@ -1,6 +1,7 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,6 +12,7 @@ class Rename {
   Future<void> renameParams(String? oldFileName, String? newFileName, String? tableName,{String? username}) async {
 
     final userData = _locator<UserDataProvider>();
+    final tempData = _locator<TempDataProvider>();
 
     final encryption = EncryptionClass();
     final crud = Crud();
@@ -56,7 +58,7 @@ class Rename {
         'username': userData.username,
         'newname': encryption.encrypt(newFileName),
         'oldname': encryption.encrypt(oldFileName),
-        'foldtitle': encryption.encrypt(Globals.folderTitleValue),
+        'foldtitle': encryption.encrypt(tempData.folderName),
       };
 
     } else if (Globals.fileOrigin == "dirFiles") {
@@ -67,7 +69,7 @@ class Rename {
         'username': userData.username,
         'newname': encryption.encrypt(newFileName),
         'oldname': encryption.encrypt(oldFileName),
-        'dirname': encryption.encrypt(Globals.directoryTitleValue),
+        'dirname': encryption.encrypt(tempData.directoryName),
       };
 
     }

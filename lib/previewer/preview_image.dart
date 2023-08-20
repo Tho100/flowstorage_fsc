@@ -1,5 +1,7 @@
 import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class PreviewImage extends StatefulWidget {
 
@@ -17,15 +19,17 @@ class PreviewImageState extends State<PreviewImage> {
   
   late final PageController pageController;
 
+  final storageData = GetIt.instance<StorageDataProvider>();
+
   @override
   void initState() {
     super.initState();
-    currentSelectedIndex = Globals.filteredSearchedFiles.indexOf(Globals.selectedFileName);
+    currentSelectedIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
     pageController = PageController(initialPage: currentSelectedIndex);
   }
 
   void handlePageChange(int index) {
-    Globals.selectedFileName = Globals.filteredSearchedFiles[index];
+    Globals.selectedFileName = storageData.fileNamesFilteredList[index];
     widget.onPageChanged(); 
   }
 
@@ -34,7 +38,7 @@ class PreviewImageState extends State<PreviewImage> {
     return PageView.builder(
       physics: const ClampingScrollPhysics(),
       controller: pageController, 
-      itemCount: Globals.filteredSearchedFiles.length,
+      itemCount: storageData.fileNamesFilteredList.length,
       onPageChanged: handlePageChange,
       itemBuilder: (context, index) {
         return InteractiveViewer(
@@ -43,7 +47,7 @@ class PreviewImageState extends State<PreviewImage> {
           child: Container(
           constraints: const BoxConstraints.expand(),
           child: Image.memory(
-            Globals.filteredSearchedBytes[index]!,
+            storageData.imageBytesFilteredList[index]!,
             fit: BoxFit.fitWidth,
           ),
           ),
