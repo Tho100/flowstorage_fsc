@@ -8,7 +8,6 @@ import 'package:flowstorage_fsc/api/save_api.dart';
 import 'package:flowstorage_fsc/data_classes/data_caller.dart';
 import 'package:flowstorage_fsc/directory_query/save_directory.dart';
 import 'package:flowstorage_fsc/folder_query/save_folder.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
@@ -24,6 +23,7 @@ import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/provider/ps_data_provider.dart';
+import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
@@ -92,6 +92,7 @@ void setupLocator() {
   locator.registerLazySingleton<StorageDataProvider>(() => StorageDataProvider());
   locator.registerLazySingleton<PsUploadDataProvider>(() => PsUploadDataProvider());
   locator.registerLazySingleton<TempDataProvider>(() => TempDataProvider());
+  locator.registerLazySingleton<PsStorageDataProvider>(() => PsStorageDataProvider());
 }
 
 void main() async {
@@ -102,7 +103,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => GetIt.instance<UserDataProvider>()),
         ChangeNotifierProvider(create: (context) => GetIt.instance<StorageDataProvider>()),
         ChangeNotifierProvider(create: (context) => GetIt.instance<PsUploadDataProvider>()),
-        ChangeNotifierProvider(create: (context) => GetIt.instance<TempDataProvider>())
+        ChangeNotifierProvider(create: (context) => GetIt.instance<TempDataProvider>()),
+        ChangeNotifierProvider(create: (context) => GetIt.instance<PsStorageDataProvider>())
       ],
       child: const MainRun(),
     ),
@@ -148,6 +150,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   late final UserDataProvider userData;
   late final StorageDataProvider storageData;
+  late final PsStorageDataProvider psStorageData;
   late final PsUploadDataProvider psUploadData;
   late final TempDataProvider tempData;
 
@@ -273,8 +276,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await OfflineMode().processSaveOfflineFile(fileName: selectedFileName, fileData: fileByteData, context: context);
     }
 
-    final homeImageData = GlobalsData.homeImageData;
-    final homeThumbnailData = GlobalsData.homeThumbnailData;
+    final homeImageData = storageData.homeImageBytesList;
+    final homeThumbnailData = storageData.homeThumbnailBytesList;
 
     if (verifyTableName == GlobalsTable.homeImage) {
       homeImageData.addAll(newFilteredSearchedBytes);
@@ -283,12 +286,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       homeThumbnailData.add(thumbnailBytes);
 
     } else if (verifyTableName == GlobalsTable.psImage) {
-      GlobalsData.psImageData.addAll(newFilteredSearchedBytes);
-      GlobalsData.myPsImageData.addAll(newFilteredSearchedBytes);
-      
+      psStorageData.psImageBytesList.addAll(newFilteredSearchedBytes);
+      psStorageData.myPsImageBytesList.addAll(newFilteredSearchedBytes);
+
     } else if (verifyTableName == GlobalsTable.psVideo) {
-      GlobalsData.psThumbnailData.add(thumbnailBytes);
-      GlobalsData.myPsThumbnailData.add(thumbnailBytes);
+      psStorageData.psThumbnailBytesList.add(thumbnailBytes);
+      psStorageData.myPsThumbnailBytesList.add(thumbnailBytes);
 
     }
 
@@ -304,10 +307,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     return getPageName;
   }
 
-  void _clearPublicStorageData() {
-    GlobalsData.psUploaderName.clear();
-    GlobalsData.psTagsValuesData.clear();
-    GlobalsData.psTagsColorData.clear();
+  void _clearPublicStorageData({required bool clearImage}) {
+    if(clearImage) {
+      psStorageData.psImageBytesList.clear();
+      psStorageData.psThumbnailBytesList.clear();
+    }
+    psStorageData.psUploaderList.clear();
+    psStorageData.psTagsList.clear();
+    psStorageData.psTagsColorList.clear();
   }
 
   void _clearGlobalData() {
@@ -322,7 +329,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     if(Globals.fileOrigin == "psFiles") {
 
-      _clearPublicStorageData();
+      _clearPublicStorageData(clearImage: true);
       await _callHomeData();
 
       _returnBackHomeFiles();
@@ -361,7 +368,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     }
 
     if (Globals.fileOrigin == "psFiles") {
-      _clearPublicStorageData();
+      _clearPublicStorageData(clearImage: false);
     }
 
     if (Globals.fileOrigin == "homeFiles" && togglePhotosPressed) {
@@ -442,14 +449,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
 
-        GlobalsData.psTagsValuesData.add(psUploadData.psTagValue);
-        GlobalsData.psUploaderName.add(userData.username);
+        psStorageData.psTagsList.add(psUploadData.psTagValue);
+        psStorageData.psUploaderList.add(userData.username);
 
         scaffoldMessenger.hideCurrentSnackBar();
 
         _addItemToListView(fileName: fileName);
-        psUploadData.setUploadPassed(true);
-
         _scrollEndListView();
 
         SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added");
@@ -461,7 +466,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
 
     await NotificationApi.stopNotification(0);
-    psUploadData.setUploadPassed(false);
 
   }
 
@@ -647,13 +651,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           'file_name': storageData.fileNamesFilteredList[i],
           'image_byte': storageData.imageBytesFilteredList[i],
           'upload_date': dateParser.parseDate(storageData.fileDateList[i]),
-          'tag_value': GlobalsData.psTagsValuesData[i],
-          'uploader_name': GlobalsData.psUploaderName[i]
+          'tag_value': psStorageData.psTagsList[i],
+          'uploader_name': psStorageData.psUploaderList[i]
         });
       }
 
-      GlobalsData.psTagsValuesData.clear();
-      GlobalsData.psUploaderName.clear();
+      psStorageData.psTagsList.clear();
+      psStorageData.psUploaderList.clear();
 
     }
 
@@ -674,8 +678,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         storageData.fileDateList.add(_formatDateTime(item['upload_date']));
 
         if(Globals.fileOrigin == "psFiles") {
-          GlobalsData.psTagsValuesData.add(item['tag_value']);
-          GlobalsData.psUploaderName.add(item['uploader_name']);
+          psStorageData.psTagsList.add(item['tag_value']);
+          psStorageData.psUploaderList.add(item['uploader_name']);
         }
 
       }
@@ -801,8 +805,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       if(Globals.fileOrigin == "homeFiles") {
 
-        GlobalsData.homeImageData.clear();
-        GlobalsData.homeThumbnailData.clear();
+        storageData.homeImageBytesList.clear();
+        storageData.homeThumbnailBytesList.clear();
 
         final fileType = checkedItemsName.elementAt(i).split('.').last;
         final tableName = Globals.fileTypesToTableNames[fileType];
@@ -842,6 +846,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     }
 
     _clearSelectAll();
+
   }
 
   Future<void> _processDeletingAllItems({
@@ -1102,7 +1107,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Future<void> _callPublicStorageData() async {
 
     _clearGlobalData();
-    _clearPublicStorageData();
 
     await dataCaller.publicStorageData(context: context);
 
@@ -1123,6 +1127,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   Future<void> _callMyPublicStorageData() async {
 
     _clearGlobalData();
+    _clearPublicStorageData(clearImage: true);
 
     await dataCaller.myPublicStorageData(context: context);
 
@@ -1217,7 +1222,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       });
 
-      GlobalsData.directoryImageData.clear();
+      storageData.directoryImageBytesList.clear();
       storageData.fileNamesFilteredList.add(directoryName);
       storageData.fileNamesList.add(directoryName);
 
@@ -1237,7 +1242,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       await DeleteDirectory.deleteDirectory(directoryName: directoryName);
     
-      GlobalsData.directoryImageData.clear();
+      storageData.directoryImageBytesList.clear();
 
       if(!mounted) return;
       SnakeAlert.okSnake(message: "Directory `$directoryName` has been deleted.",context: context);
@@ -1259,8 +1264,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await _deletionFile(userData.username,fileName,Globals.fileTypesToTableNames[extension]!);
     }
     
-    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeImageData.clear() : null;
-    Globals.fileOrigin == "homeFiles" ? GlobalsData.homeThumbnailData.clear() : null;
+    Globals.fileOrigin == "homeFiles" ? storageData.homeImageBytesList.clear() : null;
+    Globals.fileOrigin == "homeFiles" ? storageData.homeImageBytesList.clear() : null;
     
     _removeFileFromListView(fileName: fileName, isFromSelectAll: false, onTextChanged: onTextChanged);
 
@@ -1769,12 +1774,19 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         int countSelectedFiles = resultPicker.files.length;
 
-        if(storageData.fileNamesList.length + countSelectedFiles > AccountPlan.mapFilesUpload[userData.accountType]!) {
+        final uploadedPsFilesCount = psStorageData.psUploaderList.where((name) => name == userData.username).length;
+        final allowedFileUploads = AccountPlan.mapFilesUpload[userData.accountType]!;
+
+        if (Globals.fileOrigin == "psFiles" && uploadedPsFilesCount > allowedFileUploads) {
           UpgradeDialog.buildUpgradeDialog(
             message: "It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.",
-            context: context
-          );
-          return;
+            context: context,
+          ); return;
+        } else if (Globals.fileOrigin != "psFiles" && storageData.fileNamesList.length + countSelectedFiles > allowedFileUploads) {
+          UpgradeDialog.buildUpgradeDialog(
+            message: "It looks like you're exceeding the number of files you can upload. Upgrade your account to upload more.",
+            context: context,
+          ); return;
         }
 
         Globals.fileOrigin != "psFiles" ? await CallNotify().customNotification(title: "Uploading...", subMesssage: "$countSelectedFiles File(s) in progress") : null;
@@ -2118,7 +2130,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         if (Globals.fileOrigin == "psFiles") {
 
-          int count = GlobalsData.psUploaderName
+          int count = psStorageData.psUploaderList
               .where((uploader) => uploader == userData.username)
               .length;
 
@@ -2166,7 +2178,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         if (Globals.fileOrigin == "psFiles") {
 
-          int count = GlobalsData.psUploaderName
+          int count = psStorageData.psUploaderList
               .where((uploader) => uploader == userData.username)
               .length;
 
@@ -3723,9 +3735,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                       if(Globals.fileOrigin == "psFiles") 
                       
                       TextSpan(
-                        text: " ${GlobalsData.psTagsValuesData[index]}",
+                        text: " ${psStorageData.psTagsList[index]}",
                         style: TextStyle(
-                          color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                          color: GlobalsStyle.psTagsToColor[psStorageData.psTagsList[index]],
                           fontWeight: FontWeight.w500,
                           fontSize: 12.8,
                         ),
@@ -3804,7 +3816,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ),
               ),
               Text(
-                GlobalsData.psUploaderName[index],
+                psStorageData.psUploaderList[index],
                 style: const TextStyle(
                   color: ThemeColor.secondaryWhite,
                   fontSize: 14,
@@ -3816,12 +3828,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 width: 100,
                 height: 23,
                 decoration: BoxDecoration(
-                  color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                  color: GlobalsStyle.psTagsToColor[psStorageData.psTagsList[index]],
                   borderRadius: const BorderRadius.all(Radius.circular(16)),
                 ),
                 child: Center(
                   child: Text(
-                    GlobalsData.psTagsValuesData[index],
+                    psStorageData.psTagsList[index],
                     style: const TextStyle(
                       color: ThemeColor.justWhite,
                       fontWeight: FontWeight.w500,
@@ -3847,7 +3859,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     if (Globals.fileOrigin == "psFiles") {
 
-      uploaderNamePs = GlobalsData.psUploaderName[index];
+      uploaderNamePs = psStorageData.psUploaderList[index];
       if (uploaderNamePs == userData.username) {
         uploaderNamePs = "${userData.username} (You)";
       }
@@ -4047,12 +4059,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     width: 108,
                     height: 25,
                     decoration: BoxDecoration(
-                      color: GlobalsStyle.psTagsToColor[GlobalsData.psTagsValuesData[index]],
+                      color: GlobalsStyle.psTagsToColor[psStorageData.psTagsList[index]],
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
                     ),
                     child: Center(
                       child: Text(
-                        GlobalsData.psTagsValuesData[index],
+                        psStorageData.psTagsList[index],
                         style: const TextStyle(
                           color: ThemeColor.justWhite,
                           fontWeight: FontWeight.w500
@@ -4279,13 +4291,12 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       onRefresh: () async {
 
         if(Globals.fileOrigin == "homeFiles") {
-          GlobalsData.homeImageData.clear();
-          GlobalsData.homeThumbnailData.clear();
+          storageData.homeImageBytesList.clear();
+          storageData.homeImageBytesList.clear();
         }
 
         if(Globals.fileOrigin == "psFiles") {
-          GlobalsData.psUploaderName.clear();
-          GlobalsData.psTagsValuesData.clear();
+          _clearPublicStorageData(clearImage: true);
         }
 
         await _refreshListView();
@@ -4309,7 +4320,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         onPressed: () async {
 
           if(psButtonTextNotifier.value == "Back") {
-            _clearPublicStorageData();
+            _clearPublicStorageData(clearImage: true);
           }
 
           if(psButtonTextNotifier.value == "My Files") {
@@ -4347,6 +4358,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     storageData = _locator<StorageDataProvider>();
     psUploadData = _locator<PsUploadDataProvider>();
     tempData = _locator<TempDataProvider>();
+    psStorageData = _locator<PsStorageDataProvider>();
 
     checkedList = List.generate(
         storageData.fileNamesFilteredList.length, (index) => false);

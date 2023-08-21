@@ -7,9 +7,9 @@ import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/directory_query/directory_data.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/folder_query/folder_data_retriever.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
@@ -26,6 +26,7 @@ class DataCaller {
 
   final storageData = GetIt.instance<StorageDataProvider>();
   final userData = GetIt.instance<UserDataProvider>();
+  final psStorageData = GetIt.instance<PsStorageDataProvider>();
 
   final _crud = Crud();
   final _offlineMode = OfflineMode();
@@ -192,7 +193,7 @@ class DataCaller {
 
     justLoading.startLoading(context: context);
 
-    GlobalsData.psTagsValuesData.clear();
+    psStorageData.psTagsList.clear();
 
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams(isFromMyPs: false);
@@ -205,8 +206,8 @@ class DataCaller {
     final getTagsValue = fileDateList.
       map((tags) => tags.split(' ').last).toList();
 
-    GlobalsData.psTagsValuesData.addAll(getTagsValue);
-    GlobalsData.psUploaderName.addAll(uploaderList);
+    psStorageData.psTagsList.addAll(getTagsValue);
+    psStorageData.psUploaderList.addAll(uploaderList);
 
     storageData.setFilesName(nameList);
     storageData.setFilesDate(fileDateList);
@@ -224,12 +225,12 @@ class DataCaller {
 
     justLoading.startLoading(context: context);
 
-    GlobalsData.psImageData.clear();
-    GlobalsData.psUploaderName.clear();
-    GlobalsData.psThumbnailData.clear();
+    psStorageData.psImageBytesList.clear();
+    psStorageData.psUploaderList.clear();
+    psStorageData.psThumbnailBytesList.clear();
 
-    GlobalsData.psTagsValuesData.clear();
-    GlobalsData.psTagsColorData.clear();
+    psStorageData.psTagsList.clear();
+    psStorageData.psTagsColorList.clear();
 
     final psDataRetriever = PublicStorageDataRetriever();
     final dataList = await psDataRetriever.retrieveParams(isFromMyPs: true);
@@ -242,8 +243,8 @@ class DataCaller {
     final getTagsValue = fileDateList.
       map((tags) => tags.split(' ').last).toList();
 
-    GlobalsData.psTagsValuesData.addAll(getTagsValue);
-    GlobalsData.psUploaderName.addAll(uploaderList);
+    psStorageData.psTagsList.addAll(getTagsValue);
+    psStorageData.psUploaderList.addAll(uploaderList);
 
     storageData.setFilesName(nameList);
     storageData.setFilesDate(fileDateList);

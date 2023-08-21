@@ -4,8 +4,8 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
+import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 
@@ -24,7 +24,8 @@ class RetrieveData {
 
   final encryption = EncryptionClass();
   final storageData = GetIt.instance<StorageDataProvider>();
-  
+  final psStorageData = GetIt.instance<PsStorageDataProvider>();
+
   Future<Uint8List> retrieveDataModules(
     MySQLConnectionPool fscDbCon,
     String? username,
@@ -66,7 +67,7 @@ class RetrieveData {
       }
 
       final indexUploaderName = storageData.fileNamesFilteredList.indexOf(fileName);
-      final uploaderName = GlobalsData.psUploaderName[indexUploaderName];
+      final uploaderName = psStorageData.psUploaderList[indexUploaderName];
 
       query = "SELECT CUST_FILE FROM $toPsFileName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       queryParams = {"username": uploaderName, "filename": encryptedFileName};

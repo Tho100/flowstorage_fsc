@@ -10,7 +10,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/extra_query/rename.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
@@ -24,6 +23,7 @@ import 'package:flowstorage_fsc/previewer/preview_image.dart';
 import 'package:flowstorage_fsc/previewer/preview_pdf.dart';
 import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
+import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
@@ -83,6 +83,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   late final UserDataProvider userData;
   late final StorageDataProvider storageData;
+  late final PsStorageDataProvider psStorageData;
 
   final shareToController = TextEditingController();
   final commentController = TextEditingController();
@@ -111,6 +112,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     super.initState();
     userData = _locator<UserDataProvider>();
     storageData = _locator<StorageDataProvider>();
+    psStorageData = _locator<PsStorageDataProvider>();
     fileType = widget.fileType;
     _initializeTableName();
     _initializeUploaderName();
@@ -171,8 +173,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         final encryptVals = EncryptionClass().encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
 
-        GlobalsData.homeImageData.clear();
-        GlobalsData.homeThumbnailData.clear();
+        storageData.homeImageBytesList.clear();
+        storageData.homeThumbnailBytesList.clear();
 
       } else {
 
@@ -565,7 +567,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     } else if (widget.originFrom == "psFiles") {
 
       final uploaderNameIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
-      uploaderNameNotifer.value = GlobalsData.psUploaderName[uploaderNameIndex];
+      uploaderNameNotifer.value = psStorageData.psUploaderList[uploaderNameIndex];
 
     } else {
 

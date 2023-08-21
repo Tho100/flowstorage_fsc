@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flowstorage_fsc/data_classes/thumbnail_retriever.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 /// <summary>
@@ -18,6 +19,8 @@ import 'package:mysql_client/mysql_client.dart';
 class DataRetriever {
 
   int countDirCurr = 0;
+
+  final storageData = GetIt.instance<StorageDataProvider>();
 
   final crud = Crud();
   final getAssets = GetAssets();
@@ -38,10 +41,10 @@ class DataRetriever {
 
     if (tableName == GlobalsTable.homeImage) {
 
-      if(GlobalsData.homeImageData.isEmpty) {
+      if(storageData.homeImageBytesList.isEmpty) {
         return getFileInfoParams(conn, username);
       } else {
-        return GlobalsData.homeImageData;
+        return storageData.homeImageBytesList;
       }
 
     } else {
@@ -68,7 +71,7 @@ class DataRetriever {
       getByteValue.add(bufferedFileBytes);
     }
 
-    GlobalsData.homeImageData.addAll(getByteValue);
+    storageData.setHomeImageBytes(getByteValue);
 
     return getByteValue;
   }
@@ -90,28 +93,28 @@ class DataRetriever {
 
     if (tableName == GlobalsTable.homeVideo) {
 
-      if(GlobalsData.homeThumbnailData.isEmpty) {
+      if(storageData.homeThumbnailBytesList.isEmpty) {
         
         final thumbnailBytes = await thumbnailGetter.retrieveParams(fileName: '');
 
-        GlobalsData.homeThumbnailData.addAll(thumbnailBytes);
+        storageData.setHomeThumbnailBytes(thumbnailBytes);
         getByteValue.addAll(thumbnailBytes);
 
       } else {
-        getByteValue.addAll(GlobalsData.homeThumbnailData);
+        getByteValue.addAll(storageData.homeThumbnailBytesList);
       }
 
     } else if (tableName == GlobalsTable.directoryInfoTable) {
 
-      if(GlobalsData.directoryImageData.isEmpty) {
+      if(storageData.directoryImageBytesList.isEmpty) {
 
         final dirImage = await Future.wait(List.generate(1, (_) => getAssets.loadAssetsData('dir1.png')));
         getByteValue.addAll(dirImage);
 
-        GlobalsData.directoryImageData.addAll(dirImage);
+        storageData.setDirectoryImageBytes(dirImage);
 
       } else {
-        getByteValue.addAll(GlobalsData.directoryImageData);
+        getByteValue.addAll(storageData.directoryImageBytesList);
       }
 
     } else {

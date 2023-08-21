@@ -234,7 +234,6 @@ class PsCommentDialog {
 
   void clearValues() async {
     await NotificationApi.stopNotification(0);
-    psUploadData.setUploadPassed(false);
     psUploadData.setCommentValue('');
     psUploadData.setTagValue('');
     commentController.clear();

@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/global_data.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
+import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/thumbnail_getter.dart';
 import 'package:get_it/get_it.dart';
@@ -24,7 +24,8 @@ class ByteGetterPs {
   static const _fileInfoExe = 'ps_info_exe';
   static const _fileInfoMsi = 'ps_info_msi';
 
-  final _locator = GetIt.instance;
+  final psStorageData = GetIt.instance<PsStorageDataProvider>();
+  final userData = GetIt.instance<UserDataProvider>();
 
   final crud = Crud();
   final getAssets = GetAssets();
@@ -44,10 +45,10 @@ class ByteGetterPs {
 
   Future<List<Uint8List>> getLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
-      if(GlobalsData.psImageData.isEmpty) {
+      if(psStorageData.psImageBytesList.isEmpty) {
         return getFileInfoParams(conn, false);
       } else {
-        return GlobalsData.psImageData;
+        return psStorageData.psImageBytesList;
       }
     } else {
       return getOtherTableParams(conn, tableName, isFromMyPs: false);
@@ -56,10 +57,10 @@ class ByteGetterPs {
 
   Future<List<Uint8List>> myGetLeadingParams(MySQLConnectionPool conn, String tableName) async {
     if (tableName == _fileInfoTable) {
-      if(GlobalsData.myPsImageData.isEmpty) {
+      if(psStorageData.myPsImageBytesList.isEmpty) {
         return getFileInfoParams(conn, true);
       } else {
-        return GlobalsData.myPsImageData;
+        return psStorageData.myPsImageBytesList;
       }
     } else {
       return getOtherTableParams(conn, tableName, isFromMyPs: true);
@@ -67,8 +68,6 @@ class ByteGetterPs {
   }
 
   Future<List<Uint8List>> getFileInfoParams(MySQLConnectionPool conn, bool isFromMyPs) async {
-
-    final userData = _locator<UserDataProvider>();
 
     final String query; 
     final IResultSet executeRetrieval;
@@ -99,8 +98,8 @@ class ByteGetterPs {
     }
     
     isFromMyPs 
-    ? GlobalsData.myPsImageData.addAll(getByteValue)
-    : GlobalsData.psImageData.addAll(getByteValue);
+    ? psStorageData.setMyPsImageBytes(getByteValue)
+    : psStorageData.setPsImageBytes(getByteValue);
 
     return getByteValue;
   }
@@ -111,8 +110,6 @@ class ByteGetterPs {
     {required bool isFromMyPs}
   ) async {
     
-    final userData = _locator<UserDataProvider>();
-
     final getByteValue = <Uint8List>{};
 
     retrieveValue(String iconName) async {
@@ -144,22 +141,22 @@ class ByteGetterPs {
 
     if (tableName == _fileInfoVidTable) {
 
-      if(GlobalsData.psThumbnailData.isEmpty || GlobalsData.myPsThumbnailData.isEmpty) {
+      if(psStorageData.psThumbnailBytesList.isEmpty || psStorageData.myPsThumbnailBytesList.isEmpty) {
 
         final thumbnailBytes = isFromMyPs 
           ? await thumbnailGetter.myRetrieveParams() 
           : await thumbnailGetter.retrieveParams();
 
         isFromMyPs 
-        ? GlobalsData.myPsThumbnailData.addAll(thumbnailBytes)
-        : GlobalsData.psThumbnailData.addAll(thumbnailBytes);
+        ? psStorageData.setMyPsThumbnailBytes(thumbnailBytes)
+        : psStorageData.setPsThumbnailBytes(thumbnailBytes);
 
         getByteValue.addAll(thumbnailBytes);
 
       } else {
         isFromMyPs 
-        ? getByteValue.addAll(GlobalsData.myPsThumbnailData)
-        : getByteValue.addAll(GlobalsData.psThumbnailData);
+        ? getByteValue.addAll(psStorageData.myPsThumbnailBytesList)
+        : getByteValue.addAll(psStorageData.psThumbnailBytesList);
       }
 
     } else {
