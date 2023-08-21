@@ -27,6 +27,8 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
 
   late ValueNotifier<int> _bottomNavigationBarIndex;
   
+  final isPhotosPressedNotifier = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
@@ -66,15 +68,23 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             iconSize: 25.2,
             items: [
               BottomNavigationBarItem(
-                icon: const Icon(Icons.home_outlined),
+                icon: Globals.fileOrigin == "homeFiles" 
+                ? const Icon(Icons.home) 
+                : const Icon(Icons.home_outlined),
                 activeIcon: Globals.fileOrigin == "homeFiles" 
                 ? const Icon(Icons.home) 
                 : const Icon(Icons.home_outlined),
                 label: "Home",
               ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.photo_outlined),
-                activeIcon: Icon(Icons.photo),
+              BottomNavigationBarItem(
+                icon: ValueListenableBuilder(
+                  valueListenable: isPhotosPressedNotifier,
+                  builder: (BuildContext context, bool value, Widget? child) {
+                    return value == false 
+                      ? const Icon(Icons.photo_outlined) 
+                      : const Icon(Icons.photo);
+                  }
+                ),
                 label: "Photos",
               ),
               BottomNavigationBarItem(
@@ -113,9 +123,11 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
 
               switch (indexValue) {
                 case 0:
+                  isPhotosPressedNotifier.value = false;
                   widget.toggleHome();
                   break;
                 case 1:
+                  isPhotosPressedNotifier.value = !isPhotosPressedNotifier.value;
                   widget.togglePhotos();
                   break;
                 case 2:

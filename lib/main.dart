@@ -327,6 +327,33 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   void _togglePhotos() async {
 
+    togglePhotosPressed = !togglePhotosPressed;
+
+    if(togglePhotosPressed) {
+
+      appBarTitle.value = "Photos";
+      searchBarVisibileNotifier.value = false;
+      staggeredListViewSelected.value = true;
+
+      _navDirectoryButtonVisibility(false);
+      _floatingButtonVisiblity(true);
+
+      _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
+
+    } else {
+
+      appBarTitle.value = Globals.originToName[Globals.fileOrigin]!;
+      searchBarVisibileNotifier.value = true;
+      staggeredListViewSelected.value = false;
+
+      if(Globals.fileOrigin == "homeFiles" || Globals.fileOrigin == "dirFiles") {
+        _navDirectoryButtonVisibility(true);
+      }
+
+      _onTextChanged('');
+
+    }
+
     if(Globals.fileOrigin == "psFiles") {
 
       _clearPublicStorageData(clearImage: true);
@@ -336,17 +363,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       await _refreshListView();
       
     }
-
-    appBarTitle.value = "Photos";
-    searchBarVisibileNotifier.value = false;
-    staggeredListViewSelected.value = true;
-
-    _navDirectoryButtonVisibility(false);
-    _floatingButtonVisiblity(true);
-
-    togglePhotosPressed = true;
-
-    _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
 
   }
 
@@ -4417,7 +4433,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         bottomNavigationBar: CustomNavigationBar(
           openFolderDialog: _buildFoldersDialog, 
           toggleHome: _toggleHome,
-          togglePhotos: _togglePhotos, 
+          togglePhotos: _togglePhotos,
           togglePublicStorage: _togglePublicStorage, 
           context: context
         ),
