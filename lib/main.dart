@@ -267,7 +267,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       newFilteredSearchedBytes.add(fileToDisplay.readAsBytesSync());
     }
 
-    //final verifyTableName = tempData.fileOrigin == "dirFiles" ? GlobalsTable.directoryUploadTable : tableName;
     final verifyTableName = tempData.fileOrigin == "dirFiles" ? GlobalsTable.directoryUploadTable : tableName;
     if (tempData.fileOrigin != "offlineFiles") {
       await _insertUserFile(table: verifyTableName, filePath: selectedFileName, fileValue: fileBase64Encoded, vidThumbnail: thumbnailBytes);
@@ -378,7 +377,10 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       return;
     }
 
-    togglePhotosPressed = false;
+    if(togglePhotosPressed) {
+      togglePhotosPressed = false;
+    }
+
     await _refreshPublicStorage();
   
   }
@@ -3519,7 +3521,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           ),
           actions: [
 
-            if(tempData.fileOrigin != "psFiles")
+            if(tempData.fileOrigin != "psFiles" && togglePhotosPressed == false)
             _buildSelectAll(),
 
             _buildMoreOptionsOnSelect(),
@@ -3828,7 +3830,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                 ),
               ),
               Text(
-                psStorageData.psUploaderList[index],
+                ShortenText().cutText(psStorageData.psUploaderList[index], customLength: 12),
                 style: const TextStyle(
                   color: ThemeColor.secondaryWhite,
                   fontSize: 14,

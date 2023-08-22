@@ -28,7 +28,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
 
   final tempData = GetIt.instance<TempDataProvider>();
   
-  final  bottomNavigationBarIndex = ValueNotifier<int>(0); 
+  final bottomNavigationBarIndex = ValueNotifier<int>(0); 
   final isPhotosPressedNotifier = ValueNotifier<bool>(false);
 
   @override
@@ -132,6 +132,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
                   widget.togglePhotos();
                   break;
                 case 2:
+                  isPhotosPressedNotifier.value = false;
                   widget.togglePublicStorage();
                   break;
                 case 3:

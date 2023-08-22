@@ -208,11 +208,9 @@ class CreateTextPageState extends State<CreateText> {
         fileValue: base64Encoded,
       );
 
-      setState(() {
-        saveVisibility = false;
-        textFormEnabled = false;
-        _addTextFileToListView(fileName: getFileName);
-      });
+      saveVisibility = false;
+      textFormEnabled = false;
+      _addTextFileToListView(fileName: getFileName);
 
       await CallNotify().customNotification(
         title: "Text File Saved",
