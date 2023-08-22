@@ -1,9 +1,12 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class BottomTrailingFilter {
+
+  final tempData = GetIt.instance<TempDataProvider>();
 
   Widget _buildFilterTypeButtons(
     String filterName, 
@@ -15,7 +18,7 @@ class BottomTrailingFilter {
   ) {
     return ElevatedButton.icon(
       onPressed: () {
-        Globals.fileOrigin == "psFiles" 
+        tempData.fileOrigin == "psFiles" 
         ? filterTypePublicStorage(filterType) 
         : filterTypeNormal(filterType);
         Navigator.pop(context);

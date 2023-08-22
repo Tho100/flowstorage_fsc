@@ -1,6 +1,6 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +45,7 @@ class SideBarMenu {
   }) {
 
     final userData = _locator<UserDataProvider>();
+    final tempData = _locator<TempDataProvider>();
 
     return Drawer(
       child: Container(
@@ -152,15 +153,6 @@ class SideBarMenu {
                     ),
 
                     _buildSidebarButtons(
-                      title: "Feedback",
-                      icon: Icons.feedback_outlined,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        NavigatePage.goToPageFeedback(context);
-                      }
-                    ),
-
-                    _buildSidebarButtons(
                       title: "Settings",
                       icon: Icons.settings_outlined,
                       onPressed: () async {
@@ -173,7 +165,7 @@ class SideBarMenu {
                 ),
               ),
 
-              if(Globals.fileOrigin != "psFiles")
+              if(tempData.fileOrigin != "psFiles")
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -209,7 +201,7 @@ class SideBarMenu {
                 ],
               ),
 
-              if(Globals.fileOrigin != "psFiles")
+              if(tempData.fileOrigin != "psFiles")
 
               Padding(
                 padding: const EdgeInsets.all(12.0),

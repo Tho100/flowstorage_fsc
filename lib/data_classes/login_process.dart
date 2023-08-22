@@ -5,9 +5,9 @@ import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:get_it/get_it.dart';
@@ -47,12 +47,13 @@ class SignInUser {
 
     final userData = _locator<UserDataProvider>();
     final storageData = _locator<StorageDataProvider>();
+    final tempData = _locator<TempDataProvider>();
 
     final custUsernameList = await userDataRetriever.retrieveAccountTypeAndUsername(email: custEmailInit);
     final custUsernameGetter = custUsernameList[0]!;
     final custTypeGetter = custUsernameList[1]!;
 
-    Globals.fileOrigin = "homeFiles";
+    tempData.setOrigin("homeFiles");
     userData.setUsername(custUsernameGetter);
     userData.setEmail(custEmailInit);
     userData.setAccountType(custTypeGetter);

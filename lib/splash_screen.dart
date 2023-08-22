@@ -3,13 +3,13 @@ import 'package:flowstorage_fsc/data_classes/user_data_retriever.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 
 import 'dart:async';
@@ -70,6 +70,7 @@ class SplashScreenState extends State<SplashScreen> {
       
       final locater = GetIt.instance;
       final userData = locater<UserDataProvider>();
+      final tempData = locater<TempDataProvider>();
 
       final getLocalUsername = (await _retrieveLocallyStoredInformation())[0];
       final getLocalEmail = (await _retrieveLocallyStoredInformation())[1];
@@ -88,8 +89,7 @@ class SplashScreenState extends State<SplashScreen> {
         userData.setAccountType(getLocalAccountType);
         userData.setUsername(getLocalUsername);
         userData.setEmail(getLocalEmail);
-
-        Globals.fileOrigin = "homeFiles";
+        tempData.setOrigin("homeFiles");
 
         if(isPassCodeExists) {
 

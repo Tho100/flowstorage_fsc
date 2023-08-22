@@ -6,6 +6,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ class PreviewVideo extends StatefulWidget {
 }
 
 class PreviewVideoState extends State<PreviewVideo> {
+
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   late VideoPlayerController videoPlayerController;
 
@@ -350,10 +354,10 @@ class PreviewVideoState extends State<PreviewVideo> {
   void initState() {
     super.initState();
 
-    indexThumbnail = GetIt.instance<StorageDataProvider>()
-      .fileNamesFilteredList.indexOf(Globals.selectedFileName);
+    indexThumbnail = storageData
+      .fileNamesFilteredList.indexOf(tempData.selectedFileName);
 
-    videoThumbailByte = GetIt.instance<StorageDataProvider>()
+    videoThumbailByte = storageData
       .imageBytesFilteredList[indexThumbnail]!;
       
     videoPlayerController = VideoPlayerController.networkUrl(Uri());

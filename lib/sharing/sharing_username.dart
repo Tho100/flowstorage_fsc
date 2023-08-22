@@ -1,16 +1,15 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
 class SharingName {
 
-  final _locator = GetIt.instance;
+  final userData = GetIt.instance<UserDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   Future<String> shareToOtherName({required int usernameIndex}) async {
-
-    final userData = _locator<UserDataProvider>();
 
     final connection = await SqlConnection.insertValueParams();
 
@@ -32,12 +31,10 @@ class SharingName {
 
   Future<String> sharerName() async {
 
-    final userData = _locator<UserDataProvider>();
-
     final connection = await SqlConnection.insertValueParams();
     
     const query = "SELECT CUST_FROM FROM cust_sharing WHERE CUST_TO = :from AND CUST_FILE_PATH = :filename";
-    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(Globals.selectedFileName)};
+    final params = {'from': userData.username, 'filename': EncryptionClass().encrypt(tempData.selectedFileName)};
     final results = await connection.execute(query,params);
 
     String? sharedToMeName;

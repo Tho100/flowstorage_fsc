@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/extra_query/insert_data.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
@@ -11,6 +10,7 @@ import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
@@ -30,7 +30,9 @@ class CreateText extends StatefulWidget {
 
 class CreateTextPageState extends State<CreateText> {
   
-  final _locator = GetIt.instance;
+  final userData = GetIt.instance<UserDataProvider>();
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   final textEditingController = TextEditingController();
   final fileNameController = TextEditingController();
@@ -47,8 +49,6 @@ class CreateTextPageState extends State<CreateText> {
     required dynamic fileValue,
   }) async {
     
-    final userData = _locator<UserDataProvider>();
-
     List<Future<void>> isolatedFileFutures = [];
 
     isolatedFileFutures.add(InsertData().insertValueParams(
@@ -63,7 +63,7 @@ class CreateTextPageState extends State<CreateText> {
   }
 
   Future<bool> _isFileExists(String fileName) async {
-    return _locator<StorageDataProvider>()
+    return storageData
       .fileNamesList.contains(EncryptionClass().decrypt(fileName));
   }
 
@@ -162,13 +162,13 @@ class CreateTextPageState extends State<CreateText> {
 
     late String tableToUploadTo = "";
 
-    if(Globals.fileOrigin == "homeFiles") {
+    if(tempData.fileOrigin == "homeFiles") {
       tableToUploadTo = GlobalsTable.homeText;
-    } else if (Globals.fileOrigin == "dirFiles") {
+    } else if (tempData.fileOrigin == "dirFiles") {
       tableToUploadTo = GlobalsTable.directoryUploadTable;
-    } else if (Globals.fileOrigin == "foldFiles") {
+    } else if (tempData.fileOrigin == "foldFiles") {
       tableToUploadTo = GlobalsTable.folderUploadTable;
-    } else if (Globals.fileOrigin == "psFiles") {
+    } else if (tempData.fileOrigin == "psFiles") {
       tableToUploadTo = GlobalsTable.psText;
     }
 
@@ -179,12 +179,12 @@ class CreateTextPageState extends State<CreateText> {
 
     final txtImageData = await getAssets.loadAssetsData('txt0.png');
 
-    _locator<StorageDataProvider>().fileDateList.add("Just now");
-    _locator<StorageDataProvider>().fileNamesList.add(fileName);
-    _locator<StorageDataProvider>().fileNamesFilteredList.add(fileName);
+    storageData.fileDateList.add("Just now");
+    storageData.fileNamesList.add(fileName);
+    storageData.fileNamesFilteredList.add(fileName);
     
-    _locator<StorageDataProvider>().imageBytesList.add(txtImageData);
-    _locator<StorageDataProvider>().imageBytesFilteredList.add(txtImageData);
+    storageData.imageBytesList.add(txtImageData);
+    storageData.imageBytesFilteredList.add(txtImageData);
     
   }
 

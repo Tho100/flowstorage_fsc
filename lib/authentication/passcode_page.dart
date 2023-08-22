@@ -5,11 +5,11 @@ import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/user_data_retriever.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/just_loading.dart';
 import 'package:flowstorage_fsc/folder_query/folder_name_retriever.dart';
@@ -61,9 +61,9 @@ class PasscodePageState extends State<PasscodePage> {
       
       final userData = _locator<UserDataProvider>();
       final storageData = _locator<StorageDataProvider>();
+      final tempData = _locator<TempDataProvider>();
 
-      Globals.fileOrigin = "homeFiles";
-
+      tempData.setOrigin("homeFiles");
       userData.setUsername(savedCustUsername);
       userData.setEmail(savedCustEmail);
 

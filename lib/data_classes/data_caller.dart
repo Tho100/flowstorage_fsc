@@ -11,6 +11,7 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/public_storage/data_retriever.dart';
 import 'package:flowstorage_fsc/sharing/sharing_data_receiver.dart';
@@ -27,6 +28,7 @@ class DataCaller {
   final storageData = GetIt.instance<StorageDataProvider>();
   final userData = GetIt.instance<UserDataProvider>();
   final psStorageData = GetIt.instance<PsStorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   final _crud = Crud();
   final _offlineMode = OfflineMode();
@@ -48,7 +50,7 @@ class DataCaller {
       offlineDirPath.createSync();
     }
 
-    Globals.fileOrigin = "offlineFiles";
+    tempData.setOrigin("offlineFiles");
 
     final files = offlineDirPath.listSync().whereType<File>().toList();
 
@@ -212,8 +214,7 @@ class DataCaller {
     storageData.setFilesName(nameList);
     storageData.setFilesDate(fileDateList);
     storageData.setImageBytes(byteList);
-
-    Globals.fileOrigin = "psFiles";
+    tempData.setOrigin("psFiles");
 
     justLoading.stopLoading();
     
@@ -250,7 +251,7 @@ class DataCaller {
     storageData.setFilesDate(fileDateList);
     storageData.setImageBytes(byteList);
 
-    Globals.fileOrigin = "psFiles";
+    tempData.setOrigin("psFiles");
 
     justLoading.stopLoading();
     
@@ -268,7 +269,7 @@ class DataCaller {
     storageData.setFilesDate(fileDateList);
     storageData.setImageBytes(byteList);
 
-    Globals.fileOrigin = "dirFiles";
+    tempData.setOrigin("dirFiles");
 
   }
 
@@ -299,8 +300,8 @@ class DataCaller {
     storageData.setFilesDate(fileDateList);
     storageData.setImageBytes(byteList);
 
-    Globals.fileOrigin = "folderFiles";
-
+    tempData.setOrigin("folderFiles");
+    
   }
 
 }

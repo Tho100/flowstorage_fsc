@@ -8,6 +8,7 @@ import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/models/ajbyte_source.dart';
 import 'package:flowstorage_fsc/previewer/preview_file.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,8 @@ class PreviewAudio extends StatefulWidget {
 
 class PreviewAudioState extends State<PreviewAudio> {
 
-  final _locator = GetIt.instance;
+  final tempData = GetIt.instance<TempDataProvider>();
+  final userData = GetIt.instance<UserDataProvider>();
 
   final sliderValueController = StreamController<double>();
 
@@ -52,7 +54,7 @@ class PreviewAudioState extends State<PreviewAudio> {
 
     try {
       
-      if (Globals.fileOrigin != "offlineFiles") {
+      if (tempData.fileOrigin != "offlineFiles") {
 
         final fileData = await CallPreviewData().callDataAsync(
           tableNamePs: GlobalsTable.psAudio, 
@@ -63,7 +65,7 @@ class PreviewAudioState extends State<PreviewAudio> {
         return fileData;
 
       } else {
-        return await OfflineMode().loadOfflineFileByte(Globals.selectedFileName);
+        return await OfflineMode().loadOfflineFileByte(tempData.selectedFileName);
       }
 
       
@@ -85,7 +87,7 @@ class PreviewAudioState extends State<PreviewAudio> {
       iconPausePlayNotifier.value = Icons.play_arrow_rounded; 
     } else {
 
-      final fileType = Globals.selectedFileName.split('.').last;
+      final fileType = tempData.selectedFileName.split('.').last;
       String? audioContentType;
 
       if (fileType == "wav") {
@@ -307,13 +309,11 @@ class PreviewAudioState extends State<PreviewAudio> {
 
   Widget buildHeader() {
     
-    final userData = _locator<UserDataProvider>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          Globals.selectedFileName.substring(0,Globals.selectedFileName.length-4),
+          tempData.selectedFileName.substring(0,tempData.selectedFileName.length-4),
           style: const TextStyle(
             color: ThemeColor.justWhite,
             fontSize: 24,

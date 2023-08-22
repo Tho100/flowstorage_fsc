@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class StatsPageState extends State<StatisticsPage> {
   
   final userData = GetIt.instance<UserDataProvider>();
   final storageData = GetIt.instance<StorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   @override 
   void initState() {
@@ -131,7 +133,7 @@ class StatsPageState extends State<StatisticsPage> {
 
   Future<int> _countUpload(String tableName) async {
 
-    final dataOrigin = Globals.fileOrigin != "homeFiles"
+    final dataOrigin = tempData.fileOrigin != "homeFiles"
     ? storageData.statisticsFilesName
     : storageData.fileNamesFilteredList;
 

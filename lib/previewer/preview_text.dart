@@ -5,9 +5,11 @@ import 'dart:typed_data';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_preview_file_data.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/widgets/failed_load.dart';
 import 'package:flowstorage_fsc/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,6 +30,8 @@ class PreviewText extends StatefulWidget {
 
 class PreviewTextState extends State<PreviewText> {
 
+  final tempData = GetIt.instance<TempDataProvider>();
+
   Future<Uint8List> _loadOfflineFile(String fileName) async {
     
     final getDirApplication = await getApplicationDocumentsDirectory();
@@ -47,7 +51,7 @@ class PreviewTextState extends State<PreviewText> {
 
     try {
       
-      if (Globals.fileOrigin != "offlineFiles") {
+      if (tempData.fileOrigin != "offlineFiles") {
 
         final fileData = await CallPreviewData().callDataAsync(
           tableNamePs: GlobalsTable.psText, 
@@ -58,7 +62,7 @@ class PreviewTextState extends State<PreviewText> {
         return fileData;
 
       } else {
-        return await _loadOfflineFile(Globals.selectedFileName);
+        return await _loadOfflineFile(tempData.selectedFileName);
       }
 
       

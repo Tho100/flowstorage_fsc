@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,12 +15,11 @@ import 'package:get_it/get_it.dart';
 
 class ThumbnailGetter {
   
-  final _locator = GetIt.instance;
+  final userData = GetIt.instance<UserDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   Future<List<Uint8List>> retrieveParams({required String? fileName}) async {
     
-    final userData = _locator<UserDataProvider>();
-
     final conn = await SqlConnection.insertValueParams();
 
     String query;
@@ -28,13 +27,13 @@ class ThumbnailGetter {
   
     if (fileName != null) {
       query = "SELECT CUST_THUMB FROM ";
-      if (Globals.fileOrigin == "homeFiles") {
+      if (tempData.fileOrigin == "homeFiles") {
         query += "file_info_vid WHERE CUST_USERNAME = :username";
       } else {
         query += "cust_sharing WHERE CUST_FROM = :username";
-        if (Globals.fileOrigin == "sharedFiles") {
+        if (tempData.fileOrigin == "sharedFiles") {
           query += " AND CUST_TO = :username";
-        } else if (Globals.fileOrigin == "sharedToMe") {
+        } else if (tempData.fileOrigin == "sharedToMe") {
           query += " AND CUST_FILE_PATH = :filename";
           params = {'username': userData.username, 'filename': EncryptionClass().encrypt(fileName)};
         }
@@ -62,15 +61,13 @@ class ThumbnailGetter {
     String? subDirName
   }) async {
     
-    final userData = _locator<UserDataProvider>();
-
     final conn = await SqlConnection.insertValueParams();
 
     String? base64EncodeThumbnail;
 
     final encryptedFileName = EncryptionClass().encrypt(fileName);
 
-    if(Globals.fileOrigin == "homeFiles") {
+    if(tempData.fileOrigin == "homeFiles") {
 
       const query = "SELECT CUST_THUMB FROM file_info_vid WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       final params = {
@@ -84,7 +81,7 @@ class ThumbnailGetter {
         base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
       }
 
-    } else if (Globals.fileOrigin == "dirFiles") {
+    } else if (tempData.fileOrigin == "dirFiles") {
 
       const query = "SELECT CUST_THUMB FROM upload_info_directory WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND DIR_NAME = :dirname";
       final params = {
@@ -98,7 +95,7 @@ class ThumbnailGetter {
         base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
       }
 
-    } else if (Globals.fileOrigin == "folderFiles") {
+    } else if (tempData.fileOrigin == "folderFiles") {
       
       const query = "SELECT CUST_THUMB FROM folder_upload_info WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename AND FOLDER_TITLE = :foldname";
       final params = {
@@ -112,7 +109,7 @@ class ThumbnailGetter {
         base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
       }
 
-    } else if (Globals.fileOrigin == "sharedFiles") {
+    } else if (tempData.fileOrigin == "sharedFiles") {
 
       const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
       final params = {
@@ -126,7 +123,7 @@ class ThumbnailGetter {
         base64EncodeThumbnail = row.assoc()['CUST_THUMB'];
       }
 
-    } else if (Globals.fileOrigin == "sharedToMe") {
+    } else if (tempData.fileOrigin == "sharedToMe") {
 
       const query = "SELECT CUST_THUMB FROM cust_sharing WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
       final params = {

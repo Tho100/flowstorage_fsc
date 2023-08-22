@@ -1,9 +1,9 @@
 import 'package:flowstorage_fsc/data_classes/data_caller.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/sharing/add_password_sharing.dart';
 import 'package:flowstorage_fsc/sharing/sharing_options.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
@@ -51,7 +51,9 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   final addPasswordController = TextEditingController();
   final dataCaller = DataCaller();
 
-  final _locator = GetIt.instance;
+  final tempData = GetIt.instance<TempDataProvider>();
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final userData = GetIt.instance<UserDataProvider>();
 
   @override
   void initState() {
@@ -70,14 +72,12 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
   }
 
   void _clearUserRecords() {
-
-    _locator<StorageDataProvider>().fileNamesList.clear();
-    _locator<StorageDataProvider>().foldersNameList.clear();
-    _locator<StorageDataProvider>().fileNamesFilteredList.clear();
-    _locator<StorageDataProvider>().fileDateList.clear();
-    _locator<StorageDataProvider>().imageBytesList.clear();
-    _locator<StorageDataProvider>().imageBytesFilteredList.clear();
-
+    storageData.fileNamesList.clear();
+    storageData.foldersNameList.clear();
+    storageData.fileNamesFilteredList.clear();
+    storageData.fileDateList.clear();
+    storageData.imageBytesList.clear();
+    storageData.imageBytesFilteredList.clear();
   }
 
   void _clearAppCache() async {
@@ -481,8 +481,6 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               topText: "File sharing", 
               bottomText: sharingEnabledButton, 
               onPressed: () async {
-                
-                final userData = _locator<UserDataProvider>();
 
                 sharingEnabledButton == 'Disable' 
                 ? await SharingOptions.disableSharing(custUsername) 
@@ -553,7 +551,7 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
               bottomText: "Get more insight about your Flowstorage activity", 
               onPressed: () async {
 
-                if(Globals.fileOrigin != "homeFiles") {
+                if(tempData.fileOrigin != "homeFiles") {
                   await dataCaller.homeData(isFromStatistics: true);
                 }
 

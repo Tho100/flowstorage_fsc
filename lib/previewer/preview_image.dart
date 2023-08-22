@@ -1,5 +1,5 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -20,16 +20,17 @@ class PreviewImageState extends State<PreviewImage> {
   late final PageController pageController;
 
   final storageData = GetIt.instance<StorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   @override
   void initState() {
     super.initState();
-    currentSelectedIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
+    currentSelectedIndex = storageData.fileNamesFilteredList.indexOf(tempData.selectedFileName);
     pageController = PageController(initialPage: currentSelectedIndex);
   }
 
   void handlePageChange(int index) {
-    Globals.selectedFileName = storageData.fileNamesFilteredList[index];
+    tempData.setCurrentFileName(storageData.fileNamesFilteredList[index]);
     widget.onPageChanged(); 
   }
 

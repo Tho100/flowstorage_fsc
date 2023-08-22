@@ -1,9 +1,12 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
 class UploaderName {
+
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   Future<String> getUploaderName({
     required String tableName,
@@ -39,7 +42,7 @@ class UploaderName {
     return false;
     }).toList();
 
-    final usernameIndex = getVideoFiles.indexOf(Globals.selectedFileName);
+    final usernameIndex = getVideoFiles.indexOf(tempData.selectedFileName);
 
     return usernameIndex;
   }

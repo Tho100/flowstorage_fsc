@@ -1,6 +1,7 @@
-import 'package:flowstorage_fsc/global/globals.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class CustomNavigationBar extends StatefulWidget {
 
@@ -25,19 +26,19 @@ class CustomNavigationBar extends StatefulWidget {
 
 class CustomNavigationBarState extends State<CustomNavigationBar> {
 
-  late ValueNotifier<int> _bottomNavigationBarIndex;
+  final tempData = GetIt.instance<TempDataProvider>();
   
+  final  bottomNavigationBarIndex = ValueNotifier<int>(0); 
   final isPhotosPressedNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
-    _bottomNavigationBarIndex = ValueNotifier<int>(0);
   }
 
   @override
   void dispose() {
-    _bottomNavigationBarIndex.dispose();
+    bottomNavigationBarIndex.dispose();
     super.dispose();
   }
 
@@ -62,16 +63,16 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             backgroundColor: ThemeColor.mediumBlack,
             unselectedItemColor: Colors.grey,
             fixedColor: Colors.grey,
-            currentIndex: _bottomNavigationBarIndex.value,
+            currentIndex: bottomNavigationBarIndex.value,
             selectedLabelStyle: labelTextStyle,
             unselectedLabelStyle: labelTextStyle,
             iconSize: 25.2,
             items: [
               BottomNavigationBarItem(
-                icon: Globals.fileOrigin == "homeFiles" 
+                icon: tempData.fileOrigin == "homeFiles" 
                 ? const Icon(Icons.home) 
                 : const Icon(Icons.home_outlined),
-                activeIcon: Globals.fileOrigin == "homeFiles" 
+                activeIcon: tempData.fileOrigin == "homeFiles" 
                 ? const Icon(Icons.home) 
                 : const Icon(Icons.home_outlined),
                 label: "Home",
@@ -93,7 +94,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
                   height: 26,
                   child: Image.asset('assets/nice/public_icon.png'),
                 ),
-                activeIcon: Globals.fileOrigin == "psFiles" 
+                activeIcon: tempData.fileOrigin == "psFiles" 
                 ? SizedBox(
                   width: 26,
                   height: 26,
@@ -107,7 +108,7 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
                 label: "Public",
               ),
               BottomNavigationBarItem(
-                icon: Globals.fileOrigin == "folderFiles" 
+                icon: tempData.fileOrigin == "folderFiles" 
                 ? const Icon(Icons.folder) 
                 : const Icon(Icons.folder_outlined),
                 label: "Folders",
@@ -116,9 +117,9 @@ class CustomNavigationBarState extends State<CustomNavigationBar> {
             onTap: (indexValue) async {
 
               if (indexValue == 3) {
-                _bottomNavigationBarIndex.value = _bottomNavigationBarIndex.value;
+                bottomNavigationBarIndex.value = bottomNavigationBarIndex.value;
               } else {
-                _bottomNavigationBarIndex.value = indexValue;
+                bottomNavigationBarIndex.value = indexValue;
               }
 
               switch (indexValue) {

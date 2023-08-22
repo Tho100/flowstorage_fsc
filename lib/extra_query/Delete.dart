@@ -1,6 +1,5 @@
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
@@ -18,19 +17,19 @@ class Delete {
     late final Map<String,String> params;
     final crud = Crud();
 
-    if(Globals.fileOrigin == "homeFiles") {
+    if(tempData.fileOrigin == "homeFiles") {
       query = "DELETE FROM $tableName WHERE CUST_USERNAME = :username AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'filename': fileName!};
-    } else if (Globals.fileOrigin == "sharedToMe") {
+    } else if (tempData.fileOrigin == "sharedToMe") {
       query = "DELETE FROM CUST_SHARING WHERE CUST_TO = :username AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'filename': fileName!};
-    } else if (Globals.fileOrigin == "sharedFiles") {
+    } else if (tempData.fileOrigin == "sharedFiles") {
       query = "DELETE FROM CUST_SHARING WHERE CUST_FROM = :username AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'filename': fileName!};
-    } else if (Globals.fileOrigin == "folderFiles") {
+    } else if (tempData.fileOrigin == "folderFiles") {
       query = "DELETE FROM folder_upload_info WHERE CUST_USERNAME = :username AND FOLDER_TITLE = :foldtitle AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'foldtitle': EncryptionClass().encrypt(tempData.folderName),'filename': fileName!};
-    } else if (Globals.fileOrigin == "dirFiles") {
+    } else if (tempData.fileOrigin == "dirFiles") {
       query = "DELETE FROM upload_info_directory WHERE CUST_USERNAME = :username AND DIR_NAME = :dirname AND CUST_FILE_PATH = :filename";
       params = {'username': username!, 'dirname': EncryptionClass().encrypt(tempData.directoryName),'filename': fileName!};
     }

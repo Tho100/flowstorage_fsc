@@ -1,7 +1,7 @@
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/validate_email.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/header_text.dart';
 import 'package:flowstorage_fsc/widgets/main_button.dart';
@@ -82,6 +82,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
     
     final userData = _locator<UserDataProvider>();
     final storageData = _locator<StorageDataProvider>();
+    final tempData = _locator<TempDataProvider>();
 
     var custUsernameInput = usernameController.text;
     var custEmailInput = emailController.text;
@@ -147,7 +148,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
     userData.setEmail(custEmailInput);
     userData.setAccountType("Basic");
     
-    Globals.fileOrigin = "homeFiles";
+    tempData.setOrigin("homeFiles");
     
     final singleTextLoading = SingleTextLoading();
 

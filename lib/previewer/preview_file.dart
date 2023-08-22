@@ -25,6 +25,7 @@ import 'package:flowstorage_fsc/previewer/preview_text.dart';
 import 'package:flowstorage_fsc/previewer/preview_video.dart';
 import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
@@ -74,17 +75,17 @@ class CakePreviewFile extends StatefulWidget {
 
 class CakePreviewFileState extends State<CakePreviewFile> {
 
-  final _locator = GetIt.instance;
-
   final retrieveData = RetrieveData();
 
   late String fileType;
   late String currentTable;
 
-  late final UserDataProvider userData;
-  late final StorageDataProvider storageData;
-  late final PsStorageDataProvider psStorageData;
+  static final tempData = GetIt.instance<TempDataProvider>();
 
+  final userData = GetIt.instance<UserDataProvider>();
+  final storageData = GetIt.instance<StorageDataProvider>();
+  final psStorageData = GetIt.instance<PsStorageDataProvider>();
+  
   final shareToController = TextEditingController();
   final commentController = TextEditingController();
   final textController = TextEditingController();
@@ -94,7 +95,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final uploaderNameNotifer = ValueNotifier<String>('');
 
   final appBarTitleNotifier = ValueNotifier<String>(
-                                Globals.selectedFileName);
+                                tempData.selectedFileName);
 
   final fileSizeNotifier = ValueNotifier<String>('');
   final fileResolutionNotifier = ValueNotifier<String>('');
@@ -110,16 +111,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   @override
   void initState() {
     super.initState();
-    userData = _locator<UserDataProvider>();
-    storageData = _locator<StorageDataProvider>();
-    psStorageData = _locator<PsStorageDataProvider>();
     fileType = widget.fileType;
     _initializeTableName();
     _initializeUploaderName();
   }
 
   void _initializeTableName() {
-    currentTable = Globals.fileOrigin != "homeFiles" 
+    currentTable = tempData.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
   }
@@ -138,18 +136,18 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   void _updateAppBarTitle() async {
     
-    appBarTitleNotifier.value = Globals.selectedFileName;
+    appBarTitleNotifier.value = tempData.selectedFileName;
 
-    final fileType = Globals.selectedFileName.split('.').last;
+    final fileType = tempData.selectedFileName.split('.').last;
 
-    currentTable = Globals.fileOrigin != "homeFiles" 
+    currentTable = tempData.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 
     : Globals.fileTypesToTableNames[fileType]!;
 
     fileSizeNotifier.value = "";
     fileResolutionNotifier.value = "";
 
-    if(Globals.fileOrigin == "psFiles") {
+    if(tempData.fileOrigin == "psFiles") {
       _initializeUploaderName();
     }
 
@@ -168,7 +166,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     try {   
 
-      if(Globals.fileOrigin != "offlineFiles") {
+      if(tempData.fileOrigin != "offlineFiles") {
 
         final encryptVals = EncryptionClass().encrypt(fileName);
         await Delete().deletionParams(username: username, fileName: encryptVals, tableName: tableName);
@@ -231,11 +229,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       },
       onSharingPressed: () {
         Navigator.pop(context);
-        SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
+        SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
       }, 
       onAOPressed: () async {
         Navigator.pop(context);
-        await _makeAvailableOffline(fileName: Globals.selectedFileName);
+        await _makeAvailableOffline(fileName: tempData.selectedFileName);
       }, 
       context: context
     );
@@ -244,7 +242,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   void _updateRenameFile(String newFileName, int indexOldFile, int indexOldFileSearched) {
     storageData.fileNamesList[indexOldFile] = newFileName;
     storageData.fileNamesFilteredList[indexOldFileSearched] = newFileName;
-    Globals.selectedFileName = newFileName;
+    tempData.setCurrentFileName(newFileName);
     appBarTitleNotifier.value = newFileName;
   }
 
@@ -255,7 +253,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     try {
       
-      Globals.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : await OfflineMode().renameFile(oldFileName,newFileName);
+      tempData.fileOrigin != "offlineFiles" ? await Rename().renameParams(oldFileName, newFileName, tableName) : await OfflineMode().renameFile(oldFileName,newFileName);
       int indexOldFile = storageData.fileNamesList.indexOf(oldFileName);
       int indexOldFileSearched = storageData.fileNamesFilteredList.indexOf(oldFileName);
 
@@ -345,7 +343,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            Globals.selectedFileName.length > 28 ? "${Globals.selectedFileName.substring(0,28)}..." : Globals.selectedFileName,
+            tempData.selectedFileName.length > 28 ? "${tempData.selectedFileName.substring(0,28)}..." : tempData.selectedFileName,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -402,11 +400,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     try {
 
 
-      if(Globals.fileOrigin != "offlineFiles") {
+      if(tempData.fileOrigin != "offlineFiles") {
 
         await UpdateValues().insertValueParams(
           tableName: currentTable, 
-          filePath: Globals.selectedFileName, 
+          filePath: tempData.selectedFileName, 
           userName: userData.username, 
           newValue: changesUpdate,
           columnName: "null",
@@ -416,7 +414,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
         OfflineMode().saveOfflineTextFile(
           inputValue: changesUpdate, 
-          fileName: Globals.selectedFileName, 
+          fileName: tempData.selectedFileName, 
           isFromCreateTxt: false
         );
         
@@ -467,14 +465,14 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     try {
 
       final fileType = fileName.split('.').last;
-      final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType]! : Globals.fileTypesToTableNames[fileType];
+      final tableName = tempData.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileType]! : Globals.fileTypesToTableNames[fileType];
       final loadingDialog = MultipleTextLoading();
       
       loadingDialog.startLoading(title: "Downloading...", subText: fileName, context: context);
 
       late Uint8List fileData;
 
-      if(Globals.fileOrigin != "offlineFiles") {
+      if(tempData.fileOrigin != "offlineFiles") {
 
         if(Globals.imageType.contains(fileType)) {
           fileData = storageData.imageBytesFilteredList[storageData.fileNamesList.indexOf(fileName)]!;
@@ -514,7 +512,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
             
             if(originFrom == "download") {
 
-              await _callFileDownload(fileName: Globals.selectedFileName);
+              await _callFileDownload(fileName: tempData.selectedFileName);
 
             } else if (originFrom == "comment") {
               Navigator.push(
@@ -523,13 +521,13 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               );
             } else if (originFrom == "share") {
 
-              SharingDialog().buildSharingDialog(fileName: Globals.selectedFileName, shareToController: shareToController,commentController: commentController,context: context);
+              SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, shareToController: shareToController,commentController: commentController,context: context);
 
             } else if (originFrom == "save") {
               
               final textValue = textController.text;
 
-              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles") {
+              if(textValue.isNotEmpty && currentTable == GlobalsTable.homeText || currentTable == GlobalsTable.psText && tempData.fileOrigin == "offlineFiles") {
 
                 await _updateTextChanges(textValue,context);
                 return;
@@ -566,7 +564,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     } else if (widget.originFrom == "psFiles") {
 
-      final uploaderNameIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
+      final uploaderNameIndex = storageData.fileNamesFilteredList.indexOf(tempData.selectedFileName);
       uploaderNameNotifer.value = psStorageData.psUploaderList[uploaderNameIndex];
 
     } else {
@@ -653,7 +651,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   
               currentTable == 
               GlobalsTable.homeText 
-              || currentTable == GlobalsTable.psText && Globals.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
+              || currentTable == GlobalsTable.psText && tempData.fileOrigin == "offlineFiles" ? _buildBottomButtons(const Icon(Icons.save, size: 22), ThemeColor.darkPurple, 60, 45,"save",context) : const Text(''),
   
               _buildBottomButtons(const Icon(Icons.download, size: 22), ThemeColor.darkPurple, 60, 45,"download",context),
   
@@ -680,14 +678,14 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   Future<Uint8List> _callFileSize() async {
-    return await retrieveData.retrieveDataParams(userData.username, Globals.selectedFileName, currentTable, widget.originFrom);
+    return await retrieveData.retrieveDataParams(userData.username, tempData.selectedFileName, currentTable, widget.originFrom);
   }
 
   Future<String> _getFileSize() async {
 
-    final fileType = Globals.selectedFileName.split('.').last;
+    final fileType = tempData.selectedFileName.split('.').last;
 
-    final fileIndex = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
+    final fileIndex = storageData.fileNamesFilteredList.indexOf(tempData.selectedFileName);
     final getFileByte = Globals.imageType.contains(fileType) 
       ? storageData.imageBytesFilteredList[fileIndex] 
       : await _callFileSize();
@@ -699,7 +697,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   Future<String> _returnImageSize() async {
 
-    final indexImage = storageData.fileNamesFilteredList.indexOf(Globals.selectedFileName);
+    final indexImage = storageData.fileNamesFilteredList.indexOf(tempData.selectedFileName);
     final imageBytes = storageData.imageBytesFilteredList.elementAt(indexImage);
 
     final imageSize = await _getImageResolution(imageBytes!);
@@ -747,7 +745,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     
     if(fileResolutionNotifier.value.isEmpty) {
 
-      final fileType = Globals.selectedFileName.split('.').last;
+      final fileType = tempData.selectedFileName.split('.').last;
 
       if (Globals.videoType.contains(fileType) || Globals.imageType.contains(fileType)) {
         fileResolutionNotifier.value = await _returnImageSize();
@@ -790,7 +788,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildFileInfoHeader("File Name", Globals.selectedFileName),
+                  _buildFileInfoHeader("File Name", tempData.selectedFileName),
                   const SizedBox(height: 8),
                   ValueListenableBuilder(
                     valueListenable: fileResolutionNotifier, 
@@ -870,7 +868,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   }
 
   void _copyAppBarTitle() {
-    Clipboard.setData(ClipboardData(text: Globals.selectedFileName));
+    Clipboard.setData(ClipboardData(text: tempData.selectedFileName));
     CallToast.call(message: "Copied to clipboard");
   }
 

@@ -12,9 +12,6 @@ class Globals {
 
   static final _tempData = GetIt.instance<TempDataProvider>();
 
-  static String fileOrigin = '';
-  static String selectedFileName = '';
-
   static const String fileInfoTable = 'file_info';
   static const String fileInfoExpandTable = 'file_info_expand';
   static const String fileInfoPdfTable = 'file_info_pdf';

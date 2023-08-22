@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
-import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
@@ -34,7 +33,7 @@ class UpdateValues  {
     encryptedFilePath = EncryptionClass().encrypt(filePath);
     encryptedFileVal = EncryptionClass().encrypt(newValue);
 
-    if (Globals.fileOrigin == "homeFiles") {
+    if (tempData.fileOrigin == "homeFiles") {
 
       if (tableName == "information") {
 
@@ -61,7 +60,7 @@ class UpdateValues  {
         await conn.execute(query, params);
       }
       
-    } else if (Globals.fileOrigin == "dirFiles") {
+    } else if (tempData.fileOrigin == "dirFiles") {
 
       final encryptedDirectoryName = EncryptionClass().encrypt(tempData.directoryName);
 
@@ -70,7 +69,7 @@ class UpdateValues  {
 
       await conn.execute(query, params);
 
-    } else if (Globals.fileOrigin == "folderFiles") {
+    } else if (tempData.fileOrigin == "folderFiles") {
 
       final encryptedFolderName = EncryptionClass().encrypt(tempData.folderName);
 

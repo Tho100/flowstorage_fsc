@@ -10,6 +10,7 @@ import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/ask_sharing_password_dialog.dart';
 import 'package:flowstorage_fsc/sharing/share_file.dart';
@@ -27,7 +28,8 @@ class SharingDialog {
 
   final retrieveData = RetrieveData();
   final shareFileData = ShareFileData();
-
+  
+  final tempData = GetIt.instance<TempDataProvider>();
   final storageData = GetIt.instance<StorageDataProvider>();
   final userData = GetIt.instance<UserDataProvider>();
 
@@ -53,7 +55,7 @@ class SharingDialog {
   }
 
   Future<Uint8List> _callData(String selectedFilename,String tableName) async {
-    return await retrieveData.retrieveDataParams(userData.username, selectedFilename, tableName,Globals.fileOrigin);
+    return await retrieveData.retrieveDataParams(userData.username, selectedFilename, tableName,tempData.fileOrigin);
   }
 
   Future<void> _prepareFileToShare({
@@ -64,7 +66,7 @@ class SharingDialog {
   }) async {
 
     final fileExtension = fileName.split('.').last;
-    final tableName = Globals.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileExtension]! : Globals.fileTypesToTableNames[fileExtension]!;
+    final tableName = tempData.fileOrigin != "homeFiles" ? Globals.fileTypesToTableNamesPs[fileExtension]! : Globals.fileTypesToTableNames[fileExtension]!;
 
     String? thumbnailBase64;
 
