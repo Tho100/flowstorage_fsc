@@ -448,7 +448,8 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     singleLoading.startLoading(title: "Preparing...", context: context);
 
     if(Globals.imageType.contains(fileType)) {
-      fileData = storageData.imageBytesFilteredList[widget.tappedIndex]!;
+      final imageIndex = storageData.fileNamesFilteredList.indexOf(fileName);
+      fileData = storageData.imageBytesFilteredList[imageIndex]!;
     } else {
       fileData = await _callDataDownload();
     }
