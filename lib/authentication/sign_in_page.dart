@@ -7,6 +7,7 @@ import 'package:flowstorage_fsc/widgets/main_text_field.dart';
 import 'package:flowstorage_fsc/data_classes/login_process.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,8 +26,8 @@ class CakeSignInPageState extends State<CakeSignInPage> {
 
   BuildContext? loginContext;
 
-  bool isChecked = false; 
-  bool visiblePassword = false; 
+  final isCheckedNotifier = ValueNotifier<bool>(false); 
+  final visiblePasswordNotifier = ValueNotifier<bool>(false); 
 
   final emailController = TextEditingController();
   final auth0Controller = TextEditingController();
@@ -41,7 +42,7 @@ class CakeSignInPageState extends State<CakeSignInPage> {
     loginContext = context;
 
     final loginSetup = SignInUser();
-    await loginSetup.logParams(email, auth0, auth1, isChecked, context);
+    await loginSetup.logParams(email, auth0, auth1, isCheckedNotifier.value, context);
 
   }
   
@@ -81,7 +82,7 @@ class CakeSignInPageState extends State<CakeSignInPage> {
   @override
   void initState() {
     super.initState();
-    visiblePassword = false;
+    visiblePasswordNotifier.value = false;
   }
 
   @override
@@ -151,43 +152,44 @@ class CakeSignInPageState extends State<CakeSignInPage> {
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(width: 2.0, color: ThemeColor.darkBlack),
                   ),
-                  child: TextFormField(
-                    style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
-                    enabled: true,
-                    controller: auth0Controller,
-                    obscureText: !visiblePassword,
-                    
-                    decoration: InputDecoration(
-                      
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          visiblePassword ? Icons.visibility : Icons.visibility_off,
-                          color: const Color.fromARGB(255, 141, 141, 141),
-                        ), 
-                        onPressed: () { 
-                          setState(() {
-                            visiblePassword = !visiblePassword;
-                          });
-                        },
-                      ),
-              
-                      hintText: "Enter your password",
-                      contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
-                      hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
-                      fillColor: ThemeColor.darkGrey,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          width: 2.0,
-                          color: Color.fromARGB(255, 6, 102, 226),
+                  child: ValueListenableBuilder(
+                    valueListenable: visiblePasswordNotifier,
+                    builder: (BuildContext context, bool value, Widget? child) {
+                      return TextFormField(
+                        style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
+                        enabled: true,
+                        controller: auth0Controller,
+                        obscureText: !value,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              value ? Icons.visibility : Icons.visibility_off,
+                              color: const Color.fromARGB(255, 141, 141, 141),
+                            ), 
+                            onPressed: () { 
+                              visiblePasswordNotifier.value = !visiblePasswordNotifier.value;
+                            },
+                          ),
+                                  
+                          hintText: "Enter your password",
+                          contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
+                          hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
+                          fillColor: ThemeColor.darkGrey,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              width: 2.0,
+                              color: Color.fromARGB(255, 6, 102, 226),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -257,12 +259,15 @@ class CakeSignInPageState extends State<CakeSignInPage> {
               ),
               child: Row(
                 children: [
-                  Checkbox(
-                    value: isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value ?? false;
-                      });
+                  ValueListenableBuilder(
+                    valueListenable: isCheckedNotifier,
+                    builder: (BuildContext context, bool value, Widget? child) {
+                      return Checkbox(
+                        value: value,
+                        onChanged: (checkedValue) {
+                          isCheckedNotifier.value = checkedValue ?? false;
+                        },
+                      );
                     },
                   ),
                   const Text(

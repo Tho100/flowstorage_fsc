@@ -26,7 +26,7 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
 
   final dateNow = DateFormat('yyyy/MM/dd').format(DateTime.now());
 
-  bool _visiblePasswordSignUp = false;
+  final visiblePasswordNotifier = ValueNotifier<bool>(false);
 
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
@@ -231,43 +231,44 @@ class CakeSignUpPageState extends State<CakeSignUpPage> {
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(width: 2.0, color: ThemeColor.darkBlack),
                     ),
-                    child: TextFormField(
-                      style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
-                      enabled: true,
-                      controller: auth0Controller,
-                      obscureText: !_visiblePasswordSignUp,
-                      
-                      decoration: InputDecoration(
-                        
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _visiblePasswordSignUp ? Icons.visibility : Icons.visibility_off,
-                            color: const Color.fromARGB(255, 141, 141, 141),
-                          ), 
-                          onPressed: () { 
-                            setState(() {
-                              _visiblePasswordSignUp = !_visiblePasswordSignUp;
-                            });
-                          },
-                        ),
-                
-                        hintText: "Enter a password",
-                        contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
-                        hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
-                        fillColor: ThemeColor.darkGrey,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            width: 2.0,
-                            color: Color.fromARGB(255, 6, 102, 226),
+                    child: ValueListenableBuilder(
+                      valueListenable: visiblePasswordNotifier,
+                      builder: (context, value, child) {
+                        return TextFormField(
+                          style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
+                          enabled: true,
+                          controller: auth0Controller,
+                          obscureText: !value,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                value ? Icons.visibility : Icons.visibility_off,
+                                color: const Color.fromARGB(255, 141, 141, 141),
+                              ), 
+                              onPressed: () { 
+                                visiblePasswordNotifier.value = !visiblePasswordNotifier.value;
+                              },
+                            ),
+                                      
+                            hintText: "Enter a password",
+                            contentPadding: const EdgeInsets.fromLTRB(20.0, 18.0, 10.0, 25.0),
+                            hintStyle: const TextStyle(color: Color.fromARGB(255, 197, 197, 197)),
+                            fillColor: ThemeColor.darkGrey,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                width: 2.0,
+                                color: Color.fromARGB(255, 6, 102, 226),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
