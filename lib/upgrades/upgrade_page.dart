@@ -35,9 +35,6 @@ class _UpgradePage extends State<UpradePage> {
 
   final singleLoading = SingleTextLoading();
 
-  final cardButtonHeight = 65.0;
-  final cardButtonWidth = 415.0;
-
   Widget _buildBanner() {
     return const Column(
       children: [
@@ -74,14 +71,15 @@ class _UpgradePage extends State<UpradePage> {
           fontSize: 20
         ),
       ),
+      maxLines: 1,
       textAlign: TextAlign.left,
     );
   }
 
   Widget _buildGetNowButton(VoidCallback getNowOnPressed) {
     return SizedBox(
-      width: cardButtonWidth,
-      height: cardButtonHeight,
+      width: MediaQuery.of(context).size.width-55,
+      height: 65,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: ThemeColor.darkBlack,
@@ -119,85 +117,92 @@ class _UpgradePage extends State<UpradePage> {
               color: ThemeColor.justWhite,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 125),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,                        
-                        children: [
-                          _buildSubHeader("PLAN"),
-                          Text("MAX",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 250, 195, 4),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 34
-                              ),
+                Row(
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubHeader("PLAN"),
+                        Text("MAX",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 250, 195, 4),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSubHeader("PRICE"),
-                          Text("\$2/monthly",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 15, 15, 15),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 28
-                              ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 50),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubHeader("PRICE"),
+                        Text("\$2/monthly",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 15, 15, 15),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 130),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,                        
-                    children: [
-                      _buildSubHeader("FEATURES"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 150 Files"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 5 Folders"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Unlocked Folder Download"),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 25),
 
+                Row( 
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(  
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubHeader("FEATURES"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 150 Files"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 5 Folders"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Unlocked Folder Download"),
+                      ],
+                    ),
+                  ],
+                ), 
+                
                 const Spacer(),
 
-                _buildGetNowButton(() {
-                  userChoosenPlan = "Max";
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const MaxPage())).
-                    then((value) 
-                      async => await validatePayment()
-                  );
-                }),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildGetNowButton(() {
+                    userChoosenPlan = "Max";
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const MaxPage())).
+                      then((value) 
+                        async => await validatePayment()
+                    );
+                  }),
+                ),
 
                 const SizedBox(height: 12),
 
-                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13)
+                ),
 
                 const SizedBox(height: 35),
 
@@ -226,87 +231,93 @@ class _UpgradePage extends State<UpradePage> {
               color: ThemeColor.justWhite,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 60),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,                        
-                        children: [
-                          _buildSubHeader("PLAN"),
-                          Text("SUPREME",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 74, 3, 164),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 34
-                              ),
+                Row(
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                        
+                      children: [
+                        _buildSubHeader("PLAN"),
+                        Text("SUPREME",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 74, 3, 164),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSubHeader("PRICE"),
-                          Text("\$20/monthly",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 15, 15, 15),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 28
-                              ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 50),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubHeader("PRICE"),
+                        Text("\$20/monthly",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 15, 15, 15),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 130),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,                        
-                    children: [
-                      _buildSubHeader("FEATURES"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 2000 Files"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 20 Folders"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 5 Directories"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Unlocked Folder Download"),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 25),
 
+                Row(
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                        
+                      children: [
+                        _buildSubHeader("FEATURES"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 2000 Files"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 20 Folders"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 5 Directories"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Unlocked Folder Download"),
+                      ],
+                    ),
+                  ],
+                ),
+                
                 const Spacer(),
 
-                _buildGetNowButton(() {
-                  userChoosenPlan = "Supreme";
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const SupremePage())).
-                    then((value) 
-                      async => await validatePayment()
-                  );
-                }),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildGetNowButton(() {
+                    userChoosenPlan = "Supreme";
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const SupremePage())).
+                      then((value) 
+                        async => await validatePayment()
+                    );
+                  }),
+                ),
 
                 const SizedBox(height: 12),
 
-                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13)
+                ),
 
                 const SizedBox(height: 35),
 
@@ -335,85 +346,92 @@ class _UpgradePage extends State<UpradePage> {
               color: ThemeColor.justWhite,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 60),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,                        
-                        children: [
-                          _buildSubHeader("PLAN"),
-                          Text("EXPRESS",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 40, 100, 169),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 34
-                              ),
+                Row(
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                        
+                      children: [
+                        _buildSubHeader("PLAN"),
+                        Text("EXPRESS",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 40, 100, 169),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSubHeader("PRICE"),
-                          Text("\$8/monthly",
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 15, 15, 15),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 28
-                              ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 50),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubHeader("PRICE"),
+                        Text("\$8/monthly",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: Color.fromARGB(255, 15, 15, 15),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28
                             ),
-                            textAlign: TextAlign.left,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 22.0, right: 130),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,                        
-                    children: [
-                      _buildSubHeader("FEATURES"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 800 Files"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Upload Up To 10 Folders"),
-                      const SizedBox(height: 5),
-                      _buildFeatures("+ Unlocked Folder Download"),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 25),
 
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,                        
+                      children: [
+                        _buildSubHeader("FEATURES"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 800 Files"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Upload Up To 10 Folders"),
+                        const SizedBox(height: 5),
+                        _buildFeatures("+ Unlocked Folder Download"),
+                      ],
+                    ),
+                  ],
+                ),
+                
                 const Spacer(),
 
-                _buildGetNowButton(() {
-                  userChoosenPlan = "Express";
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const ExpressPage())).
-                    then((value) 
-                      async => await validatePayment()
-                  );
-                }),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildGetNowButton(() {
+                    userChoosenPlan = "Express";
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const ExpressPage())).
+                      then((value) 
+                        async => await validatePayment()
+                    );
+                  }),
+                ),
 
                 const SizedBox(height: 12),
 
-                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+                Align(
+                  alignment: Alignment.center,
+                  child: _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13)
+                ),
 
                 const SizedBox(height: 35),
 
