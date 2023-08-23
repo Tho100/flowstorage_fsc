@@ -2287,15 +2287,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     
   }
 
-  /// <summary>
-  /// 
-  /// Build shared bottom menu options:
-  /// 
-  /// Shared to me 
-  /// Shared to others
-  /// 
-  /// </summary>
-
   Future _callBottomTrailingShared() {
     final bottomTrailingShared = BottomTrailingShared();
     return bottomTrailingShared.buildTrailing(

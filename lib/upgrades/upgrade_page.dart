@@ -16,6 +16,7 @@ import 'package:flowstorage_fsc/upgrades/supreme_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -34,8 +35,8 @@ class _UpgradePage extends State<UpradePage> {
 
   final singleLoading = SingleTextLoading();
 
-  final cardButtonHeight = 58.0;
-  final cardButtonWidth = 255.0;
+  final cardButtonHeight = 65.0;
+  final cardButtonWidth = 415.0;
 
   Widget _buildBanner() {
     return const Column(
@@ -50,78 +51,60 @@ class _UpgradePage extends State<UpradePage> {
       
   }
 
-  Widget _buildSecondHeader(String text) {
-    return Center(
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: ThemeColor.darkBlack,
-          fontWeight: FontWeight.w600,
-          fontSize: 24,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(String planName) {
+  Widget _buildSubHeader(String text, {double? customFont}) {
     return Text(
-      planName.toUpperCase(),
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.w900,
-        fontSize: 35,
+      text,
+      style: GoogleFonts.poppins(
+        textStyle: TextStyle(
+          color: const Color.fromARGB(255, 18, 18, 18),
+          fontWeight: FontWeight.w600,
+          fontSize: customFont ?? 15,
+        ),
       ),
+      textAlign: TextAlign.left,
     );
   }
 
-  Widget _buildPriceTag(String price) {
-    return Column(
-      children: [
-        const Center(
-          child: Text(
-            "Starting From",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 24,
-            ),
+  Widget _buildFeatures(String text) {
+    return Text(text,
+      style: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          color: Color.fromARGB(255, 15, 15, 15),
+          fontWeight: FontWeight.w600,
+          fontSize: 20
+        ),
+      ),
+      textAlign: TextAlign.left,
+    );
+  }
+
+  Widget _buildGetNowButton(VoidCallback getNowOnPressed) {
+    return SizedBox(
+      width: cardButtonWidth,
+      height: cardButtonHeight,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: ThemeColor.darkBlack,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          )
+        ),
+        onPressed: getNowOnPressed,
+        child: const Text(
+          'Get Now',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+            color: ThemeColor.justWhite,
           ),
         ),
-
-        const SizedBox(height: 28.0),
-
-        Center(
-          child: Text(
-            "\$$price",
-            style: const TextStyle(
-              color: Color.fromARGB(255, 243, 243, 243),
-              fontWeight: FontWeight.w500,
-              fontSize: 75,
-            ),
-          ),
-        ),
-        
-        const SizedBox(height: 5),
-
-        const Center(
-          child: Text(
-            "/monthly",
-            style: TextStyle(
-              color: ThemeColor.mediumGrey,
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-        ),
-      ]
+      ),
     );
   }
 
   Widget _buildMaxPage() {
     return SizedBox(
-      width: 345,
+      width: MediaQuery.of(context).size.width,
       height: 500,
       child: Column(
         children: [
@@ -129,86 +112,203 @@ class _UpgradePage extends State<UpradePage> {
           const SizedBox(height: 45),
         
           Container(
-            width: 345,
+            width: MediaQuery.of(context).size.width,
             height: 500,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient: const LinearGradient(
-                colors: [Color.fromARGB(255, 228, 188, 13),Color.fromARGB(255, 236, 218, 56)],
-              ),
+              borderRadius: BorderRadius.circular(25),
+              color: ThemeColor.justWhite,
             ),
             child: Column(
               children: [
 
-                const SizedBox(height: 15),
-                _buildHeader("max"),
-                const SizedBox(height: 25),
-                _buildPriceTag("3"),
-                const SizedBox(height: 35),
-                _buildSecondHeader("Upload up to 150 files!"),
+                const SizedBox(height: 10),
 
-                const SizedBox(height: 15),
-
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Text(
-                      " + Folder Download",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 125),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,                        
+                        children: [
+                          _buildSubHeader("PLAN"),
+                          Text("MAX",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 250, 195, 4),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 34
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: 5),
-
-                    Text(
-                        " + Upload up to 5 Folders",
-                        style: TextStyle(
-                          color: ThemeColor.darkBlack,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSubHeader("PRICE"),
+                          Text("\$2/monthly",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 15, 15, 15),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 28
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                    
-                  ],
-                ),
-
-                const SizedBox(height: 35),
-
-                SizedBox(
-                  width: cardButtonWidth,
-                  height: cardButtonHeight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColor.darkBlack,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      )
-                    ),
-                    onPressed: () {
-                      userChoosenPlan = "Max";
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(builder: (context) => const MaxPage())).
-                        then((value) 
-                          async => await validatePayment()
-                      );
-                    }, 
-                    child: const Text(
-                      'Get Now',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeColor.justWhite,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 130),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,                        
+                    children: [
+                      _buildSubHeader("FEATURES"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 150 Files"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 5 Folders"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Unlocked Folder Download"),
+                    ],
+                  ),
+                ),
+
+                const Spacer(),
+
+                _buildGetNowButton(() {
+                  userChoosenPlan = "Max";
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => const MaxPage())).
+                    then((value) 
+                      async => await validatePayment()
+                  );
+                }),
+
+                const SizedBox(height: 12),
+
+                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+
+                const SizedBox(height: 35),
+
+              ],
+            ),
+          ),
+        ],
+      ),        
+    );
+  }
+
+  Widget _buildSupremePage() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 500,
+      child: Column(
+        children: [
+
+          const SizedBox(height: 45),
+        
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: 500,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: ThemeColor.justWhite,
+            ),
+            child: Column(
+              children: [
+
+                const SizedBox(height: 10),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 60),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,                        
+                        children: [
+                          _buildSubHeader("PLAN"),
+                          Text("SUPREME",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 74, 3, 164),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 34
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSubHeader("PRICE"),
+                          Text("\$20/monthly",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 15, 15, 15),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 28
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 130),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,                        
+                    children: [
+                      _buildSubHeader("FEATURES"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 2000 Files"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 20 Folders"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 5 Directories"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Unlocked Folder Download"),
+                    ],
+                  ),
+                ),
+
+                const Spacer(),
+
+                _buildGetNowButton(() {
+                  userChoosenPlan = "Supreme";
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => const SupremePage())).
+                    then((value) 
+                      async => await validatePayment()
+                  );
+                }),
+
+                const SizedBox(height: 12),
+
+                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+
+                const SizedBox(height: 35),
 
               ],
             ),
@@ -220,7 +320,7 @@ class _UpgradePage extends State<UpradePage> {
 
   Widget _buildExpressPage() {
     return SizedBox(
-      width: 345,
+      width: MediaQuery.of(context).size.width,
       height: 500,
       child: Column(
         children: [
@@ -228,196 +328,94 @@ class _UpgradePage extends State<UpradePage> {
           const SizedBox(height: 45),
         
           Container(
-            width: 345,
+            width: MediaQuery.of(context).size.width,
             height: 500,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient: const LinearGradient(
-                colors: [Color.fromARGB(255, 93, 108, 248),Color.fromARGB(255, 36, 72, 192)],
-              ),
+              borderRadius: BorderRadius.circular(25),
+              color: ThemeColor.justWhite,
             ),
             child: Column(
               children: [
 
-                const SizedBox(height: 15),
-                _buildHeader("express"),
-                const SizedBox(height: 25),
-                _buildPriceTag("8"),
-                const SizedBox(height: 35),
-                _buildSecondHeader("Upload up to 800 files!"),
+                const SizedBox(height: 10),
 
-                const SizedBox(height: 15),
-
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Text(
-                      " + Folder Download",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 60),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,                        
+                        children: [
+                          _buildSubHeader("PLAN"),
+                          Text("EXPRESS",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 40, 100, 169),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 34
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    
-                    SizedBox(height: 5),
-
-                    Text(
-                      " + Upload up to 10 Folders",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSubHeader("PRICE"),
+                          Text("\$8/monthly",
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 15, 15, 15),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 28
+                              ),
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 35),
-
-                SizedBox(
-                  width: cardButtonWidth,
-                  height: cardButtonHeight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColor.darkBlack,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      )
-                    ),
-                    onPressed: () {
-                      userChoosenPlan = "Express";
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(builder: (context) => const ExpressPage())).
-                        then((value) 
-                          async => await validatePayment()
-                      );
-                    }, 
-                    child: const Text(
-                      'Get Now',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeColor.justWhite,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
 
-              ],
-            ),
-          ),
-        ],
-      ),        
-    );
-  }
-
-  Widget _buildSupremeTab() {
-    return SizedBox(
-      width: 345,
-      height: 500,
-      child: Column(
-        children: [
-
-          const SizedBox(height: 45),
-        
-          Container(
-            width: 345,
-            height: 500,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient: const LinearGradient(
-                colors: [Color.fromARGB(255, 141, 79, 223), ThemeColor.darkPurple],
-              ),
-            ),
-            child: Column(
-              children: [
-
-                const SizedBox(height: 15),
-                _buildHeader("supreme"),
-                const SizedBox(height: 25),
-                _buildPriceTag("20"),
-                const SizedBox(height: 35),
-                _buildSecondHeader("Upload up to 2000 files!"),
-
-                const SizedBox(height: 15),
-
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Text(
-                      " + Folder Download",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: 5),
-
-                    Text(
-                      " + Upload up to 5 Directory",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: 5),
-
-                    Text(
-                      " + Upload up to 20 Folders",
-                      style: TextStyle(
-                        color: ThemeColor.darkBlack,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                  ],
-                ),
-
-                const SizedBox(height: 25),
-
-                SizedBox(
-                  width: cardButtonWidth,
-                  height: cardButtonHeight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColor.darkBlack,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      )
-                    ),
-                    onPressed: () {
-                      userChoosenPlan = "Supreme";
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(builder: (context) => const SupremePage())).
-                        then((value) 
-                          async => await validatePayment()
-                      );
-                    }, 
-                    child: const Text(
-                      'Get Now',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeColor.justWhite,
-                      ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 22.0, right: 130),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,                        
+                    children: [
+                      _buildSubHeader("FEATURES"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 800 Files"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Upload Up To 10 Folders"),
+                      const SizedBox(height: 5),
+                      _buildFeatures("+ Unlocked Folder Download"),
+                    ],
                   ),
                 ),
+
+                const Spacer(),
+
+                _buildGetNowButton(() {
+                  userChoosenPlan = "Express";
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => const ExpressPage())).
+                    then((value) 
+                      async => await validatePayment()
+                  );
+                }),
+
+                const SizedBox(height: 12),
+
+                _buildSubHeader("Cancel anytime without getting extra charges", customFont: 13),
+
+                const SizedBox(height: 35),
 
               ],
             ),
@@ -453,7 +451,7 @@ class _UpgradePage extends State<UpradePage> {
               children: [
                 _buildMaxPage(),
                 _buildExpressPage(),
-                _buildSupremeTab(),
+                _buildSupremePage(),
               ],
             ),
           ),
