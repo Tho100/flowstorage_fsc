@@ -35,6 +35,8 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing_add_item.dart';
 import 'package:flowstorage_fsc/interact_dialog/delete_dialog.dart';
 import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_filter.dart';
+import 'package:flowstorage_fsc/widgets/bottom_trailing_shared.dart';
+import 'package:flowstorage_fsc/widgets/bottom_trailing_sorting.dart';
 import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:flowstorage_fsc/widgets/navigation_bar.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
@@ -650,6 +652,14 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     ascendingDescendingIconNotifier.value = isAscendingItemName ? Icons.expand_less : Icons.expand_more;
     sortingText.value = "Item Name";
     _processfileNameSorting();
+  }
+
+  void _sortDefault() async {
+    sortingText.value = "Default";
+    isAscendingItemName = false;
+    isAscendingUploadDate = false;
+    ascendingDescendingIconNotifier.value = Icons.expand_more;
+    await _refreshListView();
   }
 
   void _processUploadDateSorting() {
@@ -2276,21 +2286,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
     
   }
-  
-  Widget _buildSideBarMenu() {
-
-    final menu = SideBarMenu();
-
-    return menu.buildSidebarMenu(
-      context: context, 
-      usageProgress: _getUsageProgressBar(), 
-      offlinePageOnPressed: () async {
-        Navigator.pop(context);
-        await _callOfflineData();
-      }
-    );
-
-  }
 
   /// <summary>
   /// 
@@ -2301,178 +2296,49 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   /// 
   /// </summary>
 
-  Future _buildSharedBottom() {
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkGrey,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      "Shared",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              
-            ElevatedButton(
-              onPressed: () async {
+  Future _callBottomTrailingShared() {
+    final bottomTrailingShared = BottomTrailingShared();
+    return bottomTrailingShared.buildTrailing(
+      context: context, 
+      sharedToMeOnPressed: () async {
 
-                tempData.setOrigin("sharedToMe");
-                appBarTitle.value = "Shared to me";
+        tempData.setOrigin("sharedToMe");
+        appBarTitle.value = "Shared to me";
+        _floatingButtonVisiblity(false);
+        _navDirectoryButtonVisibility(false);
+        Navigator.pop(context);
 
-                _floatingButtonVisiblity(false);
-                _navDirectoryButtonVisibility(false);
-                
-                Navigator.pop(context);
-                await _callSharingData("sharedToMe");
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.chevron_left),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Shared to me',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
+        await _callSharingData("sharedToMe");
+      }, 
+      sharedToOthersOnPressed: () async {
+        tempData.setOrigin("sharedFiles");
+        appBarTitle.value = "Shared files";
+        
+        _floatingButtonVisiblity(false);
+        _navDirectoryButtonVisibility(false);
+        Navigator.pop(context);
 
-            ElevatedButton(
-              onPressed: () async {
-
-                tempData.setOrigin("sharedFiles");
-                appBarTitle.value = "Shared files";
-
-                _floatingButtonVisiblity(false);
-                _navDirectoryButtonVisibility(false);
-                
-                Navigator.pop(context);
-                await _callSharingData("sharedFiles");
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  Icon(Icons.chevron_right),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Shared files',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-
-          ],
-        );
-      },
+        await _callSharingData("sharedFiles");
+      }
     );
   }
 
-  Future _buildSortItemBottom() {
-    return showModalBottomSheet(
-      backgroundColor: ThemeColor.darkGrey,
-      context: context,
-      shape: GlobalsStyle.bottomDialogBorderStyle,
-      builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Text(
-                    "Sort By",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-              
-            ElevatedButton(
-              onPressed: () {
-                _sortUploadDate();
-                Navigator.pop(context);
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Upload Date',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-
-            ElevatedButton(
-              onPressed: () {
-                _sortItemName();
-                Navigator.pop(context);
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Item Name',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-
-            ElevatedButton(
-              onPressed: () async {
-
-                sortingText.value = "Default";
-                isAscendingItemName = false;
-                isAscendingUploadDate = false;
-                ascendingDescendingIconNotifier.value = Icons.expand_more;
-
-                await _refreshListView();
-                if(!mounted) return;
-                Navigator.pop(context);
-
-              },
-              style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-              child: const Row(
-                children: [
-                  SizedBox(width: 10.0),
-                  Text(
-                    'Default',
-                    style: GlobalsStyle.btnBottomDialogTextStyle,
-                  ),
-                ],
-              ),
-            ),
-
-          ],
-        );
+  Future _callBottomTrailingSorting() {
+    final sortingBottomTrailing = BottomTrailingSorting();
+    return sortingBottomTrailing.buildTrailing(
+      context: context, 
+      sortUploadDateOnPressed: () {
+        _sortUploadDate();
+        Navigator.pop(context);
       },
+      sortItemNameOnPressed: () {
+        _sortItemName();
+        Navigator.pop(context);
+      }, 
+      sortDefaultOnPressed: () {
+        _sortDefault();
+        Navigator.pop(context);
+      }
     );
   }
 
@@ -2956,7 +2822,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           
                 ElevatedButton(
                   onPressed: () {
-                    _buildSharedBottom();
+                    _callBottomTrailingShared();
                   },
                   style: GlobalsStyle.btnNavigationBarStyle,
                   child: const Row(
@@ -3057,7 +2923,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _buildSortItemBottom();
+                  _callBottomTrailingSorting();
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
@@ -4419,7 +4285,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       child: Scaffold(
         key: sidebarMenuScaffoldKey,
         backgroundColor: ThemeColor.darkBlack,
-        drawer: _buildSideBarMenu(),
+        drawer: CustomSideBarMenu(
+          context: context,
+          usageProgress: _getUsageProgressBar(),
+          offlinePageOnPressed: () async { _callOfflineData(); }
+        ).buildSidebarMenu(),
         appBar: _buildCustomAppBar(),
         body: storageData.fileNamesList.isEmpty 
 
@@ -4439,7 +4309,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: ValueListenableBuilder<bool>(
           valueListenable: floatingActionButtonVisible,
-          builder: (BuildContext context, bool value, Widget? child) {
+          builder: (context, value, child) {
             return Visibility(
               visible: value,
               child: FloatingActionButton(

@@ -6,9 +6,20 @@ import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class SideBarMenu {
+class CustomSideBarMenu {
 
-  final _locator = GetIt.instance;
+  final BuildContext context;
+  final Future<int> usageProgress;
+  final VoidCallback offlinePageOnPressed;
+
+  CustomSideBarMenu({
+    required this.context,
+    required this.usageProgress,
+    required this.offlinePageOnPressed
+  });
+
+  final userData = GetIt.instance<UserDataProvider>();
+  final tempData = GetIt.instance<TempDataProvider>();
 
   Widget _buildSidebarButtons({
     required String title,
@@ -38,15 +49,7 @@ class SideBarMenu {
     );
   }
 
-  Widget buildSidebarMenu({
-    required BuildContext context,
-    required Future<int> usageProgress,
-    required VoidCallback offlinePageOnPressed
-  }) {
-
-    final userData = _locator<UserDataProvider>();
-    final tempData = _locator<TempDataProvider>();
-
+  Widget buildSidebarMenu() {
     return Drawer(
       child: Container(
         color: ThemeColor.darkBlack,
@@ -140,7 +143,10 @@ class SideBarMenu {
                     _buildSidebarButtons(
                       title: "Offline",
                       icon: Icons.offline_bolt_outlined,
-                      onPressed: offlinePageOnPressed
+                      onPressed: () {
+                        Navigator.pop(context);
+                        offlinePageOnPressed();
+                      }
                     ),
 
                     _buildSidebarButtons(
