@@ -238,14 +238,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     await Future.wait(isolatedFileFutures);
   }
 
- /// <summary>
-  /// 
-  /// Open file dialog for user to select files to upload
-  /// and start retrieving it's file information
-  /// File name, data in bytes, etc
-  /// 
-  /// </summary>
-  
+
   Future<void> _processUploadListView({
     required String filePathVal,
     required String selectedFileName,
@@ -415,7 +408,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     appBarTitle.value = "Home";
     searchHintText.value = "Search in Flowstorage";
 
-    tempData.fileOrigin == "Home";
+    tempData.setOrigin("homeFiles");
     _onTextChanged('');
 
   }
@@ -1082,7 +1075,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   Future<void> _callHomeData() async {
-
+    
     _clearGlobalData();
 
     await dataCaller.homeData();
@@ -1352,6 +1345,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
           storageData.imageBytesFilteredList.add(decodeToBytes);
           storageData.imageBytesList.add(decodeToBytes);
+          setState(() {});
 
         } else {
 
