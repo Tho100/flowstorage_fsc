@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
-import 'package:flowstorage_fsc/widgets/header_text.dart';
 
 import 'package:flowstorage_fsc/upgrades/customers_dashboard.dart';
 import 'package:flowstorage_fsc/upgrades/express_page.dart';
@@ -24,29 +24,18 @@ class UpradePage extends StatefulWidget {
   const UpradePage({super.key});
 
   @override
-  State<UpradePage> createState() => _UpgradePage();
+  State<UpradePage> createState() => UpgradePageState();
 }
 
-class _UpgradePage extends State<UpradePage> {
-
-  final _locator = GetIt.instance;
+class UpgradePageState extends State<UpradePage> {
 
   String userChoosenPlan = "";
 
+  final userData = GetIt.instance<UserDataProvider>();
+
   final singleLoading = SingleTextLoading();
 
-  Widget _buildBanner() {
-    return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: 28),
-          child: HeaderText(title: "Upgrade Plan", subTitle: "Choose a plan to unlock more file upload \nand features!"),
-        ),
-        SizedBox(height: 15),
-      ],
-    );
-      
-  }
+  final cardBorderRadius = 25.0;
 
   Widget _buildSubHeader(String text, {double? customFont}) {
     return Text(
@@ -100,20 +89,23 @@ class _UpgradePage extends State<UpradePage> {
     );
   }
 
-  Widget _buildMaxPage() {
+  Widget _buildMaxPage(double width, double height) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 500,
+      width: width,
+      height: height,
       child: Column(
         children: [
 
-          const SizedBox(height: 45),
+          const SizedBox(height: 52),
         
           Container(
             width: MediaQuery.of(context).size.width,
-            height: 500,
+            height: MediaQuery.of(context).size.height-180,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(cardBorderRadius), 
+                topRight: Radius.circular(cardBorderRadius)
+              ),
               color: ThemeColor.justWhite,
             ),
             child: Column(
@@ -214,20 +206,23 @@ class _UpgradePage extends State<UpradePage> {
     );
   }
 
-  Widget _buildSupremePage() {
+  Widget _buildSupremePage(double width, double height) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 500,
+      width: width,
+      height: height,
       child: Column(
         children: [
 
-          const SizedBox(height: 45),
+          const SizedBox(height: 52),
         
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: 500,
+            width: width,
+            height: height,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(cardBorderRadius), 
+                topRight: Radius.circular(cardBorderRadius)
+              ),
               color: ThemeColor.justWhite,
             ),
             child: Column(
@@ -329,20 +324,23 @@ class _UpgradePage extends State<UpradePage> {
     );
   }
 
-  Widget _buildExpressPage() {
+  Widget _buildExpressPage(double width, double height) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 500,
+      width: width,
+      height: height,
       child: Column(
         children: [
 
-          const SizedBox(height: 45),
+          const SizedBox(height: 52),
         
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: 500,
+            width: width,
+            height: height,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(cardBorderRadius), 
+                topRight: Radius.circular(cardBorderRadius)
+              ),
               color: ThemeColor.justWhite,
             ),
             child: Column(
@@ -444,11 +442,14 @@ class _UpgradePage extends State<UpradePage> {
   }
 
   Widget _buildTabUpgrade() {
+
+    final cardHeight = MediaQuery.of(context).size.height-180;
+    final cardWidth = MediaQuery.of(context).size.width;
+
     return DefaultTabController(
       length: 3,
       child: Column(
         children: [
-          _buildBanner(),
           const TabBar(
             indicatorColor: ThemeColor.darkPurple,
             tabs: [
@@ -463,13 +464,12 @@ class _UpgradePage extends State<UpradePage> {
               ),
             ],
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height-300,
+          Expanded(
             child: TabBarView(
               children: [
-                _buildMaxPage(),
-                _buildExpressPage(),
-                _buildSupremePage(),
+                _buildMaxPage(cardWidth, cardHeight),
+                _buildExpressPage(cardWidth, cardHeight),
+                _buildSupremePage(cardWidth, cardHeight),
               ],
             ),
           ),
@@ -479,8 +479,6 @@ class _UpgradePage extends State<UpradePage> {
   }
 
   Future<void> updateUserAccountPlan(String customerId) async {
-
-    final userData = _locator<UserDataProvider>();
 
     final dateToStr = DateFormat('yyyy/MM/dd').format(DateTime.now());
 
@@ -496,8 +494,6 @@ class _UpgradePage extends State<UpradePage> {
 
   Future<void> updateLocallyStoredAccountType(String accountType) async {
       
-    final userData = _locator<UserDataProvider>();
-
     final getDirApplication = await getApplicationDocumentsDirectory();
 
     final setupPath = '${getDirApplication.path}/FlowStorageInfos';
@@ -531,8 +527,6 @@ class _UpgradePage extends State<UpradePage> {
   Future<void> validatePayment() async {
 
     try {
-
-      final userData = _locator<UserDataProvider>();
 
       singleLoading.startLoading(title: "Validating...",context: context);
 
@@ -578,17 +572,12 @@ class _UpgradePage extends State<UpradePage> {
     return Scaffold(
       backgroundColor: ThemeColor.darkBlack,
       appBar: AppBar(
+        title: const Text("Upgrade Plan",
+          style: GlobalsStyle.appBarTextStyle
+        ),
         backgroundColor: ThemeColor.darkBlack,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          color: ThemeColor.darkPurple, 
-          onPressed: () {
-            Navigator.pop(context); 
-          },
-        ),
      ),
-
       body: _buildTabUpgrade(),
     );
   }
