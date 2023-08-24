@@ -1,7 +1,10 @@
 
+import 'dart:convert';
+
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
+import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
@@ -10,8 +13,43 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:http/http.dart' as http;
 
 class RegisterUser {
+
+  Future<void> sendEmail({required String email}) async {
+    
+    final imageBase64Encoded = base64Encode(await GetAssets().loadAssetsData("greeting_email.png"));
+
+    const apiKey = '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';
+    final url = Uri.parse('https://api.sendgrid.com/v3/mail/send');
+
+    final headers = {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/json',
+    };
+
+    final body = '''
+    {
+      "personalizations": [
+        {
+          "to": [{"email": "$email"}]
+        }
+      ],
+      "from": {"email": "nfrealyt@gmail.com"},
+      "subject": "Flowstorage - Welcome!",
+      "content": [
+        {
+          "type": "text/html",
+          "value": "<img src='$imageBase64Encoded' alt='Embedded Image'>"
+        }
+      ]
+    }
+    ''';
+
+    await http.post(url, headers: headers, body: body);
+
+  }
 
   Future<void> insertParams({
     required String? userName, 
@@ -93,6 +131,8 @@ class RegisterUser {
         params: param,
       );
     }
+
+    await sendEmail(email: email!);
 
     NavigatePage.permanentPageMainboard(context);
     
