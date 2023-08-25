@@ -1,10 +1,8 @@
 
-import 'dart:convert';
-
+import 'package:flowstorage_fsc/api/email_api.dart';
 import 'package:flowstorage_fsc/encryption/hash_model.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
-import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/navigate_page.dart';
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
@@ -13,43 +11,127 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
-import 'package:http/http.dart' as http;
 
 class RegisterUser {
 
-  Future<void> sendEmail({required String email}) async {
-    
-    final imageBase64Encoded = base64Encode(await GetAssets().loadAssetsData("greeting_email.png"));
+// WELCOME
 
-    const apiKey = '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';
-    final url = Uri.parse('https://api.sendgrid.com/v3/mail/send');
+/*<html>
+        <head>
+          <style>
+            .container {
+              background-color: #121212; /* Set your desired background color */
+              padding: 10px; /* Set your desired padding */
+              display: inline-block; /* Display as an inline block to fit the content */
+              border-radius: 5px; /* Add rounded corners */
+            }
+          </style>
+        </head>
+        <body>
+          <h1 style="color: #f6f6f6;"><span class="container">Account Created Successfully</span></h1>
+          <h3>Hello newly registered <span style="color: #4a03a4;">Flowstorage</span> user! You've successfully created an account.</h3>
+          <h2>Here’s a little of things you can do with Flowstorage:</h2>
+          <ul>
+            <li>Backup your photos and videos</li>
+            <li>Backup your files, including documents, text files, etc.</li>
+            <li>... and more!</li>
+            <!-- ...and more -->
+          </ul>
+        </body>
+      </html>*/
 
-    final headers = {
-      'Authorization': 'Bearer $apiKey',
-      'Content-Type': 'application/json',
-    };
+// ACCOUNT PLAN UPGARDED
 
-    final body = '''
-    {
-      "personalizations": [
-        {
-          "to": [{"email": "$email"}]
-        }
-      ],
-      "from": {"email": "nfrealyt@gmail.com"},
-      "subject": "Flowstorage - Welcome!",
-      "content": [
-        {
-          "type": "text/html",
-          "value": "<img src='$imageBase64Encoded' alt='Embedded Image'>"
-        }
-      ]
-    }
-    ''';
+/*    final message = Message()
+    ..from = const Address("nfrealyt@gmail.com", 'Flowstorage')
+    ..recipients.add('flowstoragebusiness@gmail.com')
+    ..subject = 'Flowstorage - Account plan upgraded'
+    ..text = ''
+    ..html = '''
+      <html>
+        <head>
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+          <style>
+            .container {
+              background-color: #121212;
+              padding: 20px; 
+              display: inline-block; 
+              width: 95%;
+              text-align: center;
+              color: #f6f6f6;
+              font-family: 'Poppins', sans-serif; 
+            }
 
-    await http.post(url, headers: headers, body: body);
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              border-radius: 15px;
+            }
 
-  }
+            table, th, td {
+              border: 3px solid #121212;
+            }
+
+            th, td {
+              padding: 10px;
+              text-align: center;
+              color: #121212;
+              font-weight: bold;
+              font-size: 24px;
+              font-family: 'Poppins', sans-serif;
+            }
+
+            .price {
+              font-size: 30px;
+              font-family: 'Poppins', sans-serif;
+            }
+
+            .plan {
+              font-size: 30px;
+              color: #3164a9;
+              font-family: 'Poppins', sans-serif;
+            }
+
+            h2 {
+              color: #121212;
+              font-family: 'Poppins', sans-serif;
+            }
+
+            ul li {
+              font-weight: 600;
+              color: #121212;
+              font-family: 'Poppins', sans-serif;
+            }
+
+            h3 {
+              color: #121212;
+              font-family: 'Poppins', sans-serif;
+            }
+
+          </style>
+        </head>
+        <body>
+          <h1><span class="container">Account Plan Upgraded</span></h1>
+          <table>
+            <tr>
+              <th>PLAN</th>
+              <th>PRICE</th>
+            </tr>
+            <tr>
+              <td class="plan">EXPRESS</td>
+              <td class="price">\$8/monthly</td>
+            </tr>
+          </table>
+          <h2>FEATURES</h2>
+          <ul>
+            <li>Upload Up To 500 Files</li>
+            <li>Upload Up To 20 Folders</li>
+            <li>Unlocked Folder Download</li>
+          </ul>
+          <h3>Cancel anytime without getting extra charges.</h3>
+        </body>
+      </html>
+    '''; */
 
   Future<void> insertParams({
     required String? userName, 
@@ -132,10 +214,13 @@ class RegisterUser {
       );
     }
 
-    await sendEmail(email: email!);
-
-    NavigatePage.permanentPageMainboard(context);
+    final emailSent = await EmailApi() 
+                            .sendFinishedRegistration(email: email!);
     
+    if(emailSent == true) {
+      NavigatePage.permanentPageMainboard(context);
+    }
+
     auth0 = null;
     userName = null;
     email = null;

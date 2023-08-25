@@ -41,6 +41,7 @@ dependencies:
   image_picker_plus: ^0.5.9
   provider: ^6.0.5
   get_it: ^7.6.0
+  mailer: ^6.0.1
   
 dev_dependencies:
   flutter_test:

@@ -1296,6 +1296,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       SelectedImagesDetails? details = await picker.pickImage(
         source: ImageSource.camera,
         galleryDisplaySettings: GalleryDisplaySettings(
+          cropImage: false,
           maximumSelection: 1,
           appTheme: AppTheme(
             focusColor: Colors.white, 
