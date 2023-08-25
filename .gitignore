@@ -10,7 +10,7 @@
 .svn/
 migrate_working_dir/
 
-lib/connection/auth_config.dart
+/lib/connection/auth_config.dart
 
 # IntelliJ related
 *.iml
