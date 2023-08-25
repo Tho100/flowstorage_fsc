@@ -1,10 +1,11 @@
+import 'package:flowstorage_fsc/connection/auth_config.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
 class EmailApi {
 
   static const _fromAddress = "flowstoragebusiness@gmail.com";
-  final smtpServer = gmail(_fromAddress, "mlootywtzrgcqifb");
+  final smtpServer = gmail(_fromAddress, AuthConfig.emailApiAuth);
 
   Future<bool> sendFinishedRegistration({required String email}) async {
 
@@ -84,13 +85,11 @@ class EmailApi {
     return isEmailSent;
   }
 
-  Future<bool> sendAccountUpgraded({
+  Future<void> sendAccountUpgraded({
     required String plan, 
     required String price,
     required String email
   }) async {
-
-    bool isEmailSent = false;
 
     final message = Message()
     ..from = const Address(_fromAddress, 'Flowstorage')
@@ -186,18 +185,15 @@ class EmailApi {
     try {
 
       await send(message, smtpServer);
-      isEmailSent = true;
 
     } on MailerException catch (e) {
 
-      isEmailSent = false;
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
       }
 
     }
 
-    return isEmailSent;
   }
 
 }

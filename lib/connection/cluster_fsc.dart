@@ -6,8 +6,8 @@ class SqlConnection {
   static final dbClusterFsc = MySQLConnectionPool(
     host: AuthConfig.auth0,
     port: AuthConfig.auth01,
-    userName:  AuthConfig.auth02,
-    password:  AuthConfig.auth002,
+    userName: AuthConfig.auth02,
+    password: AuthConfig.auth002,
     databaseName: AuthConfig.authLast,
     maxConnections: 12,
   );
