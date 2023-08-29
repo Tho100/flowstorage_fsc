@@ -171,7 +171,7 @@ class CustomSideBarMenu {
                 ),
               ),
 
-              if(tempData.fileOrigin != "psFiles")
+              if(tempData.fileOrigin != "psFiles" || tempData.fileOrigin == "offlineFiles")
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
