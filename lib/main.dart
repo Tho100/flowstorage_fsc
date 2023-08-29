@@ -1278,7 +1278,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     if(extension == fileName) {
       await _deletionDirectory(fileName);
     } else {
-      await _deletionFile(userData.username,fileName,Globals.fileTypesToTableNames[extension]!);
+      await _deletionFile(userData.username, fileName, Globals.fileTypesToTableNames[extension]!);
     }
     
     tempData.fileOrigin == "homeFiles" ? storageData.homeImageBytesList.clear() : null;
@@ -1469,6 +1469,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         storageData.fileNamesList.removeAt(indexOfFile);
         storageData.fileNamesFilteredList.removeAt(indexOfFile);
         storageData.imageBytesList.removeAt(indexOfFile);
+        storageData.fileDateList.removeAt(indexOfFile);
         storageData.imageBytesFilteredList.removeAt(indexOfFile);
         leadingImageSearchedValue = null;
         fileTitleSearchedValue = null;  
@@ -1481,6 +1482,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         storageData.fileNamesFilteredList.removeAt(indexOfFile);
         storageData.imageBytesList.removeAt(indexOfFile);
         storageData.imageBytesFilteredList.removeAt(indexOfFile);
+        storageData.fileDateList.removeAt(indexOfFile);
         leadingImageSearchedValue = null;
         fileTitleSearchedValue = null;  
       }
@@ -2115,6 +2117,13 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  Future _showUpgradeDialog(int value, BuildContext context)  {
+    return UpgradeDialog.buildUpgradeDialog(
+      message: "You're currently limited to $value uploads. Upgrade your account to upload more.",
+      context: context
+    );
+  }
+
   Future _callBottomTrailingAddItem() {
 
     late String headerText = "";
@@ -2138,10 +2147,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           await _openDialogGallery();
         } else {
-          UpgradeDialog.buildUpgradeDialog(
-            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-            context: context
-          );
+          _showUpgradeDialog(limitUpload, context);
         }
 
       }, 
@@ -2157,22 +2163,19 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            UpgradeDialog.buildUpgradeDialog(
-              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-              context: context
-            );
+            _showUpgradeDialog(limitUpload, context);
           } 
 
         } else {
 
-          if(storageData.fileNamesList.length < limitUpload) {
+          if(tempData.fileOrigin == "offlineFiles") {
+            Navigator.pop(context);
+            await _openDialogFile();
+          } else if (storageData.fileNamesList.length < limitUpload) {
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            UpgradeDialog.buildUpgradeDialog(
-              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-              context: context
-            );
+            _showUpgradeDialog(limitUpload, context);
           }
         }
 
@@ -2205,10 +2208,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             Navigator.pop(context);
             await _openDialogFile();
           } else {
-            UpgradeDialog.buildUpgradeDialog(
-              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-              context: context
-            );
+            _showUpgradeDialog(limitUpload, context);
           }
 
         } else {
@@ -2217,10 +2217,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             Navigator.pop(context);
             await _initializeCamera();
           } else {
-            UpgradeDialog.buildUpgradeDialog(
-              message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-              context: context
-            );
+            _showUpgradeDialog(limitUpload, context);
           }
 
         }
@@ -2232,10 +2229,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           await _initializeCameraScanner();
         } else {
-          UpgradeDialog.buildUpgradeDialog(
-            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-            context: context
-          );
+          _showUpgradeDialog(limitUpload, context);
         }
 
       }, 
@@ -2245,10 +2239,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           Navigator.pop(context);
           NavigatePage.goToPageCreateText(context);
         } else {
-          UpgradeDialog.buildUpgradeDialog(
-            message: "You're currently limited to $limitUpload uploads. Upgrade your account to upload more.",
-            context: context
-          );
+          _showUpgradeDialog(limitUpload, context);
         }
 
       }, 

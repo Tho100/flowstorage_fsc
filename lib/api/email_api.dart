@@ -91,6 +91,12 @@ class EmailApi {
     required String email
   }) async {
 
+    final planToColor = {
+      "Max": "#FAC304",
+      "Express": "#3164A9",
+      "Supreme": "#4A03A4"
+    };
+
     final message = Message()
     ..from = const Address(_fromAddress, 'Flowstorage')
     ..recipients.add(email)
@@ -137,18 +143,7 @@ class EmailApi {
 
             .plan {
               font-size: 30px;
-              color: #3164a9;
-              font-family: 'Poppins', sans-serif;
-            }
-
-            h2 {
-              color: #121212;
-              font-family: 'Poppins', sans-serif;
-            }
-
-            ul li {
-              font-weight: 600;
-              color: #121212;
+              color: ${planToColor[plan]};
               font-family: 'Poppins', sans-serif;
             }
 
@@ -171,12 +166,6 @@ class EmailApi {
               <td class="price">\$$price/monthly</td>
             </tr>
           </table>
-          <h2>FEATURES</h2>
-          <ul>
-            <li>Upload Up To 500 Files</li>
-            <li>Upload Up To 20 Folders</li>
-            <li>Unlocked Folder Download</li>
-          </ul>
           <h3>Cancel anytime without getting extra charges.</h3>
         </body>
       </html>

@@ -171,8 +171,8 @@ class CustomSideBarMenu {
                 ),
               ),
 
-              if(tempData.fileOrigin != "psFiles" || tempData.fileOrigin == "offlineFiles")
-
+              if(tempData.fileOrigin != "psFiles" && tempData.fileOrigin != "offlineFiles") ... [
+                
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -207,8 +207,6 @@ class CustomSideBarMenu {
                 ],
               ),
 
-              if(tempData.fileOrigin != "psFiles")
-
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Container(
@@ -239,6 +237,8 @@ class CustomSideBarMenu {
                   ),
                 ),
               ),
+            ],
+              
           ],
         ),
       ),

@@ -137,7 +137,7 @@ class ChangePasswordState extends State<ChangePassword> {
         const SizedBox(height: 20),
 
         MainButton(
-          text: "Change", 
+          text: "Update", 
           onPressed: () async {
             await _exceuteChanges(curPassController.text, newPassController.text,curPinController.text, context);
           }

@@ -139,6 +139,25 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     appBarTitleNotifier.value = tempData.selectedFileName;
 
     final fileType = tempData.selectedFileName.split('.').last;
+    final fileIndex = storageData.fileNamesFilteredList
+                        .indexOf(tempData.selectedFileName);
+
+    if(Globals.videoType.contains(fileType)) {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CakePreviewFile(
+            custUsername: userData.username,
+            fileValues: storageData.fileNamesList,
+            selectedFilename: tempData.selectedFileName,
+            originFrom: tempData.fileOrigin,
+            fileType: fileType,
+            tappedIndex: fileIndex
+          ),
+        ),
+      );
+    }
 
     currentTable = tempData.fileOrigin != "homeFiles" 
     ? Globals.fileTypesToTableNamesPs[fileType]! 

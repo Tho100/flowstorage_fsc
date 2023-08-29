@@ -112,7 +112,7 @@ class ChangeUsernameState extends State<ChangeUsername> {
         const SizedBox(height: 20),
 
         MainButton(
-          text: "Change", 
+          text: "Update", 
           onPressed: () async {
             await _executeChanges(newUserController.text,passController.text, context);
           }
