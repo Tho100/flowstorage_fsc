@@ -26,6 +26,7 @@ import 'package:flowstorage_fsc/provider/ps_data_provider.dart';
 import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
+import 'package:flowstorage_fsc/provider/temp_payment_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/sharing/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
@@ -95,6 +96,7 @@ void setupLocator() {
   locator.registerLazySingleton<PsUploadDataProvider>(() => PsUploadDataProvider());
   locator.registerLazySingleton<TempDataProvider>(() => TempDataProvider());
   locator.registerLazySingleton<PsStorageDataProvider>(() => PsStorageDataProvider());
+  locator.registerLazySingleton<TempPaymentProvider>(() => TempPaymentProvider());
 }
 
 void main() async {
@@ -106,7 +108,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => GetIt.instance<StorageDataProvider>()),
         ChangeNotifierProvider(create: (context) => GetIt.instance<PsUploadDataProvider>()),
         ChangeNotifierProvider(create: (context) => GetIt.instance<TempDataProvider>()),
-        ChangeNotifierProvider(create: (context) => GetIt.instance<PsStorageDataProvider>())
+        ChangeNotifierProvider(create: (context) => GetIt.instance<PsStorageDataProvider>()),
+        ChangeNotifierProvider(create: (context) => GetIt.instance<TempPaymentProvider>())
       ],
       child: const MainRun(),
     ),
@@ -795,12 +798,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     }
   }
 
-  /// <summary>
-  /// 
-  /// Delete all the selected items on checkboxes check
-  /// 
-  /// </summary>
-  
   Future<void> _deleteOfflineFilesSelectAll(String fileName) async {
 
     final offlineDirPath = await OfflineMode().returnOfflinePath();
@@ -908,13 +905,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     appBarTitle.value = "${(checkedList.where((item) => item == true).length).toString()} item(s) selected";
   }
 
-  /// <summary>
-  /// 
-  /// File searching functionality implemented
-  /// on this function
-  /// 
-  /// </summary>
-  
   void _onTextChanged(String value) async {
 
     debounceSearchingTimer?.cancel();
@@ -1295,6 +1285,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       ImagePickerPlus picker = ImagePickerPlus(context);
       SelectedImagesDetails? details = await picker.pickImage(
         source: ImageSource.camera,
+        multiImages: false,
         galleryDisplaySettings: GalleryDisplaySettings(
           cropImage: false,
           maximumSelection: 1,
@@ -1463,20 +1454,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     int indexOfFile = storageData.fileNamesFilteredList.indexOf(fileName);
 
-    isFromSelectAll == true 
-    ? setState(() {
-      if (indexOfFile >= 0 && indexOfFile < storageData.fileNamesList.length) {
-        storageData.fileNamesList.removeAt(indexOfFile);
-        storageData.fileNamesFilteredList.removeAt(indexOfFile);
-        storageData.imageBytesList.removeAt(indexOfFile);
-        storageData.fileDateList.removeAt(indexOfFile);
-        storageData.imageBytesFilteredList.removeAt(indexOfFile);
-        leadingImageSearchedValue = null;
-        fileTitleSearchedValue = null;  
-      }         
-    }) 
-    
-    : setState(() {
+    setState(() {
       if (indexOfFile >= 0 && indexOfFile < storageData.fileNamesList.length) {
         storageData.fileNamesList.removeAt(indexOfFile);
         storageData.fileNamesFilteredList.removeAt(indexOfFile);
@@ -1486,7 +1464,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         leadingImageSearchedValue = null;
         fileTitleSearchedValue = null;  
       }
-      Navigator.pop(context);
+      if (!isFromSelectAll) {
+        Navigator.pop(context);
+      }
     });
 
     onTextChanged('');
@@ -1595,12 +1575,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   }
 
-  /// <summary>
-  /// 
-  /// Open user gallery dialog for photo and video
-  /// 
-  /// </summary>
-  
   Future<void> _openDialogGallery() async {
 
     try {
@@ -2347,12 +2321,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       )
     );
   }
-
-  /// <summary>
-  /// 
-  /// Opens a showModalBotom for directory creation
-  /// 
-  /// </summary>
 
   Future _buildCreateDirectoryDialog() {
     return showDialog(
@@ -3276,17 +3244,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  /// <summary>
-  /// 
-  /// When the user selected (checkbox) more than or one item
-  /// then make this button visible and do otherwise if no
-  /// item is selected.
-  /// 
-  /// itemIsChecked: true if at least one item is selected 
-  /// otherwise false.
-  /// 
-  /// </summary>
-
   Widget _buildMoreOptionsOnSelect() {
     return Visibility(
       visible: itemIsChecked,
@@ -3314,13 +3271,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  /// <summary>
-  /// 
-  /// Setup greeting on the AppBar text 
-  /// based on the current day period
-  /// 
-  /// </summary>
-
   String _setupGreetingTime() {
 
     var timeNow = DateTime.now().hour;
@@ -3336,13 +3286,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     }
 
   }
-
-  /// <summary>
-  /// 
-  /// Setup customized appbar which 
-  /// included greeting and username
-  /// 
-  /// </summary>
 
   PreferredSizeWidget _buildCustomAppBar() {
 

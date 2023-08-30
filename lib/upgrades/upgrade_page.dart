@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flowstorage_fsc/api/email_api.dart';
@@ -5,6 +6,7 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/extra_query/crud.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/helper/call_notification.dart';
+import 'package:flowstorage_fsc/provider/temp_payment_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/ui_dialog/alert_dialog.dart';
@@ -20,6 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class UpradePage extends StatefulWidget {
   const UpradePage({super.key});
@@ -33,10 +36,91 @@ class UpgradePageState extends State<UpradePage> {
   String userChoosenPlan = "";
 
   final userData = GetIt.instance<UserDataProvider>();
+  final tempData = GetIt.instance<TempPaymentProvider>();
 
   final singleLoading = SingleTextLoading();
 
   final cardBorderRadius = 25.0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+  
+  Future<String> _getUserCountryCode() async {
+    final response = await http.get(Uri.parse('https://ipapi.co/json'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['country'];
+    } else {
+      throw Exception('Failed to load user country');
+    }
+  }
+
+  Future<String> _convertToLocalCurrency(double usdValue) async {
+
+    final countryCodeToCurrency = {
+      "US": "USD",
+      "DE": "EUR",
+      "GB": "GBP",
+      "ID": "IDR",
+      "MY": "MYR",
+      "BN": "BND",
+      "SG": "SGD",
+      "TH": "THB",
+      "PH": "PHP",
+      "VN": "VND",
+      "CN": "CNY",
+      "HK": "HKD",
+      "TW": "TWD",
+      "KO": "KRW",
+      "BR": "BRL",
+      "ME": "MXN",
+      "AU": "AUD",
+      "NZ": "NZD",
+      "IN": "INR",
+      "LK": "LKR",
+      "PA": "PKR",
+      "SA": "SAR",
+      "AR": "AED",
+      "IS": "ILS",
+      "EG": "EGP",
+      "TU": "TND",
+      "CH": "CHF",
+      "ES": "EUR",
+      "SW": "SEK"
+    };
+
+    String countryCode = 'US';
+    String countryCurrency = 'USD';
+    double conversionRate = 2.0;
+
+    if(tempData.countryCode.isEmpty && tempData.currencyConversionRate == 0.0) {
+
+      countryCode = await _getUserCountryCode();
+      countryCurrency = countryCodeToCurrency[countryCode]!;
+
+      tempData.setCountryCode(countryCode);
+      tempData.setCountryCurrency(countryCurrency);
+
+      final response = await http.get(Uri.parse('https://api.freecurrencyapi.com/v1/latest?apikey=fca_live_2N9mYDefob9ZEMqWT3cXAjl964IFfNkPMr01YS5v'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        conversionRate = data['data'][countryCurrency]; 
+        tempData.setCurrencyConversion(conversionRate);
+      } else {
+        throw Exception('Failed to load exchange rates');
+      }
+
+    } else {
+      countryCode = tempData.countryCode;
+      countryCurrency = tempData.countryCurrency;
+      conversionRate = tempData.currencyConversionRate;
+    }
+
+    return ("$countryCurrency${usdValue*conversionRate}").toString();
+  }
 
   Widget _buildSubHeader(String text, {double? customFont}) {
     return Text(
@@ -90,6 +174,58 @@ class UpgradePageState extends State<UpradePage> {
     );
   }
 
+  Widget _buildPrice(double value) {
+
+    return FutureBuilder<String>(
+      future: _convertToLocalCurrency(value),
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if(snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            width: 25,
+            height: 25,
+            child: CircularProgressIndicator(color: ThemeColor.darkBlack)
+          );
+        } else if (snapshot.hasError) {
+          return Text("$value/monthly",
+            style: GoogleFonts.poppins(
+              textStyle: const TextStyle(
+                color: Color.fromARGB(255, 15, 15, 15),
+                fontWeight: FontWeight.w600,
+                fontSize: 28
+              ),
+            ),
+            textAlign: TextAlign.left,
+          );
+        } else if (snapshot.hasData) {
+          final price = snapshot.data!;
+          final indexOfDot = price.indexOf('.');
+          final actualPrice = price.substring(0, indexOfDot);
+          return Text("$actualPrice/monthly",
+            style: GoogleFonts.poppins(
+              textStyle: const TextStyle(
+                color: Color.fromARGB(255, 15, 15, 15),
+                fontWeight: FontWeight.w600,
+                fontSize: 28
+              ),
+            ),
+            textAlign: TextAlign.left,
+          );
+        } else {
+          return Text("$value/monthly",
+            style: GoogleFonts.poppins(
+              textStyle: const TextStyle(
+                color: Color.fromARGB(255, 15, 15, 15),
+                fontWeight: FontWeight.w600,
+                fontSize: 28
+              ),
+            ),
+            textAlign: TextAlign.left,
+          );
+        }
+      } 
+    );
+  }
+
   Widget _buildMaxPage(double width, double height) {
     return SizedBox(
       width: width,
@@ -139,16 +275,7 @@ class UpgradePageState extends State<UpradePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildSubHeader("PRICE"),
-                        Text("\$2/monthly",
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              color: Color.fromARGB(255, 15, 15, 15),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 28
-                            ),
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
+                        _buildPrice(2)
                       ],
                     ),
                   ],
@@ -256,16 +383,7 @@ class UpgradePageState extends State<UpradePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildSubHeader("PRICE"),
-                        Text("\$20/monthly",
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              color: Color.fromARGB(255, 15, 15, 15),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 28
-                            ),
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
+                        _buildPrice(20),
                       ],
                     ),
                   ],
@@ -374,16 +492,7 @@ class UpgradePageState extends State<UpradePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildSubHeader("PRICE"),
-                        Text("\$8/monthly",
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              color: Color.fromARGB(255, 15, 15, 15),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 28
-                            ),
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
+                        _buildPrice(8),
                       ],
                     ),
                   ],

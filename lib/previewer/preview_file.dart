@@ -1,11 +1,3 @@
-
-/// <summary>
-/// 
-/// Class to preview user selected file and pass its file name
-/// from main.dart
-/// 
-/// </summary>
-
 import 'dart:async';
 import 'dart:io';
 
@@ -134,42 +126,47 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     super.dispose();
   }
 
-  void _updateAppBarTitle() async {
-    
-    appBarTitleNotifier.value = tempData.selectedFileName;
+  void _onSlidingUpdate() async {
 
-    final fileType = tempData.selectedFileName.split('.').last;
-    final fileIndex = storageData.fileNamesFilteredList
-                        .indexOf(tempData.selectedFileName);
+    final selectedFileName = tempData.selectedFileName;
+    appBarTitleNotifier.value = selectedFileName;
 
-    if(Globals.videoType.contains(fileType)) {
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CakePreviewFile(
-            custUsername: userData.username,
-            fileValues: storageData.fileNamesList,
-            selectedFilename: tempData.selectedFileName,
-            originFrom: tempData.fileOrigin,
-            fileType: fileType,
-            tappedIndex: fileIndex
-          ),
-        ),
-      );
+    final fileType = selectedFileName.split('.').last;
+    final fileIndex = storageData.fileNamesFilteredList.indexOf(selectedFileName);
+
+    if (Globals.videoType.contains(fileType) || Globals.audioType.contains(fileType) || Globals.textType.contains(fileType)) {
+      _navigateToCakePreview(selectedFileName, fileType, fileIndex);
     }
 
-    currentTable = tempData.fileOrigin != "homeFiles" 
-    ? Globals.fileTypesToTableNamesPs[fileType]! 
-    : Globals.fileTypesToTableNames[fileType]!;
+    if (tempData.fileOrigin == "homeFiles") {
+      currentTable = Globals.fileTypesToTableNames[fileType]!;
+    } else {
+      currentTable = Globals.fileTypesToTableNamesPs[fileType]!;
+    }
 
     fileSizeNotifier.value = "";
     fileResolutionNotifier.value = "";
 
-    if(tempData.fileOrigin == "psFiles") {
+    if (tempData.fileOrigin == "psFiles") {
       _initializeUploaderName();
     }
+  }
 
+  void _navigateToCakePreview(String selectedFileName, String fileType, int fileIndex) {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CakePreviewFile(
+          custUsername: userData.username,
+          fileValues: storageData.fileNamesList,
+          selectedFilename: selectedFileName,
+          originFrom: tempData.fileOrigin,
+          fileType: fileType,
+          tappedIndex: fileIndex,
+        ),
+      ),
+    );
   }
 
   void _deleteFile(String fileName) async {
@@ -314,11 +311,11 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
     Map<String, Widget Function()> previewMap = {
 
-      'png': () => PreviewImage(onPageChanged: _updateAppBarTitle),
-      'jpeg': () => PreviewImage(onPageChanged: _updateAppBarTitle),
-      'jpg': () => PreviewImage(onPageChanged: _updateAppBarTitle),
-      'webp': () => PreviewImage(onPageChanged: _updateAppBarTitle),
-      'gif': () => PreviewImage(onPageChanged: _updateAppBarTitle),
+      'png': () => PreviewImage(onPageChanged: _onSlidingUpdate),
+      'jpeg': () => PreviewImage(onPageChanged: _onSlidingUpdate),
+      'jpg': () => PreviewImage(onPageChanged: _onSlidingUpdate),
+      'webp': () => PreviewImage(onPageChanged: _onSlidingUpdate),
+      'gif': () => PreviewImage(onPageChanged: _onSlidingUpdate),
 
       'pdf': () => const PreviewPdf(),
       'ppt': () => const PreviewPdf(),
@@ -395,6 +392,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           storageData.fileNamesList.removeAt(indexOfFile);
           storageData.fileNamesFilteredList.removeAt(indexOfFile);
           storageData.imageBytesList.removeAt(indexOfFile);
+          storageData.fileDateList.removeAt(indexOfFile);
           storageData.imageBytesFilteredList.removeAt(indexOfFile);
         }
       });

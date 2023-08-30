@@ -1,4 +1,5 @@
 import 'package:flowstorage_fsc/connection/auth_config.dart';
+import 'package:logger/logger.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
@@ -77,7 +78,7 @@ class EmailApi {
 
       isEmailSent = false;
       for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
+        Logger().i("${p.code}\n${p.msg}");
       }
 
     }
@@ -178,7 +179,7 @@ class EmailApi {
     } on MailerException catch (e) {
 
       for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
+        Logger().i("${p.code}\n${p.msg}");
       }
 
     }
