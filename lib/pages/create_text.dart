@@ -244,7 +244,6 @@ class CreateTextPageState extends State<CreateText> {
       setState(() {
         saveVisibility = false;
         textFormEnabled = false;
-        _addTextFileToListView(fileName: getFileName);
       });
 
       await CallNotify().customNotification(

@@ -186,7 +186,7 @@ class UpgradePageState extends State<UpradePage> {
             child: CircularProgressIndicator(color: ThemeColor.darkBlack)
           );
         } else if (snapshot.hasError) {
-          return Text("$value/monthly",
+          return Text("\$$value/monthly",
             style: GoogleFonts.poppins(
               textStyle: const TextStyle(
                 color: Color.fromARGB(255, 15, 15, 15),
@@ -211,7 +211,7 @@ class UpgradePageState extends State<UpradePage> {
             textAlign: TextAlign.left,
           );
         } else {
-          return Text("$value/monthly",
+          return Text("\$$value/monthly",
             style: GoogleFonts.poppins(
               textStyle: const TextStyle(
                 color: Color.fromARGB(255, 15, 15, 15),
@@ -270,7 +270,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 50),
+                    const SizedBox(width: 38),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -378,7 +378,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 50),
+                    const SizedBox(width: 38),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -487,7 +487,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 50),
+                    const SizedBox(width: 38),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -639,11 +639,11 @@ class UpgradePageState extends State<UpradePage> {
     try {
 
       final planToPrice = {
-        "Supreme": "20",
-        "Express": "8",
-        "Max": "2",
+        "Supreme": await _convertToLocalCurrency(20),
+        "Express": await _convertToLocalCurrency(8),
+        "Max": await _convertToLocalCurrency(2),
       };
-
+      
       singleLoading.startLoading(title: "Validating...",context: context);
 
       final returnedEmail = await StripeCustomers.getCustomersEmails("");

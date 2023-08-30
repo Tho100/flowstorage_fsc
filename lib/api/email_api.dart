@@ -164,7 +164,7 @@ class EmailApi {
             </tr>
             <tr>
               <td class="plan">$plan</td>
-              <td class="price">\$$price/monthly</td>
+              <td class="price">$price/monthly</td>
             </tr>
           </table>
           <h3>Cancel anytime without getting extra charges.</h3>

@@ -98,7 +98,6 @@ void setupLocator() {
   locator.registerLazySingleton<PsStorageDataProvider>(() => PsStorageDataProvider());
   locator.registerLazySingleton<TempPaymentProvider>(() => TempPaymentProvider());
 }
-
 void main() async {
   setupLocator();
   runApp(
@@ -1314,7 +1313,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           return;
         }
 
-        List<int> bytes = await CompressorApi.compressedByteImage(path: imagePath, quality: 56);
+        List<int> bytes = await CompressorApi.compressedByteImage(path: imagePath, quality: 78);
       
         final imageBase64Encoded = base64.encode(bytes); 
 
