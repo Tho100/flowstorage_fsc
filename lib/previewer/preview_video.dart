@@ -174,7 +174,7 @@ class PreviewVideoState extends State<PreviewVideo> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          buildSlider(),
+          buildSeekSlider(),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 5.0),
             child: Row(
@@ -202,9 +202,10 @@ class PreviewVideoState extends State<PreviewVideo> {
                         
                         buttonPlayPausePressed = !buttonPlayPausePressed;
 
-                        if(iconPausePlayNotifier.value == Icons.replay) {
+                        if(videoIsEnded == true) {
                           iconPausePlayNotifier.value = Icons.pause;
                           videoPlayerController.play();
+                          videoIsEnded = false;
                         } else {
                           iconPausePlayNotifier.value = buttonPlayPausePressed 
                           ? Icons.play_arrow
@@ -246,37 +247,30 @@ class PreviewVideoState extends State<PreviewVideo> {
     );
   }
 
-  StreamBuilder buildSlider() {
-    return StreamBuilder<double>(
-      stream: sliderValueController.stream,
-      initialData: 0.0,
-      builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
-        return ValueListenableBuilder<double>(
-          valueListenable: videoPositionNotifier,
-          builder: (context, videoPosition, _) {
-            return Column(
-              children: [
-                SliderTheme(
-                  data: const SliderThemeData(
-                    thumbShape: RoundSliderThumbShape(
-                      enabledThumbRadius: 6.0
-                    )
-                  ),
-                  child: Slider(value: videoPosition,
-                    min: 0,
-                    max: videoPlayerController.value.duration.inSeconds.toDouble(),
-                    thumbColor: ThemeColor.justWhite,
-                    inactiveColor: ThemeColor.lightGrey.withOpacity(0.5),
-                    activeColor: ThemeColor.justWhite,
-                    onChanged: (double value) {
-                      sliderValueController.add(value);
-                      videoPlayerController.seekTo(Duration(seconds: value.toInt()));
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
+  Widget buildSeekSlider() {
+    return ValueListenableBuilder<double>(
+      valueListenable: videoPositionNotifier,
+      builder: (context, videoPosition, _) {
+        return Column(
+          children: [
+            SliderTheme(
+              data: const SliderThemeData(
+                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.0),
+              ),
+              child: Slider(
+                value: videoPosition,
+                min: 0,
+                max: videoPlayerController.value.duration.inSeconds.toDouble(),
+                thumbColor: ThemeColor.justWhite,
+                inactiveColor: ThemeColor.lightGrey.withOpacity(0.5),
+                activeColor: ThemeColor.justWhite,
+                onChanged: (double value) {
+                  sliderValueController.add(value);
+                  videoPlayerController.seekTo(Duration(seconds: value.toInt()));
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -287,7 +281,7 @@ class PreviewVideoState extends State<PreviewVideo> {
       children: [
         GestureDetector(
           onTap: () {
-            //videoIsTappedNotifier.value = !videoIsTappedNotifier.value;
+            videoIsTappedNotifier.value = !videoIsTappedNotifier.value;
             CakePreviewFileState.bottomBarVisibleNotifier.value =
                 !CakePreviewFileState.bottomBarVisibleNotifier.value;
           },
