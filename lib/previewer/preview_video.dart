@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -26,6 +27,9 @@ class PreviewVideoState extends State<PreviewVideo> {
   final tempData = GetIt.instance<TempDataProvider>();
 
   late VideoPlayerController videoPlayerController;
+
+  final sliderValueController = StreamController<double>();
+  final videoPositionNotifier = ValueNotifier<double>(0.0);
 
   final iconPausePlayNotifier = ValueNotifier<IconData>(
                                 Icons.play_arrow);
@@ -171,7 +175,7 @@ class PreviewVideoState extends State<PreviewVideo> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0),
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 5.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -236,8 +240,45 @@ class PreviewVideoState extends State<PreviewVideo> {
               ],
             ),
           ),
+          buildSlider(),
         ],
       ),
+    );
+  }
+
+  StreamBuilder buildSlider() {
+    return StreamBuilder<double>(
+      stream: sliderValueController.stream,
+      initialData: 0.0,
+      builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+        return ValueListenableBuilder<double>(
+          valueListenable: videoPositionNotifier,
+          builder: (context, videoPosition, _) {
+            return Column(
+              children: [
+                SliderTheme(
+                  data: const SliderThemeData(
+                    thumbShape: RoundSliderThumbShape(
+                      enabledThumbRadius: 6.0
+                    )
+                  ),
+                  child: Slider(value: videoPosition,
+                    min: 0,
+                    max: videoPlayerController.value.duration.inSeconds.toDouble(),
+                    thumbColor: ThemeColor.justWhite,
+                    inactiveColor: ThemeColor.thirdWhite,
+                    activeColor: ThemeColor.justWhite,
+                    onChanged: (double value) {
+                      sliderValueController.add(value);
+                      videoPlayerController.seekTo(Duration(seconds: value.toInt()));
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -246,7 +287,7 @@ class PreviewVideoState extends State<PreviewVideo> {
       children: [
         GestureDetector(
           onTap: () {
-            videoIsTappedNotifier.value = !videoIsTappedNotifier.value;
+            //videoIsTappedNotifier.value = !videoIsTappedNotifier.value;
             CakePreviewFileState.bottomBarVisibleNotifier.value =
                 !CakePreviewFileState.bottomBarVisibleNotifier.value;
           },
@@ -340,6 +381,7 @@ class PreviewVideoState extends State<PreviewVideo> {
 
     String currentDuration = getDurationString(position);
     currentVideoDurationNotifier.value = currentDuration;
+    videoPositionNotifier.value = position.inSeconds.toDouble();
 
     if (videoPlayerController.value.isInitialized &&
         !videoPlayerController.value.isPlaying && duration - position <= endThreshold) {
@@ -370,8 +412,10 @@ class PreviewVideoState extends State<PreviewVideo> {
     videoPlayerController.removeListener(videoPlayerListener);
     videoPlayerController.dispose();
     videoDurationNotifier.dispose();
+    videoPositionNotifier.dispose();
     currentVideoDurationNotifier.dispose();
     iconPausePlayNotifier.dispose();
+    sliderValueController.close();
     super.dispose();
   }
 
