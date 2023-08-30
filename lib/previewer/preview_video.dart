@@ -174,6 +174,7 @@ class PreviewVideoState extends State<PreviewVideo> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          buildSlider(),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 5.0),
             child: Row(
@@ -240,7 +241,6 @@ class PreviewVideoState extends State<PreviewVideo> {
               ],
             ),
           ),
-          buildSlider(),
         ],
       ),
     );
@@ -266,7 +266,7 @@ class PreviewVideoState extends State<PreviewVideo> {
                     min: 0,
                     max: videoPlayerController.value.duration.inSeconds.toDouble(),
                     thumbColor: ThemeColor.justWhite,
-                    inactiveColor: ThemeColor.thirdWhite,
+                    inactiveColor: ThemeColor.lightGrey.withOpacity(0.5),
                     activeColor: ThemeColor.justWhite,
                     onChanged: (double value) {
                       sliderValueController.add(value);

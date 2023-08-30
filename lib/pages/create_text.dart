@@ -241,6 +241,10 @@ class CreateTextPageState extends State<CreateText> {
         isFromCreateTxt: true,
       );
 
+      if(tempData.fileOrigin == "offlineFiles") {
+        _addTextFileToListView(fileName: getFileName);
+      }
+
       setState(() {
         saveVisibility = false;
         textFormEnabled = false;

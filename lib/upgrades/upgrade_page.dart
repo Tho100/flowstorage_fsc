@@ -186,7 +186,7 @@ class UpgradePageState extends State<UpradePage> {
             child: CircularProgressIndicator(color: ThemeColor.darkBlack)
           );
         } else if (snapshot.hasError) {
-          return Text("\$$value/monthly",
+          return Text("\$$value/mo.",
             style: GoogleFonts.poppins(
               textStyle: const TextStyle(
                 color: Color.fromARGB(255, 15, 15, 15),
@@ -200,7 +200,7 @@ class UpgradePageState extends State<UpradePage> {
           final price = snapshot.data!;
           final indexOfDot = price.indexOf('.');
           final actualPrice = price.substring(0, indexOfDot);
-          return Text("$actualPrice/monthly",
+          return Text("$actualPrice/mo.",
             style: GoogleFonts.poppins(
               textStyle: const TextStyle(
                 color: Color.fromARGB(255, 15, 15, 15),
@@ -211,7 +211,7 @@ class UpgradePageState extends State<UpradePage> {
             textAlign: TextAlign.left,
           );
         } else {
-          return Text("\$$value/monthly",
+          return Text("\$$value/mo.",
             style: GoogleFonts.poppins(
               textStyle: const TextStyle(
                 color: Color.fromARGB(255, 15, 15, 15),
@@ -270,7 +270,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 38),
+                    const SizedBox(width: 50),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -378,7 +378,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 38),
+                    const SizedBox(width: 50),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -487,7 +487,7 @@ class UpgradePageState extends State<UpradePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 38),
+                    const SizedBox(width: 50),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
