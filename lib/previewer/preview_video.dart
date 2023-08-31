@@ -38,7 +38,7 @@ class PreviewVideoState extends State<PreviewVideo> {
   final videoDurationNotifier = ValueNotifier<String>("0:00");
   final currentVideoDurationNotifier = ValueNotifier<String>("0:00");
 
-  final Duration endThreshold = const Duration(milliseconds: 200);
+  final endThreshold = const Duration(milliseconds: 200);
   
   bool videoIsPlaying = false;
   bool videoIsLoading = false;

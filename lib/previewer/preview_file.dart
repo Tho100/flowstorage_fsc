@@ -19,7 +19,7 @@ import 'package:flowstorage_fsc/provider/ps_storage_data.provider.dart';
 import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
-import 'package:flowstorage_fsc/sharing/share_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/share_dialog.dart';
 import 'package:flowstorage_fsc/sharing/sharing_username.dart';
 import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/data_classes/update_data.dart';
@@ -108,12 +108,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     _initializeUploaderName();
   }
 
-  void _initializeTableName() {
-    currentTable = tempData.fileOrigin != "homeFiles" 
-    ? Globals.fileTypesToTableNamesPs[fileType]! 
-    : Globals.fileTypesToTableNames[fileType]!;
-  }
-
   @override
   void dispose() {
     shareToController.dispose();
@@ -126,6 +120,12 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     super.dispose();
   }
 
+  void _initializeTableName() {
+    currentTable = tempData.fileOrigin != "homeFiles" 
+    ? Globals.fileTypesToTableNamesPs[fileType]! 
+    : Globals.fileTypesToTableNames[fileType]!;
+  }
+
   void _onSlidingUpdate() async {
 
     final selectedFileName = tempData.selectedFileName;
@@ -135,7 +135,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     final fileIndex = storageData.fileNamesFilteredList.indexOf(selectedFileName);
 
     if (Globals.videoType.contains(fileType) || Globals.audioType.contains(fileType) || Globals.textType.contains(fileType)) {
-      _navigateToCakePreview(selectedFileName, fileType, fileIndex);
+      _navigateToPreviewFile(selectedFileName, fileType, fileIndex);
     }
 
     if (tempData.fileOrigin == "homeFiles") {
@@ -152,12 +152,12 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     }
   }
 
-  void _navigateToCakePreview(String selectedFileName, String fileType, int fileIndex) {
+  void _navigateToPreviewFile(String selectedFileName, String fileType, int fileIndex) {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CakePreviewFile(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => CakePreviewFile(
           custUsername: userData.username,
           fileValues: storageData.fileNamesList,
           selectedFilename: selectedFileName,
@@ -165,6 +165,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
           fileType: fileType,
           tappedIndex: fileIndex,
         ),
+        transitionDuration: const Duration(microseconds: 0), 
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/api/compressor_api.dart';
+import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/date_parser.dart';
 import 'package:flowstorage_fsc/helper/external_app.dart';
 import 'package:flowstorage_fsc/helper/random_generator.dart';
@@ -19,6 +20,7 @@ import 'package:flowstorage_fsc/helper/get_assets.dart';
 import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
+import 'package:flowstorage_fsc/interact_dialog/create_directory_dialog.dart';
 import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -28,7 +30,7 @@ import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/temp_payment_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
-import 'package:flowstorage_fsc/sharing/share_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/share_dialog.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/multiple_text_loading.dart';
 import 'package:flowstorage_fsc/ui_dialog/loading/single_text_loading.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing.dart';
@@ -38,7 +40,6 @@ import 'package:flowstorage_fsc/public_storage/ps_comment_dialog.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_filter.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_shared.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_sorting.dart';
-import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:flowstorage_fsc/widgets/navigation_bar.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
@@ -178,8 +179,9 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   final focusNodeRedudane = FocusNode();
   final searchControllerRedudane = TextEditingController();
 
-  final folderRenameController = TextEditingController();
   final directoryCreateController = TextEditingController();
+
+  final folderRenameController = TextEditingController();
   final shareController = TextEditingController();
   final commentController = TextEditingController();
 
@@ -512,6 +514,30 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       shareToController: shareController,
       commentController: commentController,
       context: context
+    );
+  }
+
+  void _openCreateDirectoryDialog() {
+    CreateDirectoryDialog().buildCreateDirectoryDialog(
+      context: context, 
+      directoryNameController: directoryCreateController,
+      createOnPressed: () async {
+
+        final getDirectoryTitle = directoryCreateController.text.trim();
+
+        if(getDirectoryTitle.isEmpty) {
+          return;
+        }
+
+        if(storageData.fileNamesList.contains(getDirectoryTitle)) {
+          CallToast.call(message: "Directory with this name already exists.");
+          return;
+        }
+
+        await _buildDirectory(getDirectoryTitle);
+        directoryCreateController.clear();
+      }
+
     );
   }
 
@@ -2225,7 +2251,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             if(!mounted) return;
             Navigator.pop(context);
 
-            _buildCreateDirectoryDialog();
+            _openCreateDirectoryDialog();
             
           } else {
             UpgradeDialog.buildUpgradeDialog(
@@ -2318,106 +2344,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           _updateCheckboxState(index, value!);
         },
       )
-    );
-  }
-
-  Future _buildCreateDirectoryDialog() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: ThemeColor.darkBlack,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(18.0),
-                    child: Text(
-                      "Create new Directory",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
-                  ),
-                  child: TextFormField(
-                    autofocus: true,
-                    style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
-                    enabled: true,
-                    controller: directoryCreateController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter directory name"),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: MainDialogButton(
-                        text: "Cancel",
-                        onPressed: () {
-                          directoryCreateController.clear();
-                          Navigator.pop(context);
-                        },
-                        isButtonClose: true,
-                      )
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: MainDialogButton(
-                        text: "Create",
-                        onPressed: () async {
-
-                          final getDirectoryTitle = directoryCreateController.text.trim();
-
-                          if(getDirectoryTitle.isEmpty) {
-                            return;
-                          }
-
-                          if(storageData.fileNamesList.contains(getDirectoryTitle)) {
-                            CustomAlertDialog.alertDialog("Directory with this name already exists.",context);
-                            return;
-                          }
-
-                          await _buildDirectory(getDirectoryTitle);
-                          directoryCreateController.clear();
-                          if(!mounted) return;
-                          Navigator.pop(context);
-
-                        },
-                        isButtonClose: false,
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-              const SizedBox(height: 15),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -2823,7 +2749,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                           final countDirectory = storageData.fileNamesFilteredList.where((dir) => !dir.contains('.')).length;
                           if(storageData.fileNamesList.length < AccountPlan.mapFilesUpload[userData.accountType]!) {
                             if(countDirectory != AccountPlan.mapDirectoryUpload[userData.accountType]!) {
-                              _buildCreateDirectoryDialog();
+                              _openCreateDirectoryDialog();
                             } else {
                               UpgradeDialog.buildUpgradeDialog(
                                 message: "You're currently limited to ${AccountPlan.mapDirectoryUpload[userData.accountType]} directory uploads. Upgrade your account to upload more directory.",

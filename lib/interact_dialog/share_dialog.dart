@@ -196,6 +196,9 @@ class SharingDialog {
       barrierDismissible: false,
       builder: (context) {
         return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)
+          ),
           backgroundColor: ThemeColor.darkBlack,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -296,7 +299,6 @@ class SharingDialog {
 
               Padding(
                 padding: const EdgeInsets.all(15.0),
-
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),

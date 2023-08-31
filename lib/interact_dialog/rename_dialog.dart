@@ -1,13 +1,18 @@
+import 'package:flowstorage_fsc/global/globals.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
+import 'package:flowstorage_fsc/helper/call_toast.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
+import 'package:flowstorage_fsc/provider/storage_data_provider.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
 import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 class RenameDialog {
 
   static final renameController = TextEditingController();
+  final storageData = GetIt.instance<StorageDataProvider>();
 
   Future buildRenameFileDialog({
     required String fileName,
@@ -18,6 +23,9 @@ class RenameDialog {
       context: context,
       builder: (context) {
         return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)
+          ),
           backgroundColor: ThemeColor.darkBlack,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -26,6 +34,39 @@ class RenameDialog {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+
+                  Stack(
+                    children: [
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image(
+                            width: 55,
+                            height: 55,
+                            fit: BoxFit.cover,
+                            image: MemoryImage(storageData.imageBytesFilteredList[storageData.fileNamesFilteredList.indexWhere((name) => name == fileName)]!),
+                          ),
+                        ),
+                      ),
+
+                      if(Globals.videoType.contains(fileName.split('.').last))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 22.0, left: 24.0),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: ThemeColor.mediumGrey.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.videocam_outlined, color: ThemeColor.justWhite, size: 22)
+                        ),
+                      ),
+                    ],
+                  ),
+
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(18.0),
@@ -44,12 +85,16 @@ class RenameDialog {
                   IconButton(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: fileName));
+                      CallToast.call(message: "Copied to clipboard.");
                     },
                     icon: const Icon(Icons.copy,color: ThemeColor.thirdWhite,size: 22),
                   ),
 
                 ],
               ),
+
+              const Divider(color: ThemeColor.lightGrey),
+
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
