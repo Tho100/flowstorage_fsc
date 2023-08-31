@@ -42,7 +42,6 @@ import 'package:flowstorage_fsc/widgets/bottom_trailing_shared.dart';
 import 'package:flowstorage_fsc/widgets/bottom_trailing_sorting.dart';
 import 'package:flowstorage_fsc/widgets/navigation_bar.dart';
 import 'package:flowstorage_fsc/widgets/sidebar_menu.dart';
-import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:flowstorage_fsc/interact_dialog/folder_dialog.dart';
 import 'package:flowstorage_fsc/interact_dialog/rename_dialog.dart';
 
@@ -57,6 +56,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
+import 'package:image_picker_plus/image_picker_plus.dart';
 
 import 'package:flowstorage_fsc/directory_query/delete_directory.dart';
 import 'package:flowstorage_fsc/directory_query/rename_directory.dart';

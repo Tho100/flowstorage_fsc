@@ -12,6 +12,9 @@ class UpgradeDialog {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)
+          ),
           backgroundColor: ThemeColor.darkGrey,
           title: const Text('Upgrade Account',
           style: TextStyle(

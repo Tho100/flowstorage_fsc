@@ -8,6 +8,9 @@ class CustomFormDialog {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)
+          ),
           backgroundColor: ThemeColor.darkGrey,
           content: SizedBox( 
             width: MediaQuery.of(context).size.width*4,
@@ -15,7 +18,6 @@ class CustomFormDialog {
             child: Center(
               child: Column(
                 children: [
-
                     Text(headMessage,
                       style: const TextStyle(
                         color: Colors.white,

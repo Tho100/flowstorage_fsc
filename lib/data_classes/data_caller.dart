@@ -68,17 +68,15 @@ class DataCaller {
       Uint8List imageBytes;
       String actualFileSize = '';
 
-      if(!(Globals.imageType.contains(fileType))) {
-        actualFileSize = "Unknown";
-      }
+      final fileBytes = await file.readAsBytes();
+      final fileSize = fileBytes.length;
+      final fileSizeMB = fileSize / (1024 * 1024);
+
+      actualFileSize = "${fileSizeMB.toStringAsFixed(2)}Mb";
 
       if (Globals.imageType.contains(fileType)) {
 
         imageBytes = await file.readAsBytes();
-
-        int fileSize = imageBytes.length;
-        double fileSizeMB = fileSize / (1024 * 1024);
-        actualFileSize = "${fileSizeMB.toStringAsFixed(2)}Mb";
 
       } else if (Globals.textType.contains(fileType)) {
         
