@@ -180,6 +180,8 @@ class CreateTextPageState extends State<CreateText> {
     final txtImageData = await getAssets.loadAssetsData('txt0.png');
 
     storageData.fileDateList.add("Just now");
+    storageData.fileDateFilteredList.add("Just now");
+
     storageData.fileNamesList.add(fileName);
     storageData.fileNamesFilteredList.add(fileName);
     

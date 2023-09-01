@@ -21,6 +21,7 @@ import 'package:flowstorage_fsc/helper/scanner_pdf.dart';
 import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/interact_dialog/create_directory_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/delete_selection_dialog.dart';
 import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -300,6 +301,131 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   }
 
+  void _openPsCommentDialog({
+    required String filePathVal,
+    required String fileName,
+    required String tableName,
+    required String base64Encoded,
+    File? newFileToDisplay,
+    dynamic thumbnail,
+  }) async {
+
+    await NotificationApi.stopNotification(0);
+
+    late String? imagePreview = "";
+
+    final fileType = fileName.split('.').last;
+    if(Globals.imageType.contains(fileType)) {
+      imagePreview = base64Encoded;
+    } else if (Globals.videoType.contains(fileType)) {
+      imagePreview = base64.encode(thumbnail);
+    } 
+
+    if(!mounted) return;
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    await PsCommentDialog().buildPsCommentDialog(
+      fileName: fileName,
+      onUploadPressed: () async { 
+        
+        SnakeAlert.uploadingSnake(
+          snackState: scaffoldMessenger, 
+          message: "Uploading ${ShortenText().cutText(fileName)}"
+        );
+
+        await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
+
+        await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
+
+        psStorageData.psTagsList.add(psUploadData.psTagValue);
+        psStorageData.psUploaderList.add(userData.username);
+
+        scaffoldMessenger.hideCurrentSnackBar();
+
+        _addItemToListView(fileName: fileName);
+        _scrollEndListView();
+
+        SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added");
+        await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
+
+      },
+      context: context,
+      imageBase64Encoded: imagePreview
+    );
+
+    await NotificationApi.stopNotification(0);
+
+  }
+
+  void _openDeleteDialog(String fileName) {
+    DeleteDialog().buildDeleteDialog( 
+      fileName: fileName, 
+      onDeletePressed:() async => await _deleteFile(fileName, storageData.fileNamesList, storageData.fileNamesFilteredList, storageData.imageBytesList, _onTextChanged),
+      context: context
+    );
+  }
+
+  void _openRenameDialog(String fileName) {
+     RenameDialog().buildRenameFileDialog(
+      fileName: fileName, 
+      onRenamePressed: () => _onRenamePressed(fileName), 
+      context: context
+    );
+  }
+
+  void _openSharingDialog(String fileName) {
+    SharingDialog().buildSharingDialog(
+      fileName: fileName, 
+      shareToController: shareController,
+      commentController: commentController,
+      context: context
+    );
+  }
+
+  void _openCreateDirectoryDialog() {
+    CreateDirectoryDialog().buildCreateDirectoryDialog(
+      context: context, 
+      directoryNameController: directoryCreateController,
+      createOnPressed: () async {
+
+        final getDirectoryTitle = directoryCreateController.text.trim();
+
+        if(getDirectoryTitle.isEmpty) {
+          return;
+        }
+
+        if(storageData.fileNamesList.contains(getDirectoryTitle)) {
+          CallToast.call(message: "Directory with this name already exists.");
+          return;
+        }
+
+        await _buildDirectory(getDirectoryTitle);
+        directoryCreateController.clear();
+      }
+
+    );
+  }
+
+  void _openDeleteSelectionDialog() {
+    DeleteSelectionDialog().buildDeleteSelectionDialog(
+      context: context, 
+      appBarNotifier: appBarTitle, 
+      deleteOnPressed: () async {
+
+        final countSelectedItems = checkedList.where((item) => item == true).length;
+        
+        final loadingDialog = SingleTextLoading();
+        loadingDialog.startLoading(title: "Deleting...",context: context);
+
+        await _processDeletingAllItems(count: countSelectedItems);
+
+        loadingDialog.stopLoading();
+
+      }
+    );
+  }
+
   void _addItemToListView({required String fileName}) {
     storageData.fileDateList.add("Just now");
     storageData.fileNamesList.add(fileName);
@@ -432,112 +558,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       scrollListViewController.position.maxScrollExtent,
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
-    );
-  }
-
-  void _openPsCommentDialog({
-    required String filePathVal,
-    required String fileName,
-    required String tableName,
-    required String base64Encoded,
-    File? newFileToDisplay,
-    dynamic thumbnail,
-  }) async {
-
-    await NotificationApi.stopNotification(0);
-
-    late String? imagePreview = "";
-
-    final fileType = fileName.split('.').last;
-    if(Globals.imageType.contains(fileType)) {
-      imagePreview = base64Encoded;
-    } else if (Globals.videoType.contains(fileType)) {
-      imagePreview = base64.encode(thumbnail);
-    } 
-
-    if(!mounted) return;
-
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    
-    await PsCommentDialog().buildPsCommentDialog(
-      fileName: fileName,
-      onUploadPressed: () async { 
-        
-        SnakeAlert.uploadingSnake(
-          snackState: scaffoldMessenger, 
-          message: "Uploading ${ShortenText().cutText(fileName)}"
-        );
-
-        await CallNotify().customNotification(title: "Uploading...",subMesssage: "1 File(s) in progress");
-
-        await _processUploadListView(filePathVal: filePathVal, selectedFileName: fileName,tableName: tableName, fileBase64Encoded: base64Encoded, newFileToDisplay: newFileToDisplay, thumbnailBytes: thumbnail);
-
-        psStorageData.psTagsList.add(psUploadData.psTagValue);
-        psStorageData.psUploaderList.add(userData.username);
-
-        scaffoldMessenger.hideCurrentSnackBar();
-
-        _addItemToListView(fileName: fileName);
-        _scrollEndListView();
-
-        SnakeAlert.temporarySnake(snackState: scaffoldMessenger, message: "${ShortenText().cutText(fileName)} Has been added");
-        await CallNotify().uploadedNotification(title: "Upload Finished", count: 1);
-
-      },
-      context: context,
-      imageBase64Encoded: imagePreview
-    );
-
-    await NotificationApi.stopNotification(0);
-
-  }
-
-  void _openDeleteDialog(String fileName) {
-    DeleteDialog().buildDeleteDialog( 
-      fileName: fileName, 
-      onDeletePressed:() async => await _deleteFile(fileName, storageData.fileNamesList, storageData.fileNamesFilteredList, storageData.imageBytesList, _onTextChanged),
-      context: context
-    );
-  }
-
-  void _openRenameDialog(String fileName) {
-     RenameDialog().buildRenameFileDialog(
-      fileName: fileName, 
-      onRenamePressed: () => _onRenamePressed(fileName), 
-      context: context
-    );
-  }
-
-  void _openSharingDialog(String fileName) {
-    SharingDialog().buildSharingDialog(
-      fileName: fileName, 
-      shareToController: shareController,
-      commentController: commentController,
-      context: context
-    );
-  }
-
-  void _openCreateDirectoryDialog() {
-    CreateDirectoryDialog().buildCreateDirectoryDialog(
-      context: context, 
-      directoryNameController: directoryCreateController,
-      createOnPressed: () async {
-
-        final getDirectoryTitle = directoryCreateController.text.trim();
-
-        if(getDirectoryTitle.isEmpty) {
-          return;
-        }
-
-        if(storageData.fileNamesList.contains(getDirectoryTitle)) {
-          CallToast.call(message: "Directory with this name already exists.");
-          return;
-        }
-
-        await _buildDirectory(getDirectoryTitle);
-        directoryCreateController.clear();
-      }
-
     );
   }
 
@@ -695,7 +715,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         itemList.add({
           'file_name': storageData.fileNamesFilteredList[i],
           'image_byte': storageData.imageBytesFilteredList[i],
-          'upload_date': dateParser.parseDate(storageData.fileDateList[i]),
+          'upload_date': dateParser.parseDate(storageData.fileDateFilteredList[i]),
         });
       }
 
@@ -705,7 +725,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         itemList.add({
           'file_name': storageData.fileNamesFilteredList[i],
           'image_byte': storageData.imageBytesFilteredList[i],
-          'upload_date': dateParser.parseDate(storageData.fileDateList[i]),
+          'upload_date': dateParser.parseDate(storageData.fileDateFilteredList[i]),
           'tag_value': psStorageData.psTagsList[i],
           'uploader_name': psStorageData.psUploaderList[i]
         });
@@ -722,7 +742,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     setState(() {
 
-      storageData.fileDateList.clear();
+      storageData.fileDateFilteredList.clear();
       storageData.fileNamesFilteredList.clear();
       storageData.imageBytesFilteredList.clear();
 
@@ -730,7 +750,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
         storageData.fileNamesFilteredList.add(item['file_name']);
         storageData.imageBytesFilteredList.add(item['image_byte']);
-        storageData.fileDateList.add(_formatDateTime(item['upload_date']));
+        storageData.fileDateFilteredList.add(_formatDateTime(item['upload_date']));
 
         if(tempData.fileOrigin == "psFiles") {
           psStorageData.psTagsList.add(item['tag_value']);
@@ -752,6 +772,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       itemList.add({
         'file_name': storageData.fileNamesFilteredList[i],
         'image_byte': storageData.imageBytesFilteredList[i],
+        'upload_date': storageData.fileDateFilteredList[i],
       });
     }
 
@@ -762,9 +783,11 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     setState(() {
       storageData.fileNamesFilteredList.clear();
       storageData.imageBytesFilteredList.clear();
+      storageData.fileDateFilteredList.clear();
       for (var item in itemList) {
         storageData.fileNamesFilteredList.add(item['file_name']);
         storageData.imageBytesFilteredList.add(item['image_byte']);
+        storageData.fileDateFilteredList.add(item['upload_date']);
       }
     });
 
@@ -941,24 +964,32 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         return searchTerms.any((term) => file.toLowerCase().contains(term));
       }).toList();
 
-      final filteredByteValues = storageData.imageBytesList.where((bytes) {
-        final index = storageData.imageBytesList.indexOf(bytes);
-        final file = storageData.fileNamesList[index];
-        return searchTerms.any((term) => file.toLowerCase().contains(term));
-      }).toList();
+      final filteredByteValues = storageData.imageBytesList
+          .where((bytes) => filteredFiles.contains(storageData.fileNamesList[storageData.imageBytesList.indexOf(bytes)]))
+          .toList();
+
+      final filteredFilesDate = <String>[];
+
+      for (final file in filteredFiles) {
+        final index = storageData.fileNamesList.indexOf(file);
+        if (index >= 0 && index < storageData.fileDateList.length) {
+          filteredFilesDate.add(storageData.fileDateList[index]);
+        } else {
+          filteredFilesDate.add(''); 
+        }
+      }
 
       setState(() {
-
         storageData.setFilteredFilesName(filteredFiles);
         storageData.setFilteredImageBytes(filteredByteValues);
+        storageData.setFilteredFilesDate(filteredFilesDate);
 
         if (filteredFiles.isNotEmpty) {
           final index = storageData.fileNamesList.indexOf(filteredFiles.first);
-          leadingImageSearchedValue = 
-            filteredByteValues.isNotEmpty && filteredByteValues.length > index
-            ? Image.memory(filteredByteValues[index]!)
-            : null;
-
+          leadingImageSearchedValue =
+              filteredByteValues.isNotEmpty && filteredByteValues.length > index
+                  ? Image.memory(filteredByteValues[index]!)
+                  : null;
         } else {
           leadingImageSearchedValue = null;
         }
@@ -968,6 +999,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   void _filterTypePublicStorage(String value) async {
+    
     debounceSearchingTimer?.cancel();
     debounceSearchingTimer = Timer(const Duration(milliseconds: 299), () {
       final searchTerms =
@@ -983,10 +1015,22 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         return searchTerms.any((term) => file.toLowerCase().contains(term));
       }).toList();
 
-      setState(() {
+      final filteredFilesDate = <String>[];
 
-        storageData.setFilesName(filteredFiles);
+      for (final file in filteredFiles) {
+        final index = storageData.fileNamesList.indexOf(file);
+        if (index >= 0 && index < storageData.fileDateList.length) {
+          filteredFilesDate.add(storageData.fileDateList[index]);
+        } else {
+          filteredFilesDate.add(''); 
+        }
+      }
+
+      setState(() {
+        
+        storageData.setFilteredFilesName(filteredFiles);
         storageData.setFilteredImageBytes(filteredByteValues);
+        storageData.setFilteredFilesDate(filteredFilesDate);
         
         if (filteredFiles.isNotEmpty) {
           final index = storageData.fileNamesList.indexOf(filteredFiles.first);
@@ -2971,69 +3015,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  Future _deleteSelectAllDialog(int count) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ThemeColor.darkGrey,
-          title: ValueListenableBuilder<String>(
-            valueListenable: appBarTitle,
-            builder: (BuildContext context, String value, Widget? child) {
-              return Text(
-                value,
-                style: const TextStyle(
-                  color: ThemeColor.justWhite,
-                ),
-              );
-            }
-          ),
-          content: const Text(
-            'Delete these items? Action is permanent.',
-            style: TextStyle(color: ThemeColor.secondaryWhite),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ThemeColor.darkGrey,
-                elevation: 0,
-              ),
-              onPressed: () async {
-
-                final countSelectedItems = checkedList.where((item) => item == true).length;
-
-                final loadingDialog = SingleTextLoading();
-
-                loadingDialog.startLoading(title: "Deleting...",context: context);
-                
-                await _processDeletingAllItems(count: countSelectedItems);
-
-                loadingDialog.stopLoading();
-
-                if(!mounted) return;
-                Navigator.pop(context);
-
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildSelectAll() {
     return Row(
       children: [
@@ -3143,10 +3124,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           
             ElevatedButton(
               onPressed: () async {
-
                 Navigator.pop(context);
-                await _deleteSelectAllDialog(checkedItemsName.length);
-
+                _openDeleteSelectionDialog();
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -3196,28 +3175,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  String _setupGreetingTime() {
-
-    var timeNow = DateTime.now().hour;
-
-    if (timeNow <= 12) {
-      return 'Good morning, ';
-    } else if ((timeNow > 12) && (timeNow <= 16)) {
-    return 'Good afternoon, ';
-    } else if ((timeNow > 16) && (timeNow < 20)) {
-    return 'Good evening, ';
-    } else {
-    return 'Good night, ';
-    }
-
-  }
-
   PreferredSizeWidget _buildCustomAppBar() {
-
-    final getGreeting = _setupGreetingTime();
-    final setupGreeting = "$getGreeting${userData.username}";
-
-    String setupTitle = appBarTitle.value == '' ? setupGreeting : appBarTitle.value;
 
     return PreferredSize(
       preferredSize: const Size.fromHeight(65),
@@ -3227,7 +3185,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           titleSpacing: 5,
           elevation: 0,
           centerTitle: false,
-          title: Text(setupTitle,
+          title: Text(appBarTitle.value,
             style: GlobalsStyle.greetingAppBarTextStyle,
           ),
           actions: [
@@ -3450,7 +3408,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     children: [
 
                       TextSpan(
-                        text: tempData.fileOrigin == "psFiles" ? psFilesCategoryTags : storageData.fileDateList[index],
+                        text: tempData.fileOrigin == "psFiles" ? psFilesCategoryTags : storageData.fileDateFilteredList[index],
                         style: const TextStyle(
                           color: ThemeColor.secondaryWhite,
                           fontSize: 12.8,
@@ -3533,7 +3491,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                ShortenText().cutText(fileName, customLength: 15),
+                ShortenText().cutText(fileName, customLength: 12),
                 style: const TextStyle(
                   color: ThemeColor.justWhite,
                   fontSize: 16,

@@ -10,7 +10,9 @@ class StorageDataProvider extends ChangeNotifier {
 
   List<String> _fileNamesList = <String>[];
   List<String> _fileNamesFilteredList = <String>[];
+
   List<String> _fileDateList = <String>[];
+  List<String> _fileDateFilteredList = <String>[];
 
   List<Uint8List> _homeImageBytesList = <Uint8List>[];
   List<Uint8List> _homeThumbnailBytesList = <Uint8List>[];
@@ -25,6 +27,8 @@ class StorageDataProvider extends ChangeNotifier {
 
   List<String> get fileNamesList => _fileNamesList;
   List<String> get fileNamesFilteredList => _fileNamesFilteredList;
+
+  List<String> get fileDateFilteredList => _fileDateFilteredList;
   List<String> get fileDateList => _fileDateList;
 
   List<Uint8List?> get imageBytesList => _imageBytesList;
@@ -56,6 +60,11 @@ class StorageDataProvider extends ChangeNotifier {
 
   void setFilesDate(List<String> date) {
     _fileDateList = date;
+    notifyListeners();
+  }
+
+  void setFilteredFilesDate(List<String> date) {
+    _fileDateFilteredList = date;
     notifyListeners();
   }
 
