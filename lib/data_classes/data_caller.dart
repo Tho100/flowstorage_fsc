@@ -123,6 +123,7 @@ class DataCaller {
 
     storageData.setFilesName(fileValues);
     storageData.setFilteredFilesName(filteredSearchedFiles);
+    storageData.setFilteredFilesDate(setDateValues);
     storageData.setFilesDate(setDateValues);
     storageData.setImageBytes(imageByteValues);
     storageData.setFilteredImageBytes(filteredSearchedBytes);

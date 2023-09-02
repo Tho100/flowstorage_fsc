@@ -4,7 +4,6 @@ import 'package:flowstorage_fsc/widgets/main_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 
 class HomePage extends StatelessWidget {
 
@@ -12,7 +11,7 @@ class HomePage extends StatelessWidget {
     return Column(
       children: [
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 30),
 
         MainButton(
           text: "Sign In",
@@ -25,133 +24,88 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 15),
 
         SizedBox(
-          height: 65,
+          height: 68,
           width: MediaQuery.of(context).size.width-65,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-            backgroundColor: ThemeColor.darkBlack,
-            foregroundColor: Colors.white,
-            side: const BorderSide(
-              color: ThemeColor.darkPurple,
-              width: 3,
-            ),
+            backgroundColor: ThemeColor.justWhite,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),  
           ),
-
           onPressed: () async {
             NavigatePage.goToPageRegister(context);
           },
-
-          child: const Text("Sign Up",
+          child: const Text("Create Account",
             style: TextStyle(
-              color: ThemeColor.darkPurple,
+              color: ThemeColor.darkBlack,
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
               ),
             ),
           ),
         ),
 
-        const SizedBox(height: 70),
-
       ],
     );
   }
 
-  Widget buildHeaderText(String title) {
-    return Text(title,
+  Widget buildHeaderText() {
+    return Text("Flow your files anywhere.",
       style: GoogleFonts.poppins(
         textStyle: const TextStyle(
-          color: ThemeColor.darkPurple,
+          color: ThemeColor.justWhite,
           fontSize: 50,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
         ),
       ),
-      textAlign: TextAlign.center,
+      textAlign: TextAlign.left,
     );
   }
 
-  Widget buildSubText(String text) {
-    return Text(text,
+  Widget buildSubText() {
+    return Text("Backup your photos and files \nsecurely on the cloud with \nFlowstorage",
       style: GoogleFonts.poppins(
         textStyle: const TextStyle(
           color: ThemeColor.secondaryWhite,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      textAlign: TextAlign.center,
+      textAlign: TextAlign.left,
     );
   }
 
+  Widget buildBottomContainer(BuildContext context) {
+    return Container(
+      color: ThemeColor.darkBlack,
+      width: MediaQuery.of(context).size.width,
+      height: 205,
+      child: buildButtons(context),
+    );
+  }
 
-  List<PageViewModel> getPages(BuildContext context) {
-    return [
-      PageViewModel(
-        title: "",
-        bodyWidget: Column(
-          children: [
+  Widget buildPage(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-            const SizedBox(height: 55),
-            buildHeaderText("Flow Your Files Anywhere"),
-            const SizedBox(height: 18),
-            buildSubText("Store your files on Flowstorage and access them effortlessly across all your devices"),
-        
-          ],
+        const SizedBox(height: 115),
+
+        Padding(
+          padding: const EdgeInsets.only(left: 35.0),
+          child: buildHeaderText(),
         ),
-        footer: const Text('')
-      ),
-
-      PageViewModel(
-        title: "",
-        bodyWidget: Column(
-          children: [
-
-            const SizedBox(height: 55),
-            buildHeaderText("Sharing Made Easy"),
-            const SizedBox(height: 18),
-            buildSubText("Easily share your photo and video memories to your friends or anyone"),
-          
-          ],
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 35.0),
+          child: buildSubText(),
         ),
-
-        footer: const Text('')
-      ),
-
-      PageViewModel(
-        title: "",
-        bodyWidget: Column(
-          children: [
-
-            const SizedBox(height: 55),
-            buildHeaderText("Public Storage"),
-            const SizedBox(height: 18),
-            buildSubText("Explore a vast collection of publicly shared files from around the world"),
-          
-          ],
-        ),
-
-        footer: const Text('')
-      ),
-
-      PageViewModel(
-        title: "",
-        bodyWidget: Column(
-          children: [
-
-            const SizedBox(height: 55),
-            buildHeaderText("Privacy Is Our Priority"),
-            const SizedBox(height: 18),
-            buildSubText("We ensure that your files information and personal data are securely stored in our server"),
-          
-          ],
-        ),
-
-        footer: const Text('')
-      ),
-    ];
+      
+        const Spacer(),
+        buildBottomContainer(context)
+      ],
+    );
   }
 
   const HomePage({super.key});
@@ -159,16 +113,8 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColor.darkBlack,
-      body: IntroductionScreen(
-        resizeToAvoidBottomInset: false,
-        showNextButton: false,
-        done: const Text(""),
-        onDone: () {},
-        pages: getPages(context),
-        globalBackgroundColor: ThemeColor.darkBlack,
-        globalFooter: buildButtons(context)
-      ),
+      backgroundColor: const Color(0xff4A03A4),
+      body: buildPage(context)
     );
   }
 }

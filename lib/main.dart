@@ -427,6 +427,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   void _addItemToListView({required String fileName}) {
+    storageData.fileDateFilteredList.add("Just now");
     storageData.fileDateList.add("Just now");
     storageData.fileNamesList.add(fileName);
     storageData.fileNamesFilteredList.add(fileName);
@@ -999,7 +1000,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   }
 
   void _filterTypePublicStorage(String value) async {
-    
+
     debounceSearchingTimer?.cancel();
     debounceSearchingTimer = Timer(const Duration(milliseconds: 299), () {
       final searchTerms =
@@ -3177,6 +3178,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   PreferredSizeWidget _buildCustomAppBar() {
 
+    final appBarTitleValue = appBarTitle.value == '' ? 'Home' : appBarTitle.value;
+
     return PreferredSize(
       preferredSize: const Size.fromHeight(65),
       child: Padding(
@@ -3185,7 +3188,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
           titleSpacing: 5,
           elevation: 0,
           centerTitle: false,
-          title: Text(appBarTitle.value,
+          title: Text(appBarTitleValue,
             style: GlobalsStyle.greetingAppBarTextStyle,
           ),
           actions: [

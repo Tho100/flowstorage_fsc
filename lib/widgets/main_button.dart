@@ -22,7 +22,7 @@ class MainButton extends StatelessWidget {
     final mediaQuerySize = MediaQuery.of(context).size;
 
     return SizedBox(
-      height: minusHeight != null ? mediaQuerySize.height-minusHeight! : 65,
+      height: minusHeight != null ? mediaQuerySize.height-minusHeight! : 68,
       width: minusWidth != null ? mediaQuerySize.width-minusWidth! : MediaQuery.of(context).size.width-45,
       child: ElevatedButton(
         style: GlobalsStyle.btnMainStyle,
