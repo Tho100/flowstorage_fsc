@@ -134,7 +134,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
     final fileType = selectedFileName.split('.').last;
     final fileIndex = storageData.fileNamesFilteredList.indexOf(selectedFileName);
 
-    if (Globals.videoType.contains(fileType) || Globals.audioType.contains(fileType) || Globals.textType.contains(fileType)) {
+    if (Globals.videoType.contains(fileType) || Globals.audioType.contains(fileType) || Globals.textType.contains(fileType) || Globals.excelType.contains(fileType) || Globals.wordType.contains(fileType) || Globals.excelType.contains("pdf")) {
       _navigateToPreviewFile(selectedFileName, fileType, fileIndex);
     }
 
