@@ -119,9 +119,9 @@ class CustomSideBarMenu {
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     backgroundColor: ThemeColor.darkPurple,
                   ),

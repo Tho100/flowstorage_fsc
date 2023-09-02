@@ -454,18 +454,8 @@ class CakeSettingsPageState extends State<CakeSettingsPage> {
             const SizedBox(height: 10),
       
             _buildRowWithButtons(
-              topText: "Change my username", 
-              bottomText: "Change your Flowstorage Username", 
-              onPressed: () {
-                NavigatePage.goToPageChangeUser(context);
-              }
-            ),
-      
-            const SizedBox(height: 15),
-      
-            _buildRowWithButtons(
               topText: "Change my password", 
-              bottomText: "Change your Flowstorage password", 
+              bottomText: "Update your Flowstorage password", 
               onPressed: () {
                 NavigatePage.goToPageChangePass(context);
               }

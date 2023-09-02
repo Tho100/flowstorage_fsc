@@ -3677,7 +3677,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     };
 
     final fileType = storageData.fileNamesFilteredList[index].split('.').last;
-    final originalDateValues = storageData.fileDateList[index];
+    final originalDateValues = storageData.fileDateFilteredList[index];
 
     return Container(
       width: mediaQuery.width,

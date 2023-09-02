@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
 
         MainButton(
           text: "Sign In",
-          minusWidth: 65,
+          minusWidth: 62,
           onPressed: () async {
             NavigatePage.goToPageLogin(context);
           },
@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
 
         SizedBox(
           height: 68,
-          width: MediaQuery.of(context).size.width-65,
+          width: MediaQuery.of(context).size.width-62,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
             backgroundColor: ThemeColor.justWhite,
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
       style: GoogleFonts.poppins(
         textStyle: const TextStyle(
           color: ThemeColor.justWhite,
-          fontSize: 50,
+          fontSize: 46,
           fontWeight: FontWeight.w800,
         ),
       ),
