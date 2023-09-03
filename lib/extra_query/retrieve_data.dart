@@ -13,13 +13,6 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user encrypted files metadata
-/// and decrypt/decode them later for user to see
-/// 
-/// </summary>
-
 class RetrieveData {
 
   final encryption = EncryptionClass();

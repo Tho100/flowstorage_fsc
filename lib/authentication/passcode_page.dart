@@ -99,7 +99,7 @@ class PasscodePageState extends State<PasscodePage> {
       final retrieveFolders = <String>{};
 
       if (await crud.countUserTableRow(GlobalsTable.folderUploadTable) > 0) {
-        retrieveFolders.addAll(await FolderRetrieve().retrieveParams(savedCustUsername));
+        retrieveFolders.addAll(await FolderRetriever().retrieveParams(savedCustUsername));
       }
 
       for (final result in results) {

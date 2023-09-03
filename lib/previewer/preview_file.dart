@@ -78,8 +78,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
   final storageData = GetIt.instance<StorageDataProvider>();
   final psStorageData = GetIt.instance<PsStorageDataProvider>();
   
-  final shareToController = TextEditingController();
-  final commentController = TextEditingController();
   final textController = TextEditingController();
 
   static final bottomBarVisibleNotifier = ValueNotifier<bool>(true);
@@ -110,8 +108,6 @@ class CakePreviewFileState extends State<CakePreviewFile> {
 
   @override
   void dispose() {
-    shareToController.dispose();
-    commentController.dispose();
     textController.dispose();
     appBarTitleNotifier.dispose();
     uploaderNameNotifer.dispose();

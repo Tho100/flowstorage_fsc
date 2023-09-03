@@ -9,13 +9,6 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mysql_client/mysql_client.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user files leading image
-/// based on the file type
-/// 
-/// </summary>
-
 class DataRetriever {
 
   int countDirCurr = 0;

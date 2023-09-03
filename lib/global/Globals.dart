@@ -1,13 +1,6 @@
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
-/// <summary>
-/// 
-/// Initialize global variables and list for listView
-/// items to store/load later on
-/// 
-/// </summary>
-
 class Globals {
 
   static final _tempData = GetIt.instance<TempDataProvider>();

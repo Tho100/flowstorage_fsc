@@ -6,13 +6,6 @@ import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
-/// <summary>
-/// 
-/// Class to update for values like text changes
-/// and username update will be perform here
-/// 
-/// </summary>
-
 class UpdateValues  {
   
   Future<void> insertValueParams({

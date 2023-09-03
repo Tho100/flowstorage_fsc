@@ -9,13 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:mysql_client/mysql_client.dart';
 import '../encryption/encryption_model.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user  encrypted shared files names
-/// and decrypt them later for user to see
-/// 
-/// </summary>
-
 class SharingDataReceiver {
 
   final encryption = EncryptionClass();

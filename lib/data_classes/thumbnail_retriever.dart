@@ -6,13 +6,6 @@ import 'package:flowstorage_fsc/provider/temp_data_provider.dart';
 import 'package:flowstorage_fsc/provider/user_data_provider.dart';
 import 'package:get_it/get_it.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user video thumbnail
-/// and decode them for user to see 
-/// 
-/// </summary>
-
 class ThumbnailGetter {
   
   final userData = GetIt.instance<UserDataProvider>();

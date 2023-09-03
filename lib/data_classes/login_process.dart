@@ -23,12 +23,6 @@ import 'package:flowstorage_fsc/data_classes/data_retriever.dart';
 import 'package:flowstorage_fsc/data_classes/date_getter.dart';
 import 'package:flowstorage_fsc/data_classes/files_name_retriever.dart';
 
-/// <summary>
-/// 
-/// Authentication class for login
-/// 
-/// </summary>
-
 class SignInUser {
 
   final _locator = GetIt.instance;
@@ -101,7 +95,7 @@ class SignInUser {
     final uniqueBytes = bytes.toList();
 
     if (await crud.countUserTableRow(GlobalsTable.folderUploadTable) > 0) {
-      retrieveFolders.addAll(await FolderRetrieve().retrieveParams(custUsernameGetter));
+      retrieveFolders.addAll(await FolderRetriever().retrieveParams(custUsernameGetter));
     }
 
     final uniqueFolder = retrieveFolders.toList();

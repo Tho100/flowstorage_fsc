@@ -1,13 +1,7 @@
 import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user folders
-/// 
-/// </summary>
-
-class FolderRetrieve {
+class FolderRetriever {
 
   final encryption = EncryptionClass();
 

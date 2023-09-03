@@ -2,12 +2,6 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:logger/logger.dart';
 
-/// <summary>
-/// 
-/// Class to create user directory
-/// 
-/// </summary>
-
 class DirectoryClass {
 
   final logger = Logger();

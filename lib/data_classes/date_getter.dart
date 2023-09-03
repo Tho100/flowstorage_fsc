@@ -2,13 +2,6 @@ import 'package:flowstorage_fsc/connection/cluster_fsc.dart';
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:intl/intl.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user files
-/// upload date
-/// 
-/// </summary>
-
 class DateGetter {
 
   String formatDate(String dateString) {

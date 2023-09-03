@@ -10,13 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:mysql_client/mysql_client.dart';
   
-/// <summary>
-/// 
-/// Class to insert user uploaded file 
-/// encrypted information e.g it's metadata and file name
-/// 
-/// </summary>
-
 class InsertData {
   
   final logger = Logger();

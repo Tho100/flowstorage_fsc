@@ -47,12 +47,6 @@ class CommentPageState extends State<CommentPage> {
     );
   }
 
-  /// <summary>
-  /// 
-  /// Retrieve the username of file the user have shared to
-  /// 
-  /// </summary>
-
   Future<String> _shareToOtherName() async {
 
     final connection = await SqlConnection.insertValueParams();
@@ -87,12 +81,6 @@ class CommentPageState extends State<CommentPage> {
 
   }
 
-  /// <summary>
-  /// 
-  /// Retrieve username of the user that shared a file
-  /// 
-  /// </summary>
-  /// 
   Future<String> _sharerName() async {
 
     final connection = await SqlConnection.insertValueParams();

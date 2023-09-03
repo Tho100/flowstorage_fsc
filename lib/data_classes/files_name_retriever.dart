@@ -2,13 +2,6 @@ import 'package:flowstorage_fsc/encryption/encryption_model.dart';
 import 'package:flowstorage_fsc/global/global_table.dart';
 import 'package:mysql_client/mysql_client.dart';
 
-/// <summary>
-/// 
-/// Class to retrieve user encrypted files names
-/// and decrypt them later for user to see
-/// 
-/// </summary>
-
 class NameGetter {
 
   static final encryption = EncryptionClass();
