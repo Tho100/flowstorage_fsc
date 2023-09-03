@@ -1,5 +1,6 @@
 import 'package:flowstorage_fsc/global/globals_style.dart';
 import 'package:flowstorage_fsc/themes/theme_color.dart';
+import 'package:flowstorage_fsc/widgets/main_dialog_button.dart';
 import 'package:flutter/material.dart';
 
 class RenameFolderDialog {
@@ -43,7 +44,7 @@ class RenameFolderDialog {
                   Padding(
                     padding: EdgeInsets.only(left: 18.0),
                     child: Text(
-                      "Rename this file",
+                      "Rename this folder",
                       style: TextStyle(
                         color: ThemeColor.secondaryWhite,
                         fontSize: 16,
@@ -76,24 +77,13 @@ class RenameFolderDialog {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            folderRenameController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
+                      child: MainDialogButton(
+                        text: "Cancel",
+                        onPressed: () {
+                          folderRenameController.clear();
+                          Navigator.pop(context);
+                        },
+                        isButtonClose: true,
                       ),
                     ),
                   ),
@@ -101,17 +91,13 @@ class RenameFolderDialog {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                        onPressed: () {
+                      child: MainDialogButton(
+                        text: "Rename",
+                        onPressed: () async {
                           renameFolderOnPressed();
                           Navigator.pop(context);
                         },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Rename'),
-                        ),
+                        isButtonClose: false,
                       ),
                     ),
                   ),

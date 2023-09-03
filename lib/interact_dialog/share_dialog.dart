@@ -26,6 +26,9 @@ import 'package:get_it/get_it.dart';
 
 class SharingDialog {
 
+  final shareToController = TextEditingController();
+  final commentController = TextEditingController();
+
   final retrieveData = RetrieveData();
   final shareFileData = ShareFileData();
   
@@ -187,8 +190,6 @@ class SharingDialog {
 
   Future buildSharingDialog({
     String? fileName,
-    TextEditingController? shareToController, 
-    TextEditingController? commentController,
     BuildContext? context
   }) {
     return showDialog(
@@ -324,8 +325,8 @@ class SharingDialog {
                       child: MainDialogButton(
                         text: "Close",
                         onPressed: () {
-                          shareToController!.clear();
-                          commentController!.clear();
+                          shareToController.clear();
+                          commentController.clear();
                           Navigator.pop(context);
                         },
                         isButtonClose: true,
@@ -340,8 +341,8 @@ class SharingDialog {
                         text: "Share",
                         onPressed: () {
 
-                          final shareToInput = shareToController!.text;
-                          final comment = commentController!.text;
+                          final shareToInput = shareToController.text;
+                          final comment = commentController.text;
 
                           _onSharePressed(
                             receiverUsername: shareToInput,

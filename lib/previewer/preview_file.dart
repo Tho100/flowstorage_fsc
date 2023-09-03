@@ -246,7 +246,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
       },
       onSharingPressed: () {
         Navigator.pop(context);
-        SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, shareToController: shareToController, commentController: commentController,context: context);
+        SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, context: context);
       }, 
       onAOPressed: () async {
         Navigator.pop(context);
@@ -540,7 +540,7 @@ class CakePreviewFileState extends State<CakePreviewFile> {
               );
             } else if (originFrom == "share") {
 
-              SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, shareToController: shareToController,commentController: commentController,context: context);
+              SharingDialog().buildSharingDialog(fileName: tempData.selectedFileName, context: context);
 
             } else if (originFrom == "save") {
               

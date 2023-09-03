@@ -76,12 +76,12 @@ class BottomTrailing {
               child: ElevatedButton(
                 onPressed: onRenamePressed,
                 style: GlobalsStyle.btnBottomDialogBackgroundStyle,
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.edit),
-                    SizedBox(width: 10.0),
+                    const Icon(Icons.edit),
+                    const SizedBox(width: 10.0),
                     Text(
-                      'Rename File',
+                      fileName.contains('.') ? "Rename File" : "Rename Directory",
                       style: GlobalsStyle.btnBottomDialogTextStyle,
                     ),
                   ],

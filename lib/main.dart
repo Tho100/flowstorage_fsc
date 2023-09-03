@@ -56,6 +56,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
@@ -161,6 +162,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   late final PsUploadDataProvider psUploadData;
   late final TempDataProvider tempData;
 
+  final quickActions = const QuickActions();
+
   final fileNameGetterHome = NameGetter();
   final dataGetterHome = DataRetriever();
   final dateGetterHome = DateGetter();
@@ -180,9 +183,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   final focusNodeRedudane = FocusNode();
   final searchControllerRedudane = TextEditingController();
-
-  final shareController = TextEditingController();
-  final commentController = TextEditingController();
 
   final appBarTitle = ValueNotifier<String>('');
   final sortingText = ValueNotifier<String>('Default');
@@ -359,7 +359,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   void _openDeleteDialog(String fileName) {
     DeleteDialog().buildDeleteDialog( 
       fileName: fileName, 
-      onDeletePressed:() async => await _deleteFile(fileName, storageData.fileNamesList, storageData.fileNamesFilteredList, storageData.imageBytesList, _onTextChanged),
+      onDeletePressed:() async => await _deleteFile(fileName, storageData.fileNamesList, storageData.fileNamesFilteredList, storageData.imageBytesList, _itemSearchingImplementation),
       context: context
     );
   }
@@ -375,8 +375,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   void _openSharingDialog(String fileName) {
     SharingDialog().buildSharingDialog(
       fileName: fileName, 
-      shareToController: shareController,
-      commentController: commentController,
       context: context
     );
   }
@@ -514,7 +512,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       _navDirectoryButtonVisibility(false);
       _floatingButtonVisiblity(true);
 
-      _onTextChanged('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
+      _itemSearchingImplementation('.png,.jpg,.jpeg,.mp4,.mov,.wmv');
 
     } else {
 
@@ -526,7 +524,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         _navDirectoryButtonVisibility(true);
       }
 
-      _onTextChanged('');
+      _itemSearchingImplementation('');
 
     }
 
@@ -585,7 +583,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     searchHintText.value = "Search in Flowstorage";
 
     tempData.setOrigin("homeFiles");
-    _onTextChanged('');
+    _itemSearchingImplementation('');
 
   }
 
@@ -949,7 +947,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
       tempData.fileOrigin != "offlineFiles" ? await crud.delete(query: query, params: params) : null;
       await Future.delayed(const Duration(milliseconds: 855));
 
-      _removeFileFromListView(fileName: checkedItemsName.elementAt(i),isFromSelectAll: true, onTextChanged: _onTextChanged);
+      _removeFileFromListView(fileName: checkedItemsName.elementAt(i),isFromSelectAll: true, onTextChanged: _itemSearchingImplementation);
 
     }
 
@@ -999,7 +997,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     appBarTitle.value = "${(checkedList.where((item) => item == true).length).toString()} item(s) selected";
   }
 
-  void _onTextChanged(String value) async {
+  void _itemSearchingImplementation(String value) async {
 
     debounceSearchingTimer?.cancel();
     debounceSearchingTimer = Timer(const Duration(milliseconds: 299), () {
@@ -1210,7 +1208,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     await dataCaller.directoryData(directoryName: appBarTitle.value);
 
-    _onTextChanged('');
+    _itemSearchingImplementation('');
     searchBarController.text = '';
     searchHintText.value = "Search in ${appBarTitle.value}";
 
@@ -1222,7 +1220,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     await dataCaller.sharingData(originFrom);
 
-    _onTextChanged('');
+    _itemSearchingImplementation('');
 
   }
 
@@ -1238,7 +1236,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     searchBarVisibileNotifier.value = false;
     staggeredListViewSelected.value = true;
 
-    _onTextChanged('');
+    _itemSearchingImplementation('');
     searchBarController.text = '';
 
     _navDirectoryButtonVisibility(false);
@@ -1256,7 +1254,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     appBarTitle.value = "My Public Storage";
     psButtonTextNotifier.value = "Back";
     
-    _onTextChanged('');
+    _itemSearchingImplementation('');
     searchBarController.text = '';
 
     _floatingButtonVisiblity(false);
@@ -1273,7 +1271,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     await dataCaller.folderData(folderName: folderTitle);
     
-    _onTextChanged('');
+    _itemSearchingImplementation('');
 
     _floatingButtonVisiblity(false);
     _navDirectoryButtonVisibility(false);
@@ -1309,7 +1307,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     if(tempData.fileOrigin != "psFiles") {
 
-      _onTextChanged('');
+      _itemSearchingImplementation('');
       searchBarController.text = '';
 
       sortingText.value = "Default";
@@ -2772,7 +2770,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                     final bottomTrailingFilter = BottomTrailingFilter();
                     bottomTrailingFilter.buildFilterTypeAll(
                       filterTypePublicStorage: _filterTypePublicStorage, 
-                      filterTypeNormal: _onTextChanged, 
+                      filterTypeNormal: _itemSearchingImplementation, 
                       context: context
                     );
                   },
@@ -2848,7 +2846,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                           if (value.isEmpty) {
                             searchBarFocusNode.unfocus();
                           }
-                          _onTextChanged(value);
+                          _itemSearchingImplementation(value);
                         },
                         controller: searchBarController,
                         focusNode: searchBarFocusNode,
@@ -2882,7 +2880,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
                           final bottomTrailingFilter = BottomTrailingFilter();
                           bottomTrailingFilter.buildFilterTypeAll(
                             filterTypePublicStorage: _filterTypePublicStorage, 
-                            filterTypeNormal: _onTextChanged, 
+                            filterTypeNormal: _itemSearchingImplementation, 
                             context: context
                           );
                         },
@@ -3061,7 +3059,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         final bottomTrailingFilter = BottomTrailingFilter();
         bottomTrailingFilter.buildFilterTypePhotos(
           filterTypePublicStorage: _filterTypePublicStorage, 
-          filterTypeNormal: _onTextChanged, 
+          filterTypeNormal: _itemSearchingImplementation, 
           context: context
         );
       },
@@ -3934,6 +3932,15 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
+
+    quickActions.initialize((String shortcutType) {
+      NavigatePage.goToPageCreateText(context);
+    });
+
+    quickActions.setShortcutItems([
+      const ShortcutItem(type: 'event', localizedTitle: 'Upload File'),
+    ]);
+
     userData = _locator<UserDataProvider>();
     storageData = _locator<StorageDataProvider>();
     psUploadData = _locator<PsUploadDataProvider>();
@@ -3943,7 +3950,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     checkedList = List.generate(
         storageData.fileNamesFilteredList.length, (index) => false);
 
-    _onTextChanged('');
+    _itemSearchingImplementation('');
+
   }
 
   @override 
@@ -3954,8 +3962,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     searchBarController.dispose();
     searchControllerRedudane.dispose();
     focusNodeRedudane.dispose();
-    shareController.dispose();
-    commentController.dispose();
     scrollListViewController.dispose();
     psButtonTextNotifier.dispose();
 
