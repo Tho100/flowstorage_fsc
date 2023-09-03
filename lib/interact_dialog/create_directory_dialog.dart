@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 class CreateDirectoryDialog {
   
+  static final directoryNameController = TextEditingController();
+
   Future buildCreateDirectoryDialog({
     required BuildContext context,
-    required TextEditingController directoryNameController,
     required VoidCallback createOnPressed
   }) {
     return showDialog(

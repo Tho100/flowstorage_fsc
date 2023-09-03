@@ -22,6 +22,7 @@ import 'package:flowstorage_fsc/helper/shorten_text.dart';
 import 'package:flowstorage_fsc/helper/visibility_checker.dart';
 import 'package:flowstorage_fsc/interact_dialog/create_directory_dialog.dart';
 import 'package:flowstorage_fsc/interact_dialog/delete_selection_dialog.dart';
+import 'package:flowstorage_fsc/interact_dialog/rename_folder_dialog.dart';
 import 'package:flowstorage_fsc/interact_dialog/upgrade_dialog.dart';
 import 'package:flowstorage_fsc/pages/comment_page.dart';
 import 'package:flowstorage_fsc/models/offline_mode.dart';
@@ -180,9 +181,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
   final focusNodeRedudane = FocusNode();
   final searchControllerRedudane = TextEditingController();
 
-  final directoryCreateController = TextEditingController();
-
-  final folderRenameController = TextEditingController();
   final shareController = TextEditingController();
   final commentController = TextEditingController();
 
@@ -383,13 +381,58 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
+  void _openRenameDirectoryDialog(String folderName) {
+    RenameFolderDialog().buildRenameFolderDialog(
+      context: context, 
+      folderName: folderName, 
+      renameFolderOnPressed: () async {
+
+        final newFolderName = RenameFolderDialog.folderRenameController.text;
+
+        if (storageData.foldersNameList.contains(newFolderName)) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: ThemeColor.darkGrey,
+              title: Text(
+                newFolderName,
+                style: const TextStyle(color: Colors.white),
+              ),
+              content: const Text(
+                'Folder with this name already exists.',
+                style: TextStyle(color: Color.fromARGB(255, 212, 212, 212)),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          if (newFolderName.isNotEmpty) {
+            await _renameFolder(folderName, newFolderName);
+          } else {
+            CustomAlertDialog.alertDialog('Folder name cannot be empty.', context);
+          }
+        }
+
+        RenameFolderDialog.folderRenameController.clear();
+
+      }
+    );
+  }
+
   void _openCreateDirectoryDialog() {
     CreateDirectoryDialog().buildCreateDirectoryDialog(
       context: context, 
-      directoryNameController: directoryCreateController,
       createOnPressed: () async {
-
-        final getDirectoryTitle = directoryCreateController.text.trim();
+        
+        final getDirectoryTitle = CreateDirectoryDialog.directoryNameController.text.trim();
 
         if(getDirectoryTitle.isEmpty) {
           return;
@@ -401,7 +444,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         }
 
         await _buildDirectory(getDirectoryTitle);
-        directoryCreateController.clear();
+        CreateDirectoryDialog.directoryNameController.clear();
+
       }
 
     );
@@ -2443,159 +2487,6 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  Future<void> _renameFolderDialog(BuildContext context, String folderName) async {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: ThemeColor.darkBlack,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Text(
-                      folderName,
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 15,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 18.0),
-                    child: Text(
-                      "Rename this file",
-                      style: TextStyle(
-                        color: ThemeColor.secondaryWhite,
-                        fontSize: 16,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(width: 1.0, color: ThemeColor.darkGrey),
-                  ),
-                  child: TextFormField(
-                    style: const TextStyle(color: Color.fromARGB(255, 214, 213, 213)),
-                    enabled: true,
-                    controller: folderRenameController,
-                    decoration: GlobalsStyle.setupTextFieldDecoration("Enter a new name"),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            directoryCreateController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ThemeColor.darkBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: ThemeColor.darkPurple),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 85,
-                        height: 40,
-                        child: ElevatedButton(
-                        onPressed: () async {
-
-                          String newFolderName = folderRenameController.text;
-
-                          if (storageData.foldersNameList.contains(newFolderName)) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor: ThemeColor.darkGrey,
-                                title: Text(
-                                  newFolderName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                content: const Text(
-                                  'Folder with this name already exists.',
-                                  style: TextStyle(color: Color.fromARGB(255, 212, 212, 212)),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text(
-                                      'Cancel',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            if (newFolderName.isNotEmpty) {
-                              await _renameFolder(folderName, newFolderName);
-                            } else {
-                              CustomAlertDialog.alertDialog('Folder name cannot be empty.', context);
-                            }
-                          }
-
-                          if(!mounted) return;
-                          Navigator.pop(context);
-                          folderRenameController.clear();
-
-                          },
-                          style: GlobalsStyle.btnMainStyle,
-                          child: const Text('Rename'),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-              const SizedBox(height: 15),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Future _buildFolderBottomTrailing(String folderName) {
     return showModalBottomSheet(
       backgroundColor: ThemeColor.darkGrey,
@@ -2627,7 +2518,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                _renameFolderDialog(context,folderName);
+                _openRenameDirectoryDialog(folderName);
               },
               style: GlobalsStyle.btnBottomDialogBackgroundStyle,
               child: const Row(
@@ -4063,10 +3954,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     searchBarController.dispose();
     searchControllerRedudane.dispose();
     focusNodeRedudane.dispose();
-    directoryCreateController.dispose();
     shareController.dispose();
     commentController.dispose();
-    folderRenameController.dispose();
     scrollListViewController.dispose();
     psButtonTextNotifier.dispose();
 
