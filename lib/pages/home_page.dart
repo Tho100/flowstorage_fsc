@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
     return Text("Backup your photos and files \nsecurely on the cloud with \nFlowstorage",
       style: GoogleFonts.poppins(
         textStyle: const TextStyle(
-          color: ThemeColor.secondaryWhite,
+          color: Color(0xfff9f9f9),
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),

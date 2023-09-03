@@ -452,6 +452,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
     storageData.fileNamesList.clear();
     storageData.fileNamesFilteredList.clear();
     storageData.fileDateList.clear();
+    storageData.fileDateFilteredList.clear();
     storageData.imageBytesFilteredList.clear();
     storageData.imageBytesList.clear();
   }
@@ -1293,6 +1294,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
       setState(() {
 
+        storageData.fileDateFilteredList.add("Directory");
         storageData.fileDateList.add("Directory");
         storageData.imageBytesList.add(directoryImage.readAsBytesSync());
         storageData.imageBytesFilteredList.add(directoryImage.readAsBytesSync());
@@ -1333,7 +1335,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Future<void> _deleteFile(String fileName, List<String> fileValues, List<String> filteredSearchedFiles, List<Uint8List?> imageByteValues, Function onTextChanged) async {
 
-    String extension = fileName.split('.').last;
+    final extension = fileName.split('.').last;
 
     if(extension == fileName) {
       await _deletionDirectory(fileName);
@@ -1531,6 +1533,7 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         storageData.imageBytesList.removeAt(indexOfFile);
         storageData.imageBytesFilteredList.removeAt(indexOfFile);
         storageData.fileDateList.removeAt(indexOfFile);
+        storageData.fileDateFilteredList.removeAt(indexOfFile);
         leadingImageSearchedValue = null;
         fileTitleSearchedValue = null;  
       }
@@ -1552,8 +1555,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
   Future<void> _renameFile(String oldFileName, String newFileName) async {
     
-    String fileType = oldFileName.split('.').last;
-    String tableName = Globals.fileTypesToTableNames[fileType]!;
+    final fileType = oldFileName.split('.').last;
+    final tableName = Globals.fileTypesToTableNames[fileType]!;
 
     try {
       
@@ -1578,22 +1581,22 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
 
     try {
 
-      String verifyItemType = fileName.split('.').last;
-      String newItemValue = RenameDialog.renameController.text;
+      final verifyItemType = fileName.split('.').last;
+      final newItemValue = RenameDialog.renameController.text;
 
       if(verifyItemType == fileName) {
 
-        await _renameDirectory(oldDirName: fileName,newDirName: newItemValue);
+        await _renameDirectory(oldDirName: fileName, newDirName: newItemValue);
 
-        int indexOldFile = storageData.fileNamesList.indexOf(fileName);
-        int indexOldFileSearched = storageData.fileNamesFilteredList.indexOf(fileName);
+        final indexOldFile = storageData.fileNamesList.indexOf(fileName);
+        final indexOldFileSearched = storageData.fileNamesFilteredList.indexOf(fileName);
 
         _updateRenameFile(newItemValue, indexOldFile, indexOldFileSearched);
         
         return;
       }
 
-      String newRenameValue = "$newItemValue.${fileName.split('.').last}";
+      final newRenameValue = "$newItemValue.${fileName.split('.').last}";
 
       if (storageData.fileNamesList.contains(newRenameValue)) {
         CustomAlertDialog.alertDialogTitle(newRenameValue, "Item with this name already exists.", context);
@@ -3351,8 +3354,8 @@ class CakeHomeState extends State<Mainboard> with AutomaticKeepAliveClientMixin 
         itemCount: storageData.fileNamesFilteredList.length,
         itemBuilder: (BuildContext context, int index) {
           
-          String originalDateValues = storageData.fileDateList[index];
-          String psFilesCategoryTags = originalDateValues.split(' ').sublist(0, originalDateValues.split(' ').length - 1).join(' ');
+          final originalDateValues = storageData.fileDateFilteredList[index];
+          final psFilesCategoryTags = originalDateValues.split(' ').sublist(0, originalDateValues.split(' ').length - 1).join(' ');
 
           final fileTitleSearchedValue = storageData.fileNamesFilteredList[index];
           final setLeadingImage = 
