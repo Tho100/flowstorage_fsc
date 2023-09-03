@@ -1,5 +1,5 @@
-import 'package:flowstorage_fsc/pages/feedback_page.dart';
-import 'package:flowstorage_fsc/provider/user_data_provider.dart';import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
+import 'package:flowstorage_fsc/provider/user_data_provider.dart';
+import 'package:flowstorage_fsc/ui_dialog/snack_dialog.dart';
 import 'package:flowstorage_fsc/user_settings/account_plan_config.dart';
 import 'package:flowstorage_fsc/user_settings/add_passcode_page.dart';
 import 'package:flowstorage_fsc/user_settings/backup_recovery_page.dart';
@@ -191,13 +191,6 @@ class NavigatePage {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PasscodePage())
-    );
-  }
-
-  static void goToPageFeedback(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => FeedBackPage())
     );
   }
 
