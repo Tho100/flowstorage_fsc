@@ -57,7 +57,7 @@ class SplashScreenState extends State<SplashScreen> {
         _navigateToNextScreen();
       });
     } else {
-      splashScreenTimer = Timer(const Duration(milliseconds: 2480), () {
+      splashScreenTimer = Timer(const Duration(milliseconds: 1895), () {
         _navigateToNextScreen();
       });
     }
